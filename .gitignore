@@ -9,9 +9,12 @@
 **/.idea
 **/build/
 **/out/
+*.exe
 *.db
 *.pdb
 *.ipch
+*.project_path.hpp
+*.project_path.hpp.in
 *.suo
 *.user
 *.log
