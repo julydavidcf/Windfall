@@ -57,6 +57,7 @@ int main()
 		world.handle_collisions();
 
 		renderer.draw();
+		// editing 
 
 		// TODO A2: you can implement the debug freeze here but other places are possible too.
 	}
