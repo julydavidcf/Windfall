@@ -12,9 +12,9 @@
 *.exe
 *.db
 *.pdb
-*.lib
 *.ipch
-*.mp4
+*.project_path.hpp
+*.project_path.hpp.in
 *.suo
 *.user
 *.log
