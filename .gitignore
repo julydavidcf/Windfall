@@ -9,12 +9,10 @@
 **/.idea
 **/build/
 **/out/
-*.exe
 *.db
 *.pdb
 *.lib
 *.ipch
-*.mp4
 *.suo
 *.user
 *.log
