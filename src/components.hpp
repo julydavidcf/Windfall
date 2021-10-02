@@ -4,20 +4,20 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
-// Player component
-struct Player
+// Companions: Mage
+struct Companion
 {
 
 };
 
-// Turtles and pebbles have a hard shell
-struct HardShell
+// Enemies: EnemyMage
+struct Enemy
 {
 
 };
 
-// Fish and Salmon have a soft shell
-struct SoftShell
+// Projectiles: Fireball
+struct Projectile
 {
 
 };
@@ -57,10 +57,10 @@ struct DebugComponent
 	// Note, an empty struct has size 1
 };
 
-// A timer that will be associated to dying salmon
+// A timer that will be associated to dying companions/enemies
 struct DeathTimer
 {
-	float counter_ms = 3000;
+	float counter_ms = 2000;
 };
 
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & salmon.vs.glsl)
@@ -111,9 +111,11 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	FISH = 0,
-	TURTLE = FISH + 1,
-	TEXTURE_COUNT = TURTLE + 1
+	MAGE = 0,
+	ENEMYMAGE = MAGE + 1,
+	FIREBALL = ENEMYMAGE + 1,
+	FIREBALLICON = FIREBALL + 1,
+	TEXTURE_COUNT = FIREBALLICON + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
