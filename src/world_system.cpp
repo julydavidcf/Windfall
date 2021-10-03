@@ -201,6 +201,10 @@ void WorldSystem::restart_game() {
 
 	// Create a new enemyMage
 	enemy_mage = createEnemyMage(renderer, { 800, 400 });
+
+	// TODO: Remove these later
+	fireball = createFireball(renderer, { 600, 300 });
+	fireball_icon = createFireballIcon(renderer, { 500, 200 });
 }
 
 // Compute collisions between entities
