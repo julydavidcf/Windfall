@@ -56,6 +56,8 @@ private:
 	float current_speed;
 	Entity player_mage;
 	Entity enemy_mage;
+	Entity fireball;
+	Entity fireball_icon;
 
 	// music references
 	Mix_Music* background_music;

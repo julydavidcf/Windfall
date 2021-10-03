@@ -14,9 +14,8 @@ Entity createMage(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ -MAGE_WIDTH, MAGE_HEIGHT });
+	motion.scale = vec2({ MAGE_WIDTH, MAGE_HEIGHT });
 
-	// Create and (empty) Salmon component to be able to refer to all turtles
 	registry.companions.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -41,14 +40,64 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 position)
 	motion.velocity = { -100.f, 0.f };
 	motion.position = position;
 
-	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ -ENEMY_MAGE_WIDTH, ENEMY_MAGE_HEIGHT });
+	motion.scale = vec2({ ENEMY_MAGE_WIDTH, ENEMY_MAGE_HEIGHT });
 
-	// Create and (empty) enemyMage component to be able to refer to all enemyMages
 	registry.hardShells.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::ENEMYMAGE,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createFireball(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { -100.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
+
+	registry.hardShells.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::FIREBALL,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createFireballIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { -100.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
+
+	registry.hardShells.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::FIREBALLICON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
