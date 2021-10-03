@@ -82,8 +82,10 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	auto mouse_button_callback = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_button(_0, _1, _2); };
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -202,9 +204,8 @@ void WorldSystem::restart_game() {
 	// Create a new enemyMage
 	enemy_mage = createEnemyMage(renderer, { 800, 400 });
 
-	// TODO: Remove these later
-	fireball = createFireball(renderer, { 600, 300 });
-	fireball_icon = createFireballIcon(renderer, { 500, 200 });
+	//fireball = createFireball(renderer, { 600, 300 });
+	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 }
 
 // Compute collisions between entities
@@ -226,10 +227,10 @@ void WorldSystem::handle_collisions() {
 				// initiate death unless already dying
 				if (!registry.deathTimers.has(entity)) {
 					// Scream, reset timer, and make the salmon sink
-					registry.deathTimers.emplace(entity);
-					Mix_PlayChannel(-1, salmon_dead_sound, 0);
-					registry.motions.get(entity).angle = 3.1415f;
-					registry.motions.get(entity).velocity = { 0, 80 };
+					//registry.deathTimers.emplace(entity);
+					//Mix_PlayChannel(-1, salmon_dead_sound, 0);
+					//registry.motions.get(entity).angle = 3.1415f;
+					//registry.motions.get(entity).velocity = { 0, 80 };
 
 					// !!! TODO: Play death animation
 				}
@@ -249,6 +250,9 @@ bool WorldSystem::is_over() const {
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	// TODO: Handle mouse click on fireball icon
+	if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT) {
+
+	}
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
@@ -276,6 +280,15 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
+}
+
+void WorldSystem::on_mouse_button( int button , int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+		Motion player = registry.motions.get(player_mage);
+		fireball = createFireball(renderer, { player.position.x+50, player.position.y });
+	}
+		
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {

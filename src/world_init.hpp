@@ -11,8 +11,8 @@ const float ENEMY_MAGE_WIDTH = 80.f;
 const float ENEMY_MAGE_HEIGHT = 100.f;
 const float FIREBALL_WIDTH = 30.f;
 const float FIREBALL_HEIGHT = 20.f;
-const float FIREBALL_ICON_WIDTH = 40.f;
-const float FIREBALL_ICON_HEIGHT = 40.f;
+const float FIREBALL_ICON_WIDTH = 80.f;
+const float FIREBALL_ICON_HEIGHT = 80.f;
 
 // the player mage
 Entity createMage(RenderSystem* renderer, vec2 pos);

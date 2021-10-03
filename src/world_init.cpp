@@ -37,7 +37,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { -100.f, 0.f };
+	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
 	motion.scale = vec2({ ENEMY_MAGE_WIDTH, ENEMY_MAGE_HEIGHT });
@@ -63,7 +63,7 @@ Entity createFireball(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { -100.f, 0.f };
+	motion.velocity = { 600.f, 0.f };
 	motion.position = position;
 
 	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
@@ -89,7 +89,7 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { -100.f, 0.f };
+	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
 	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
