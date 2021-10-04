@@ -144,7 +144,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
 
-	printf("%d", player_turn);
 
 	// Updating window title with points (MAYBE USE FOR LATER)
 	//std::stringstream title_ss;
@@ -324,7 +323,8 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					Motion player = registry.motions.get(player_mage);
 					currentProjectile = lanchFireball(player.position);
 					FIREBALLSELECTED = 0;
-					player_turn = 0;
+					//active this when ai is done
+					//player_turn = 0;
 					deselectButton();
 				}
 			}
