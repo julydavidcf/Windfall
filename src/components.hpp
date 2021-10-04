@@ -4,22 +4,48 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
+
+// Health bar entity
+struct HealthBar
+{
+
+};
+
 // Companions: Mage
 struct Companion
 {
-
+	Entity healthbar;
 };
 
 // Enemies: EnemyMage
 struct Enemy
 {
-
+	Entity healthbar;
 };
+
 
 // Projectiles: Fireball
 struct Projectile
 {
 
+};
+
+// Damage component for attacks
+// Also has the isFriendly variable
+// to determine where the damage
+// is coming from
+struct Damage
+{
+	int range = 3;
+	int minDamage = 10;
+	int isFriendly = 1;
+};
+
+// HP for enemy and companion
+// entities starts from 100%
+struct HP 
+{
+	int health = 100;
 };
 
 // All data relevant to the shape and motion of entities
@@ -115,7 +141,8 @@ enum class TEXTURE_ASSET_ID {
 	ENEMYMAGE = MAGE + 1,
 	FIREBALL = ENEMYMAGE + 1,
 	FIREBALLICON = FIREBALL + 1,
-	TEXTURE_COUNT = FIREBALLICON + 1
+	HEALTHBAR = FIREBALLICON + 1,
+	TEXTURE_COUNT = HEALTHBAR + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

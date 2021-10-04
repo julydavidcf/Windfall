@@ -20,6 +20,8 @@ public:
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Enemy> hardShells;
+	ComponentContainer<Damage> damages;
+	ComponentContainer<HP> healthPoints;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
 

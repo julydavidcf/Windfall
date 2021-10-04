@@ -42,6 +42,9 @@ private:
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
 
+	// Helper function for updating health in collision
+	void update_health(Entity entity, Entity other_entity);
+
 	// restart level
 	void restart_game();
 

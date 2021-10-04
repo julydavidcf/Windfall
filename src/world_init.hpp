@@ -13,15 +13,19 @@ const float FIREBALL_WIDTH = 30.f;
 const float FIREBALL_HEIGHT = 20.f;
 const float FIREBALL_ICON_WIDTH = 40.f;
 const float FIREBALL_ICON_HEIGHT = 40.f;
+const float HEALTHBAR_WIDTH = 80.f;
+const float HEALTHBAR_HEIGHT = 10.f;
 
 // the player mage
 Entity createMage(RenderSystem* renderer, vec2 pos);
 // the enemy mage
 Entity createEnemyMage(RenderSystem* renderer, vec2 position);
 // the fireball
-Entity createFireball(RenderSystem* renderer, vec2 position);
+Entity createFireball(RenderSystem* renderer, vec2 position, int isFriendly);
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
+// the fireball icon
+Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
 
