@@ -35,9 +35,12 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		Motion* motion = &motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+		motion->velocity.x += step_seconds * motion->acceleration.x;
+		motion->velocity.y += step_seconds * motion->acceleration.y;
 		motion->position.x += step_seconds * motion->velocity.x;
 		motion->position.y += step_seconds * motion->velocity.y;
-		
+		//printf("acc:%f %f\n", motion->acceleration.x, motion->acceleration.y);
+		//printf("v:%f %f\n", motion->velocity.x, motion->velocity.y);
 	}
 
 	// Check for collisions between all moving entities
