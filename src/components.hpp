@@ -28,6 +28,7 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	vec2 acceleration = { 0, 0 };
 };
 
 // Stucture to store collision information
@@ -115,7 +116,8 @@ enum class TEXTURE_ASSET_ID {
 	ENEMYMAGE = MAGE + 1,
 	FIREBALL = ENEMYMAGE + 1,
 	FIREBALLICON = FIREBALL + 1,
-	TEXTURE_COUNT = FIREBALLICON + 1
+	FIREBALLICONSELECTED = FIREBALLICON + 1,
+	TEXTURE_COUNT = FIREBALLICONSELECTED + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
