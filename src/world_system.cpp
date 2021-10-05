@@ -29,6 +29,8 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(salmon_dead_sound);
 	if (salmon_eat_sound != nullptr)
 		Mix_FreeChunk(salmon_eat_sound);
+	if (hit_enemy_sound != nullptr)
+		Mix_FreeChunk(hit_enemy_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -101,12 +103,15 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
 	salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
 	salmon_eat_sound = Mix_LoadWAV(audio_path("salmon_eat.wav").c_str());
+	hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
 
-	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr) {
+	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr
+		|| hit_enemy_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("music.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
-			audio_path("salmon_eat.wav").c_str());
+			audio_path("salmon_eat.wav").c_str(),
+			audio_path("hit_enemy.wav").c_str());
 		return nullptr;
 	}
 
@@ -175,6 +180,23 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present salmons is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
+	// update timer for enemyMage to return to its original position after being hit
+	float min_counter_ms_2 = 2000.f;
+	for (Entity entity : registry.hit_timer.entities) {
+		// progress timer
+		HitTimer& hitCounter = registry.hit_timer.get(entity);
+		hitCounter.counter_ms -= elapsed_ms_since_last_update;
+		if (hitCounter.counter_ms < min_counter_ms_2) {
+			min_counter_ms_2 = hitCounter.counter_ms;
+		}
+
+		if (hitCounter.counter_ms < 0) {
+			registry.hit_timer.remove(entity);
+			registry.motions.get(entity).position.x -= 20;
+			return true;
+		}
+	}
+
 	return true;
 }
 
@@ -203,7 +225,7 @@ void WorldSystem::restart_game() {
 	enemy_mage = createEnemyMage(renderer, { 800, 400 });
 
 	// TODO: Remove these later
-	fireball = createFireball(renderer, { 600, 300 });
+	fireball = createFireball(renderer, { 600, 400 });
 	fireball_icon = createFireballIcon(renderer, { 500, 200 });
 }
 
@@ -218,18 +240,22 @@ void WorldSystem::handle_collisions() {
 
 
 		// TODO: Deal with fireball - enemyMage collisions
-		if (registry.companions.has(entity)) {
+		if (registry.hardShells.has(entity)) {
 			//Player& player = registry.players.get(entity);
 
 			// Checking Projectile - Enemy collisions
-			if (registry.hardShells.has(entity_other)) {
+			if (registry.projectiles.has(entity_other)) {
 				// initiate death unless already dying
 				if (!registry.deathTimers.has(entity)) {
-					// Scream, reset timer, and make the salmon sink
-					registry.deathTimers.emplace(entity);
-					Mix_PlayChannel(-1, salmon_dead_sound, 0);
-					registry.motions.get(entity).angle = 3.1415f;
-					registry.motions.get(entity).velocity = { 0, 80 };
+					
+					registry.remove_all_components_of(entity_other); // causing abort error because of key input
+					Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
+					registry.motions.get(entity).position.x += 20; // character shifts backwards
+					registry.hit_timer.emplace(entity); // to move character back to original position
+					
+					// reduce HP of enemyMage by __ amount
+					// if HP = 0, call death animation and possibly included death sound, 
+					//		add death timer, restart game
 
 					// !!! TODO: Play death animation
 				}
@@ -247,7 +273,7 @@ bool WorldSystem::is_over() const {
 }
 
 // On key callback
-void WorldSystem::on_key(int key, int, int action, int mod) {
+void WorldSystem::on_key(int key, int, int action, int mod) {	
 	// TODO: Handle mouse click on fireball icon
 
 	// Resetting game

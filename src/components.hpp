@@ -86,6 +86,11 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+struct HitTimer
+{
+	float counter_ms = 2000;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture

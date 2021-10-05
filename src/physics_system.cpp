@@ -36,6 +36,13 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		//Entity entity = motion_registry.entities[i];
 		//float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 		(void)elapsed_ms; // placeholder to silence unused warning until implemented
+		// TO DELETE ONLY FOR TESTING
+		Motion& motion = motion_registry.components[i];
+		Entity entity = motion_registry.entities[i];
+		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+
+		motion.position += motion.velocity * step_seconds; // Q2a
+		// DELETE TILL HERE
 	}
 
 	// Check for collisions between all moving entities
