@@ -16,7 +16,15 @@ Entity createMage(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ MAGE_WIDTH, MAGE_HEIGHT });
 
-	registry.companions.emplace(entity);
+	// Give hp to companion
+	registry.healthPoints.emplace(entity);
+
+	// Add a healthbar
+	Companion& enemy = registry.companions.emplace(entity);
+	enemy.healthbar = createHealthBar(renderer, pos);
+	
+
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::MAGE, // TEXTURE_COUNT indicates that no txture is needed
@@ -42,7 +50,14 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 position)
 
 	motion.scale = vec2({ ENEMY_MAGE_WIDTH, ENEMY_MAGE_HEIGHT });
 
-	registry.hardShells.emplace(entity);
+	// Give hp to enemy
+	registry.healthPoints.emplace(entity);
+
+	// Add a healthbar
+	Enemy& enemy = registry.hardShells.emplace(entity);
+	enemy.healthbar = createHealthBar(renderer, position);
+
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::ENEMYMAGE,
@@ -52,7 +67,8 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity)
+
+Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
 
@@ -69,7 +85,14 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 
 	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
 
-	registry.projectiles.emplace(entity); // changed from hardshells to projectiles
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	//------------------------------------------------
+
+
+	registry.projectiles.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::FIREBALL,
@@ -94,8 +117,6 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	motion.position = position;
 
 	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
-
-	// registry.hardShells.emplace(entity);	// removed hardshells component from icon
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::FIREBALLICON,
@@ -125,6 +146,32 @@ Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::FIREBALLICONSELECTED,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+
+Entity createHealthBar(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	position[1] -= 75;
+	motion.position = position;
+
+	motion.scale = vec2({ HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::HEALTHBAR,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

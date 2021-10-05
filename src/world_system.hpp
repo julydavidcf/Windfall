@@ -52,6 +52,9 @@ private:
 	// deselect current button (after using ability)
 	void deselectButton();
 
+	// Helper function for updating health in collision
+	void update_health(Entity entity, Entity other_entity);
+
 	// restart level
 	void restart_game();
 

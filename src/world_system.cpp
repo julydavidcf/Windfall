@@ -113,7 +113,6 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		return nullptr;
 	}
 
-
 	// TODO: Add different music and load sound effects later
 	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
 	salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
@@ -248,6 +247,38 @@ void WorldSystem::restart_game() {
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 }
 
+void WorldSystem::update_health(Entity entity, Entity other_entity) {
+	if(registry.projectiles.has(entity)){
+		Damage& damage = registry.damages.get(entity);
+		HP* hp = nullptr;
+		Entity healthbar;
+		if(damage.isFriendly){
+			if(registry.hardShells.has(other_entity)){
+				Enemy& enemy = registry.hardShells.get(other_entity);
+				healthbar = enemy.healthbar;
+				hp = &registry.healthPoints.get(other_entity);
+			}
+		} else {
+			if(registry.companions.has(other_entity)){
+				Companion& enemy = registry.companions.get(other_entity);
+				healthbar = enemy.healthbar;
+				hp = &registry.healthPoints.get(other_entity);
+			}
+		}
+		if(hp){
+			hp->health = hp->health - (rand() % damage.range + damage.minDamage);
+			Motion& motion = registry.motions.get(healthbar);
+			if(hp->health<=0){
+				registry.deathTimers.emplace(other_entity);
+				motion.scale = vec2({ (HEALTHBAR_WIDTH*(99.f/100.f)), HEALTHBAR_HEIGHT });
+				
+			} else {
+				motion.scale = vec2({ (HEALTHBAR_WIDTH*(hp->health/100.f)), HEALTHBAR_HEIGHT });
+			}
+		}
+	}
+}
+
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
 	// Loop over all collisions detected by the physics system
@@ -256,8 +287,9 @@ void WorldSystem::handle_collisions() {
 		// The entity and its collider
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
-
-
+		
+		update_health(entity, entity_other);
+    
 		// TODO: Deal with fireball - enemyMage collisions
 		if (registry.hardShells.has(entity)) {
 			//Player& player = registry.players.get(entity);
@@ -291,6 +323,7 @@ bool WorldSystem::is_over() const {
 }
 
 // On key callback
+
 void WorldSystem::on_key(int key, int, int action, int mod) {	
 	// TODO: Handle mouse click on fireball icon
 	if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT) {
