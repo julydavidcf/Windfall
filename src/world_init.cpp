@@ -45,7 +45,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { -100.f, 0.f };
+	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
 	motion.scale = vec2({ ENEMY_MAGE_WIDTH, ENEMY_MAGE_HEIGHT });
@@ -67,7 +67,8 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createFireball(RenderSystem* renderer, vec2 position, int isFriendly)
+
+Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
 
@@ -77,9 +78,10 @@ Entity createFireball(RenderSystem* renderer, vec2 position, int isFriendly)
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.velocity = { -100.f, 0.f };
+	motion.angle = angle;
+	motion.velocity = velocity;
 	motion.position = position;
+
 
 	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
 
@@ -111,11 +113,10 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { -100.f, 0.f };
+	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
 	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
-
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::FIREBALLICON,
@@ -125,7 +126,33 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-// !!!!!!!
+Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
+
+	registry.hardShells.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::FIREBALLICONSELECTED,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+
 Entity createHealthBar(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();

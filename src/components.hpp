@@ -54,6 +54,7 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	vec2 acceleration = { 0, 0 };
 };
 
 // Stucture to store collision information
@@ -112,6 +113,11 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+struct HitTimer
+{
+	float counter_ms = 2000;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -141,7 +147,8 @@ enum class TEXTURE_ASSET_ID {
 	ENEMYMAGE = MAGE + 1,
 	FIREBALL = ENEMYMAGE + 1,
 	FIREBALLICON = FIREBALL + 1,
-	HEALTHBAR = FIREBALLICON + 1,
+  FIREBALLICONSELECTED = FIREBALLICON + 1,
+  HEALTHBAR = FIREBALLICONSELECTED + 1,
 	TEXTURE_COUNT = HEALTHBAR + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;

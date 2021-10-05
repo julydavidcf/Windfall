@@ -85,6 +85,7 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
 			fgets(stupidBuffer, 1000, file);
 		}
 	}
+
 	fclose(file);
 
 	// Compute bounds of the mesh

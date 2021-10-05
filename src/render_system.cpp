@@ -13,7 +13,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// thus ORDER IS IMPORTANT
 	Transform transform;
 	transform.translate(motion.position);
+	transform.rotate(motion.angle);
 	transform.scale(motion.scale);
+
 
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest &render_request = registry.renderRequests.get(entity);
@@ -197,7 +199,7 @@ void RenderSystem::draw()
 	glDepthRange(0.00001, 10);
 
 	// Background color
-	glClearColor(1, 1, 1, 1.0);
+	glClearColor(0, 0.5, 1, 0.65);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);

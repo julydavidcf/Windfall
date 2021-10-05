@@ -14,6 +14,19 @@ const size_t MAX_FISH = 5;
 const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
 
+vec2 msPos = vec2(0, 0);
+
+//Button status
+int FIREBALLSELECTED = 0;
+
+//selected button
+Entity selectedButton;
+
+
+
+//current projectile
+Entity currentProjectile;
+
 // Create the fish world
 WorldSystem::WorldSystem()
 	: points(0) {
@@ -29,6 +42,8 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(salmon_dead_sound);
 	if (salmon_eat_sound != nullptr)
 		Mix_FreeChunk(salmon_eat_sound);
+	if (hit_enemy_sound != nullptr)
+		Mix_FreeChunk(hit_enemy_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -82,8 +97,10 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	auto mouse_button_callback = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_button(_0, _1, _2); };
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -100,12 +117,15 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
 	salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
 	salmon_eat_sound = Mix_LoadWAV(audio_path("salmon_eat.wav").c_str());
+	hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
 
-	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr) {
+	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr
+		|| hit_enemy_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("music.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
-			audio_path("salmon_eat.wav").c_str());
+			audio_path("salmon_eat.wav").c_str(),
+			audio_path("hit_enemy.wav").c_str());
 		return nullptr;
 	}
 
@@ -115,7 +135,7 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
 	// Playing background music indefinitely (Later)
-	//Mix_PlayMusic(background_music, -1);
+	//Mix_PlayMusic(combatMusic, -1);
 	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
@@ -127,6 +147,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Get the screen dimensions
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+
 
 	// Updating window title with points (MAYBE USE FOR LATER)
 	//std::stringstream title_ss;
@@ -149,6 +170,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		    registry.remove_all_components_of(motions_registry.entities[i]);
 		}
 	}
+
 
 	// Processing the salmon state
 	assert(registry.screenStates.components.size() <= 1);
@@ -174,6 +196,23 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present salmons is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
+	// update timer for enemyMage to return to its original position after being hit
+	float min_counter_ms_2 = 2000.f;
+	for (Entity entity : registry.hit_timer.entities) {
+		// progress timer
+		HitTimer& hitCounter = registry.hit_timer.get(entity);
+		hitCounter.counter_ms -= elapsed_ms_since_last_update;
+		if (hitCounter.counter_ms < min_counter_ms_2) {
+			min_counter_ms_2 = hitCounter.counter_ms;
+		}
+
+		if (hitCounter.counter_ms < 0) {
+			registry.hit_timer.remove(entity);
+			registry.motions.get(entity).position.x -= 20;
+			return true;
+		}
+	}
+
 	return true;
 }
 
@@ -185,6 +224,10 @@ void WorldSystem::restart_game() {
 
 	// Reset the game speed
 	current_speed = 1.f;
+
+	// player turn indicator
+
+	player_turn = 1;
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -199,11 +242,9 @@ void WorldSystem::restart_game() {
 	//registry.colors.insert(player_mage, {1, 0.8f, 0.8f});
 
 	// Create a new enemyMage
-	enemy_mage = createEnemyMage(renderer, { 800, 400 });
+	enemy_mage = createEnemyMage(renderer, { 1000, 400 });
 
-	// TODO: Remove these later
-	fireball = createFireball(renderer, { 600, 300 }, 1);
-	fireball_icon = createFireballIcon(renderer, { 500, 200 });
+	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -248,8 +289,28 @@ void WorldSystem::handle_collisions() {
 		Entity entity_other = collisionsRegistry.components[i].other;
 		
 		update_health(entity, entity_other);
+    
+		// TODO: Deal with fireball - enemyMage collisions
+		if (registry.hardShells.has(entity)) {
+			//Player& player = registry.players.get(entity);
 
+			// Checking Projectile - Enemy collisions
+			if (registry.projectiles.has(entity_other)) {
+				// initiate death unless already dying
+				if (!registry.deathTimers.has(entity)) {					
+					registry.remove_all_components_of(entity_other); // causing abort error because of key input
+					Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
+					registry.motions.get(entity).position.x += 20; // character shifts backwards
+					registry.hit_timer.emplace(entity); // to move character back to original position
+					
+					// reduce HP of enemyMage by __ amount
+					// if HP = 0, call death animation and possibly included death sound, 
+					//		add death timer, restart game
 
+					// !!! TODO: Play death animation
+				}
+			}
+		}
 	}
 
 	// Remove all collisions from this simulation step
@@ -262,11 +323,11 @@ bool WorldSystem::is_over() const {
 }
 
 // On key callback
-void WorldSystem::on_key(int key, int, int action, int mod) {
-	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-		Entity entity = registry.projectiles.entities[0];
-		Entity other_entity = registry.hardShells.entities[0];
-		update_health(entity, other_entity);
+
+void WorldSystem::on_key(int key, int, int action, int mod) {	
+	// TODO: Handle mouse click on fireball icon
+	if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT) {
+
 	}
 
 	// Resetting game
@@ -296,8 +357,93 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 	current_speed = fmax(0.f, current_speed);
 }
+//fireball
+void WorldSystem::on_mouse_button( int button , int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+		// fireball
+		if (player_turn == 1) {
+			Motion icon = registry.motions.get(fireball_icon);
+			if (inButton(icon.position, FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT)) {
+				if (FIREBALLSELECTED == 0) {
+					selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
+
+					FIREBALLSELECTED = 1;
+				}
+				else {
+					deselectButton();
+					FIREBALLSELECTED = 0;
+				}
+			}
+			else {
+				if (FIREBALLSELECTED == 1) {
+					Motion player = registry.motions.get(player_mage);
+					currentProjectile = lanchFireball(player.position);
+					FIREBALLSELECTED = 0;
+					//active this when ai is done
+					//player_turn = 0;
+					deselectButton();
+				}
+			}
+		}
+
+
+		
+	}
+
+}
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// TODO A1: HANDLE SALMON ROTATION HERE
+	// xpos and ypos are relative to the top-left of the window, the salmon's
+	// default facing direction is (1, 0)
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	msPos = mouse_position;
+	//printf("%f", msPos.x);
+}
+
+
+bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {
+	if (msPos.x <= buttonPos.x + buttonX/2 && msPos.x >= buttonPos.x - buttonX/2) {
+		if (msPos.y <= buttonPos.y + buttonY/2 && msPos.y >= buttonPos.y - buttonY/2) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void WorldSystem::deselectButton() {
+	registry.remove_all_components_of(selectedButton);
+}
+
+
+
+//skills
+Entity WorldSystem::lanchFireball(vec2 startPos) {
+
+	float proj_x = startPos.x + 50;
+	float proj_y = startPos.y;
+	float mouse_x = msPos.x;
+	float mouse_y = msPos.y;
+
+	float dx = mouse_x - proj_x;
+	float dy = mouse_y - proj_y;
+	float dxdy = sqrt((dx*dx) + (dy*dy));
+	float vx = FIREBALLSPEED * dx / dxdy;
+	float vy = FIREBALLSPEED * dy / dxdy;
+
+	//printf("%f%f\n", vx, vy);
+
+	float angle = atan(dy / dx);
+	if (dx < 0) {
+		angle += M_PI;
+	}
+	//printf(" % f", angle);
+	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy});
+	Motion* ballacc = &registry.motions.get(resultEntity);
+	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1200 * vy/ FIREBALLSPEED);
 	
-	(vec2)mouse_position; // dummy to avoid compiler warning
+
+	return  resultEntity;
 }
