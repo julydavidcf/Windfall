@@ -288,7 +288,7 @@ void WorldSystem::handle_collisions() {
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 		
-		update_health(entity, entity_other);
+		update_health(entity_other, entity);
     
 		// TODO: Deal with fireball - enemyMage collisions
 		if (registry.hardShells.has(entity)) {
