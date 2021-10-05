@@ -269,7 +269,9 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 			hp->health = hp->health - (rand() % damage.range + damage.minDamage);
 			Motion& motion = registry.motions.get(healthbar);
 			if(hp->health<=0){
-				registry.deathTimers.emplace(other_entity);
+				if(!registry.deathTimers.has(other_entity)){
+					registry.deathTimers.emplace(other_entity);
+				}
 				motion.scale = vec2({ (HEALTHBAR_WIDTH*(99.f/100.f)), HEALTHBAR_HEIGHT });
 				
 			} else {
@@ -287,8 +289,6 @@ void WorldSystem::handle_collisions() {
 		// The entity and its collider
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
-		
-		update_health(entity_other, entity);
     
 		// TODO: Deal with fireball - enemyMage collisions
 		if (registry.hardShells.has(entity)) {
@@ -297,7 +297,8 @@ void WorldSystem::handle_collisions() {
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
 				// initiate death unless already dying
-				if (!registry.deathTimers.has(entity)) {					
+				if (!registry.deathTimers.has(entity)) {
+					update_health(entity_other, entity);					
 					registry.remove_all_components_of(entity_other); // causing abort error because of key input
 					Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
 					registry.motions.get(entity).position.x += 20; // character shifts backwards
