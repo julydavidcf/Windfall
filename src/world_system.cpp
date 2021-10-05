@@ -440,7 +440,7 @@ Entity WorldSystem::lanchFireball(vec2 startPos) {
 		angle += M_PI;
 	}
 	//printf(" % f", angle);
-	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy});
+	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1200 * vy/ FIREBALLSPEED);
 	
