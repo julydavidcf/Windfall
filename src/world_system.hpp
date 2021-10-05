@@ -37,10 +37,20 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
+
+	int player_turn;
+
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
+	void on_mouse_button( int button,int action, int mods);
+
+	// check if mouse in button
+	bool inButton(vec2 buttonPos, float buttonX, float buttonY);
+
+	// deselect current button (after using ability)
+	void deselectButton();
 
 	// restart level
 	void restart_game();
@@ -50,6 +60,9 @@ private:
 
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
+
+	//Skills Function
+	Entity lanchFireball(vec2 startPos);
 
 	// Game state
 	RenderSystem* renderer;
@@ -68,4 +81,8 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+
+	//skill constants
+	float FIREBALLSPEED = 100.f;
+
 };
