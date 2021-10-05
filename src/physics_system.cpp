@@ -32,6 +32,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{
 		// !!! TODO: Calculate newest fireball position based on step_seconds and motion.velocity
+
 		Motion* motion = &motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
@@ -41,6 +42,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		motion->position.y += step_seconds * motion->velocity.y;
 		//printf("acc:%f %f\n", motion->acceleration.x, motion->acceleration.y);
 		//printf("v:%f %f\n", motion->velocity.x, motion->velocity.y);
+
 	}
 
 	// Check for collisions between all moving entities

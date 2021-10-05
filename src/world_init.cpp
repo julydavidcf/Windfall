@@ -69,7 +69,7 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 
 	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
 
-	registry.hardShells.emplace(entity);
+	registry.projectiles.emplace(entity); // changed from hardshells to projectiles
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::FIREBALL,
@@ -95,7 +95,7 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 
 	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
 
-	registry.hardShells.emplace(entity);
+	// registry.hardShells.emplace(entity);	// removed hardshells component from icon
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::FIREBALLICON,
