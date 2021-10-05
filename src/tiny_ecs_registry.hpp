@@ -20,8 +20,12 @@ public:
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Enemy> hardShells;
+	ComponentContainer<Damage> damages;
+	ComponentContainer<HP> healthPoints;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
+
+	ComponentContainer<HitTimer> hit_timer;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -39,6 +43,8 @@ public:
 		registry_list.push_back(&hardShells);
 		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);
+
+		registry_list.push_back(&hit_timer);
 	}
 
 	void clear_all_components() {

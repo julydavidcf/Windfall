@@ -4,22 +4,48 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
+
+// Health bar entity
+struct HealthBar
+{
+
+};
+
 // Companions: Mage
 struct Companion
 {
-
+	Entity healthbar;
 };
 
 // Enemies: EnemyMage
 struct Enemy
 {
-
+	Entity healthbar;
 };
+
 
 // Projectiles: Fireball
 struct Projectile
 {
 
+};
+
+// Damage component for attacks
+// Also has the isFriendly variable
+// to determine where the damage
+// is coming from
+struct Damage
+{
+	int range = 3;
+	int minDamage = 10;
+	int isFriendly = 1;
+};
+
+// HP for enemy and companion
+// entities starts from 100%
+struct HP 
+{
+	int health = 100;
 };
 
 // All data relevant to the shape and motion of entities
@@ -87,6 +113,11 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+struct HitTimer
+{
+	float counter_ms = 2000;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -116,8 +147,9 @@ enum class TEXTURE_ASSET_ID {
 	ENEMYMAGE = MAGE + 1,
 	FIREBALL = ENEMYMAGE + 1,
 	FIREBALLICON = FIREBALL + 1,
-	FIREBALLICONSELECTED = FIREBALLICON + 1,
-	TEXTURE_COUNT = FIREBALLICONSELECTED + 1
+  FIREBALLICONSELECTED = FIREBALLICON + 1,
+  HEALTHBAR = FIREBALLICONSELECTED + 1,
+	TEXTURE_COUNT = HEALTHBAR + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

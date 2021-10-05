@@ -53,6 +53,9 @@ private:
 	// deselect current button (after using ability)
 	void deselectButton();
 
+	// Helper function for updating health in collision
+	void update_health(Entity entity, Entity other_entity);
+
 	// restart level
 	void restart_game();
 
@@ -77,6 +80,7 @@ private:
 	Mix_Music* background_music;
 	Mix_Chunk* salmon_dead_sound;
 	Mix_Chunk* salmon_eat_sound;
+	Mix_Chunk* hit_enemy_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
