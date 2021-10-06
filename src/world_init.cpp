@@ -178,7 +178,7 @@ Entity createHealthBar(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createEnemyTriangle(RenderSystem* renderer, vec2 pos)
+Entity createBasicEnemy(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
 
