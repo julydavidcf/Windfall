@@ -27,6 +27,7 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
+Entity createEnemyTriangle(RenderSystem* renderer, vec2 position);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
 
