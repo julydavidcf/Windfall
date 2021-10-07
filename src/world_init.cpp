@@ -6,7 +6,7 @@ Entity createMage(RenderSystem* renderer, vec2 pos)
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::PLAYERMAGE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Setting initial motion values
@@ -14,7 +14,7 @@ Entity createMage(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ MAGE_WIDTH, MAGE_HEIGHT });
+	motion.scale = vec2({ -MAGE_WIDTH, -MAGE_HEIGHT });
 
 	// Give hp to companion
 	registry.healthPoints.emplace(entity);
@@ -22,51 +22,15 @@ Entity createMage(RenderSystem* renderer, vec2 pos)
 	// Add a healthbar
 	Companion& enemy = registry.companions.emplace(entity);
 	enemy.healthbar = createHealthBar(renderer, pos);
-	
-
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::MAGE, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::BASICENEMY,
+			GEOMETRY_BUFFER_ID::PLAYERMAGE });
 
 	return entity;
 }
-
-Entity createEnemyMage(RenderSystem* renderer, vec2 position)
-{
-	auto entity = Entity();
-
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-	registry.meshPtrs.emplace(entity, &mesh);
-
-	// Initialize the motion
-	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.position = position;
-
-	motion.scale = vec2({ ENEMY_MAGE_WIDTH, ENEMY_MAGE_HEIGHT });
-
-	// Give hp to enemy
-	registry.healthPoints.emplace(entity);
-
-	// Add a healthbar
-	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, position);
-
-
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::ENEMYMAGE,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
-
-	return entity;
-}
-
 
 Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {

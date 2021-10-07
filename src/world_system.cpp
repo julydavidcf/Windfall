@@ -268,11 +268,8 @@ void WorldSystem::restart_game() {
 	player_mage = createMage(renderer, { 200, 400 });
 	//registry.colors.insert(player_mage, {1, 0.8f, 0.8f});
 
-	// Create a new enemyMage
-	enemy_mage = createEnemyMage(renderer, { 1000, 400 });
-
 	// Create a basic enemy
-	basicEnemy = createBasicEnemy(renderer, { 800, 400 });
+	basicEnemy = createBasicEnemy(renderer, { 1000, 400 });
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 }
