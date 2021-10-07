@@ -184,66 +184,6 @@ void RenderSystem::initializeGlGeometryBuffers()
 	meshes[geom_index].vertex_indices = pebble_indices;
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::PEBBLE, meshes[geom_index].vertices, meshes[geom_index].vertex_indices);
 
-	////////////////////////
-    // Initialize basicEnemy
-
-	std::vector<ColoredVertex> enemy_Vertices;
-	std::vector<uint16_t> enemy_indices;
-	constexpr float z1 = -0.1f;
-
-	//  House:
-	//
-	//        1
-	//        *
-	//       / \       -> Face 0
-	//      /   \
-	//   0 *-----* 2
-	//     |   / |
-	//	   |  /  |     -> Faces 1, 2
-	//	   |/	 |
-	//   3 *-----* 4
-	//
-	
-	// Vertex 0
-	enemy_Vertices.push_back({});
-	enemy_Vertices.back().position = { -0.5, 0, z1 };
-	enemy_Vertices.back().color = { 0, 0, 1 };
-	// Vertex 1
-	enemy_Vertices.push_back({});
-	enemy_Vertices.back().position = { 0, -0.5, z1 };
-	enemy_Vertices.back().color = { 0, 1, 0 };
-	// Vertex 2
-	enemy_Vertices.push_back({});
-	enemy_Vertices.back().position = { 0.5, 0, z1 };
-	enemy_Vertices.back().color = { 1, 0, 0 };
-	// Vertex 3
-	enemy_Vertices.push_back({});
-	enemy_Vertices.back().position = { -0.5, 0.5, z1 };
-	enemy_Vertices.back().color = { 0, 0, 0 };
-	// Vertex 4
-	enemy_Vertices.push_back({});
-	enemy_Vertices.back().position = { 0.5, 0.5, z1 };
-	enemy_Vertices.back().color = { 1, 1, 0 };
-
-
-	// Face 0
-	enemy_indices.push_back(0);
-	enemy_indices.push_back(1);
-	enemy_indices.push_back(2);
-	// Face 1
-	enemy_indices.push_back(0);
-	enemy_indices.push_back(2);
-	enemy_indices.push_back(3);
-	// Face 2
-	enemy_indices.push_back(2);
-	enemy_indices.push_back(3);
-	enemy_indices.push_back(4);
-
-	int geom_index1 = (int)GEOMETRY_BUFFER_ID::HARDCODEDENEMY;
-	meshes[geom_index1].vertices = enemy_Vertices;
-	meshes[geom_index1].vertex_indices = enemy_indices;
-	bindVBOandIBO(GEOMETRY_BUFFER_ID::HARDCODEDENEMY, meshes[geom_index1].vertices, meshes[geom_index1].vertex_indices);
-
 	//////////////////////////////////
 	// Initialize debug line
 	std::vector<ColoredVertex> line_vertices;
