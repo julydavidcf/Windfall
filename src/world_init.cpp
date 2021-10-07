@@ -54,7 +54,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 position)
 	registry.healthPoints.emplace(entity);
 
 	// Add a healthbar
-	Enemy& enemy = registry.hardShells.emplace(entity);
+	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.healthbar = createHealthBar(renderer, position);
 
 
@@ -142,7 +142,7 @@ Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
 
 	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
 
-	registry.hardShells.emplace(entity);
+	registry.enemies.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::FIREBALLICONSELECTED,
@@ -174,6 +174,37 @@ Entity createHealthBar(RenderSystem* renderer, vec2 position)
 		{ TEXTURE_ASSET_ID::HEALTHBAR,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBasicEnemy(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BASICENEMY);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { ENEMY_MAGE_WIDTH, -ENEMY_MAGE_HEIGHT };
+
+	// Give hp to enemy
+	registry.healthPoints.emplace(entity);
+
+	// Add a healthbar
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.healthbar = createHealthBar(renderer, pos);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::BASICENEMY,
+			GEOMETRY_BUFFER_ID::BASICENEMY });
 
 	return entity;
 }

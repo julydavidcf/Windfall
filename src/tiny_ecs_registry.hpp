@@ -20,7 +20,7 @@ public:
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Projectile> projectiles;
-	ComponentContainer<Enemy> hardShells;
+	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
 	ComponentContainer<HP> healthPoints;
 	ComponentContainer<DebugComponent> debugComponents;
@@ -42,7 +42,7 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&projectiles);
-		registry_list.push_back(&hardShells);
+		registry_list.push_back(&enemies);
 		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);
 
