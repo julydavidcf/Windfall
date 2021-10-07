@@ -115,7 +115,7 @@ struct Mesh
 
 struct HitTimer
 {
-	float counter_ms = 2000;
+	float counter_ms = 500;
 };
 
 // Particles emitted during death

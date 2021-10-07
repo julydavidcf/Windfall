@@ -45,6 +45,8 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(salmon_eat_sound);
 	if (hit_enemy_sound != nullptr)
 		Mix_FreeChunk(hit_enemy_sound);
+	if (fireball_explosion_sound != nullptr)
+		Mix_FreeChunk(fireball_explosion_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -119,6 +121,7 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
 	salmon_eat_sound = Mix_LoadWAV(audio_path("salmon_eat.wav").c_str());
 	hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
+	fireball_explosion_sound = Mix_LoadWAV(audio_path("fireball_explosion_short.wav").c_str());
 
 	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr
 		|| hit_enemy_sound == nullptr) {
@@ -222,7 +225,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
 	// update timer for enemyMage to return to its original position after being hit
-	float min_counter_ms_2 = 2000.f;
+	float min_counter_ms_2 = 500.f;
 	for (Entity entity : registry.hit_timer.entities) {
 		// progress timer
 		HitTimer& hitCounter = registry.hit_timer.get(entity);
@@ -323,16 +326,17 @@ void WorldSystem::handle_collisions() {
 			if (registry.projectiles.has(entity_other)) {
 				// initiate death unless already dying
 				if (!registry.deathTimers.has(entity)) {
+
 					update_health(entity_other, entity);
 					registry.remove_all_components_of(entity_other); // causing abort error because of key input
 					Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
+          Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
 
 					// update only if hit_timer for entity does not already exist
 					if (!registry.hit_timer.has(entity)) {
 						registry.motions.get(entity).position.x += 20; // character shifts backwards
 						registry.hit_timer.emplace(entity); // to move character back to original position
 					}
-
 					// reduce HP of enemyMage by __ amount
 					// if HP = 0, call death animation and possibly included death sound, 
 					//		add death timer, restart game
@@ -369,6 +373,22 @@ void WorldSystem::handle_collisions() {
 
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
+}
+
+void WorldSystem::handle_boundary_collision() {
+	int screen_width, screen_height;
+	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+	auto& projectilesRegistry = registry.projectiles;
+	for (uint i = 0; i < projectilesRegistry.components.size(); i++) {
+		Entity entity = projectilesRegistry.entities[i];
+		if (registry.motions.get(entity).position.x <= 20 ||
+			registry.motions.get(entity).position.x >= screen_width - 20 ||
+			registry.motions.get(entity).position.y <= 20 ||
+			registry.motions.get(entity).position.y >= screen_height - 20) {
+			registry.remove_all_components_of(entity);
+			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
+		}
+	}
 }
 
 // Should the game be over ?

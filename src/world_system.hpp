@@ -35,6 +35,8 @@ public:
 	// Check for collisions
 	void handle_collisions();
 
+	void handle_boundary_collision();
+
 	// Should the game be over ?
 	bool is_over()const;
 
@@ -80,6 +82,7 @@ private:
 	Mix_Chunk* salmon_dead_sound;
 	Mix_Chunk* salmon_eat_sound;
 	Mix_Chunk* hit_enemy_sound;
+	Mix_Chunk* fireball_explosion_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
