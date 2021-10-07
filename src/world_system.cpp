@@ -323,13 +323,15 @@ void WorldSystem::handle_collisions() {
 }
 
 void WorldSystem::handle_boundary_collision() {
+	int screen_width, screen_height;
+	glfwGetFramebufferSize(window, &screen_width, &screen_height);
 	auto& projectilesRegistry = registry.projectiles;
 	for (uint i = 0; i < projectilesRegistry.components.size(); i++) {
 		Entity entity = projectilesRegistry.entities[i];
 		if (registry.motions.get(entity).position.x <= 20 ||
-			registry.motions.get(entity).position.x >= 1180 ||
+			registry.motions.get(entity).position.x >= screen_width - 20 ||
 			registry.motions.get(entity).position.y <= 20 ||
-			registry.motions.get(entity).position.y >= 780) {
+			registry.motions.get(entity).position.y >= screen_height - 20) {
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
 		}
