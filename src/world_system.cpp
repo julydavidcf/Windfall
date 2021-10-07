@@ -348,7 +348,7 @@ void WorldSystem::handle_collisions() {
 			if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0)
 			{
 				// get rid of dead entity's healthbar.
-				Entity entityHealthbar = registry.hardShells.get(entity).healthbar;
+				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
 
 				DeathParticle particleEffects;
