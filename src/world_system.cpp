@@ -99,6 +99,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+
+	// handel mosue click
 	auto mouse_button_callback = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_button(_0, _1, _2); };
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
@@ -328,20 +330,22 @@ void WorldSystem::handle_collisions() {
 			if (registry.projectiles.has(entity_other)) {
 				// initiate death unless already dying
 				if (!registry.deathTimers.has(entity)) {
+					if (!registry.buttons.has(entity)) {
+						update_health(entity_other, entity);
+						registry.remove_all_components_of(entity_other); // causing abort error because of key input
+						Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
+						Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
 
-					update_health(entity_other, entity);
-					registry.remove_all_components_of(entity_other); // causing abort error because of key input
-					Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
-          Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
-
-					// update only if hit_timer for entity does not already exist
-					if (!registry.hit_timer.has(entity)) {
-						registry.motions.get(entity).position.x += 20; // character shifts backwards
-						registry.hit_timer.emplace(entity); // to move character back to original position
+								  // update only if hit_timer for entity does not already exist
+						if (!registry.hit_timer.has(entity)) {
+							registry.motions.get(entity).position.x += 20; // character shifts backwards
+							registry.hit_timer.emplace(entity); // to move character back to original position
+						}
+						// reduce HP of enemyMage by __ amount
+						// if HP = 0, call death animation and possibly included death sound, 
+						//		add death timer, restart game
 					}
-					// reduce HP of enemyMage by __ amount
-					// if HP = 0, call death animation and possibly included death sound, 
-					//		add death timer, restart game
+	
 				}
 			}
 			// create death particles. Register for rendering.
