@@ -34,8 +34,9 @@ class RenderSystem {
 			textures_path("enemyMage.png"),
 			textures_path("fireball.png"),
 			textures_path("fireballIcon.png"),
-      textures_path("fireballIconSelected.png"),
-			textures_path("healthbar.png")
+			textures_path("fireballIconSelected.png"),
+			textures_path("healthbar.png"),
+			textures_path("particle.png")
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -45,7 +46,8 @@ class RenderSystem {
 		shader_path("pebble"),
 		shader_path("salmon"),
 		shader_path("textured"),
-		shader_path("water") };
+		shader_path("water"),
+		shader_path("particle") };
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -82,6 +84,7 @@ public:
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
+	void drawDeathParticles(Entity entity, const mat3& projection);
 	void drawToScreen();
 
 	// Window handle

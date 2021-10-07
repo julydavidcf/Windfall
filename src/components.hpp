@@ -118,6 +118,22 @@ struct HitTimer
 	float counter_ms = 500;
 };
 
+// Particles emitted during death
+struct DeathParticle
+{
+	Motion motion;
+	glm::vec4 Color;
+	float     Life;
+	std::vector<DeathParticle> deathParticles;
+	int fadedParticles = 0;
+
+	DeathParticle()
+		: Color(1.0f), Life(1500.f) {
+		motion.velocity.x = (float)((rand() % 50 - 10) * 5);
+		motion.velocity.y = (float)((rand() % 50 - 10) * 5);
+	}
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -147,9 +163,10 @@ enum class TEXTURE_ASSET_ID {
 	ENEMYMAGE = MAGE + 1,
 	FIREBALL = ENEMYMAGE + 1,
 	FIREBALLICON = FIREBALL + 1,
-  FIREBALLICONSELECTED = FIREBALLICON + 1,
-  HEALTHBAR = FIREBALLICONSELECTED + 1,
-	TEXTURE_COUNT = HEALTHBAR + 1
+	FIREBALLICONSELECTED = FIREBALLICON + 1,
+	HEALTHBAR = FIREBALLICONSELECTED + 1,
+	DEATH_PARTICLE = HEALTHBAR + 1,
+	TEXTURE_COUNT = DEATH_PARTICLE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -159,7 +176,8 @@ enum class EFFECT_ASSET_ID {
 	SALMON = PEBBLE + 1,
 	TEXTURED = SALMON + 1,
 	WATER = TEXTURED + 1,
-	EFFECT_COUNT = WATER + 1
+	PARTICLE = WATER + 1,
+	EFFECT_COUNT = PARTICLE + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
