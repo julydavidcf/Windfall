@@ -73,6 +73,7 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
@@ -97,6 +98,7 @@ Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
