@@ -25,7 +25,7 @@ public:
 	ComponentContainer<HP> healthPoints;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
-
+	ComponentContainer<Button> buttons;
 	ComponentContainer<HitTimer> hit_timer;
 
 	// constructor that adds all containers for looping over them
@@ -45,7 +45,7 @@ public:
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);
-
+		registry_list.push_back(&buttons);
 		registry_list.push_back(&hit_timer);
 	}
 

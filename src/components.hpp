@@ -90,6 +90,13 @@ struct DeathTimer
 	float counter_ms = 2000;
 };
 
+
+// Button indicator
+struct Button
+{
+};
+
+
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & salmon.vs.glsl)
 struct ColoredVertex
 {
