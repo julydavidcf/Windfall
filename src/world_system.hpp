@@ -67,7 +67,7 @@ private:
 	unsigned int points;
 
 	//Skills Function
-	Entity lanchFireball(vec2 startPos);
+	Entity launchFireball(vec2 startPos);
 
 	// Game state
 	RenderSystem* renderer;
@@ -76,6 +76,7 @@ private:
 	Entity enemy_mage;
 	Entity fireball;
 	Entity fireball_icon;
+	Entity basicEnemy;
 
 	// music references
 	Mix_Music* background_music;

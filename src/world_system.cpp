@@ -28,7 +28,6 @@ Entity selectedButton;
 //current projectile
 Entity currentProjectile;
 
-// Create the fish world
 WorldSystem::WorldSystem()
 	: points(0) {
 	// Seeding rng with random device
@@ -88,7 +87,7 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(width, height, "Salmon Game Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(width, height, "Windfall Milestone 1", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
@@ -272,6 +271,9 @@ void WorldSystem::restart_game() {
 	// Create a new enemyMage
 	enemy_mage = createEnemyMage(renderer, { 1000, 400 });
 
+	// Create a basic enemy
+	basicEnemy = createBasicEnemy(renderer, { 800, 400 });
+
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 }
 
@@ -281,8 +283,8 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 		HP* hp = nullptr;
 		Entity healthbar;
 		if(damage.isFriendly){
-			if(registry.hardShells.has(other_entity)){
-				Enemy& enemy = registry.hardShells.get(other_entity);
+			if(registry.enemies.has(other_entity)){
+				Enemy& enemy = registry.enemies.get(other_entity);
 				healthbar = enemy.healthbar;
 				hp = &registry.healthPoints.get(other_entity);
 			}
@@ -319,7 +321,7 @@ void WorldSystem::handle_collisions() {
 		Entity entity_other = collisionsRegistry.components[i].other;
     
 		// TODO: Deal with fireball - enemyMage collisions
-		if (registry.hardShells.has(entity)) {
+		if (registry.enemies.has(entity)) {
 			//Player& player = registry.players.get(entity);
 
 			// Checking Projectile - Enemy collisions
@@ -452,7 +454,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 			else {
 				if (FIREBALLSELECTED == 1) {
 					Motion player = registry.motions.get(player_mage);
-					currentProjectile = lanchFireball(player.position);
+					currentProjectile = launchFireball(player.position);
 					FIREBALLSELECTED = 0;
 					//active this when ai is done
 					//player_turn = 0;
@@ -494,7 +496,7 @@ void WorldSystem::deselectButton() {
 
 
 //skills
-Entity WorldSystem::lanchFireball(vec2 startPos) {
+Entity WorldSystem::launchFireball(vec2 startPos) {
 
 	float proj_x = startPos.x + 50;
 	float proj_y = startPos.y;
