@@ -191,7 +191,7 @@ Entity createBasicEnemy(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = mesh.original_size * 100.f;
+	motion.scale = { ENEMY_MAGE_WIDTH, -ENEMY_MAGE_HEIGHT };
 
 	// Give hp to enemy
 	registry.healthPoints.emplace(entity);
@@ -203,7 +203,7 @@ Entity createBasicEnemy(RenderSystem* renderer, vec2 pos)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::PEBBLE,
+			EFFECT_ASSET_ID::BASICENEMY,
 			GEOMETRY_BUFFER_ID::BASICENEMY });
 
 	return entity;

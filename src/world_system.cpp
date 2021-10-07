@@ -243,8 +243,8 @@ void WorldSystem::restart_game() {
 	// Create a new enemyMage
 	enemy_mage = createEnemyMage(renderer, { 1000, 400 });
 
-	// Create a salmon
-	salmon = createEnemyTriangle(renderer, { 800, 400 });
+	// Create a basic enemy
+	basicEnemy = createBasicEnemy(renderer, { 800, 400 });
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 }

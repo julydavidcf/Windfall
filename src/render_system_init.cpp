@@ -239,10 +239,10 @@ void RenderSystem::initializeGlGeometryBuffers()
 	enemy_indices.push_back(3);
 	enemy_indices.push_back(4);
 
-	int geom_index1 = (int)GEOMETRY_BUFFER_ID::BASICENEMY;
+	int geom_index1 = (int)GEOMETRY_BUFFER_ID::HARDCODEDENEMY;
 	meshes[geom_index1].vertices = enemy_Vertices;
 	meshes[geom_index1].vertex_indices = enemy_indices;
-	bindVBOandIBO(GEOMETRY_BUFFER_ID::BASICENEMY, meshes[geom_index1].vertices, meshes[geom_index1].vertex_indices);
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::HARDCODEDENEMY, meshes[geom_index1].vertices, meshes[geom_index1].vertex_indices);
 
 	//////////////////////////////////
 	// Initialize debug line
