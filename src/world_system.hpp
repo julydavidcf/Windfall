@@ -46,6 +46,7 @@ private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
+	// handel mouse click
 	void on_mouse_button( int button,int action, int mods);
 
 	// check if mouse in button
@@ -73,10 +74,9 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_mage;
-	Entity enemy_mage;
+	Entity basicEnemy;
 	Entity fireball;
 	Entity fireball_icon;
-	Entity basicEnemy;
 
 	// music references
 	Mix_Music* background_music;

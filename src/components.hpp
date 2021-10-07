@@ -90,6 +90,13 @@ struct DeathTimer
 	float counter_ms = 2000;
 };
 
+
+// Button indicator
+struct Button
+{
+};
+
+
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & salmon.vs.glsl)
 struct ColoredVertex
 {
@@ -187,7 +194,8 @@ enum class GEOMETRY_BUFFER_ID {
 	PEBBLE = SPRITE + 1,
 	DEBUG_LINE = PEBBLE + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
-	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
+	PLAYERMAGE = SCREEN_TRIANGLE + 1,
+	GEOMETRY_COUNT = PLAYERMAGE + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
