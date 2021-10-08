@@ -167,8 +167,8 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { -10.f, 0.f };
-	motion.acceleration = { -1000.f, 0.f };
+	motion.velocity = { -500.f, 0.f };
+	motion.acceleration = { 300.f, 0.f };
 	motion.position = position;
 
 	motion.scale = vec2({ BARRIER_WIDTH, BARRIER_HEIGHT });
