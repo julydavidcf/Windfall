@@ -13,9 +13,12 @@ const size_t MAX_TURTLES = 15;
 const size_t MAX_FISH = 5;
 const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
+const size_t BARRIER_DELAY = 4000;
 const int NUM_DEATH_PARTICLES = 500;
 
 vec2 msPos = vec2(0, 0);
+
+float next_barrier_spawn = 1000;
 
 //Button status
 int FIREBALLSELECTED = 0;
@@ -166,6 +169,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Removing out of screen entities
 	auto& motions_registry = registry.motions;
 
+	//Remove barrier
+	auto& reflects_registry = registry.reflects;
+
 	// Remove entities that leave the screen on the left side
 	// Iterate backwards to be able to remove without unterfering with the next object to visit
 	// (the containers exchange the last element with the current)
@@ -174,7 +180,22 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (motion.position.x + abs(motion.scale.x) < 0.f) {
 		    registry.remove_all_components_of(motions_registry.entities[i]);
 		}
+		// remove barrier
+		if (registry.reflects.has(motions_registry.entities[i])) {
+			if (motion.velocity.x>50.f) {
+				printf("in2");
+				registry.remove_all_components_of(motions_registry.entities[i]);
+			}
+		}
 	}
+
+	// create wall periodiclly
+	next_barrier_spawn -= elapsed_ms_since_last_update;
+	if (next_barrier_spawn < 0) {
+		next_barrier_spawn = BARRIER_DELAY;
+		createBarrier(renderer, registry.motions.get(basicEnemy).position);
+	}
+
 
 
 	// Processing the salmon state
@@ -461,10 +482,10 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 	current_speed = fmax(0.f, current_speed);
 
-	// Create barrier
-	if (action == GLFW_RELEASE && key == GLFW_KEY_B) {
-		createBarrier(renderer, registry.motions.get(basicEnemy).position);
-	}
+	// Manual create barrier
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_B) {
+	//	createBarrier(renderer, registry.motions.get(basicEnemy).position);
+	//}
 }
 //fireball
 void WorldSystem::on_mouse_button( int button , int action, int mods)
