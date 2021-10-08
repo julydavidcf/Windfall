@@ -20,8 +20,8 @@ const float BARRIER_HEIGHT = 200.f;
 
 // the player mage
 Entity createMage(RenderSystem* renderer, vec2 pos);
-// the enemy mage
-Entity createEnemyMage(RenderSystem* renderer, vec2 position);
+// a basic, textured enemy
+Entity createBasicEnemy(RenderSystem* renderer, vec2 position);
 //healthbar
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // the fireball

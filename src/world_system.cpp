@@ -270,11 +270,8 @@ void WorldSystem::restart_game() {
 	player_mage = createMage(renderer, { 200, 400 });
 	//registry.colors.insert(player_mage, {1, 0.8f, 0.8f});
 
-	// Create a new enemyMage
-	enemy_mage = createEnemyMage(renderer, { 1000, 400 });
-
 	// Create a basic enemy
-	basicEnemy = createBasicEnemy(renderer, { 800, 400 });
+	basicEnemy = createBasicEnemy(renderer, { 1000, 400 });
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 }
@@ -466,7 +463,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	// Create barrier
 	if (action == GLFW_RELEASE && key == GLFW_KEY_B) {
-		createBarrier(renderer, registry.motions.get(enemy_mage).position);
+		createBarrier(renderer, registry.motions.get(basicEnemy).position);
 	}
 }
 //fireball

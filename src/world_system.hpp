@@ -74,10 +74,9 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_mage;
-	Entity enemy_mage;
+	Entity basicEnemy;
 	Entity fireball;
 	Entity fireball_icon;
-	Entity basicEnemy;
 
 
 	// music references

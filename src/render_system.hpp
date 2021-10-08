@@ -24,20 +24,19 @@ class RenderSystem {
 	// Associated id with .obj path
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BASICENEMY, mesh_path("basicEnemy.obj"))
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BASICENEMY, mesh_path("basicEnemy.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYERMAGE, mesh_path("playerMage.obj"))
 		  // specify meshes of other assets here
 	};
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = {
-			textures_path("mage.png"),
-			textures_path("enemyMage.png"),
+			textures_path("MagicalBarrier.png"),
 			textures_path("fireball.png"),
 			textures_path("fireballIcon.png"),
 			textures_path("fireballIconSelected.png"),
 			textures_path("healthbar.png"),
-			textures_path("particle.png"),
-			textures_path("MagicalBarrier.png")
+			textures_path("particle.png")
   };
   
 	std::array<GLuint, effect_count> effects;
