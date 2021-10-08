@@ -328,6 +328,7 @@ void WorldSystem::handle_collisions() {
 				// initiate death unless already dying
 				if (!registry.deathTimers.has(entity)) {
 					if (!registry.buttons.has(entity)) {
+
 						update_health(entity_other, entity);
 						registry.remove_all_components_of(entity_other); // causing abort error because of key input
 						Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
@@ -344,7 +345,10 @@ void WorldSystem::handle_collisions() {
 					}
 	
 				}
+				
 			}
+
+
 			// create death particles. Register for rendering.
 			if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0)
 			{
@@ -370,6 +374,29 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathParticles.has(entity)) {
 					registry.deathParticles.insert(entity, particleEffects);
 				}
+			}
+		}
+		// barrier collection
+		if (registry.projectiles.has(entity)) {
+			if (registry.reflects.has(entity_other)) {
+				//printf("colleds\n");
+				//printf("%f\n", registry.motions.get(entity).velocity.x);
+				if (registry.motions.get(entity).velocity.x > 0.f) {
+					//printf("colleds1");
+					Motion* reflectEM = &registry.motions.get(entity);
+					
+					reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
+					reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
+					printf("before %f\n", reflectEM->angle);
+					float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
+					if (registry.motions.get(entity).velocity.x < 0) {
+						reflectE += M_PI;
+					}
+					reflectEM->angle = reflectE;
+					printf("calculated %f\n", reflectE);
+					printf("actual %f\n", reflectEM->angle);
+				}
+
 			}
 		}
 	}
@@ -433,6 +460,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
+
+	// Create barrier
+	if (action == GLFW_RELEASE && key == GLFW_KEY_B) {
+		createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	}
 }
 //fireball
 void WorldSystem::on_mouse_button( int button , int action, int mods)
@@ -519,7 +551,7 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	//printf(" % f", angle);
 	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
-	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1200 * vy/ FIREBALLSPEED);
+	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);
 	
 
 	return  resultEntity;

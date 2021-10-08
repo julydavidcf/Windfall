@@ -30,6 +30,11 @@ struct Projectile
 
 };
 
+// reflects projectile
+struct Reflect
+{
+};
+
 // Damage component for attacks
 // Also has the isFriendly variable
 // to determine where the damage
@@ -173,7 +178,8 @@ enum class TEXTURE_ASSET_ID {
 	FIREBALLICONSELECTED = FIREBALLICON + 1,
 	HEALTHBAR = FIREBALLICONSELECTED + 1,
 	DEATH_PARTICLE = HEALTHBAR + 1,
-	TEXTURE_COUNT = DEATH_PARTICLE + 1
+	BARRIER = DEATH_PARTICLE + 1,
+	TEXTURE_COUNT = BARRIER + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

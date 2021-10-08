@@ -78,6 +78,7 @@ private:
 	Entity fireball;
 	Entity fireball_icon;
 
+
 	// music references
 	Mix_Music* background_music;
 	Mix_Chunk* salmon_dead_sound;

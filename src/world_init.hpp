@@ -15,6 +15,8 @@ const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
 const float FIREBALL_ICON_WIDTH = 80.f;
 const float FIREBALL_ICON_HEIGHT = 80.f;
+const float BARRIER_WIDTH = 50.f;
+const float BARRIER_HEIGHT = 200.f;
 
 // the player mage
 Entity createMage(RenderSystem* renderer, vec2 pos);
@@ -27,6 +29,8 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
+// barrier
+Entity createBarrier(RenderSystem* renderer, vec2 position);
 // a basic, textured enemy
 Entity createBasicEnemy(RenderSystem* renderer, vec2 position);
 // a red line for debugging purposes
