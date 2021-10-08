@@ -77,6 +77,7 @@ private:
 	Entity basicEnemy;
 	Entity fireball;
 	Entity fireball_icon;
+	Entity magical_barrier;
 
 	// music references
 	Mix_Music* background_music;

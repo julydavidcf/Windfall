@@ -37,7 +37,8 @@ class RenderSystem {
 			textures_path("fireballIcon.png"),
 			textures_path("fireballIconSelected.png"),
 			textures_path("healthbar.png"),
-			textures_path("particle.png")
+			textures_path("particle.png"),
+			textures_path("MagicalBarrier.png")
   };
   
 	std::array<GLuint, effect_count> effects;

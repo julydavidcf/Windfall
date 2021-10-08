@@ -27,6 +27,7 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Button> buttons;
 	ComponentContainer<HitTimer> hit_timer;
+	ComponentContainer<Barrier> barrier;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -47,6 +48,7 @@ public:
 		registry_list.push_back(&colors);
 		registry_list.push_back(&buttons);
 		registry_list.push_back(&hit_timer);
+		registry_list.push_back(&barrier);
 	}
 
 	void clear_all_components() {

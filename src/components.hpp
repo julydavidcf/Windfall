@@ -141,6 +141,11 @@ struct DeathParticle
 	}
 };
 
+//magical Barrier 
+struct Barrier
+{
+
+};
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -173,7 +178,8 @@ enum class TEXTURE_ASSET_ID {
 	FIREBALLICONSELECTED = FIREBALLICON + 1,
 	HEALTHBAR = FIREBALLICONSELECTED + 1,
 	DEATH_PARTICLE = HEALTHBAR + 1,
-	TEXTURE_COUNT = DEATH_PARTICLE + 1
+	MAGICALBARRIER = DEATH_PARTICLE + 1,
+	TEXTURE_COUNT = MAGICALBARRIER + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

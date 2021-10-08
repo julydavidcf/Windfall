@@ -181,6 +181,18 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
 
+	//update position of barrier
+	//float radius = 50.f;
+	//for (Entity entity : registry.barrier.entities) {
+
+		//for (float t = 0; t < 2 * M_PI; t += 0.01) {
+			//registry.motions.get(entity).position.x += radius * cos(0);
+			//registry.motions.get(entity).position.y += radius * sin(0);
+		//}
+		
+	//}
+
+
 	// update state of death particles
 	for (Entity entity : registry.deathParticles.entities) {
 		DeathParticle& deathParticles = registry.deathParticles.get(entity);
@@ -274,6 +286,8 @@ void WorldSystem::restart_game() {
 	basicEnemy = createBasicEnemy(renderer, { 1000, 400 });
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
+	// Create a Magical Barrier
+	magical_barrier = createMagicalBarrier(renderer, { 600, 400 });
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -345,6 +359,15 @@ void WorldSystem::handle_collisions() {
 	
 				}
 			}
+			//Barrier
+
+			if (registry.barrier.has(entity)) {
+				if (registry.projectiles.has(entity_other)) {
+					registry.motions.get(entity_other).angle *= -1;
+				}
+
+			}
+
 			// create death particles. Register for rendering.
 			if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0)
 			{
@@ -369,6 +392,7 @@ void WorldSystem::handle_collisions() {
 				}
 				if (!registry.deathParticles.has(entity)) {
 					registry.deathParticles.insert(entity, particleEffects);
+					
 				}
 			}
 		}

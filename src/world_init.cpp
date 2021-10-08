@@ -174,6 +174,37 @@ Entity createBasicEnemy(RenderSystem* renderer, vec2 pos)
 
 	return entity;
 }
+Entity createMagicalBarrier(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	float radius = 100.f;
+	motion.position = position;
+	//for (double t = 0; t < 2 * 3.1415926535; t += 0.01) {
+	//	motion.velocity.x = radius * cos(t);
+	//	motion.velocity.y = radius * sin(t);
+	//}
+	motion.velocity = { 0.f, 0.f };
+
+
+	motion.scale = vec2({ BARRIER_WIDTH, BARRIER_HEIGHT });
+
+	registry.barrier.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MAGICALBARRIER,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
 
 Entity createLine(vec2 position, vec2 scale)
 {
