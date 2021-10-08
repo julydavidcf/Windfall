@@ -25,7 +25,7 @@ public:
 	ComponentContainer<HP> healthPoints;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
-	ComponentContainer<Button> buttons;
+	ComponentContainer<ButtonItem> buttons;
 	ComponentContainer<HitTimer> hit_timer;
 
 	// constructor that adds all containers for looping over them

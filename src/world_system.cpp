@@ -17,7 +17,7 @@ const int NUM_DEATH_PARTICLES = 500;
 
 vec2 msPos = vec2(0, 0);
 
-//Button status
+//ButtonItem status
 int FIREBALLSELECTED = 0;
 
 //selected button

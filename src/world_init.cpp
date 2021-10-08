@@ -53,6 +53,8 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
+	damage.minDamage = 30;
+	damage.range = 10;
 	//------------------------------------------------
 
 
