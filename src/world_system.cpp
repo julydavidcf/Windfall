@@ -463,7 +463,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	// Create barrier
 	if (action == GLFW_RELEASE && key == GLFW_KEY_B) {
-		createBarrier(renderer, registry.motions.get(enemy_mage).position);
+		createBarrier(renderer, registry.motions.get(basicEnemy).position);
 	}
 }
 //fireball
