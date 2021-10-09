@@ -17,6 +17,10 @@ const float FIREBALL_ICON_WIDTH = 80.f;
 const float FIREBALL_ICON_HEIGHT = 80.f;
 const float BARRIER_WIDTH = 50.f;
 const float BARRIER_HEIGHT = 200.f;
+const float PLAYERTURN_WIDTH = 300.f;
+const float PLAYERTURN_HEIGHT = 100.f;
+const float ENEMYTURN_WIDTH = 300.f;
+const float ENEMYTURN_HEIGHT = 100.f;
 
 // the player mage
 Entity createMage(RenderSystem* renderer, vec2 pos);
@@ -29,6 +33,9 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
+// Turn indicators
+Entity createPlayerTurn(RenderSystem* renderer, vec2 position);
+Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 // barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position);
 // a basic, textured enemy

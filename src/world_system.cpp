@@ -14,11 +14,14 @@ const size_t MAX_FISH = 5;
 const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
+const size_t ENEMY_TURN_TIME = 3000;
 const int NUM_DEATH_PARTICLES = 500;
 
 vec2 msPos = vec2(0, 0);
 
 float next_barrier_spawn = 1000;
+
+float enemy_turn_timer = 3000;
 
 //Button status
 int FIREBALLSELECTED = 0;
@@ -156,6 +159,31 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
 
+	//player turn
+
+
+
+	//enemy turn counter starting
+	if (player_turn == 0) {
+		enemy_turn_timer -= elapsed_ms_since_last_update;
+		if (registry.turnIndicators.components.size() != 0) {
+			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+		}
+		createEnemyTurn(renderer, { 200,700 });
+	}
+	else {
+		if (registry.turnIndicators.components.size() != 0) {
+			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+		}
+		createPlayerTurn(renderer, {200,700});
+	}
+
+	//give player a turn when enemy turn is over
+	if (enemy_turn_timer < 0) {
+		player_turn = 1;
+		enemy_turn_timer = ENEMY_TURN_TIME;
+	}
+
 
 	// Updating window title with points (MAYBE USE FOR LATER)
 	//std::stringstream title_ss;
@@ -190,11 +218,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// create wall periodiclly
-	next_barrier_spawn -= elapsed_ms_since_last_update;
-	if (next_barrier_spawn < 0) {
-		next_barrier_spawn = BARRIER_DELAY;
-		createBarrier(renderer, registry.motions.get(basicEnemy).position);
-	}
+	//next_barrier_spawn -= elapsed_ms_since_last_update;
+	//if (next_barrier_spawn < 0) {
+	//	next_barrier_spawn = BARRIER_DELAY;
+	//	createBarrier(renderer, registry.motions.get(basicEnemy).position);
+	//}
 
 
 
@@ -279,6 +307,8 @@ void WorldSystem::restart_game() {
 
 	player_turn = 1;
 
+
+
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
@@ -295,6 +325,7 @@ void WorldSystem::restart_game() {
 	basicEnemy = createBasicEnemy(renderer, { 1000, 400 });
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
+
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -499,6 +530,9 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 
 					FIREBALLSELECTED = 1;
+
+
+
 				}
 				else {
 					deselectButton();
@@ -511,7 +545,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					currentProjectile = launchFireball(player.position);
 					FIREBALLSELECTED = 0;
 					//active this when ai is done
-					//player_turn = 0;
+					player_turn = 0;
 					deselectButton();
 				}
 			}
@@ -574,6 +608,13 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);
 	
+	// ****temp**** enemy randomly spawn barrier
+
+	int rng = rand() % 10;
+	if (rng >= 7) {
+		createBarrier(renderer, registry.motions.get(basicEnemy).position);
+	}
+
 
 	return  resultEntity;
 }

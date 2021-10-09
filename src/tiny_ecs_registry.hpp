@@ -28,6 +28,7 @@ public:
 	ComponentContainer<Button> buttons;
 	ComponentContainer<HitTimer> hit_timer;
 	ComponentContainer<Reflect> reflects;
+	ComponentContainer<TurnIndicator> turnIndicators;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -49,6 +50,7 @@ public:
 		registry_list.push_back(&buttons);
 		registry_list.push_back(&hit_timer);
 		registry_list.push_back(&reflects);
+		registry_list.push_back(&turnIndicators);
 	}
 
 	void clear_all_components() {

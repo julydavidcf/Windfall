@@ -130,6 +130,11 @@ struct HitTimer
 	float counter_ms = 500;
 };
 
+struct TurnIndicator
+{
+	
+};
+
 // Particles emitted during death
 struct DeathParticle
 {
@@ -177,7 +182,9 @@ enum class TEXTURE_ASSET_ID {
 	FIREBALLICONSELECTED = FIREBALLICON + 1,
 	HEALTHBAR = FIREBALLICONSELECTED + 1,
 	DEATH_PARTICLE = HEALTHBAR + 1,
-	TEXTURE_COUNT = DEATH_PARTICLE + 1
+	PLAYER_TURN = DEATH_PARTICLE + 1,
+	ENEMY_TURN = PLAYER_TURN + 1,
+	TEXTURE_COUNT = ENEMY_TURN + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
