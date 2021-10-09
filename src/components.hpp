@@ -30,6 +30,11 @@ struct Projectile
 
 };
 
+// reflects projectile
+struct Reflect
+{
+};
+
 // Damage component for attacks
 // Also has the isFriendly variable
 // to determine where the damage
@@ -125,6 +130,11 @@ struct HitTimer
 	float counter_ms = 500;
 };
 
+struct TurnIndicator
+{
+	
+};
+
 // Particles emitted during death
 struct DeathParticle
 {
@@ -166,14 +176,15 @@ struct DeathParticle
  */
 
 enum class TEXTURE_ASSET_ID {
-	MAGE = 0,
-	ENEMYMAGE = MAGE + 1,
-	FIREBALL = ENEMYMAGE + 1,
+	BARRIER = 0,
+	FIREBALL = BARRIER + 1,
 	FIREBALLICON = FIREBALL + 1,
 	FIREBALLICONSELECTED = FIREBALLICON + 1,
 	HEALTHBAR = FIREBALLICONSELECTED + 1,
 	DEATH_PARTICLE = HEALTHBAR + 1,
-	TEXTURE_COUNT = DEATH_PARTICLE + 1
+	PLAYER_TURN = DEATH_PARTICLE + 1,
+	ENEMY_TURN = PLAYER_TURN + 1,
+	TEXTURE_COUNT = ENEMY_TURN + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
