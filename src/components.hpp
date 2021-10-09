@@ -96,8 +96,8 @@ struct DeathTimer
 };
 
 
-// Button indicator
-struct Button
+// ButtonItem indicator
+struct ButtonItem
 {
 };
 

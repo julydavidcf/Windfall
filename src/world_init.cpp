@@ -53,6 +53,8 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
+	damage.minDamage = 30;
+	damage.range = 10;
 	//------------------------------------------------
 
 
@@ -95,7 +97,7 @@ Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.buttons.emplace(entity);
