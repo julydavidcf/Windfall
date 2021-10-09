@@ -15,6 +15,7 @@ const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
+const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 500;
 
 vec2 msPos = vec2(0, 0);
@@ -169,13 +170,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (registry.turnIndicators.components.size() != 0) {
 			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
 		}
-		createEnemyTurn(renderer, { 200,700 });
+		createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
 	}
 	else {
 		if (registry.turnIndicators.components.size() != 0) {
 			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
 		}
-		createPlayerTurn(renderer, {200,700});
+		createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
 	}
 
 	//give player a turn when enemy turn is over
@@ -611,7 +612,7 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	// ****temp**** enemy randomly spawn barrier
 
 	int rng = rand() % 10;
-	if (rng >= 7) {
+	if (rng >= 4) {
 		createBarrier(renderer, registry.motions.get(basicEnemy).position);
 	}
 
