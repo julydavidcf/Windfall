@@ -74,7 +74,10 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_mage;
-	Entity basicEnemy;
+	Entity enemy_mage;
+	Entity player_swordsman;
+	Entity enemy_swordsman;
+	Entity necromancer;
 	Entity fireball;
 	Entity fireball_icon;
 

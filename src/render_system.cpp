@@ -87,7 +87,9 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 }
 
 void RenderSystem::drawTexturedMesh(Entity entity,
-									const mat3 &projection)
+									const mat3 &projection,
+								    GLint& frame,
+									GLfloat& frameWidth)
 {
 	Motion &motion = registry.motions.get(entity);
 	// Transformation code, see Rendering and Transformation in the template
@@ -147,8 +149,13 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
+
+		GLint frame_uloc = glGetUniformLocation(program, "frame");
+		GLfloat frame_width_uloc = glGetUniformLocation(program, "frameWidth");
+		glUniform1i(frame_uloc, frame);
+		glUniform1f(frame_width_uloc, frameWidth);
 	}
-	else if (render_request.used_effect == EFFECT_ASSET_ID::BASICENEMY || render_request.used_effect == EFFECT_ASSET_ID::PEBBLE)
+	else if (render_request.used_effect == EFFECT_ASSET_ID::PEBBLE)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
@@ -156,24 +163,13 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
-							  sizeof(ColoredVertex), (void *)0);
+			sizeof(ColoredVertex), (void*)0);
 		gl_has_errors();
 
 		glEnableVertexAttribArray(in_color_loc);
 		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE,
-							  sizeof(ColoredVertex), (void *)sizeof(vec3));
+			sizeof(ColoredVertex), (void*)sizeof(vec3));
 		gl_has_errors();
-
-		if (render_request.used_effect == EFFECT_ASSET_ID::BASICENEMY)
-		{
-			// Light up?
-			GLint light_up_uloc = glGetUniformLocation(program, "light_up");
-			assert(light_up_uloc >= 0);
-
-			// !!! TODO A1: set the light_up shader variable using glUniform1i,
-			// similar to the glUniform1f call below. The 1f or 1i specified the type, here a single int.
-			gl_has_errors();
-		}
 	}
 	else
 	{
@@ -267,7 +263,7 @@ void RenderSystem::drawToScreen()
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void RenderSystem::draw()
+void RenderSystem::draw(float elapsed_ms)
 {
 	// Getting size of window
 	int w, h;
@@ -292,13 +288,13 @@ void RenderSystem::draw()
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
 	std::vector<Entity> needParticleEffects;
+	
 
 	// Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
 	{
 		if (!registry.motions.has(entity))
 			continue;
-		
 		// if an entity has a deathParticle compononent, that means the 
 		// entity is dead. So, no need to render the dead entity.
 		if (registry.deathParticles.has(entity)) {
@@ -307,7 +303,83 @@ void RenderSystem::draw()
 		else {
 			// Note, its not very efficient to access elements indirectly via the entity
 			// albeit iterating through all Sprites in sequence. A good point to optimize
-			drawTexturedMesh(entity, projection_2D);
+
+			// Only provide frames if the entity is supposed to be animated
+			GLint curr_frame = 0;
+			GLfloat frame_width = 0;
+			int numFrames = 0;
+
+			// Handle animation frames
+			if (registry.companions.has(entity) || registry.enemies.has(entity)) {
+
+				//// Get the frame counter for current character and decrement it
+				float* counter = registry.companions.has(entity) ? &registry.companions.get(entity).frame_counter_ms
+					: &registry.enemies.get(entity).frame_counter_ms;
+
+				*counter -= elapsed_ms;
+
+				// Get the type of character (MAGE, SWORDSMAN, ARCHER, HEALER, NECROMANCER)
+				int charType = registry.companions.has(entity) ? registry.companions.get(entity).companionType
+					: registry.enemies.get(entity).enemyType;
+
+				// Get the type of animation (IDLE, ATTACKING, DEAD)
+				int animType = registry.companions.has(entity) ? registry.companions.get(entity).curr_anim_type
+					: registry.enemies.get(entity).curr_anim_type;
+
+				switch (charType) {
+					case MAGE: {
+						switch (animType) {
+							case IDLE: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
+							case ATTACKING: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
+							case DEAD: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
+							default: break;
+							}
+						break;
+					}
+					case SWORDSMAN: {
+						switch (animType) {
+							case IDLE: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
+							case ATTACKING: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
+							case DEAD: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
+							default: break;
+							}
+						break;
+					case NECROMANCER: {
+						switch (animType) {
+						case IDLE: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAME_WIDTH; break;
+						case ATTACKING: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
+						case DEAD: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
+						default: break;
+						}
+						break;
+					}
+				}
+					// TODO: Implement healer, archer, necromancer cases later
+				default: break;
+				}
+
+				if (*counter <= 0) {
+					// Increment frame count
+					if (registry.companions.has(entity)) {
+						curr_frame = registry.companions.get(entity).curr_frame;
+						curr_frame += 1;
+						registry.companions.get(entity).curr_frame = curr_frame % numFrames;
+					}
+					else if (registry.enemies.has(entity)) {
+						curr_frame = registry.enemies.get(entity).curr_frame;
+						curr_frame += 1;
+						registry.enemies.get(entity).curr_frame = curr_frame % numFrames;
+					}
+					// Reset frame timer
+					*counter = TIME_PER_FRAME;
+				}
+				else {
+					curr_frame = registry.companions.has(entity) ? registry.companions.get(entity).curr_frame
+																 : registry.enemies.get(entity).curr_frame;
+				}
+
+			}
+			drawTexturedMesh(entity, projection_2D, curr_frame, frame_width);
 		}
 
 	}
