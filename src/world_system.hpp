@@ -88,6 +88,7 @@ private:
 	Mix_Chunk* salmon_eat_sound;
 	Mix_Chunk* hit_enemy_sound;
 	Mix_Chunk* fireball_explosion_sound;
+	Mix_Chunk* death_enemy_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
