@@ -14,7 +14,7 @@ const size_t MAX_FISH = 5;
 const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
-const size_t ENEMY_TURN_TIME = 3000;
+const size_t ENEMY_TURN_TIME = 1000;	// change back to 3000
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 500;
 
@@ -22,15 +22,13 @@ vec2 msPos = vec2(0, 0);
 
 float next_barrier_spawn = 1000;
 
-float enemy_turn_timer = 3000;
+float enemy_turn_timer = 1000;	// change back to 3000
 
 //Button status
 int FIREBALLSELECTED = 0;
 
 //selected button
 Entity selectedButton;
-
-
 
 //current projectile
 Entity currentProjectile;
@@ -145,14 +143,15 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("death_enemy.wav").c_str());
 		return nullptr;
 	}
-
 	return window;
 }
 
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
+	
 	// Playing background music indefinitely (Later)
 	// Mix_PlayMusic(background_music, -1); // silence music for now
+
 	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
@@ -165,18 +164,32 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
 
+	//vector<entity, int> characterAndOrder;
+
+	//beginRound(allCharacters) {
+
+	//	for each character c in allCharacters
+	//		compare c.SPEED to others' SPEED, determine order, and store into characterAndOrder
+
+	//		sort characterAndOrder based on their Orders, ascending
+
+	//		for each character c in characterAndOrder
+	//			beginTurn(c)
+	//}
+
 	//player turn
 
 
 
 	//enemy turn counter starting
 	if (player_turn == 0) {
-		enemy_turn_timer -= elapsed_ms_since_last_update;
+		enemy_turn_timer -= elapsed_ms_since_last_update; // change this to wait for projectile
 		if (registry.turnIndicators.components.size() != 0) {
 			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
 		}
 		createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
 	}
+
 	else {
 		if (registry.turnIndicators.components.size() != 0) {
 			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
@@ -184,10 +197,26 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
 	}
 
-	//give player a turn when enemy turn is over
+	// give player a turn when enemy turn is over
 	if (enemy_turn_timer < 0) {
+		Motion enemy = registry.motions.get(enemy_swordsman); // to select character
+
+		if (!registry.deathTimers.has(enemy_swordsman)) {
+			// fireball action temporary until able to call behavior tree
+			for (int i = 0; i < 1; i++) {	// for loop to temporarily generate many fireballs from enemy if required
+				Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
+				Motion* ballacc = &registry.motions.get(resultEntity);
+				ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);
+			}
+			/*Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
+			Motion* ballacc = &registry.motions.get(resultEntity);
+			ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);*/
+
+		}
+		
+
 		player_turn = 1;
-		enemy_turn_timer = ENEMY_TURN_TIME;
+		enemy_turn_timer = ENEMY_TURN_TIME;	// to remove
 	}
 
 
@@ -256,7 +285,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 		if (deathParticles.fadedParticles >= NUM_DEATH_PARTICLES) {
 			registry.deathParticles.remove(entity);
-			// registry.remove_all_components_of(entity);
+			registry.remove_all_components_of(entity);	// added back in, kinda works
 		}
 	}
 
@@ -273,14 +302,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
 			screen.darken_screen_factor = 0;
-            restart_game();
+            // restart_game();	// there is a bug when trying to comment out
 			return true;
 		}
 	}
 	// reduce window brightness if any of the present salmons is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
-	// update timer for enemyMage to return to its original position after being hit
+	// update timer for enemy to return to its original position after being hit
 	float min_counter_ms_2 = 500.f;
 	for (Entity entity : registry.hit_timer.entities) {
 		// progress timer
@@ -292,7 +321,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 		if (hitCounter.counter_ms < 0) {
 			registry.hit_timer.remove(entity);
-			registry.motions.get(entity).position.x -= 20;
+			// check if entity is enemy or companion		
+			if (!registry.deathTimers.has(entity)) {
+				if (registry.companions.has(entity)) {
+					registry.motions.get(entity).position.x += 20;
+				}
+				else {
+					registry.motions.get(entity).position.x -= 20;
+				}
+			}				
 			return true;
 		}
 	}
@@ -336,7 +373,7 @@ void WorldSystem::restart_game() {
 	enemy_swordsman = createEnemySwordsman(renderer, { 700, 400 });
 	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	// Create the necromancer
-	necromancer = createNecromancer(renderer, { 1100, 400 });
+	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 
@@ -384,38 +421,94 @@ void WorldSystem::handle_collisions() {
 		// The entity and its collider
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
+
+		// TODO: Deal with fireball - companion collisions
+		if (registry.companions.has(entity)) {
+
+			// Checking Projectile - Companion collisions
+			if (registry.projectiles.has(entity_other)) {
+
+				Damage& projDamage = registry.damages.get(entity_other);
+				if (projDamage.isFriendly == 0) {	// check if isFriendly = 0 which hits companion
+					// initiate death unless already dying
+					if (!registry.deathTimers.has(entity)) {
+						if (!registry.buttons.has(entity)) {
+
+							update_health(entity_other, entity);
+							registry.remove_all_components_of(entity_other);
+							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0) {
+								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+							}
+							else {
+								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
+							}
+							// update only if hit_timer for entity does not already exist
+							if (!registry.hit_timer.has(entity)) {
+								registry.motions.get(entity).position.x -= 20; // character shifts backwards
+								registry.hit_timer.emplace(entity); // to move character back to original position
+							}
+						}
+					}
+				}
+			}
+			// create death particles. Register for rendering.
+			if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0)
+			{
+				// get rid of dead entity's healthbar.
+				Entity entityHealthbar = registry.companions.get(entity).healthbar;
+				registry.motions.remove(entityHealthbar);
+
+				DeathParticle particleEffects;
+				for (int p = 0; p <= NUM_DEATH_PARTICLES; p++) {
+					auto& motion = registry.motions.get(entity);
+					DeathParticle particle;
+					float random1 = ((rand() % 100) - 50) / 10.0f;
+					float random2 = ((rand() % 200) - 100) / 10.0f;
+					float rColor = 0.5f + ((rand() % 100) / 100.0f);
+					// particle.motion.position = motion.position + random + vec2({ 20,20 });
+					particle.motion.position.x = motion.position.x + random1 + 20.f;
+					particle.motion.position.y = motion.position.y + random2 + 40.f;
+					particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+					particle.motion.velocity *= 0.1f;
+					particle.motion.scale = vec2({ 10, 10 });
+					particleEffects.deathParticles.push_back(particle);
+				}
+				if (!registry.deathParticles.has(entity)) {
+					registry.deathParticles.insert(entity, particleEffects);
+				}
+			}
+		}
     
 		// TODO: Deal with fireball - enemyMage collisions
 		if (registry.enemies.has(entity)) {
-			//Player& player = registry.players.get(entity);
 
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
-				// initiate death unless already dying
-				if (!registry.deathTimers.has(entity)) {
-					if (!registry.buttons.has(entity)) {
 
-						update_health(entity_other, entity);
-						registry.remove_all_components_of(entity_other); // causing abort error because of key input
-						Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
-						if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0) {
-							Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+				Damage& projDamage = registry.damages.get(entity_other);
+				if (projDamage.isFriendly == 1) {	// check if isFriendly = 1 which hits enemy
+					// initiate death unless already dying
+					if (!registry.deathTimers.has(entity)) {
+						if (!registry.buttons.has(entity)) {
+
+							update_health(entity_other, entity);
+							registry.remove_all_components_of(entity_other); 
+							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0) {
+								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+							}
+							else {
+								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
+							}
+							// update only if hit_timer for entity does not already exist
+							if (!registry.hit_timer.has(entity)) {
+								registry.motions.get(entity).position.x += 20; // character shifts backwards
+								registry.hit_timer.emplace(entity); // to move character back to original position
+							}
 						}
-						else {
-							Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
-						}
-						// update only if hit_timer for entity does not already exist
-						if (!registry.hit_timer.has(entity)) {
-							registry.motions.get(entity).position.x += 20; // character shifts backwards
-							registry.hit_timer.emplace(entity); // to move character back to original position
-						}
-						// reduce HP of enemyMage by __ amount
-						// if HP = 0, call death animation and possibly included death sound, 
-						//		add death timer, restart game
 					}
-	
-				}
-				
+				}								
 			}
 
 
@@ -626,12 +719,12 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);
 	
-	// ****temp**** enemy randomly spawn barrier
+	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
 
-	int rng = rand() % 10;
-	if (rng >= 4) {
-		createBarrier(renderer, registry.motions.get(enemy_mage).position);
-	}
+	//int rng = rand() % 10;
+	//if (rng >= 9) {	// change back to 4
+	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	//}
 
 
 	return  resultEntity;
