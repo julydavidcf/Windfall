@@ -5,22 +5,44 @@
 #include "../ext/stb_image/stb_image.h"
 
 
+enum CharacterType {
+	MAGE = 1,
+	SWORDSMAN = 2,
+	ARCHER = 3,
+	HEALER = 4,
+	NECROMANCER = 5
+};
+
+enum AnimType {
+	IDLE = 1,
+	ATTACKING = 2,
+	DEAD = 3,
+};
+
 // Health bar entity
 struct HealthBar
 {
 
 };
 
-// Companions: Mage
 struct Companion
 {
 	Entity healthbar;
+	// Initialize companionType in world_init create method
+	int companionType = 0;
+	int curr_frame = 0;
+	int curr_anim_type = IDLE;
+	float frame_counter_ms = 100;
 };
 
-// Enemies: EnemyMage
 struct Enemy
 {
 	Entity healthbar;
+	// Initialize enemyType in world_init create method
+	int enemyType = 0;
+	int curr_frame = 0;
+	int curr_anim_type = IDLE;
+	float frame_counter_ms = 100;
 };
 
 
@@ -184,15 +206,20 @@ enum class TEXTURE_ASSET_ID {
 	DEATH_PARTICLE = HEALTHBAR + 1,
 	PLAYER_TURN = DEATH_PARTICLE + 1,
 	ENEMY_TURN = PLAYER_TURN + 1,
-	TEXTURE_COUNT = ENEMY_TURN + 1
+	// ------- Animations -------
+	MAGE_ANIM = ENEMY_TURN + 1,
+	SWORDSMAN_IDLE = MAGE_ANIM + 1,
+	NECROMANCER_IDLE = SWORDSMAN_IDLE + 1,
+
+	// --------------------------
+	TEXTURE_COUNT = NECROMANCER_IDLE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
 enum class EFFECT_ASSET_ID {
 	COLOURED = 0,
 	PEBBLE = COLOURED + 1,
-	BASICENEMY = PEBBLE + 1,
-	TEXTURED = BASICENEMY + 1,
+	TEXTURED = PEBBLE + 1,
 	WATER = TEXTURED + 1,
 	PARTICLE = WATER + 1,
 	EFFECT_COUNT = PARTICLE + 1
@@ -200,13 +227,17 @@ enum class EFFECT_ASSET_ID {
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
-	BASICENEMY = 0,
-	SPRITE = BASICENEMY + 1,
+	SPRITE = 0,
 	PEBBLE = SPRITE + 1,
 	DEBUG_LINE = PEBBLE + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
-	PLAYERMAGE = SCREEN_TRIANGLE + 1,
-	GEOMETRY_COUNT = PLAYERMAGE + 1
+
+	// ------- Animations -------
+	MAGE_IDLE = SCREEN_TRIANGLE + 1,
+	SWORDSMAN_IDLE = MAGE_IDLE + 1,
+	NECROMANCER_IDLE = SWORDSMAN_IDLE + 1,
+	// --------------------------
+	GEOMETRY_COUNT = NECROMANCER_IDLE + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

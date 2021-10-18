@@ -59,7 +59,7 @@ int main()
 		world.handle_collisions();
 		world.handle_boundary_collision();
 
-		renderer.draw();
+		renderer.draw(elapsed_ms);
 	}
 
 	return EXIT_SUCCESS;

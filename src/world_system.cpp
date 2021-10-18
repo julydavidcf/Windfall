@@ -318,12 +318,20 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-	// Create a new mage
-	player_mage = createMage(renderer, { 200, 400 });
-	//registry.colors.insert(player_mage, {1, 0.8f, 0.8f});
+	// Create a player mage
+	player_mage = createPlayerMage(renderer, { 200, 450 });
+	// Create a player swordsman
+	player_swordsman = createPlayerSwordsman(renderer, { 350, 400 });
 
-	// Create a basic enemy
-	basicEnemy = createBasicEnemy(renderer, { 1000, 400 });
+
+	// Create an enemy mage
+	enemy_mage = createEnemyMage(renderer, { 900, 450 });
+	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+	// Create an enemy swordsman
+	enemy_swordsman = createEnemySwordsman(renderer, { 700, 400 });
+	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+	// Create the necromancer
+	necromancer = createNecromancer(renderer, { 1100, 400 });
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 
@@ -613,7 +621,7 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 
 	int rng = rand() % 10;
 	if (rng >= 4) {
-		createBarrier(renderer, registry.motions.get(basicEnemy).position);
+		createBarrier(renderer, registry.motions.get(enemy_mage).position);
 	}
 
 

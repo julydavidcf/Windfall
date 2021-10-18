@@ -158,6 +158,46 @@ void RenderSystem::initializeGlGeometryBuffers()
 	const std::vector<uint16_t> textured_indices = { 0, 3, 1, 1, 3, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SPRITE, textured_vertices, textured_indices);
 
+
+	//------------------------------ SPRITE ROWS -------------------------------------
+
+	// mage_idle sprite row
+	std::vector<TexturedVertex> mage_idle_vertices(4);
+	mage_idle_vertices[0].position = { -1.f, +1.f/2, 0.f };   
+	mage_idle_vertices[1].position = { +1.f, +1.f/2, 0.f };   
+	mage_idle_vertices[2].position = { +1.f, -1.f, 0.f };   
+	mage_idle_vertices[3].position = { -1.f, -1.f, 0.f };   
+	mage_idle_vertices[0].texcoord = { 0.f, 0.11111111111 };      // Bottom left
+	mage_idle_vertices[1].texcoord = { 0.125, 0.11111111111 };    // Bottom right
+	mage_idle_vertices[2].texcoord = { 0.125, 0.001 };            // Top right
+	mage_idle_vertices[3].texcoord = { 0.f, 0.001 };              // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_IDLE, mage_idle_vertices, textured_indices);
+
+	// swordsman_idle sprite row
+	std::vector<TexturedVertex> swordsman_idle_vertices(4);
+	swordsman_idle_vertices[0].position = { -1.f, +1.f, 0.f };   
+	swordsman_idle_vertices[1].position = { +1.f, +1.f, 0.f };   
+	swordsman_idle_vertices[2].position = { +1.f, -1.f, 0.f };   
+	swordsman_idle_vertices[3].position = { -1.f, -1.f, 0.f };   
+	swordsman_idle_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_idle_vertices[1].texcoord = { 0.0625, 1.f };        // Bottom right
+	swordsman_idle_vertices[2].texcoord = { 0.0625, 0.f };        // Top right
+	swordsman_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE, swordsman_idle_vertices, textured_indices);
+
+	// necromancer_idle sprite row
+	std::vector<TexturedVertex> necromancer_idle_vertices(4);
+	necromancer_idle_vertices[0].position = { -1.f, +1.f, 0.f };
+	necromancer_idle_vertices[1].position = { +1.f, +1.f, 0.f };
+	necromancer_idle_vertices[2].position = { +1.f, -1.f, 0.f };
+	necromancer_idle_vertices[3].position = { -1.f, -1.f, 0.f };
+	necromancer_idle_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necromancer_idle_vertices[1].texcoord = { 0.25, 1.f };        // Bottom right
+	necromancer_idle_vertices[2].texcoord = { 0.25, 0.f };        // Top right
+	necromancer_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECROMANCER_IDLE, necromancer_idle_vertices, textured_indices);
+
+
 	////////////////////////
 	// Initialize pebble
 	std::vector<ColoredVertex> pebble_vertices;
