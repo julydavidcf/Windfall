@@ -53,6 +53,8 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(hit_enemy_sound);
 	if (fireball_explosion_sound != nullptr)
 		Mix_FreeChunk(fireball_explosion_sound);
+	if (death_enemy_sound != nullptr)
+		Mix_FreeChunk(death_enemy_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -125,19 +127,22 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	}
 
 	// TODO: Add different music and load sound effects later
-	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
+	background_music = Mix_LoadMUS(audio_path("combatMusic.wav").c_str());
 	salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
 	salmon_eat_sound = Mix_LoadWAV(audio_path("salmon_eat.wav").c_str());
 	hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
 	fireball_explosion_sound = Mix_LoadWAV(audio_path("fireball_explosion_short.wav").c_str());
+	death_enemy_sound = Mix_LoadWAV(audio_path("death_enemy.wav").c_str());
 
 	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr
-		|| hit_enemy_sound == nullptr) {
+		|| hit_enemy_sound == nullptr || fireball_explosion_sound == nullptr || death_enemy_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
-			audio_path("music.wav").c_str(),
+			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
 			audio_path("salmon_eat.wav").c_str(),
-			audio_path("hit_enemy.wav").c_str());
+			audio_path("hit_enemy.wav").c_str(),
+			audio_path("fireball_explosion_short.wav").c_str(),
+			audio_path("death_enemy.wav").c_str());
 		return nullptr;
 	}
 
@@ -147,7 +152,7 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
 	// Playing background music indefinitely (Later)
-	//Mix_PlayMusic(combatMusic, -1);
+	// Mix_PlayMusic(background_music, -1); // silence music for now
 	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
@@ -384,10 +389,14 @@ void WorldSystem::handle_collisions() {
 
 						update_health(entity_other, entity);
 						registry.remove_all_components_of(entity_other); // causing abort error because of key input
-						Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
 						Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
-
-								  // update only if hit_timer for entity does not already exist
+						if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0) {
+							Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+						}
+						else {
+							Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
+						}
+						// update only if hit_timer for entity does not already exist
 						if (!registry.hit_timer.has(entity)) {
 							registry.motions.get(entity).position.x += 20; // character shifts backwards
 							registry.hit_timer.emplace(entity); // to move character back to original position
@@ -404,7 +413,7 @@ void WorldSystem::handle_collisions() {
 
 			// create death particles. Register for rendering.
 			if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0)
-			{
+			{				
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
@@ -612,7 +621,7 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	// ****temp**** enemy randomly spawn barrier
 
 	int rng = rand() % 10;
-	if (rng >= 4) {
+	if (rng >= 8) { // change back to 4
 		createBarrier(renderer, registry.motions.get(basicEnemy).position);
 	}
 
