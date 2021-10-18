@@ -5,6 +5,7 @@
 // stlib
 #include <cassert>
 #include <sstream>
+#include <queue>
 
 #include "physics_system.hpp"
 
@@ -19,6 +20,12 @@ vec2 msPos = vec2(0, 0);
 
 //ButtonItem status
 int FIREBALLSELECTED = 0;
+
+//Mouse positions queue
+std::queue<vec2> msPositions;
+
+//Time for mouse position recording
+float timePassed;
 
 //selected button
 Entity selectedButton;
@@ -471,13 +478,11 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE SALMON ROTATION HERE
-	// xpos and ypos are relative to the top-left of the window, the salmon's
-	// default facing direction is (1, 0)
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	msPos = mouse_position;
-	//printf("%f", msPos.x);
+	//msPositions.push(mouse_position);
+	//printf("vec: %f, %f\n", msPositions.front()[0], msPositions.front()[1]);
+	//printf("vec2: %f, %f\n", msPositions.back()[0], msPositions.back()[1]);
+	printf("hello\n");
+	
 }
 
 
