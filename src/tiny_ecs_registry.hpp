@@ -22,7 +22,7 @@ public:
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
-	ComponentContainer<HP> healthPoints;
+	ComponentContainer<Statistics> stats;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
 	ComponentContainer<ButtonItem> buttons;

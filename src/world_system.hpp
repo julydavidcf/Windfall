@@ -26,6 +26,9 @@ public:
 	// starts the game
 	void init(RenderSystem* renderer);
 
+	// creates a round
+	void createRound();
+
 	// Releases all associated resources
 	~WorldSystem();
 
