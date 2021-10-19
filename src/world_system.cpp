@@ -164,6 +164,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
 
+	// -----------------------------------------------
 	//vector<entity, int> characterAndOrder;
 
 	//beginRound(allCharacters) {
@@ -176,6 +177,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	//		for each character c in characterAndOrder
 	//			beginTurn(c)
 	//}
+	// -----------------------------------------------
+
+	// restart game if enemies or companions are 0
+	if (registry.enemies.size() <= 0 || registry.companions.size() <= 0) {
+		restart_game();
+	}
 
 	//player turn
 
@@ -199,22 +206,28 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// give player a turn when enemy turn is over
 	if (enemy_turn_timer < 0) {
-		Motion enemy = registry.motions.get(enemy_swordsman); // to select character
-
-		if (!registry.deathTimers.has(enemy_swordsman)) {
-			// fireball action temporary until able to call behavior tree
-			for (int i = 0; i < 1; i++) {	// for loop to temporarily generate many fireballs from enemy if required
-				Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
-				Motion* ballacc = &registry.motions.get(resultEntity);
-				ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);
-			}
-			/*Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
-			Motion* ballacc = &registry.motions.get(resultEntity);
-			ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);*/
-
+		auto& motionsRegistry = registry.motions;
+		if (registry.motions.has(enemy_swordsman)) {
+			Motion enemy = registry.motions.get(enemy_swordsman);
+			if (!registry.deathTimers.has(enemy_swordsman)) {
+				// fireball action temporary until able to call behavior tree
+				for (int i = 0; i < 1; i++) {	// for loop to temporarily generate many fireballs from enemy if required
+					Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
+					Motion* ballacc = &registry.motions.get(resultEntity);
+					ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);
+				}
+			}								
 		}
-		
-
+		else {
+			if (registry.motions.has(enemy_mage)) {
+				Motion enemy = registry.motions.get(enemy_mage);
+				if (!registry.deathTimers.has(enemy_mage)) {
+					Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
+					Motion* ballacc = &registry.motions.get(resultEntity);
+					ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);
+				}				
+			}
+		}
 		player_turn = 1;
 		enemy_turn_timer = ENEMY_TURN_TIME;	// to remove
 	}
@@ -302,7 +315,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
 			screen.darken_screen_factor = 0;
-            // restart_game();	// there is a bug when trying to comment out
+            // restart_game();
 			return true;
 		}
 	}
@@ -404,8 +417,7 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 				if(!registry.deathTimers.has(other_entity)){
 					registry.deathTimers.emplace(other_entity);
 				}
-				motion.scale = vec2({ (HEALTHBAR_WIDTH*(99.f/100.f)), HEALTHBAR_HEIGHT });
-				
+				motion.scale = vec2({ (HEALTHBAR_WIDTH*(99.f/100.f)), HEALTHBAR_HEIGHT });				
 			} else {
 				motion.scale = vec2({ (HEALTHBAR_WIDTH*(hp->health/100.f)), HEALTHBAR_HEIGHT });
 			}
@@ -422,7 +434,7 @@ void WorldSystem::handle_collisions() {
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// TODO: Deal with fireball - companion collisions
+		// Deal with fireball - companion collisions
 		if (registry.companions.has(entity)) {
 
 			// Checking Projectile - Companion collisions
@@ -480,7 +492,7 @@ void WorldSystem::handle_collisions() {
 			}
 		}
     
-		// TODO: Deal with fireball - enemyMage collisions
+		// Deal with fireball - enemyMage collisions
 		if (registry.enemies.has(entity)) {
 
 			// Checking Projectile - Enemy collisions
