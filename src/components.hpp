@@ -150,7 +150,7 @@ struct Mesh
 
 struct HitTimer
 {
-	float counter_ms = 500;
+	float counter_ms = 250;
 };
 
 struct TurnIndicator

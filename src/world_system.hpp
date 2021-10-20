@@ -26,8 +26,20 @@ public:
 	// starts the game
 	void init(RenderSystem* renderer);
 
+	// display player turn
+	void displayPlayerTurn();
+
+	// display enemy turn
+	void displayEnemyTurn();
+
+	// create temporary fireball attack
+	void temporaryFireball(Entity currPlayer);
+
 	// creates a round
 	void createRound();
+
+	// check a round
+	void checkRound();
 
 	// Releases all associated resources
 	~WorldSystem();
