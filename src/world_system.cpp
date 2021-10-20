@@ -14,11 +14,18 @@ const size_t MAX_TURTLES = 15;
 const size_t MAX_FISH = 5;
 const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
+const size_t BARRIER_DELAY = 4000;
+const size_t ENEMY_TURN_TIME = 3000;
+const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 500;
 
 vec2 msPos = vec2(0, 0);
 
-//ButtonItem status
+float next_barrier_spawn = 1000;
+
+float enemy_turn_timer = 3000;
+
+//Button status
 int FIREBALLSELECTED = 0;
 
 //Mouse positions queue
@@ -53,6 +60,8 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(hit_enemy_sound);
 	if (fireball_explosion_sound != nullptr)
 		Mix_FreeChunk(fireball_explosion_sound);
+	if (death_enemy_sound != nullptr)
+		Mix_FreeChunk(death_enemy_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -125,19 +134,22 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	}
 
 	// TODO: Add different music and load sound effects later
-	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
+	background_music = Mix_LoadMUS(audio_path("combatMusic.wav").c_str());
 	salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
 	salmon_eat_sound = Mix_LoadWAV(audio_path("salmon_eat.wav").c_str());
 	hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
 	fireball_explosion_sound = Mix_LoadWAV(audio_path("fireball_explosion_short.wav").c_str());
+	death_enemy_sound = Mix_LoadWAV(audio_path("death_enemy.wav").c_str());
 
 	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr
-		|| hit_enemy_sound == nullptr) {
+		|| hit_enemy_sound == nullptr || fireball_explosion_sound == nullptr || death_enemy_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
-			audio_path("music.wav").c_str(),
+			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
 			audio_path("salmon_eat.wav").c_str(),
-			audio_path("hit_enemy.wav").c_str());
+			audio_path("hit_enemy.wav").c_str(),
+			audio_path("fireball_explosion_short.wav").c_str(),
+			audio_path("death_enemy.wav").c_str());
 		return nullptr;
 	}
 
@@ -147,7 +159,7 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
 	// Playing background music indefinitely (Later)
-	//Mix_PlayMusic(combatMusic, -1);
+	// Mix_PlayMusic(background_music, -1); // silence music for now
 	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
@@ -159,6 +171,31 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Get the screen dimensions
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+
+	//player turn
+
+
+
+	//enemy turn counter starting
+	if (player_turn == 0) {
+		enemy_turn_timer -= elapsed_ms_since_last_update;
+		if (registry.turnIndicators.components.size() != 0) {
+			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+		}
+		createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
+	}
+	else {
+		if (registry.turnIndicators.components.size() != 0) {
+			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+		}
+		createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
+	}
+
+	//give player a turn when enemy turn is over
+	if (enemy_turn_timer < 0) {
+		player_turn = 1;
+		enemy_turn_timer = ENEMY_TURN_TIME;
+	}
 
 
 	// Updating window title with points (MAYBE USE FOR LATER)
@@ -173,6 +210,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Removing out of screen entities
 	auto& motions_registry = registry.motions;
 
+	//Remove barrier
+	auto& reflects_registry = registry.reflects;
+
 	// Remove entities that leave the screen on the left side
 	// Iterate backwards to be able to remove without unterfering with the next object to visit
 	// (the containers exchange the last element with the current)
@@ -181,7 +221,22 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (motion.position.x + abs(motion.scale.x) < 0.f) {
 		    registry.remove_all_components_of(motions_registry.entities[i]);
 		}
+		// remove barrier
+		if (registry.reflects.has(motions_registry.entities[i])) {
+			if (motion.velocity.x>50.f) {
+				printf("in2");
+				registry.remove_all_components_of(motions_registry.entities[i]);
+			}
+		}
 	}
+
+	// create wall periodiclly
+	//next_barrier_spawn -= elapsed_ms_since_last_update;
+	//if (next_barrier_spawn < 0) {
+	//	next_barrier_spawn = BARRIER_DELAY;
+	//	createBarrier(renderer, registry.motions.get(basicEnemy).position);
+	//}
+
 
 
 	// Processing the salmon state
@@ -265,6 +320,8 @@ void WorldSystem::restart_game() {
 
 	player_turn = 1;
 
+
+
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
@@ -273,14 +330,23 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-	// Create a new mage
-	player_mage = createMage(renderer, { 200, 400 });
-	//registry.colors.insert(player_mage, {1, 0.8f, 0.8f});
+	// Create a player mage
+	player_mage = createPlayerMage(renderer, { 200, 450 });
+	// Create a player swordsman
+	player_swordsman = createPlayerSwordsman(renderer, { 350, 400 });
 
-	// Create a basic enemy
-	basicEnemy = createBasicEnemy(renderer, { 1000, 400 });
+
+	// Create an enemy mage
+	enemy_mage = createEnemyMage(renderer, { 900, 450 });
+	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+	// Create an enemy swordsman
+	enemy_swordsman = createEnemySwordsman(renderer, { 700, 400 });
+	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+	// Create the necromancer
+	necromancer = createNecromancer(renderer, { 1100, 400 });
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
+
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -335,12 +401,17 @@ void WorldSystem::handle_collisions() {
 				// initiate death unless already dying
 				if (!registry.deathTimers.has(entity)) {
 					if (!registry.buttons.has(entity)) {
+
 						update_health(entity_other, entity);
 						registry.remove_all_components_of(entity_other); // causing abort error because of key input
-						Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound
 						Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
-
-								  // update only if hit_timer for entity does not already exist
+						if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0) {
+							Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+						}
+						else {
+							Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
+						}
+						// update only if hit_timer for entity does not already exist
 						if (!registry.hit_timer.has(entity)) {
 							registry.motions.get(entity).position.x += 20; // character shifts backwards
 							registry.hit_timer.emplace(entity); // to move character back to original position
@@ -351,10 +422,13 @@ void WorldSystem::handle_collisions() {
 					}
 	
 				}
+				
 			}
+
+
 			// create death particles. Register for rendering.
 			if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0)
-			{
+			{				
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
@@ -377,6 +451,29 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathParticles.has(entity)) {
 					registry.deathParticles.insert(entity, particleEffects);
 				}
+			}
+		}
+		// barrier collection
+		if (registry.projectiles.has(entity)) {
+			if (registry.reflects.has(entity_other)) {
+				//printf("colleds\n");
+				//printf("%f\n", registry.motions.get(entity).velocity.x);
+				if (registry.motions.get(entity).velocity.x > 0.f) {
+					//printf("colleds1");
+					Motion* reflectEM = &registry.motions.get(entity);
+					
+					reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
+					reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
+					printf("before %f\n", reflectEM->angle);
+					float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
+					if (registry.motions.get(entity).velocity.x < 0) {
+						reflectE += M_PI;
+					}
+					reflectEM->angle = reflectE;
+					printf("calculated %f\n", reflectE);
+					printf("actual %f\n", reflectEM->angle);
+				}
+
 			}
 		}
 	}
@@ -440,6 +537,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
+
+	// Manual create barrier
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_B) {
+	//	createBarrier(renderer, registry.motions.get(basicEnemy).position);
+	//}
 }
 //fireball
 void WorldSystem::on_mouse_button( int button , int action, int mods)
@@ -453,6 +555,9 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 
 					FIREBALLSELECTED = 1;
+
+
+
 				}
 				else {
 					deselectButton();
@@ -465,7 +570,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					currentProjectile = launchFireball(player.position);
 					FIREBALLSELECTED = 0;
 					//active this when ai is done
-					//player_turn = 0;
+					player_turn = 0;
 					deselectButton();
 				}
 			}
@@ -524,8 +629,15 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	//printf(" % f", angle);
 	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
-	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1200 * vy/ FIREBALLSPEED);
+	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);
 	
+	// ****temp**** enemy randomly spawn barrier
+
+	int rng = rand() % 10;
+	if (rng >= 4) {
+		createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	}
+
 
 	return  resultEntity;
 }

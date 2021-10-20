@@ -24,20 +24,23 @@ class RenderSystem {
 	// Associated id with .obj path
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BASICENEMY, mesh_path("basicEnemy.obj")),
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYERMAGE, mesh_path("playerMage.obj"))
+		  //std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BASICENEMY, mesh_path("basicEnemy.obj"))
 		  // specify meshes of other assets here
 	};
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = {
-			textures_path("mage.png"),
-			textures_path("enemyMage.png"),
+			textures_path("MagicalBarrier.png"),
 			textures_path("fireball.png"),
 			textures_path("fireballIcon.png"),
 			textures_path("fireballIconSelected.png"),
 			textures_path("healthbar.png"),
-			textures_path("particle.png")
+			textures_path("particle.png"),
+			textures_path("playerTurn.png"),
+			textures_path("enemyTurn.png"),
+			textures_path("mage_anim.png"),
+			textures_path("swordsman_idle.png"),
+			textures_path("necromancer_idle.png")
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -45,7 +48,6 @@ class RenderSystem {
 	const std::array<std::string, effect_count> effect_paths = {
 		shader_path("coloured"),
 		shader_path("pebble"),
-		shader_path("basicEnemy"),
 		shader_path("textured"),
 		shader_path("water"),
 		shader_path("particle") };
@@ -54,7 +56,25 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
+	// Time per frame in ms
+	float TIME_PER_FRAME = 100;
+	
+	// ---------------------------------- Frame stats for each character animation -----------------------------------
+
+	// Mage frame stats
+	const int MAGE_IDLE_FRAMES = 8;
+	const GLfloat MAGE_IDLE_FRAME_WIDTH = 0.125;
+
+	// Swordsman frame stats
+	const int SWORDSMAN_IDLE_FRAMES = 16;
+	const GLfloat SWORDSMAN_IDLE_FRAME_WIDTH = 0.0625;
+
+	// Necromancer frame stats
+	const int NECROMANCER_IDLE_FRAMES = 4;
+	const GLfloat NECROMANCER_IDLE_FRAME_WIDTH = 0.25;
+
 public:
+
 	// Initialize the window
 	bool init(int width, int height, GLFWwindow* window);
 
@@ -78,13 +98,13 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void draw();
+	void draw(float elapsed_ms);
 
 	mat3 createProjectionMatrix();
 
 private:
 	// Internal drawing functions for each entity type
-	void drawTexturedMesh(Entity entity, const mat3& projection);
+	void drawTexturedMesh(Entity entity, const mat3& projection, GLint& frame, GLfloat& frameWidth);
 	void drawDeathParticles(Entity entity, const mat3& projection);
 	void drawToScreen();
 

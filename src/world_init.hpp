@@ -7,19 +7,33 @@
 // These are ahrd coded to the dimensions of the entity texture
 const float MAGE_WIDTH = 110.f;
 const float MAGE_HEIGHT = 100.f;
-const float ENEMY_MAGE_WIDTH = 110.f;
-const float ENEMY_MAGE_HEIGHT = 100.f;
+const float SWORDSMAN_WIDTH = 175.f;
+const float SWORDSMAN_HEIGHT = 190.f;
+const float NECROMANCER_WIDTH = 150.f;
+const float NECROMANCER_HEIGHT = 180.f;
 const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 7.f;
 const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
 const float FIREBALL_ICON_WIDTH = 80.f;
 const float FIREBALL_ICON_HEIGHT = 80.f;
+const float BARRIER_WIDTH = 50.f;
+const float BARRIER_HEIGHT = 200.f;
+const float PLAYERTURN_WIDTH = 300.f;
+const float PLAYERTURN_HEIGHT = 100.f;
+const float ENEMYTURN_WIDTH = 300.f;
+const float ENEMYTURN_HEIGHT = 100.f;
 
 // the player mage
-Entity createMage(RenderSystem* renderer, vec2 pos);
-// a basic, textured enemy
-Entity createBasicEnemy(RenderSystem* renderer, vec2 position);
+Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
+// the enemy mage
+Entity createEnemyMage(RenderSystem* renderer, vec2 position);
+// the player swordsman
+Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos);
+// the enemy swordsman
+Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos);
+// the necromancer
+Entity createNecromancer(RenderSystem* renderer, vec2 pos);
 //healthbar
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // the fireball
@@ -27,8 +41,13 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
+// Turn indicators
+Entity createPlayerTurn(RenderSystem* renderer, vec2 position);
+Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
+// barrier
+Entity createBarrier(RenderSystem* renderer, vec2 position);
 // a basic, textured enemy
-Entity createBasicEnemy(RenderSystem* renderer, vec2 position);
+Entity createEnemyMage(RenderSystem* renderer, vec2 position);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
 
