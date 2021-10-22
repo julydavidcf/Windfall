@@ -124,6 +124,16 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// Input data location as in the vertex buffer
 	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
+		
+		GLint silenced_uloc = glGetUniformLocation(program, "silenced");
+		gl_has_errors();
+		assert(silenced_uloc >= 0);
+		if(registry.silenced.has(entity)){
+			glUniform1i(silenced_uloc, 1);
+		} else {
+			glUniform1i(silenced_uloc, 0);
+		}
+
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
 		gl_has_errors();

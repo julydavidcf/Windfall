@@ -23,6 +23,7 @@ public:
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
 	ComponentContainer<HP> healthPoints;
+	ComponentContainer<Silence> silenced;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
 	ComponentContainer<ButtonItem> buttons;
@@ -44,6 +45,7 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&silenced);
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);

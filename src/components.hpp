@@ -75,6 +75,13 @@ struct HP
 	int health = 100;
 };
 
+// Silence component
+struct Silence
+{
+	// silenced for number of turns
+	int turns = 1;	
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
@@ -202,7 +209,9 @@ enum class TEXTURE_ASSET_ID {
 	FIREBALL = BARRIER + 1,
 	FIREBALLICON = FIREBALL + 1,
 	FIREBALLICONSELECTED = FIREBALLICON + 1,
-	HEALTHBAR = FIREBALLICONSELECTED + 1,
+	SILENCEICON = FIREBALLICONSELECTED + 1,
+	SILENCEICONSELECTED = SILENCEICON + 1,
+	HEALTHBAR = SILENCEICONSELECTED + 1,
 	DEATH_PARTICLE = HEALTHBAR + 1,
 	PLAYER_TURN = DEATH_PARTICLE + 1,
 	ENEMY_TURN = PLAYER_TURN + 1,

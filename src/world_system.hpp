@@ -52,8 +52,15 @@ private:
 	// check if mouse in button
 	bool inButton(vec2 buttonPos, float buttonX, float buttonY);
 
+
+	// check if mouse in entity
+	bool inEntity(const Motion& motion);
+
 	// deselect current button (after using ability)
 	void deselectButton();
+
+	// reset all selected buttons if there are any (when a button is clicked)
+	void deselectButtons();
 
 	// Helper function for updating health in collision
 	void update_health(Entity entity, Entity other_entity);
@@ -80,6 +87,7 @@ private:
 	Entity necromancer;
 	Entity fireball;
 	Entity fireball_icon;
+	Entity silence_icon;
 
 
 	// music references

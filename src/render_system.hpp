@@ -34,6 +34,8 @@ class RenderSystem {
 			textures_path("fireball.png"),
 			textures_path("fireballIcon.png"),
 			textures_path("fireballIconSelected.png"),
+			textures_path("silenceIcon.png"),
+			textures_path("silenceIconSelected.png"),
 			textures_path("healthbar.png"),
 			textures_path("particle.png"),
 			textures_path("playerTurn.png"),

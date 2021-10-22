@@ -80,6 +80,9 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		{
 			Motion& motion_i = motion_container.components[i];
 			Entity entity_i = motion_container.entities[i];
+			
+			Mesh* mesh_i 			= registry.meshPtrs.components[i];
+			Entity entity_i_mesh 	=  registry.meshPtrs.entities[i];
 
 			// visualize the radius with two axis-aligned lines
 			const vec2 bonding_box = get_bounding_box(motion_i);

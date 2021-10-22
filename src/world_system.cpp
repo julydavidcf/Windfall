@@ -5,7 +5,6 @@
 // stlib
 #include <cassert>
 #include <sstream>
-#include <queue>
 
 #include "physics_system.hpp"
 
@@ -27,12 +26,7 @@ float enemy_turn_timer = 3000;
 
 //Button status
 int FIREBALLSELECTED = 0;
-
-//Mouse positions queue
-std::queue<vec2> msPositions;
-
-//Time for mouse position recording
-float timePassed;
+int SILENCESELECTED = 0;
 
 //selected button
 Entity selectedButton;
@@ -346,6 +340,7 @@ void WorldSystem::restart_game() {
 	necromancer = createNecromancer(renderer, { 1100, 400 });
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
+	silence_icon = createSilenceIcon(renderer, { 800, 700 });;
 
 }
 
@@ -549,19 +544,29 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
 		// fireball
 		if (player_turn == 1) {
-			Motion icon = registry.motions.get(fireball_icon);
-			if (inButton(icon.position, FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT)) {
+			Motion fireballIcon = registry.motions.get(fireball_icon);
+			Motion silenceIcon = registry.motions.get(silence_icon);
+			if (inButton(fireballIcon.position, FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT)) {
 				if (FIREBALLSELECTED == 0) {
-					selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
-
+					deselectButtons();
+					selectedButton = createFireballIconSelected(renderer, { fireballIcon.position.x,fireballIcon.position.y });
 					FIREBALLSELECTED = 1;
-
-
 
 				}
 				else {
 					deselectButton();
 					FIREBALLSELECTED = 0;
+				}
+			} else if(inButton(silenceIcon.position, SILENCE_ICON_WIDTH, SILENCE_ICON_HEIGHT)){
+				if (SILENCESELECTED == 0) {
+					deselectButtons();
+					selectedButton = createSilenceIconSelected(renderer, { silenceIcon.position.x,silenceIcon.position.y });
+					SILENCESELECTED = 1;
+
+				}
+				else {
+					deselectButton();
+					SILENCESELECTED = 0;
 				}
 			}
 			else {
@@ -569,6 +574,27 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					Motion player = registry.motions.get(player_mage);
 					currentProjectile = launchFireball(player.position);
 					FIREBALLSELECTED = 0;
+					//active this when ai is done
+					player_turn = 0;
+					deselectButton();
+				} else if(SILENCESELECTED == 1){
+					// CURRENTLY: only puts the enemy in silenced component
+					// with the turn to be initialized to 1
+					// TODO: when the turn system is implemented
+					// each time doing an attack check if the entity is silenced
+					// if so decrement the turn by 1 and if it's 0 remove
+					// the entity. If it is silenced the entity should make *no*
+					// moves. 
+					for(Entity enemy: registry.enemies.entities){
+						if(inEntity(registry.motions.get(enemy))){
+							printf("ENEMY FOUND!\n");
+							registry.silenced.emplace(enemy);
+							printf("Enemy silenced\n");
+							break;
+						} else {
+							printf("MISS!\n");
+						}
+					}
 					//active this when ai is done
 					player_turn = 0;
 					deselectButton();
@@ -583,11 +609,13 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-	//msPositions.push(mouse_position);
-	//printf("vec: %f, %f\n", msPositions.front()[0], msPositions.front()[1]);
-	//printf("vec2: %f, %f\n", msPositions.back()[0], msPositions.back()[1]);
-	printf("hello\n");
-	
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// TODO A1: HANDLE SALMON ROTATION HERE
+	// xpos and ypos are relative to the top-left of the window, the salmon's
+	// default facing direction is (1, 0)
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	msPos = mouse_position;
+	//printf("%f", msPos.x);
 }
 
 
@@ -600,8 +628,29 @@ bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {
 	return false;
 }
 
+bool WorldSystem::inEntity(const Motion& motion) {
+	float left_bound = motion.position.x - (abs(motion.scale.x)/2);
+	float right_bound = motion.position.x + (abs(motion.scale.x)/2);
+	float upper_bound = motion.position.y - (abs(motion.scale.y)/2);
+	float lower_bound = motion.position.y + (abs(motion.scale.y)/2);
+	if((left_bound <= msPos.x)&&(msPos.x <= right_bound)){
+		if((upper_bound <= msPos.y)&&(msPos.y <= lower_bound)){
+			return true;
+		}
+	} 
+	return false;
+}
+
 void WorldSystem::deselectButton() {
 	registry.remove_all_components_of(selectedButton);
+}
+
+void WorldSystem::deselectButtons() {
+	if(selectedButton){
+		FIREBALLSELECTED = 0;
+		SILENCESELECTED = 0;
+		registry.remove_all_components_of(selectedButton);
+	}
 }
 
 
