@@ -595,6 +595,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 							printf("MISS!\n");
 						}
 					}
+					SILENCESELECTED = 0;
 					//active this when ai is done
 					player_turn = 0;
 					deselectButton();
