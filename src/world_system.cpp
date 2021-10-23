@@ -355,8 +355,8 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 			}
 		} else {
 			if(registry.companions.has(other_entity)){
-				Companion& enemy = registry.companions.get(other_entity);
-				healthbar = enemy.healthbar;
+				Companion& companion = registry.companions.get(other_entity);
+				healthbar = companion.healthbar;
 				hp = &registry.healthPoints.get(other_entity);
 			}
 		}
@@ -373,6 +373,41 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 				motion.scale = vec2({ (HEALTHBAR_WIDTH*(hp->health/100.f)), HEALTHBAR_HEIGHT });
 			}
 		}
+	}
+}
+
+void WorldSystem::update_healthBars() {
+	printf("updating healths\n");
+	for(Entity entity: registry.healthPoints.entities){
+		printf("in loop\n");
+		HP& hp = registry.healthPoints.get(entity);
+		Entity healthbar;
+		if(registry.enemies.has(entity)){
+			printf("if?\n");
+			Enemy& enemy = registry.enemies.get(entity);
+			printf("end if?\n");
+			healthbar = enemy.healthbar;
+		} else if (registry.companions.has(entity)){
+			printf("else?\n");
+			Companion& companion = registry.companions.get(entity);
+			printf("end else?\n");
+			healthbar = companion.healthbar;
+		}
+		if(healthbar){
+			Motion& motion = registry.motions.get(healthbar);
+			if(hp.health<=0){
+				if(!registry.deathTimers.has(entity)){
+					registry.deathTimers.emplace(entity);
+				}
+				motion.scale = vec2({ (HEALTHBAR_WIDTH*(99.f/100.f)), HEALTHBAR_HEIGHT });
+				
+			} else {
+				motion.scale = vec2({ (HEALTHBAR_WIDTH*(hp.health/100.f)), HEALTHBAR_HEIGHT });
+			}
+		}
+		Motion& motion = registry.motions.get(healthbar);
+			
+		
 	}
 }
 
@@ -502,6 +537,14 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// TODO: Handle mouse click on fireball icon
 	if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT) {
 
+	}
+	// Test for health
+	if (action == GLFW_RELEASE && key == GLFW_KEY_K) {
+		for(Entity entity: registry.healthPoints.entities){
+			HP& hp = registry.healthPoints.get(entity);
+			hp.health -= 20;
+		}
+		update_healthBars();
 	}
 
 	// Resetting game
