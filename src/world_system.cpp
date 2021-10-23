@@ -18,19 +18,20 @@ const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 500;
 
+Entity currPlayer;
+Entity prevPlayer;
+
 vec2 msPos = vec2(0, 0);
 
 float next_barrier_spawn = 1000;
 
-float enemy_turn_timer = 3000;
+float enemy_turn_timer = 1000;
 
 //Button status
 int FIREBALLSELECTED = 0;
 
 //selected button
 Entity selectedButton;
-
-
 
 //current projectile
 Entity currentProjectile;
@@ -145,19 +146,114 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("death_enemy.wav").c_str());
 		return nullptr;
 	}
-
 	return window;
 }
 
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
+	
 	// Playing background music indefinitely (Later)
 	// Mix_PlayMusic(background_music, -1); // silence music for now
+
 	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
     restart_game();
 }
+
+void WorldSystem::displayPlayerTurn() {
+	if (registry.turnIndicators.components.size() != 0) {
+		registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+	}
+	createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
+}
+
+void WorldSystem::displayEnemyTurn() {
+	if (registry.turnIndicators.components.size() != 0) {
+		registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+	}
+	createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
+}
+
+void WorldSystem::temporaryFireball(Entity currPlayer) {
+	Motion enemy = registry.motions.get(currPlayer);
+	if (!registry.deathTimers.has(currPlayer)) {
+		// fireball action temporary until able to call behavior tree
+		Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
+		Motion* ballacc = &registry.motions.get(resultEntity);
+		ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);
+	}
+}
+
+std::vector<Entity> roundVec;
+void WorldSystem::createRound() {
+	std::vector<int> speedVec;
+	for (int i = 0; i < registry.enemies.components.size(); i++) {	// iterate through all enemies to get speed stats
+		Entity& entity = registry.enemies.entities[i];
+		Statistics& checkSpeed = registry.stats.get(entity);
+		speedVec.push_back(checkSpeed.speed);		
+	}
+	
+	for (int i = 0; i < registry.companions.components.size(); i++) {	// iterate through all companions to get speed stats
+		Entity& entity = registry.companions.entities[i];
+		Statistics& checkSpeed = registry.stats.get(entity);
+		speedVec.push_back(checkSpeed.speed);
+	}
+	
+	std::sort(speedVec.begin(), speedVec.end(), std::greater<int>());	// sorts in descending order
+	
+	for (int i = 0; i < speedVec.size(); i++) {
+		for (int j = 0; j < registry.companions.components.size(); j++) {
+			Entity& entity = registry.companions.entities[j]; // check companions stats
+			Statistics& checkSpeed = registry.stats.get(entity);
+			if (speedVec[i] == checkSpeed.speed) {
+				roundVec.push_back(entity);	// push to roundVec for use in checkRound
+			}
+		}
+		for (int j = 0; j < registry.enemies.components.size(); j++) {
+			Entity& entity = registry.enemies.entities[j]; // check enemies stats
+			Statistics& checkSpeed = registry.stats.get(entity);
+			if (speedVec[i] == checkSpeed.speed) {
+				roundVec.push_back(entity);	// push to roundVec for use in checkRound
+			}
+		}
+	}
+
+	// here I have the sorted array
+	for (int i = 0; i < roundVec.size(); i++) {
+		printf("%g \n", float(registry.stats.get(roundVec[i]).speed));
+	}
+}
+
+void WorldSystem::checkRound() {
+	printf("am here at checkRound \n");
+	
+	if (roundVec.empty()) {	// if empty, create new round
+		printf("roundVec is empty, creating a new round \n");
+		createRound();
+	}
+
+	Entity toPlay = roundVec[0]; // get first element
+	printf("erase %g \n", float(registry.stats.get(roundVec[0]).speed));
+	roundVec.erase(roundVec.begin());	// erase the first element
+
+	if (registry.companions.has(toPlay) && registry.stats.get(toPlay).health > 0) {	// toPlay is companion, put to currPlayer to pass for fireball
+		printf("its %g player turn \n", float(registry.stats.get(toPlay).speed));
+		player_turn = 1;
+		currPlayer = toPlay;
+	}
+	else if (registry.enemies.has(toPlay) && registry.stats.get(toPlay).health > 0) {	// toPlay is enemy, put to currPlayer to pass for fireball
+		printf("its %g enemy turn \n", float(registry.stats.get(toPlay).speed));
+		player_turn = 0;
+		currPlayer = toPlay;
+	}
+	else {
+		printf("no player or enemy, checking round now \n");
+		prevPlayer = currPlayer;
+		checkRound();
+	}
+}
+
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
@@ -165,31 +261,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
 
-	//player turn
-
-
-
-	//enemy turn counter starting
-	if (player_turn == 0) {
-		enemy_turn_timer -= elapsed_ms_since_last_update;
-		if (registry.turnIndicators.components.size() != 0) {
-			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
-		}
-		createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
+	// restart game if enemies or companions are 0
+	if (registry.enemies.size() <= 0 || registry.companions.size() <= 0) {
+		restart_game();
 	}
-	else {
-		if (registry.turnIndicators.components.size() != 0) {
-			registry.remove_all_components_of(registry.turnIndicators.entities[0]);
-		}
-		createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
-	}
-
-	//give player a turn when enemy turn is over
-	if (enemy_turn_timer < 0) {
-		player_turn = 1;
-		enemy_turn_timer = ENEMY_TURN_TIME;
-	}
-
 
 	// Updating window title with points (MAYBE USE FOR LATER)
 	//std::stringstream title_ss;
@@ -223,14 +298,42 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+
+	if (player_turn == 1) {
+		prevPlayer = currPlayer;
+	}
+	// this area is to check for edge cases to allow for enemies to hit twice if the round allows it
+	if (player_turn == 0) {
+		displayEnemyTurn();
+		if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if selected character has died so as to progress to an enemy's
+			if (registry.stats.get(prevPlayer).health <= 0) {
+				temporaryFireball(currPlayer);
+				printf("enemy has attacked, checkRound now \n");
+				checkRound();
+			}
+		}
+		if (registry.enemies.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if enemy is going right after another enemy's turn
+			enemy_turn_timer -= elapsed_ms_since_last_update;
+			if (enemy_turn_timer < 0) {
+				if (registry.companions.size() == 0) {
+					restart_game();
+				}
+				else {
+					prevPlayer = currPlayer;
+					temporaryFireball(currPlayer);
+					printf("enemy has attacked, checkRound now \n");
+					checkRound();
+				}
+			}
+		}
+	}
+
 	// create wall periodiclly
 	//next_barrier_spawn -= elapsed_ms_since_last_update;
 	//if (next_barrier_spawn < 0) {
 	//	next_barrier_spawn = BARRIER_DELAY;
 	//	createBarrier(renderer, registry.motions.get(basicEnemy).position);
 	//}
-
-
 
 	// Processing the salmon state
 	assert(registry.screenStates.components.size() <= 1);
@@ -256,7 +359,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 		if (deathParticles.fadedParticles >= NUM_DEATH_PARTICLES) {
 			registry.deathParticles.remove(entity);
-			// registry.remove_all_components_of(entity);
+			registry.remove_all_components_of(entity);	// added back in, kinda works
 		}
 	}
 
@@ -273,14 +376,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
 			screen.darken_screen_factor = 0;
-            restart_game();
+            // restart_game();
 			return true;
 		}
 	}
 	// reduce window brightness if any of the present salmons is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 
-	// update timer for enemyMage to return to its original position after being hit
+	// update timer for enemy to return to its original position after being hit
 	float min_counter_ms_2 = 500.f;
 	for (Entity entity : registry.hit_timer.entities) {
 		// progress timer
@@ -292,7 +395,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 		if (hitCounter.counter_ms < 0) {
 			registry.hit_timer.remove(entity);
-			registry.motions.get(entity).position.x -= 20;
+			// check if entity is enemy or companion		
+			if (!registry.deathTimers.has(entity)) {
+				if (registry.companions.has(entity)) {
+					registry.motions.get(entity).position.x += 20;
+				}
+				else {
+					registry.motions.get(entity).position.x -= 20;
+				}
+			}				
 			return true;
 		}
 	}
@@ -309,11 +420,9 @@ void WorldSystem::restart_game() {
 	// Reset the game speed
 	current_speed = 1.f;
 
-	// player turn indicator
-
-	player_turn = 1;
-
-
+	player_turn = 1;	// player turn indicator
+	roundVec.clear();	// empty vector roundVec to create a new round
+	createRound();
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -327,8 +436,6 @@ void WorldSystem::restart_game() {
 	player_mage = createPlayerMage(renderer, { 200, 450 });
 	// Create a player swordsman
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 400 });
-
-
 	// Create an enemy mage
 	enemy_mage = createEnemyMage(renderer, { 900, 450 });
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
@@ -336,41 +443,49 @@ void WorldSystem::restart_game() {
 	enemy_swordsman = createEnemySwordsman(renderer, { 700, 400 });
 	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	// Create the necromancer
-	necromancer = createNecromancer(renderer, { 1100, 400 });
-
+	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now
+	// Create the fireball icon
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
-
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
 	if(registry.projectiles.has(entity)){
 		Damage& damage = registry.damages.get(entity);
-		HP* hp = nullptr;
+		Statistics* hp = nullptr;
 		Entity healthbar;
 		if(damage.isFriendly){
 			if(registry.enemies.has(other_entity)){
 				Enemy& enemy = registry.enemies.get(other_entity);
 				healthbar = enemy.healthbar;
-				hp = &registry.healthPoints.get(other_entity);
+				hp = &registry.stats.get(other_entity);
 			}
 		} else {
 			if(registry.companions.has(other_entity)){
 				Companion& enemy = registry.companions.get(other_entity);
 				healthbar = enemy.healthbar;
-				hp = &registry.healthPoints.get(other_entity);
+				hp = &registry.stats.get(other_entity);
 			}
 		}
 		if(hp){
 			hp->health = hp->health - (rand() % damage.range + damage.minDamage);
 			Motion& motion = registry.motions.get(healthbar);
-			if(hp->health<=0){
-				if(!registry.deathTimers.has(other_entity)){
+			if (registry.stats.get(currPlayer).health <= 0) {	// check if HP of currPlayer is 0, checkRound to skip this player
+				if (!registry.deathTimers.has(other_entity)) {
 					registry.deathTimers.emplace(other_entity);
 				}
-				motion.scale = vec2({ (HEALTHBAR_WIDTH*(99.f/100.f)), HEALTHBAR_HEIGHT });
-				
-			} else {
-				motion.scale = vec2({ (HEALTHBAR_WIDTH*(hp->health/100.f)), HEALTHBAR_HEIGHT });
+				checkRound();
+				motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
+			}
+			else {
+				if (hp->health <= 0) {
+					if (!registry.deathTimers.has(other_entity)) {
+						registry.deathTimers.emplace(other_entity);
+					}
+					motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
+				}
+				else {
+					motion.scale = vec2({ (HEALTHBAR_WIDTH * (hp->health / 100.f)), HEALTHBAR_HEIGHT });
+				}
 			}
 		}
 	}
@@ -384,43 +499,116 @@ void WorldSystem::handle_collisions() {
 		// The entity and its collider
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
+
+		// Deal with fireball - Companion collisions
+		if (registry.companions.has(entity)) {
+
+			// Checking Projectile - Companion collisions
+			if (registry.projectiles.has(entity_other)) {
+
+				Damage& projDamage = registry.damages.get(entity_other);
+				if (projDamage.isFriendly == 0) {	// check if isFriendly = 0 which hits companion
+					// initiate death unless already dying
+					if (!registry.deathTimers.has(entity)) {
+						if (!registry.buttons.has(entity)) {
+
+							update_health(entity_other, entity);
+							registry.remove_all_components_of(entity_other);
+							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
+								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+							}
+							else {
+								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
+							}
+							// update only if hit_timer for entity does not already exist
+							if (!registry.hit_timer.has(entity)) {
+								registry.motions.get(entity).position.x -= 20; // character shifts backwards
+								registry.hit_timer.emplace(entity); // to move character back to original position
+							}
+							displayPlayerTurn();	// displays player turn when enemy hits collide
+						}
+					}
+				}
+			}
+			// create death particles. Register for rendering.
+			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+			{
+				// get rid of dead entity's healthbar.
+				Entity entityHealthbar = registry.companions.get(entity).healthbar;
+				registry.motions.remove(entityHealthbar);
+
+				DeathParticle particleEffects;
+				for (int p = 0; p <= NUM_DEATH_PARTICLES; p++) {
+					auto& motion = registry.motions.get(entity);
+					DeathParticle particle;
+					float random1 = ((rand() % 100) - 50) / 10.0f;
+					float random2 = ((rand() % 200) - 100) / 10.0f;
+					float rColor = 0.5f + ((rand() % 100) / 100.0f);
+					// particle.motion.position = motion.position + random + vec2({ 20,20 });
+					particle.motion.position.x = motion.position.x + random1 + 20.f;
+					particle.motion.position.y = motion.position.y + random2 + 40.f;
+					particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+					particle.motion.velocity *= 0.1f;
+					particle.motion.scale = vec2({ 10, 10 });
+					particleEffects.deathParticles.push_back(particle);
+				}
+				if (!registry.deathParticles.has(entity)) {
+					registry.deathParticles.insert(entity, particleEffects);
+				}
+			}
+		}
     
-		// TODO: Deal with fireball - enemyMage collisions
+		// Deal with fireball - Enemy collisions
 		if (registry.enemies.has(entity)) {
-			//Player& player = registry.players.get(entity);
 
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
-				// initiate death unless already dying
-				if (!registry.deathTimers.has(entity)) {
-					if (!registry.buttons.has(entity)) {
 
-						update_health(entity_other, entity);
-						registry.remove_all_components_of(entity_other); // causing abort error because of key input
-						Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
-						if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0) {
-							Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+				Damage& projDamage = registry.damages.get(entity_other);
+				if (projDamage.isFriendly == 1) {	// check if isFriendly = 1 which hits enemy
+					// initiate death unless already dying
+					if (!registry.deathTimers.has(entity)) {
+						if (!registry.buttons.has(entity)) {
+
+							update_health(entity_other, entity);
+							registry.remove_all_components_of(entity_other); 
+							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
+								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+							}
+							else {
+								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
+							}
+							// update only if hit_timer for entity does not already exist
+							if (!registry.hit_timer.has(entity)) {
+								registry.motions.get(entity).position.x += 20; // character shifts backwards
+								registry.hit_timer.emplace(entity); // to move character back to original position
+							}
+
+							//enemy turn start
+							if (player_turn == 0) {
+								displayEnemyTurn();
+								if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+									prevPlayer = currPlayer;
+									temporaryFireball(currPlayer);
+									printf("enemy has attacked, checkRound now \n");
+									checkRound();
+								}
+								else {
+									if (roundVec.empty()) {
+										printf("roundVec is empty at enemy turn, createRound now \n");
+										createRound();
+									}
+								}
+							}
 						}
-						else {
-							Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
-						}
-						// update only if hit_timer for entity does not already exist
-						if (!registry.hit_timer.has(entity)) {
-							registry.motions.get(entity).position.x += 20; // character shifts backwards
-							registry.hit_timer.emplace(entity); // to move character back to original position
-						}
-						// reduce HP of enemyMage by __ amount
-						// if HP = 0, call death animation and possibly included death sound, 
-						//		add death timer, restart game
 					}
-	
-				}
-				
+				}								
 			}
 
-
 			// create death particles. Register for rendering.
-			if (registry.healthPoints.has(entity) && registry.healthPoints.get(entity).health <= 0)
+			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
 			{				
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
@@ -466,11 +654,9 @@ void WorldSystem::handle_collisions() {
 					printf("calculated %f\n", reflectE);
 					printf("actual %f\n", reflectEM->angle);
 				}
-
 			}
 		}
 	}
-
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
@@ -487,6 +673,21 @@ void WorldSystem::handle_boundary_collision() {
 			registry.motions.get(entity).position.y >= screen_height - 20) {
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
+			//enemy turn start
+			if (player_turn == 0) {
+				displayEnemyTurn();
+				if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+					temporaryFireball(currPlayer);
+					printf("enemy has attacked, checkRound now \n");
+					checkRound();
+				}
+				else {
+					if (roundVec.empty()) {
+						printf("roundVec is empty at enemy turn, createRound now \n");
+						createRound();
+					}
+				}
+			}
 		}
 	}
 }
@@ -542,37 +743,43 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
 		// fireball
 		if (player_turn == 1) {
-			Motion icon = registry.motions.get(fireball_icon);
-			if (inButton(icon.position, FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT)) {
-				if (FIREBALLSELECTED == 0) {
-					selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
-
-					FIREBALLSELECTED = 1;
-
-
-
+			displayPlayerTurn();
+			if (registry.companions.has(currPlayer)) {
+				Motion icon = registry.motions.get(fireball_icon);
+				if (inButton(icon.position, FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT)) {
+					if (FIREBALLSELECTED == 0) {
+						selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
+						FIREBALLSELECTED = 1;
+					}
+					else {
+						deselectButton();
+						FIREBALLSELECTED = 0;
+					}
 				}
 				else {
-					deselectButton();
-					FIREBALLSELECTED = 0;
+					if (FIREBALLSELECTED == 1) {
+						Motion player = registry.motions.get(currPlayer);	// need to change to based on turn system
+						currentProjectile = launchFireball(player.position);
+						FIREBALLSELECTED = 0;
+						//active this when ai is done
+						deselectButton();
+						printf("player has attacked, checkRound now \n");
+						checkRound();
+					}
 				}
 			}
 			else {
-				if (FIREBALLSELECTED == 1) {
-					Motion player = registry.motions.get(player_mage);
-					currentProjectile = launchFireball(player.position);
-					FIREBALLSELECTED = 0;
-					//active this when ai is done
-					player_turn = 0;
-					deselectButton();
+				if (roundVec.empty()) {
+					printf("roundVec is empty at player turn, createRound now \n");
+					createRound();						
+				}
+				else {
+					printf("no player at player turn \n");
+					checkRound();
 				}
 			}
 		}
-
-
-		
-	}
-
+	}		
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
@@ -584,7 +791,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
 	//printf("%f", msPos.x);
 }
-
 
 bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {
 	if (msPos.x <= buttonPos.x + buttonX/2 && msPos.x >= buttonPos.x - buttonX/2) {
@@ -598,8 +804,6 @@ bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {
 void WorldSystem::deselectButton() {
 	registry.remove_all_components_of(selectedButton);
 }
-
-
 
 //skills
 Entity WorldSystem::launchFireball(vec2 startPos) {
@@ -626,13 +830,11 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);
 	
-	// ****temp**** enemy randomly spawn barrier
-
-	int rng = rand() % 10;
-	if (rng >= 4) {
-		createBarrier(renderer, registry.motions.get(enemy_mage).position);
-	}
-
+	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
+	//int rng = rand() % 10;
+	//if (rng >= 4) {
+	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	//}
 
 	return  resultEntity;
 }
