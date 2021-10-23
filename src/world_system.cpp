@@ -490,7 +490,7 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 		}
 	}
 }
-
+/*
 void WorldSystem::update_healthBars() {
 	printf("updating healths\n");
 	for(Entity entity: registry.stats.entities){
@@ -525,6 +525,25 @@ void WorldSystem::update_healthBars() {
 		
 	}
 }
+*/
+
+void WorldSystem::update_healthBars() {
+	for(Entity entity: registry.enemies.entities){
+		Enemy& enemy = registry.enemies.get(entity);
+		Statistics& stat = registry.stats.get(entity);
+		Entity healthbar = enemy.healthbar;
+		Motion& motion = registry.motions.get(healthbar);
+		motion.scale = vec2({ (HEALTHBAR_WIDTH*(stat.health/100.f)), HEALTHBAR_HEIGHT });	
+	}
+	for(Entity entity: registry.companions.entities){
+		Companion& enemy = registry.companions.get(entity);
+		Statistics& stat = registry.stats.get(entity);
+		Entity healthbar = enemy.healthbar;
+		Motion& motion = registry.motions.get(healthbar);
+		motion.scale = vec2({ (HEALTHBAR_WIDTH*(stat.health/100.f)), HEALTHBAR_HEIGHT });	
+	}
+}
+
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
