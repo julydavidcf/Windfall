@@ -586,7 +586,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					// the entity. If it is silenced the entity should make *no*
 					// moves. 
 					for(Entity enemy: registry.enemies.entities){
-						if(inEntity(registry.motions.get(enemy))){
+						if(inEntity(registry.motions.get(enemy))&&(!registry.silenced.has(enemy))){
 							printf("ENEMY FOUND!\n");
 							registry.silenced.emplace(enemy);
 							printf("Enemy silenced\n");
@@ -676,7 +676,7 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	if (dx < 0) {
 		angle += M_PI;
 	}
-	//printf(" % f", angle);
+	printf("Angle: %f\n", angle);
 	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);

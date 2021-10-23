@@ -9,6 +9,8 @@ vec2 get_bounding_box(const Motion& motion)
 	return { abs(motion.scale.x), abs(motion.scale.y) };
 }
 
+
+
 // This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees
 // if the center point of either object is inside the other's bounding-box-circle. You can
 // surely implement a more accurate detection
@@ -82,15 +84,74 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 			Entity entity_i = motion_container.entities[i];
 			
 			Mesh* mesh_i 			= registry.meshPtrs.components[i];
-			Entity entity_i_mesh 	=  registry.meshPtrs.entities[i];
+			Entity entity_i_mesh 	= registry.meshPtrs.entities[i];
+		
+			vec3 point0 	= {0.f, 0.f, 1.f};
+			vec3 pointy 	= {0.f, 1.f, 1.f};
+			vec3 pointx 	= {1.f, 0.f, 1.f};
+			vec3 pointxy 	= {1.f, 1.f, 1.f};
 
-			// visualize the radius with two axis-aligned lines
-			const vec2 bonding_box = get_bounding_box(motion_i);
-			float radius = sqrt(dot(bonding_box/2.f, bonding_box/2.f));
-			vec2 line_scale1 = { motion_i.scale.x / 10, 2*radius };
-			Entity line1 = createLine(motion_i.position, line_scale1);
-			vec2 line_scale2 = { 2*radius, motion_i.scale.x / 10};
-			Entity line2 = createLine(motion_i.position, line_scale2);
+			Transform transform;
+			vec2 offset = {motion_i.scale.x/2, motion_i.scale.y/2};
+			vec2 new_pos = motion_i.position - offset;
+			transform.translate(new_pos);
+			transform.rotate(motion_i.angle);
+			transform.scale(motion_i.scale);
+			
+			point0 	= transform.mat * point0;
+			pointy 	= transform.mat * pointy;
+			pointx 	= transform.mat * pointx;
+			pointxy = transform.mat * pointxy;
+
+			float line_thickness = 1.5f;
+
+			vec2 points[4] = {point0, pointx, pointy, pointxy};
+			float min_x = point0.x;
+			float max_x = pointx.x;
+			float min_y = point0.y;
+			float max_y = pointy.y;
+			for(vec2 vec: points){
+				if(vec.x<min_x){
+					min_x = vec.x;
+				}
+				if(vec.x>max_x){
+					max_x = vec.x;
+				}
+				if(vec.y<min_y){
+					min_y = vec.y;
+				}
+				if(vec.y>max_y){
+					max_y = vec.y;
+				}
+			}
+
+			vec2 line1_pos = {(max_x+min_x)/2, min_y};
+			vec2 line2_pos = {(max_x+min_x)/2, max_y};
+			vec2 line3_pos = {min_x, (max_y+min_y)/2};
+			vec2 line4_pos = {max_x, (max_y+min_y)/2};
+
+			vec2 line1_scale = {(max_x-min_x), line_thickness};
+			vec2 line3_scale = {line_thickness, (max_y-min_y)};
+
+			
+			Entity line1 = createLine(line1_pos, line1_scale);
+			Entity line2 = createLine(line2_pos, line1_scale);
+			Entity line3 = createLine(line3_pos, line3_scale);
+			Entity line4 = createLine(line4_pos, line3_scale);
+
+			if(registry.projectiles.has(entity_i)){
+				printf("Angle2: %f\n", motion_i.angle);
+				printf("Pos: %f, %f\n", motion_i.position.x, motion_i.position.y);
+				printf("line1_pos: %f, %f\n", line1_pos.x, line1_pos.y);
+				printf("line2_pos: %f, %f\n", line2_pos.x, line2_pos.y);
+				printf("line3_pos: %f, %f\n", line3_pos.x, line3_pos.y);
+				printf("line4_pos: %f, %f\n", line4_pos.x, line4_pos.y);
+				printf("point0: %f, %f\n", point0.x, point0.y);
+				printf("pointx: %f, %f\n", pointx.x, pointx.y);
+				printf("pointy: %f, %f\n", pointy.x, pointy.y);
+				printf("pointxy: %f, %f\n", pointxy.x, pointxy.y);
+
+			}
 
 		}
 	}
