@@ -384,6 +384,82 @@ Entity createLine(vec2 position, vec2 scale)
 	return entity;
 }
 
+Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.position = pos;
+	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERONE,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBackgroundLayerTwo(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.position = pos;
+	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERTWO,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBackgroundLayerThree(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.position = pos;
+	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERTHREE,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.position = pos;
+	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERFOUR,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 Entity createPebble(vec2 pos, vec2 size)
 {
 	auto entity = Entity();

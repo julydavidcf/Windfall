@@ -49,7 +49,7 @@ struct Enemy
 // Projectiles: Fireball
 struct Projectile
 {
-
+	float flyingTimer = 0.f;
 };
 
 // reflects projectile
@@ -212,8 +212,14 @@ enum class TEXTURE_ASSET_ID {
 	SWORDSMAN_IDLE = MAGE_ANIM + 1,
 	NECROMANCER_IDLE = SWORDSMAN_IDLE + 1,
 
+	// ------- Background layers ------
+	BACKGROUNDLAYERONE = NECROMANCER_IDLE + 1,
+	BACKGROUNDLAYERTWO = BACKGROUNDLAYERONE + 1,
+	BACKGROUNDLAYERTHREE = BACKGROUNDLAYERTWO + 1,
+	BACKGROUNDLAYERFOUR = BACKGROUNDLAYERTHREE + 1,
+
 	// --------------------------
-	TEXTURE_COUNT = NECROMANCER_IDLE + 1
+	TEXTURE_COUNT = BACKGROUNDLAYERFOUR + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

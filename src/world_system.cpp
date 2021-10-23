@@ -380,8 +380,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			return true;
 		}
 	}
-	// reduce window brightness if any of the present salmons is dying
-	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
+	// Handle flying projectile timer
+	for (Entity entity : registry.projectiles.entities) {
+		Projectile& proj = registry.projectiles.get(entity);
+		proj.flyingTimer -= elapsed_ms_since_last_update;
+	}
 
 	// update timer for enemy to return to its original position after being hit
 	float min_counter_ms_2 = 500.f;
@@ -432,15 +435,28 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
+	int w, h;
+	glfwGetWindowSize(window, &w, &h);
+	// Render background before all else
+	
+	// Layer 1 (Last layer in background)
+	createBackgroundLayerOne(renderer, { w / 2, h / 2 });
+	// Layer 2
+	createBackgroundLayerTwo(renderer, { w / 2, h / 2 });
+	// Layer 3
+	createBackgroundLayerThree(renderer, { w / 2, h / 2 });
+	// Layer 4 (Foremost layer)
+	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
+
 	// Create a player mage
-	player_mage = createPlayerMage(renderer, { 200, 450 });
+	player_mage = createPlayerMage(renderer, { 200, 550 });
 	// Create a player swordsman
-	player_swordsman = createPlayerSwordsman(renderer, { 350, 400 });
+	player_swordsman = createPlayerSwordsman(renderer, { 350, 500 });
 	// Create an enemy mage
-	enemy_mage = createEnemyMage(renderer, { 900, 450 });
+	enemy_mage = createEnemyMage(renderer, { 900, 550 });
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 	// Create an enemy swordsman
-	enemy_swordsman = createEnemySwordsman(renderer, { 700, 400 });
+	enemy_swordsman = createEnemySwordsman(renderer, { 700, 500 });
 	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	// Create the necromancer
 	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now
@@ -829,6 +845,9 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);
+	
+	Projectile* proj = &registry.projectiles.get(resultEntity);
+	proj->flyingTimer = 2000.f;
 	
 	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
 	//int rng = rand() % 10;

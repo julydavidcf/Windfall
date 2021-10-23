@@ -40,7 +40,11 @@ class RenderSystem {
 			textures_path("enemyTurn.png"),
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
-			textures_path("necromancer_idle.png")
+			textures_path("necromancer_idle.png"),
+			textures_path("backgroundLayerOne.png"),
+			textures_path("backgroundLayerTwo.png"),
+			textures_path("backgroundLayerThree.png"),
+			textures_path("backgroundLayerFour.png")
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -73,6 +77,11 @@ class RenderSystem {
 	const int NECROMANCER_IDLE_FRAMES = 4;
 	const GLfloat NECROMANCER_IDLE_FRAME_WIDTH = 0.25;
 
+	// Adjust projectile camera width/height here
+	float CAMERA_OFFSET_LEFT = 500;
+	float CAMERA_OFFSET_TOP = 500;
+	float CAMERA_OFFSET_RIGHT = 400;
+	float CAMERA_OFFSET_BOTTOM = 200;
 public:
 
 	// Initialize the window
@@ -101,6 +110,8 @@ public:
 	void draw(float elapsed_ms);
 
 	mat3 createProjectionMatrix();
+
+	mat3 createCameraProjection(Motion& motion);
 
 private:
 	// Internal drawing functions for each entity type

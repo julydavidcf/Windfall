@@ -109,6 +109,10 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
+	// Camera Control constants
+	float CAM_OFFSET_XMAX = 0.4;
+	float CAM_OFFSET_YMAX = 0.2;
+
 	//skill constants
 	float FIREBALLSPEED = 100.f;
 

@@ -289,6 +289,14 @@ void RenderSystem::draw(float elapsed_ms)
 	mat3 projection_2D = createProjectionMatrix();
 	std::vector<Entity> needParticleEffects;
 	
+	mat3 projectionMat = createProjectionMatrix();
+	for (Entity entity : registry.renderRequests.entities) {
+		// Handle camera focus on projectiles
+		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0) {
+			Motion& motion = registry.motions.get(entity);
+			projectionMat = createCameraProjection(motion);
+		}
+	}
 
 	// Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
@@ -379,7 +387,7 @@ void RenderSystem::draw(float elapsed_ms)
 				}
 
 			}
-			drawTexturedMesh(entity, projection_2D, curr_frame, frame_width);
+			drawTexturedMesh(entity, projectionMat, curr_frame, frame_width);
 		}
 
 	}
@@ -413,5 +421,20 @@ mat3 RenderSystem::createProjectionMatrix()
 	float sy = 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
-	return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
+	return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx , ty, 1.f}};
+}
+
+mat3 RenderSystem::createCameraProjection(Motion& motion)
+{
+	float left = (motion.position.x - motion.scale.x / 2) - CAMERA_OFFSET_LEFT;
+	float top = (motion.position.y - motion.scale.y / 2) - CAMERA_OFFSET_TOP;
+
+	float right = (motion.position.x + motion.scale.x / 2) + CAMERA_OFFSET_RIGHT;
+	float bottom = (motion.position.y + motion.scale.y / 2) + CAMERA_OFFSET_BOTTOM;
+
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
+	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
 }

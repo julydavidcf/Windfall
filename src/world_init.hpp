@@ -23,6 +23,8 @@ const float PLAYERTURN_WIDTH = 300.f;
 const float PLAYERTURN_HEIGHT = 100.f;
 const float ENEMYTURN_WIDTH = 300.f;
 const float ENEMYTURN_HEIGHT = 100.f;
+const float BACKGROUND_WIDTH = 1800.f;
+const float BACKGROUND_HEIGHT = 900.f;
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -34,6 +36,13 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos);
 Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos);
 // the necromancer
 Entity createNecromancer(RenderSystem* renderer, vec2 pos);
+
+// Create background layers
+Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos);
+Entity createBackgroundLayerTwo(RenderSystem* renderer, vec2 pos);
+Entity createBackgroundLayerThree(RenderSystem* renderer, vec2 pos);
+Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos);
+
 //healthbar
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // the fireball
@@ -41,6 +50,7 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
+
 // Turn indicators
 Entity createPlayerTurn(RenderSystem* renderer, vec2 position);
 Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
