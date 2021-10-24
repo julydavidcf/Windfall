@@ -398,12 +398,12 @@ void RenderSystem::draw(float elapsed_ms)
 				else if (registry.backgroundLayers.get(entity).isCameraScrollOne && hasTravellingProjectile) {
 					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_ONE;
 					curr_frame = registry.backgroundLayers.get(entity).scrollX;
-					frame_width = 0.005;
+					frame_width = 0.001;
 				}
 				else if (registry.backgroundLayers.get(entity).isCameraScrollTwo && hasTravellingProjectile) {
 					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_TWO;
 					curr_frame = registry.backgroundLayers.get(entity).scrollX;
-					frame_width = 0.005;
+					frame_width = 0.001;
 				}
 
 			}

@@ -84,8 +84,8 @@ class RenderSystem {
 	float CAMERA_OFFSET_BOTTOM = 200;
 
 	float AUTOSCROLL_RATE = 0.25;
-	float CAMERA_SCROLL_RATE_ONE = 0.30;
-	float CAMERA_SCROLL_RATE_TWO = 0.40;
+	float CAMERA_SCROLL_RATE_ONE = 0.50;
+	float CAMERA_SCROLL_RATE_TWO = 3.0;
 
 public:
 
