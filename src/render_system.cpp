@@ -303,6 +303,7 @@ void RenderSystem::draw(float elapsed_ms)
 	// Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
 	{
+		mat3 projectionToUse = projectionMat;
 		if (!registry.motions.has(entity))
 			continue;
 		// if an entity has a deathParticle compononent, that means the 
@@ -389,6 +390,7 @@ void RenderSystem::draw(float elapsed_ms)
 				}
 			}
 
+			// Handle the background layers and scrolling
 			if (registry.backgroundLayers.has(entity)) {
 				if (registry.backgroundLayers.get(entity).isAutoScroll) {
 					registry.backgroundLayers.get(entity).scrollX += AUTOSCROLL_RATE;
@@ -407,7 +409,10 @@ void RenderSystem::draw(float elapsed_ms)
 				}
 
 			}
-			drawTexturedMesh(entity, projectionMat, curr_frame, frame_width);
+			// UI-related entities should remain in constant position on screen
+			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;
+
+			drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width);
 		}
 
 	}
@@ -446,16 +451,11 @@ mat3 RenderSystem::createProjectionMatrix()
 
 mat3 RenderSystem::createCameraProjection(Motion& motion)
 {
-	int w, h;
-	glfwGetFramebufferSize(window, &w, &h);
-	gl_has_errors();
-
 	float left = (motion.position.x - motion.scale.x / 2) - CAMERA_OFFSET_LEFT;
 	float top = (motion.position.y - motion.scale.y / 2) - CAMERA_OFFSET_TOP;
 
 	float right = (motion.position.x + motion.scale.x / 2) + CAMERA_OFFSET_RIGHT;
 	float bottom = (motion.position.y + motion.scale.y / 2) + CAMERA_OFFSET_BOTTOM;
-
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
