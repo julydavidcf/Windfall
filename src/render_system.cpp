@@ -288,12 +288,14 @@ void RenderSystem::draw(float elapsed_ms)
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
 	std::vector<Entity> needParticleEffects;
-	
+	int hasTravellingProjectile = 0;
+
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
 		// Handle camera focus on projectiles
 		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0) {
 			Motion& motion = registry.motions.get(entity);
+			hasTravellingProjectile = 1;
 			projectionMat = createCameraProjection(motion);
 		}
 	}
@@ -385,6 +387,24 @@ void RenderSystem::draw(float elapsed_ms)
 					curr_frame = registry.companions.has(entity) ? registry.companions.get(entity).curr_frame
 																 : registry.enemies.get(entity).curr_frame;
 				}
+			}
+
+			if (registry.backgroundLayers.has(entity)) {
+				if (registry.backgroundLayers.get(entity).isAutoScroll) {
+					registry.backgroundLayers.get(entity).scrollX += AUTOSCROLL_RATE;
+					curr_frame = registry.backgroundLayers.get(entity).scrollX;
+					frame_width = 0.01;
+				}
+				else if (registry.backgroundLayers.get(entity).isCameraScrollOne && hasTravellingProjectile) {
+					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_ONE;
+					curr_frame = registry.backgroundLayers.get(entity).scrollX;
+					frame_width = 0.005;
+				}
+				else if (registry.backgroundLayers.get(entity).isCameraScrollTwo && hasTravellingProjectile) {
+					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_TWO;
+					curr_frame = registry.backgroundLayers.get(entity).scrollX;
+					frame_width = 0.005;
+				}
 
 			}
 			drawTexturedMesh(entity, projectionMat, curr_frame, frame_width);
@@ -426,11 +446,16 @@ mat3 RenderSystem::createProjectionMatrix()
 
 mat3 RenderSystem::createCameraProjection(Motion& motion)
 {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	gl_has_errors();
+
 	float left = (motion.position.x - motion.scale.x / 2) - CAMERA_OFFSET_LEFT;
 	float top = (motion.position.y - motion.scale.y / 2) - CAMERA_OFFSET_TOP;
 
 	float right = (motion.position.x + motion.scale.x / 2) + CAMERA_OFFSET_RIGHT;
 	float bottom = (motion.position.y + motion.scale.y / 2) + CAMERA_OFFSET_BOTTOM;
+
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);

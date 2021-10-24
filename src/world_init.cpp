@@ -394,6 +394,9 @@ Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
 
+	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
+	backgroundLayer.isAutoScroll = 1;
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERONE,
@@ -412,6 +415,10 @@ Entity createBackgroundLayerTwo(RenderSystem* renderer, vec2 pos)
 	motion.angle = 0.f;
 	motion.position = pos;
 	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+
+	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
+	backgroundLayer.isCameraScrollOne = 1;
 
 	registry.renderRequests.insert(
 		entity,
@@ -432,6 +439,9 @@ Entity createBackgroundLayerThree(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
 
+	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
+	backgroundLayer.isCameraScrollTwo = 1;
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERTHREE,
@@ -450,6 +460,8 @@ Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos)
 	motion.angle = 0.f;
 	motion.position = pos;
 	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,

@@ -45,6 +45,13 @@ struct Enemy
 	float frame_counter_ms = 100;
 };
 
+struct BackgroundLayer
+{
+	float scrollX = 0.f;
+	int isAutoScroll = 0;
+	int isCameraScrollOne = 0;
+	int isCameraScrollTwo = 0;
+};
 
 // Projectiles: Fireball
 struct Projectile
@@ -244,7 +251,9 @@ enum class GEOMETRY_BUFFER_ID {
 	SWORDSMAN_IDLE = MAGE_IDLE + 1,
 	NECROMANCER_IDLE = SWORDSMAN_IDLE + 1,
 	// --------------------------
-	GEOMETRY_COUNT = NECROMANCER_IDLE + 1
+	BACKGROUND = NECROMANCER_IDLE + 1,
+
+	GEOMETRY_COUNT = BACKGROUND + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

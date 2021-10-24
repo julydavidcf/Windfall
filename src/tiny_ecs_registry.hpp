@@ -17,6 +17,7 @@ public:
 	ComponentContainer<Collision> collisions;
 	ComponentContainer<Companion> companions;
 	ComponentContainer<Mesh*> meshPtrs;
+	ComponentContainer<BackgroundLayer> backgroundLayers;
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Projectile> projectiles;

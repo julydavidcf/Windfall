@@ -77,11 +77,16 @@ class RenderSystem {
 	const int NECROMANCER_IDLE_FRAMES = 4;
 	const GLfloat NECROMANCER_IDLE_FRAME_WIDTH = 0.25;
 
-	// Adjust projectile camera width/height here
+	// Camera/scrolling constants
 	float CAMERA_OFFSET_LEFT = 500;
 	float CAMERA_OFFSET_TOP = 500;
 	float CAMERA_OFFSET_RIGHT = 400;
 	float CAMERA_OFFSET_BOTTOM = 200;
+
+	float AUTOSCROLL_RATE = 0.25;
+	float CAMERA_SCROLL_RATE_ONE = 0.30;
+	float CAMERA_SCROLL_RATE_TWO = 0.40;
+
 public:
 
 	// Initialize the window
