@@ -15,6 +15,8 @@ const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 7.f;
 const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
+const float ARROW_WIDTH = 80.f;
+const float ARROW_HEIGHT = 10.f;
 const float FIREBALL_ICON_WIDTH = 80.f;
 const float FIREBALL_ICON_HEIGHT = 80.f;
 const float BARRIER_WIDTH = 50.f;
@@ -38,6 +40,8 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos);
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // the fireball
 Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
+
+Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);

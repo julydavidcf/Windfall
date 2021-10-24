@@ -69,6 +69,8 @@ private:
 
 	//Skills Function
 	Entity launchFireball(vec2 startPos);
+	Entity WorldSystem::launchArrow(vec2 startPos);
+	void WorldSystem::healTarget(Entity target);
 
 	// Game state
 	RenderSystem* renderer;
@@ -96,5 +98,5 @@ private:
 
 	//skill constants
 	float FIREBALLSPEED = 100.f;
-
+	float ARROWSPEED = 700.f;
 };

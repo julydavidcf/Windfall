@@ -38,6 +38,7 @@ class RenderSystem {
 			textures_path("particle.png"),
 			textures_path("playerTurn.png"),
 			textures_path("enemyTurn.png"),
+			textures_path("arrow.png"),
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("necromancer_idle.png")

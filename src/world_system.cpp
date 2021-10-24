@@ -340,6 +340,13 @@ void WorldSystem::restart_game() {
 
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 
+	// reset health
+	for (int i = (int)registry.healthPoints.components.size() - 1; i >= 0; --i) {
+		HP* hp = &registry.healthPoints.components[i];
+		hp->health = 100;
+	}
+
+
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -375,6 +382,22 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 		}
 	}
 }
+
+
+//void WorldSystem::simple_hp_update(Entity target) {
+//	Entity healthbar = registry.enemies.get(target);
+//	Motion& motion = registry.motions.get(healthbar);
+//	if (hp->health <= 0) {
+//		if (!registry.deathTimers.has(target)) {
+//			registry.deathTimers.emplace(target);
+//		}
+//		motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
+//
+//	}
+//	else {
+//		motion.scale = vec2({ (HEALTHBAR_WIDTH * (hp->health / 100.f)), HEALTHBAR_HEIGHT });
+//	}
+//}
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
@@ -512,6 +535,25 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         restart_game();
 	}
 
+	// temp self-damaging skill "k"
+	if (action == GLFW_RELEASE && key == GLFW_KEY_K) {
+		HP* m_hp = &registry.healthPoints.get(player_mage);
+		HP* s_hp = &registry.healthPoints.get(player_swordsman);
+		HP* em_hp = &registry.healthPoints.get(enemy_mage);
+		HP* es_hp = &registry.healthPoints.get(enemy_swordsman);
+		printf("before %f\n", es_hp->health);
+		m_hp->health -= 20;
+		s_hp->health-= 20;
+		em_hp->health -= 20;
+		es_hp->health -= 20;
+		printf("after %f\n", es_hp->health);
+	}
+
+	// temp arrow skill "A"
+	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+		launchArrow(registry.motions.get(player_mage).position);
+	}
+
 	// Debugging
 	if (key == GLFW_KEY_D) {
 		if (action == GLFW_RELEASE)
@@ -602,6 +644,44 @@ void WorldSystem::deselectButton() {
 
 
 //skills
+void WorldSystem::healTarget(Entity target) {
+	if (registry.healthPoints.has(target)) {
+		HP* hp = &registry.healthPoints.get(target);
+		hp->health + 20;
+	}
+
+
+}
+
+Entity WorldSystem::launchArrow(vec2 startPos) {
+
+	float proj_x = startPos.x + 50;
+	float proj_y = startPos.y;
+	float mouse_x = msPos.x;
+	float mouse_y = msPos.y;
+
+	float dx = mouse_x - proj_x;
+	float dy = mouse_y - proj_y;
+	float dxdy = sqrt((dx * dx) + (dy * dy));
+	float vx = ARROWSPEED * dx / dxdy;
+	float vy = ARROWSPEED * dy / dxdy;
+
+	//printf("%f%f\n", vx, vy);
+
+	float angle = atan(dy / dx);
+	if (dx < 0) {
+		angle += M_PI;
+	}
+	//printf(" % f", angle);
+	Entity resultEntity = createArrow(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
+	Motion* arrowacc = &registry.motions.get(resultEntity);
+	arrowacc->acceleration = vec2(200 * vx / ARROWSPEED, 200 * vy / ARROWSPEED);
+
+
+	return  resultEntity;
+}
+
+
 Entity WorldSystem::launchFireball(vec2 startPos) {
 
 	float proj_x = startPos.x + 50;
