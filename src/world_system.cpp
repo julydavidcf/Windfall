@@ -449,7 +449,7 @@ void WorldSystem::restart_game() {
 }
 
 
-}
+
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
 	if(registry.projectiles.has(entity)){
@@ -734,16 +734,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	// temp self-damaging skill "k"
 	if (action == GLFW_RELEASE && key == GLFW_KEY_K) {
-		HP* m_hp = &registry.healthPoints.get(player_mage);
-		HP* s_hp = &registry.healthPoints.get(player_swordsman);
-		HP* em_hp = &registry.healthPoints.get(enemy_mage);
-		HP* es_hp = &registry.healthPoints.get(enemy_swordsman);
-		printf("before %f\n", es_hp->health);
-		m_hp->health -= 20;
-		s_hp->health-= 20;
-		em_hp->health -= 20;
-		es_hp->health -= 20;
-		printf("after %f\n", es_hp->health);
+
 	}
 
 	// temp arrow skill "A"
@@ -845,9 +836,8 @@ void WorldSystem::deselectButton() {
 
 //skills
 void WorldSystem::healTarget(Entity target) {
-	if (registry.healthPoints.has(target)) {
-		HP* hp = &registry.healthPoints.get(target);
-		hp->health + 20;
+	if (1) {
+
 	}
 
 
