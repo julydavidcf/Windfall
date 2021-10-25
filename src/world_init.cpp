@@ -17,7 +17,10 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 	motion.scale = vec2({ MAGE_WIDTH, MAGE_HEIGHT });
 
 	// Give hp to companion
-	registry.healthPoints.emplace(entity);
+	Statistics& stat = registry.stats.emplace(entity);
+	stat.health = 100;
+	stat.speed = 14;
+	
 
 	// Add a healthbar
 	Companion& companion = registry.companions.emplace(entity);
@@ -49,7 +52,9 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 	motion.scale = { -MAGE_WIDTH, MAGE_HEIGHT };
 
 	// Give hp to enemy
-	registry.healthPoints.emplace(entity);
+	Statistics& stat = registry.stats.emplace(entity);
+	stat.health = 100;
+	stat.speed = 13;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -81,7 +86,9 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	motion.scale = vec2({ SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
 
 	// Give hp to enemy
-	registry.healthPoints.emplace(entity);
+	Statistics& stat = registry.stats.emplace(entity);
+	stat.health = 100;
+	stat.speed = 12;
 
 	// Add a healthbar
 	Companion& companion = registry.companions.emplace(entity);
@@ -113,7 +120,9 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	motion.scale = vec2({ -SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
 
 	// Give hp to enemy
-	registry.healthPoints.emplace(entity);
+	Statistics& stat = registry.stats.emplace(entity);
+	stat.health = 100;
+	stat.speed = 11;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -145,7 +154,9 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos)
 	motion.scale = vec2({ -NECROMANCER_WIDTH, NECROMANCER_HEIGHT });
 
 	// Give hp to enemy
-	registry.healthPoints.emplace(entity);
+	Statistics& stat = registry.stats.emplace(entity);
+	stat.health = 100;
+	stat.speed = 100;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);

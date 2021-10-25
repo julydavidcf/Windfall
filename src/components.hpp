@@ -76,9 +76,10 @@ struct Damage
 
 // HP for enemy and companion
 // entities starts from 100%
-struct HP 
+struct Statistics 
 {
 	int health = 100;
+	int speed = 0;	// new speed stat
 };
 
 // All data relevant to the shape and motion of entities
@@ -155,7 +156,7 @@ struct Mesh
 
 struct HitTimer
 {
-	float counter_ms = 500;
+	float counter_ms = 250;
 };
 
 struct TurnIndicator
