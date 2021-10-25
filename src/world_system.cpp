@@ -254,6 +254,801 @@ void WorldSystem::checkRound() {
 	}
 }
 
+// -----------------------------------------------------------------------------------------------------------------------
+// Define enemy behavior tree nodes
+// The return type of behaviour tree processing
+enum class BTState {
+	Running,
+	Success,
+	Failure
+};
+
+std::string toString(BTState s)
+{
+	switch (s)
+	{
+	case BTState::Running:   return "Running";
+	case BTState::Success:   return "Success";
+	case BTState::Failure: return "Failure";
+	default:      return "[Unknown BTState]";
+	}
+}
+
+// The base class representing any node in our behaviour tree
+// Does not have any pointers
+class BTNode {
+public:
+	virtual void init(Entity e) {};
+
+	virtual BTState process(Entity e) = 0;
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckMage : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckMage(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		: m_index(0) {
+		m_children[0] = c0;
+		m_children[1] = c1;
+	}
+
+	void init(Entity e) override
+	{
+		m_index = 0;	// set index to 0 to execute first child
+		// initialize the first child
+		const auto& child = m_children[m_index];
+		child->init(e);
+	}
+
+	BTState process(Entity e) override {
+		printf("Pair run check mage ... child = %g \n", float(m_index));	// print statement to visualize
+		if (m_index >= 2)
+			return BTState::Success;
+
+		// process current child
+		BTState state = m_children[m_index]->process(e);
+
+		// select a new active child and initialize its internal state
+		if (state == BTState::Success) {	// if child return success
+			++m_index;	// increment index
+			if (m_index >= 2) {	// check whether the second child is executed already
+				return BTState::Success;
+			}
+			else {
+				m_children[m_index]->init(e);	// initialize next child to run 
+				return BTState::Running;
+			}
+		}
+		else {
+			return state;
+		}
+	}
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckTaunt : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckTaunt(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		: m_index(0) {
+		m_children[0] = c0;
+		m_children[1] = c1;
+	}
+
+	void init(Entity e) override
+	{
+		m_index = 0;	// set index to 0 to execute first child
+		// initialize the first child
+		const auto& child = m_children[m_index];
+		child->init(e);
+	}
+
+	BTState process(Entity e) override {
+		printf("Pair run check taunt ... child = %g \n", float(m_index));	// print statement to visualize
+		if (m_index >= 2)
+			return BTState::Success;
+
+		// process current child
+		BTState state = m_children[m_index]->process(e);
+
+		// select a new active child and initialize its internal state
+		if (state == BTState::Success) {	// if child return success
+			++m_index;	// increment index
+			if (m_index >= 2) {	// check whether the second child is executed already
+				return BTState::Success;
+			}
+			else {
+				m_children[m_index]->init(e);	// initialize next child to run 
+				return BTState::Running;
+			}
+		}
+		else {
+			return state;
+		}
+	}
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckCharacter : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckCharacter(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		: m_index(0) {
+		m_children[0] = c0;
+		m_children[1] = c1;
+	}
+
+	void init(Entity e) override
+	{
+		m_index = 0;	// set index to 0 to execute first child
+		// initialize the first child
+		const auto& child = m_children[m_index];
+		child->init(e);
+	}
+
+	BTState process(Entity e) override {
+		printf("Pair run check character ... child = %g \n", float(m_index));	// print statement to visualize
+		if (m_index >= 2)
+			return BTState::Success;
+
+		// process current child
+		BTState state = m_children[m_index]->process(e);
+
+		// select a new active child and initialize its internal state
+		if (state == BTState::Success) {	// if child return success
+			++m_index;	// increment index
+			if (m_index >= 2) {	// check whether the second child is executed already
+				return BTState::Success;
+			}
+			else {
+				m_children[m_index]->init(e);	// initialize next child to run 
+				return BTState::Running;
+			}
+		}
+		else {
+			return state;
+		}
+	}
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckEnemyTaunt : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckEnemyTaunt(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		: m_index(0) {
+		m_children[0] = c0;
+		m_children[1] = c1;
+	}
+
+	void init(Entity e) override
+	{
+		m_index = 0;	// set index to 0 to execute first child
+		// initialize the first child
+		const auto& child = m_children[m_index];
+		child->init(e);
+	}
+
+	BTState process(Entity e) override {
+		printf("Pair run check taunt for me ... child = %g \n", float(m_index));	// print statement to visualize
+		if (m_index >= 2)
+			return BTState::Success;
+
+		// process current child
+		BTState state = m_children[m_index]->process(e);
+
+		// select a new active child and initialize its internal state
+		if (state == BTState::Success) {	// if child return success
+			++m_index;	// increment index
+			if (m_index >= 2) {	// check whether the second child is executed already
+				return BTState::Success;
+			}
+			else {
+				m_children[m_index]->init(e);	// initialize next child to run 
+				return BTState::Running;
+			}
+		}
+		else {
+			return state;
+		}
+	}
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckEnemyHP : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckEnemyHP(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		: m_index(0) {
+		m_children[0] = c0;
+		m_children[1] = c1;
+	}
+
+	void init(Entity e) override
+	{
+		m_index = 0;	// set index to 0 to execute first child
+		// initialize the first child
+		const auto& child = m_children[m_index];
+		child->init(e);
+	}
+
+	BTState process(Entity e) override {
+		printf("Pair run check taunt for me ... child = %g \n", float(m_index));	// print statement to visualize
+		if (m_index >= 2)
+			return BTState::Success;
+
+		// process current child
+		BTState state = m_children[m_index]->process(e);
+
+		// select a new active child and initialize its internal state
+		if (state == BTState::Success) {	// if child return success
+			++m_index;	// increment index
+			if (m_index >= 2) {	// check whether the second child is executed already
+				return BTState::Success;
+			}
+			else {
+				m_children[m_index]->init(e);	// initialize next child to run 
+				return BTState::Running;
+			}
+		}
+		else {
+			return state;
+		}
+	}
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckMageHP : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckMageHP(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		: m_index(0) {
+		m_children[0] = c0;
+		m_children[1] = c1;
+	}
+
+	void init(Entity e) override
+	{
+		m_index = 0;	// set index to 0 to execute first child
+		// initialize the first child
+		const auto& child = m_children[m_index];
+		child->init(e);
+	}
+
+	BTState process(Entity e) override {
+		printf("Pair run check taunt for me ... child = %g \n", float(m_index));	// print statement to visualize
+		if (m_index >= 2)
+			return BTState::Success;
+
+		// process current child
+		BTState state = m_children[m_index]->process(e);
+
+		// select a new active child and initialize its internal state
+		if (state == BTState::Success) {	// if child return success
+			++m_index;	// increment index
+			if (m_index >= 2) {	// check whether the second child is executed already
+				return BTState::Success;
+			}
+			else {
+				m_children[m_index]->init(e);	// initialize next child to run 
+				return BTState::Running;
+			}
+		}
+		else {
+			return state;
+		}
+	}
+};
+
+// A general decorator with lambda condition
+class BTIfPlayerSideDoNotHaveMageHardCoded : public BTNode
+{
+public:
+	BTIfPlayerSideDoNotHaveMageHardCoded(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if player side has no mage ... \n");	// print statement to visualize
+		int toggle = 0;
+		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
+			Entity E = registry.companions.entities[i];
+			if (registry.companions.get(E).companionType == MAGE) {
+				toggle = 1;
+			}
+		}
+		if (toggle == 0) {	// if player side has no mage, execute child which is fireball
+			printf("Player side do not have mage \n");
+			return m_child->process(e);
+		}
+		else
+			return BTState::Success;
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfPlayerSideHasMageHardCoded : public BTNode
+{
+public:
+	BTIfPlayerSideHasMageHardCoded(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if player side has mage ... \n");	// print statement to visualize
+		int toggle = 0;
+		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
+			Entity toCheck = registry.companions.entities[i];
+			if (registry.companions.get(toCheck).companionType == MAGE) {
+				toggle = 1;
+			}
+		}
+		if (toggle == 1) {	// if player side has mage, execute child which is check taunt (fireball for now)
+			printf("Player side indeed has mage \n");
+			return m_child->process(e);
+		}
+		else
+			return BTState::Success;
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfMagicianTauntedHardCoded : public BTNode
+{
+public:
+	BTIfMagicianTauntedHardCoded(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("If magician is taunted ... \n");	// print statement to visualize
+		int toggle = 0;
+		// check if player mage is taunted
+		if (toggle == 1) {	// if player mage is taunted, execute child which is fireball
+			printf("Magician is indeed taunted \n");
+			return m_child->process(e);
+		}
+		else
+			return BTState::Success;
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfMagicianNotTauntedHardCoded : public BTNode
+{
+public:
+	BTIfMagicianNotTauntedHardCoded(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("If magician is not taunted ... \n");	// print statement to visualize
+		int toggle = 0;
+		// check if player mage is taunted
+		if (toggle == 0) {	// if player mage is not taunted, execute child which is taunt
+			printf("Magician is not taunted \n");
+			return m_child->process(e);
+		}
+		else
+			return BTState::Success;
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfEnemyIsSwordsman : public BTNode
+{
+public:
+	BTIfEnemyIsSwordsman(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if enemy is swordsman ... \n");	// print statement to visualize
+		if (registry.enemies.get(currPlayer).enemyType == SWORDSMAN) {	// WORKS, if enemy character is swordsman, execute child which is checking player mage
+			printf("Enemy is indeed swordsman \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Success;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfEnemyIsMagician : public BTNode
+{
+public:
+	BTIfEnemyIsMagician(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if enemy is magician ... \n");	// print statement to visualize
+		if (registry.enemies.get(currPlayer).enemyType == MAGE) {	// WORKS, if enemy character is magician, execute child which is temporarily fireball
+			printf("Enemy is indeed magician \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Success;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfIAmTaunted : public BTNode
+{
+public:
+	BTIfIAmTaunted(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if I am taunted ... \n");	// print statement to visualize
+		// to implement checking of taunt
+		if (registry.enemies.get(currPlayer).enemyType == MAGE) {	// TO CHANGE
+			printf("I am indeed taunted \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Success;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfIAmNotTaunted : public BTNode
+{
+public:
+	BTIfIAmNotTaunted(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if I am taunted ... \n");	// print statement to visualize
+		// to implement checking of taunt
+		if (registry.enemies.get(currPlayer).enemyType == MAGE) {	// TO CHANGE
+			printf("I am not taunted \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Success;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfOneLessThanHalf : public BTNode
+{
+public:
+	BTIfOneLessThanHalf(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		Entity selectedChar;
+		int lowestHealth = 50;	// set HP to half
+		int toggle = 0;
+		for (int i = 0; i < registry.companions.components.size(); i++) {
+			Entity currEntity = registry.companions.entities[i];
+			int currHealth = registry.stats.get(currEntity).health;
+			if (currHealth < lowestHealth) {
+				selectedChar = currEntity;		// get entity of lowest health
+				lowestHealth = currHealth;
+				toggle == 1;
+			}
+		}
+		printf("Checking if at least one is less than half HP ... \n");	// print statement to visualize
+		if (toggle == 1) {
+			printf("There is at least one with less than half HP \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Success;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfNoneLessThanHalf : public BTNode
+{
+public:
+	BTIfNoneLessThanHalf(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		Entity selectedChar;
+		int lowestHealth = 50;	// set HP to half
+		int toggle = 0;
+		for (int i = 0; i < registry.companions.components.size(); i++) {
+			Entity currEntity = registry.companions.entities[i];
+			int currHealth = registry.stats.get(currEntity).health;
+			if (currHealth < lowestHealth) {
+				selectedChar = currEntity;		// get entity of lowest health
+				lowestHealth = currHealth;
+				toggle == 1;
+			}
+		}
+		printf("Checking if no characters have less than half HP ... \n");	// print statement to visualize
+		if (toggle == 0) {
+			printf("There is no characters with less than half HP \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Success;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfMageHPBelowHalf : public BTNode
+{
+public:
+	BTIfMageHPBelowHalf(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		int toggle = 0;
+		if (registry.stats.get(currPlayer).health < 50) {
+			toggle = 1;
+		}
+		printf("Checking if mage HP is below half ... \n");	// print statement to visualize
+		if (toggle == 1) {
+			printf("Mage HP is indeed below half \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Success;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfMageHPAboveHalf : public BTNode
+{
+public:
+	BTIfMageHPAboveHalf(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		int toggle = 0;
+		if (registry.stats.get(currPlayer).health < 50) {
+			toggle = 1;
+		}
+		printf("Checking if mage HP is above half ... \n");	// print statement to visualize
+		if (toggle == 0) {
+			printf("Mage HP is indeed above half \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Success;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+class BTCastFireball : public BTNode {
+private:
+	void init(Entity e) override {
+	}
+	BTState process(Entity e) override {
+		// HOW TO ADD FIREBALL ATTACK?
+		// temporaryFireball(currPlayer); 
+		printf("Shoot fireball \n");	// print statement to visualize
+		
+		// return progress
+		return BTState::Success;
+	}
+};
+
+class BTCastTaunt : public BTNode {
+private:
+	void init(Entity e) override {
+	}
+	BTState process(Entity e) override {
+		// modify world
+		// cast taunt on selectedChar
+		printf("Cast Taunt \n");	// print statement to visualize
+
+		// return progress
+		return BTState::Success;
+	}
+};
+
+class BTMeleeAttack : public BTNode {
+private:
+	void init(Entity e) override {
+	}
+	BTState process(Entity e) override {
+		// modify world
+		// melee attack on selectedChar
+		printf("Melee Attack \n");	// print statement to visualize
+
+		// return progress
+		return BTState::Success;
+	}
+};
+
+class BTCastThunderbolt : public BTNode {
+private:
+	void init(Entity e) override {
+	}
+	BTState process(Entity e) override {
+		// modify world
+		// cast thunderbolt on selectedChar
+		printf("Cast Thunderbolt \n");	// print statement to visualize
+
+		// return progress
+		return BTState::Success;
+	}
+};
+
+class BTCastHeal : public BTNode {
+private:
+	void init(Entity e) override {
+	}
+	BTState process(Entity e) override {
+		// modify world
+		// cast heal on selectedChar
+		printf("Cast Heal \n");	// print statement to visualize
+
+		// return progress
+		return BTState::Success;
+	}
+};
+
+class BTCastHealOnSelf : public BTNode {
+private:
+	void init(Entity e) override {
+	}
+	BTState process(Entity e) override {
+		// modify world
+		// cast heal on currentPlayer
+		printf("Cast Heal \n");	// print statement to visualize
+
+		// return progress
+		return BTState::Success;
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------
+
+// --------------------------------------------------------------------------------
+// Set up enemy behavior tree flow
+// Leaf Node
+BTCastFireball castFireball;				// to implement
+BTCastTaunt castTaunt;						// to implement
+BTMeleeAttack meleeAttack;					// to implement
+BTCastThunderbolt castThunderbolt;			// to implement
+BTCastHeal castHeal;						// to implement
+BTCastHealOnSelf castHealOnSelf;			// to implement
+
+BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);	// done
+BTIfMageHPAboveHalf mageAboveHalf(&castHeal);		// done
+
+BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf); // run pair do not need any further implementation? can merge all run pairs later and test
+
+// Conditional Sub-Tree for Leaf Node
+BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// 
+BTIfMagicianTauntedHardCoded isTaunted(&meleeAttack);
+BTIfMagicianNotTauntedHardCoded notTaunted(&castTaunt);
+BTIfOneLessThanHalf atLeastOne(&checkMageHP);
+BTIfNoneLessThanHalf none(&castThunderbolt);
+
+// Parent Node
+BTRunCheckTaunt checkTaunted(&isTaunted, &notTaunted);	// run pair
+BTRunCheckEnemyHP checkHP(&atLeastOne, &none);			// run pair
+
+// Conditionl Sub-Tree for Parent Node
+BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);
+BTIfIAmTaunted taunted(&castThunderbolt);
+BTIfIAmNotTaunted nonTaunted(&checkHP);
+
+// Great Grandparent Node
+BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);			// run pair
+BTRunCheckEnemyTaunt checkEnemyTaunt(&taunted, &nonTaunted);	// run pair
+
+// Conditional Sub-Tree for Great Grandparent Node
+BTIfEnemyIsSwordsman isSwordsman(&checkMage);
+BTIfEnemyIsMagician isMagician(&checkEnemyTaunt);
+
+// Root Node
+BTRunCheckCharacter checkChar(&isMagician, &isSwordsman);	// run pair
+
+// --------------------------------------------------------------------------------
+
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
@@ -307,7 +1102,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		displayEnemyTurn();
 		if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if selected character has died so as to progress to an enemy's
 			if (registry.stats.get(prevPlayer).health <= 0) {
-				temporaryFireball(currPlayer);
+				checkChar.init(currPlayer);
+				for (int i = 0; i < 100; i++) {
+					BTState state = checkChar.process(currPlayer);
+					if (state != BTState::Running) {	// break out of for loop when all branches checked
+						break;
+					}
+				}
+				// temporaryFireball(currPlayer);
 				printf("enemy has attacked, checkRound now \n");
 				checkRound();
 			}
@@ -320,7 +1122,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				}
 				else {
 					prevPlayer = currPlayer;
-					temporaryFireball(currPlayer);
+					checkChar.init(currPlayer);
+					for (int i = 0; i < 100; i++) {
+						BTState state = checkChar.process(currPlayer);
+						if (state != BTState::Running) {	// break out of for loop when all branches checked
+							break;
+						}
+					}
+					// temporaryFireball(currPlayer);
 					printf("enemy has attacked, checkRound now \n");
 					checkRound();
 				}
@@ -591,7 +1400,14 @@ void WorldSystem::handle_collisions() {
 								displayEnemyTurn();
 								if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
 									prevPlayer = currPlayer;
-									temporaryFireball(currPlayer);
+									checkChar.init(currPlayer);
+									for (int i = 0; i < 100; i++) {
+										BTState state = checkChar.process(currPlayer);
+										if (state != BTState::Running) {	// break out of for loop when all branches checked
+											break;
+										}
+									}
+									// temporaryFireball(currPlayer);
 									printf("enemy has attacked, checkRound now \n");
 									checkRound();
 								}
@@ -677,7 +1493,14 @@ void WorldSystem::handle_boundary_collision() {
 			if (player_turn == 0) {
 				displayEnemyTurn();
 				if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-					temporaryFireball(currPlayer);
+					checkChar.init(currPlayer);
+					for (int i = 0; i < 100; i++) {
+						BTState state = checkChar.process(currPlayer);
+						if (state != BTState::Running) {	// break out of for loop when all branches checked
+							break;
+						}
+					}
+					// temporaryFireball(currPlayer);
 					printf("enemy has attacked, checkRound now \n");
 					checkRound();
 				}
