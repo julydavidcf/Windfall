@@ -73,6 +73,9 @@ private:
 	// Helper function for updating health in collision
 	void update_health(Entity entity, Entity other_entity);
 
+	// Updates all healthbars
+	void update_healthBars();
+
 	// restart level
 	void restart_game();
 
