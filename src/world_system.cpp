@@ -281,6 +281,7 @@ public:
 	virtual void init(Entity e) {};
 
 	virtual BTState process(Entity e) = 0;
+	WorldSystem worldSystem;
 };
 
 // A composite node that loops through all children and exits when one fails
@@ -521,6 +522,52 @@ private:
 
 public:
 	BTRunCheckMageHP(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		: m_index(0) {
+		m_children[0] = c0;
+		m_children[1] = c1;
+	}
+
+	void init(Entity e) override
+	{
+		m_index = 0;	// set index to 0 to execute first child
+		// initialize the first child
+		const auto& child = m_children[m_index];
+		child->init(e);
+	}
+
+	BTState process(Entity e) override {
+		printf("Pair run check taunt for me ... child = %g \n", float(m_index));	// print statement to visualize
+		if (m_index >= 2)
+			return BTState::Success;
+
+		// process current child
+		BTState state = m_children[m_index]->process(e);
+
+		// select a new active child and initialize its internal state
+		if (state == BTState::Success) {	// if child return success
+			++m_index;	// increment index
+			if (m_index >= 2) {	// check whether the second child is executed already
+				return BTState::Success;
+			}
+			else {
+				m_children[m_index]->init(e);	// initialize next child to run 
+				return BTState::Running;
+			}
+		}
+		else {
+			return state;
+		}
+	}
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckSwordsman : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckSwordsman(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
 		: m_index(0) {
 		m_children[0] = c0;
 		m_children[1] = c1;
@@ -919,15 +966,77 @@ private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
 };
 
+// A general decorator with lambda condition
+class BTIfPlayerSideHasSwordsman : public BTNode
+{
+public:
+	BTIfPlayerSideHasSwordsman(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if player side has swordsman ... \n");	// print statement to visualize
+		int toggle = 0;
+		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
+			Entity toCheck = registry.companions.entities[i];
+			if (registry.companions.get(toCheck).companionType == SWORDSMAN) {
+				toggle = 1;
+			}
+		}
+		if (toggle == 1) {	// if player side has mage, execute child which is check taunt (fireball for now)
+			printf("Player side indeed has swordsman \n");
+			return m_child->process(e);
+		}
+		else
+			return BTState::Success;
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfPlayerSideDoNotHaveSwordsman : public BTNode
+{
+public:
+	BTIfPlayerSideDoNotHaveSwordsman(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if player side has swordsman ... \n");	// print statement to visualize
+		int toggle = 0;
+		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
+			Entity toCheck = registry.companions.entities[i];
+			if (registry.companions.get(toCheck).companionType == SWORDSMAN) {
+				toggle = 1;
+			}
+		}
+		if (toggle == 0) {	// if player side has mage, execute child which is check taunt (fireball for now)
+			printf("Player side do not have swordsman \n");
+			return m_child->process(e);
+		}
+		else
+			return BTState::Success;
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
 class BTCastFireball : public BTNode {
 private:
 	void init(Entity e) override {
 	}
 	BTState process(Entity e) override {
-		// HOW TO ADD FIREBALL ATTACK?
-		// temporaryFireball(currPlayer); 
 		printf("Shoot fireball \n");	// print statement to visualize
-		
+		worldSystem.temporaryFireball(currPlayer);
 		// return progress
 		return BTState::Success;
 	}
@@ -1007,48 +1116,52 @@ private:
 
 // --------------------------------------------------------------------------------
 // Set up enemy behavior tree flow
-// Leaf Node
-BTCastFireball castFireball;				// to implement
+// Leaf Nodes
+BTCastFireball castFireball;
 BTCastTaunt castTaunt;						// to implement
 BTMeleeAttack meleeAttack;					// to implement
 BTCastThunderbolt castThunderbolt;			// to implement
 BTCastHeal castHeal;						// to implement
 BTCastHealOnSelf castHealOnSelf;			// to implement
 
-BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);	// done
-BTIfMageHPAboveHalf mageAboveHalf(&castHeal);		// done
+// Conditional Sub-Tree for Level 3 Nodes
+BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);				// done
+BTIfMageHPAboveHalf mageAboveHalf(&castHeal);					// done
+BTIfPlayerSideHasSwordsman haveSwordsman(&castThunderbolt);		// partial <- cast thunderbolt at swordsman specifically
+BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castFireball);	// done
 
-BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf); // run pair do not need any further implementation? can merge all run pairs later and test
+// Level 3 Nodes
+BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);		// run pair do not need any further implementation? can merge all run pairs later and test
+BTRunCheckSwordsman checkSwordsman(&haveSwordsman, &noSwordsman);	// run pair
 
-// Conditional Sub-Tree for Leaf Node
-BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// 
-BTIfMagicianTauntedHardCoded isTaunted(&meleeAttack);
-BTIfMagicianNotTauntedHardCoded notTaunted(&castTaunt);
-BTIfOneLessThanHalf atLeastOne(&checkMageHP);
-BTIfNoneLessThanHalf none(&castThunderbolt);
+// Conditional Sub-Tree for Level 2 Nodes
+BTIfOneLessThanHalf atLeastOne(&checkMageHP);						// done
+BTIfNoneLessThanHalf none(&checkSwordsman);							// done
+BTIfMagicianTauntedHardCoded isTaunted(&meleeAttack);				// to implement <- melee attack at magician specifically
+BTIfMagicianNotTauntedHardCoded notTaunted(&castTaunt);				// to implement <- cast taunt at magician specifically
 
-// Parent Node
-BTRunCheckTaunt checkTaunted(&isTaunted, &notTaunted);	// run pair
+// Level 2 Nodes
 BTRunCheckEnemyHP checkHP(&atLeastOne, &none);			// run pair
+BTRunCheckTaunt checkTaunted(&isTaunted, &notTaunted);	// run pair
 
-// Conditionl Sub-Tree for Parent Node
-BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);
-BTIfIAmTaunted taunted(&castThunderbolt);
-BTIfIAmNotTaunted nonTaunted(&checkHP);
+// Conditionl Sub-Tree for Level 1 Nodes
+BTIfIAmNotTaunted nonTaunted(&checkHP);								// to implement
+BTIfIAmTaunted taunted(&checkSwordsman);							// to implement
+BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);				// done
+BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// done
 
-// Great Grandparent Node
-BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);			// run pair
+// Level 1 Nodes
 BTRunCheckEnemyTaunt checkEnemyTaunt(&taunted, &nonTaunted);	// run pair
+BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);			// run pair
 
-// Conditional Sub-Tree for Great Grandparent Node
-BTIfEnemyIsSwordsman isSwordsman(&checkMage);
-BTIfEnemyIsMagician isMagician(&checkEnemyTaunt);
+// Conditional Sub-Trees for Level 0
+BTIfEnemyIsMagician isMagician(&checkEnemyTaunt);	// done
+BTIfEnemyIsSwordsman isSwordsman(&checkMage);		// done
 
-// Root Node
+// Level 0 Root Node
 BTRunCheckCharacter checkChar(&isMagician, &isSwordsman);	// run pair
 
 // --------------------------------------------------------------------------------
-
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
