@@ -60,6 +60,10 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
+	// pixel positions for the light balls in the background
+	std::vector<float> lightBallsXcoords;
+	std::vector<float> lightBallsYcoords;
+
 	// Time per frame in ms
 	float TIME_PER_FRAME = 100;
 	
@@ -112,6 +116,8 @@ public:
 	mat3 createProjectionMatrix();
 
 	mat3 createCameraProjection(Motion& motion);
+
+	void createRandomLightBallPosForBackground(int windowWidth, int windowHeight);
 
 private:
 	// Internal drawing functions for each entity type

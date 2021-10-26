@@ -13,6 +13,17 @@
 #include <iostream>
 #include <sstream>
 
+namespace {
+	float RandomFloat(float a, float b) {
+		float random = ((float)rand()) / (float)RAND_MAX;
+		float diff = b - a;
+		float r = random * diff;
+		return a + r;
+	}
+
+	const int NUM_LIGHT_BALLS_BACKGROUND = 100;
+};
+
 // World initialization
 bool RenderSystem::init(int width, int height, GLFWwindow* window_arg)
 {
@@ -54,6 +65,7 @@ bool RenderSystem::init(int width, int height, GLFWwindow* window_arg)
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	createRandomLightBallPosForBackground(width, height);
 
 	return true;
 }
@@ -413,3 +425,17 @@ bool loadEffectFromFile(
 	return true;
 }
 
+void RenderSystem::createRandomLightBallPosForBackground(int windowWidth, int windowHeight) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	for (int i = 0; i < NUM_LIGHT_BALLS_BACKGROUND; i++) {
+		//RenderSystem::lightBallsXcoords.push_back(RandomFloat(-(float)windowWidth/ (float)windowHeight,
+		// 													   (float)windowWidth / (float)windowHeight));
+		RenderSystem::lightBallsXcoords.push_back(RandomFloat(-(float)w / (float)h, (float)w / (float)h));
+		RenderSystem::lightBallsYcoords.push_back(RandomFloat(0.7, 1.));
+	}
+
+	for (int i = 0; i < lightBallsXcoords.size(); i++) {
+		printf("%f, %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
+	}
+}
