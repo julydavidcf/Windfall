@@ -23,7 +23,7 @@ public:
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
 	ComponentContainer<HP> healthPoints;
-	ComponentContainer<Silence> silenced;
+	ComponentContainer<Silenced> silenced;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
 	ComponentContainer<ButtonItem> buttons;

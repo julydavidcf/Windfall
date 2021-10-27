@@ -75,12 +75,23 @@ struct HP
 	int health = 100;
 };
 
-// Silence component
-struct Silence
+// Silence component: state of a silenced entity
+struct Silenced
 {
 	// silenced for number of turns
 	int turns = 1;	
+	// the rendered speech bubble entity
+	Entity silenced_effect;
 };
+
+
+// The power to be able to silence
+// TODO: check if needed
+struct Silence
+{
+
+};
+
 
 // All data relevant to the shape and motion of entities
 struct Motion {
@@ -212,7 +223,8 @@ enum class TEXTURE_ASSET_ID {
 	SILENCEICON = FIREBALLICONSELECTED + 1,
 	SILENCEICONSELECTED = SILENCEICON + 1,
 	HEALTHBAR = SILENCEICONSELECTED + 1,
-	DEATH_PARTICLE = HEALTHBAR + 1,
+	SILENCEBUBBLE = HEALTHBAR + 1,
+	DEATH_PARTICLE = SILENCEBUBBLE + 1,
 	PLAYER_TURN = DEATH_PARTICLE + 1,
 	ENEMY_TURN = PLAYER_TURN + 1,
 	// ------- Animations -------

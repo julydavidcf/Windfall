@@ -54,7 +54,7 @@ private:
 
 
 	// check if mouse in entity
-	bool inEntity(const Motion& motion);
+	bool inEntity(const Entity entity);
 
 	// deselect current button (after using ability)
 	void deselectButton();

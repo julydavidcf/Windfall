@@ -1,6 +1,7 @@
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
+#include "physics_system.hpp"
 
 // stlib
 #include <cassert>
@@ -586,9 +587,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					// the entity. If it is silenced the entity should make *no*
 					// moves. 
 					for(Entity enemy: registry.enemies.entities){
-						if(inEntity(registry.motions.get(enemy))&&(!registry.silenced.has(enemy))){
+						if(inEntity(enemy)&&(!registry.silenced.has(enemy))){
 							printf("ENEMY FOUND!\n");
-							registry.silenced.emplace(enemy);
+							Silenced& silenced = registry.silenced.emplace(enemy);
+							Entity silence_bubble = createSilenceBubble(renderer, registry.motions.get(enemy).position);
 							printf("Enemy silenced\n");
 							break;
 						} else {
@@ -629,11 +631,14 @@ bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {
 	return false;
 }
 
-bool WorldSystem::inEntity(const Motion& motion) {
-	float left_bound = motion.position.x - (abs(motion.scale.x)/2);
-	float right_bound = motion.position.x + (abs(motion.scale.x)/2);
-	float upper_bound = motion.position.y - (abs(motion.scale.y)/2);
-	float lower_bound = motion.position.y + (abs(motion.scale.y)/2);
+bool WorldSystem::inEntity(const Entity entity) {
+	PhysicsSystem physicsSystem;
+	vec2 custom_pos = physicsSystem.get_custom_position(entity);
+	vec2 custom_scale = physicsSystem.get_custom_bounding_box(entity);
+	float left_bound = custom_pos.x - (custom_scale.x/2);
+	float right_bound = custom_pos.x + (custom_scale.x/2);
+	float upper_bound = custom_pos.y - (custom_scale.y/2);
+	float lower_bound = custom_pos.y + (custom_scale.y/2);
 	if((left_bound <= msPos.x)&&(msPos.x <= right_bound)){
 		if((upper_bound <= msPos.y)&&(msPos.y <= lower_bound)){
 			return true;
