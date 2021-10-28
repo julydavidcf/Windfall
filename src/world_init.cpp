@@ -375,7 +375,30 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+Entity createGreenCross(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
 
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, -500.f };
+	motion.acceleration = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ROCK_WIDTH, ROCK_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::GREENCROSS,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
 // create rock
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 {

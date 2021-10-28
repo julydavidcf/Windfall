@@ -1264,9 +1264,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	for (int i = (int)registry.taunts.components.size() - 1; i >= 0; --i) {
+		if (registry.taunts.components[i].duration <= 0) {
+			registry.remove_all_components_of(registry.taunts.entities[i]);
+			printf("taunt removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+		}
+	}
+
 
 	if (player_turn == 1) {
 		prevPlayer = currPlayer;
+
 	}
 	// this area is to check for edge cases to allow for enemies to hit twice if the round allows it
 	if (player_turn == 0) {
@@ -1546,7 +1554,10 @@ void WorldSystem::update_healthBars() {
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
+	// reduce turne
+
 	// Loop over all collisions detected by the physics system
+
 	auto& collisionsRegistry = registry.collisions;
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
 		// The entity and its collider
@@ -1785,6 +1796,10 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		launchRock(enemy_mage);
 	}
 
+	if (action == GLFW_RELEASE && key == GLFW_KEY_T) {
+		launchTaunt(player_swordsman);
+	}
+
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
 		int w, h;
@@ -1893,6 +1908,9 @@ void WorldSystem::deselectButton() {
 
 //skills
 void WorldSystem::healTarget(Entity target, float amount) {
+
+	vec2 targetp = registry.motions.get(target).position;
+	createGreenCross(renderer, targetp);
 	if (registry.stats.has(target)) {
 		Statistics* tStats = &registry.stats.get(target);
 		if (tStats->health + amount > tStats->max_health) {
@@ -1999,3 +2017,18 @@ Entity WorldSystem::launchMelee(Entity target) {
 	return  resultEntity;
 }
 
+void WorldSystem::launchTaunt(Entity target) {
+	registry.taunts.emplace(target);
+	Taunt* t =& registry.taunts.get(target);
+	t->duration = 3;
+	printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
+
+
+	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
+	//int rng = rand() % 10;
+	//if (rng >= 4) {
+	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	//}
+
+	//return  resultEntity;
+}

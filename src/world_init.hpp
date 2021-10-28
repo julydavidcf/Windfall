@@ -52,6 +52,8 @@ Entity createPlayerTurn(RenderSystem* renderer, vec2 position);
 Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 // barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position);
+
+Entity createGreenCross(RenderSystem* renderer, vec2 position);
 //rock for magw
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
 
