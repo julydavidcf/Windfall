@@ -172,6 +172,30 @@ void RenderSystem::initializeGlGeometryBuffers()
 	mage_idle_vertices[3].texcoord = { 0.f, 0.001 };              // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_IDLE, mage_idle_vertices, textured_indices);
 
+	// mage_casting sprite row
+	std::vector<TexturedVertex> mage_casting_vertices(4);
+	mage_casting_vertices[0].position = { -1.f, +1.f / 2, 0.f };
+	mage_casting_vertices[1].position = { +1.f, +1.f / 2, 0.f };
+	mage_casting_vertices[2].position = { +1.f, -1.f, 0.f };
+	mage_casting_vertices[3].position = { -1.f, -1.f, 0.f };
+	mage_casting_vertices[0].texcoord = { 0.f, 0.88888888888 };      // Bottom left
+	mage_casting_vertices[1].texcoord = { 0.250, 0.88888888888 };    // Bottom right
+	mage_casting_vertices[2].texcoord = { 0.250, 0.77777777777 };            // Top right
+	mage_casting_vertices[3].texcoord = { 0.f, 0.77777777777 };              // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_CASTING, mage_casting_vertices, textured_indices);
+
+	// mage_death sprite row
+	std::vector<TexturedVertex> mage_death_vertices(4);
+	mage_death_vertices[0].position = { -1.f, +1.f / 2, 0.f };
+	mage_death_vertices[1].position = { +1.f, +1.f / 2, 0.f };
+	mage_death_vertices[2].position = { +1.f, -1.f, 0.f };
+	mage_death_vertices[3].position = { -1.f, -1.f, 0.f };
+	mage_death_vertices[0].texcoord = { 0.f, 0.99999999999 };      // Bottom left
+	mage_death_vertices[1].texcoord = { 0.125, 0.99999999999 };    // Bottom right
+	mage_death_vertices[2].texcoord = { 0.125, 0.88888888888 };            // Top right
+	mage_death_vertices[3].texcoord = { 0.f, 0.88888888888 };              // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_DEATH, mage_death_vertices, textured_indices);
+
 	// swordsman_idle sprite row
 	std::vector<TexturedVertex> swordsman_idle_vertices(4);
 	swordsman_idle_vertices[0].position = { -1.f, +1.f, 0.f };   
@@ -183,6 +207,54 @@ void RenderSystem::initializeGlGeometryBuffers()
 	swordsman_idle_vertices[2].texcoord = { 0.0625, 0.f };        // Top right
 	swordsman_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE, swordsman_idle_vertices, textured_indices);
+
+	// swordsman_melee_0 sprite row
+	std::vector<TexturedVertex> swordsman_melee_0_vertices(4);
+	swordsman_melee_0_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_melee_0_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_melee_0_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_melee_0_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_melee_0_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_melee_0_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	swordsman_melee_0_vertices[2].texcoord = { 0.125, 0.f };        // Top right
+	swordsman_melee_0_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0, swordsman_melee_0_vertices, textured_indices);
+
+	// swordsman_melee_1 sprite row
+	std::vector<TexturedVertex> swordsman_melee_1_vertices(4);
+	swordsman_melee_1_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_melee_1_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_melee_1_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_melee_1_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_melee_1_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_melee_1_vertices[1].texcoord = { 0.03333333333, 1.f };        // Bottom right
+	swordsman_melee_1_vertices[2].texcoord = { 0.03333333333, 0.f };        // Top right
+	swordsman_melee_1_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_1, swordsman_melee_1_vertices, textured_indices);
+
+	// swordsman_taunt sprite row
+	std::vector<TexturedVertex> swordsman_taunt_vertices(4);
+	swordsman_taunt_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_taunt_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_taunt_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_taunt_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_taunt_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_taunt_vertices[1].texcoord = { 0.05555555555, 1.f };        // Bottom right
+	swordsman_taunt_vertices[2].texcoord = { 0.05555555555, 0.f };        // Top right
+	swordsman_taunt_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT, swordsman_idle_vertices, textured_indices);
+
+	// swordsman_death sprite row
+	std::vector<TexturedVertex> swordsman_death_vertices(4);
+	swordsman_death_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_death_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_death_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_death_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_death_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_death_vertices[1].texcoord = { 0.025, 1.f };        // Bottom right
+	swordsman_death_vertices[2].texcoord = { 0.025, 0.f };        // Top right
+	swordsman_death_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH, swordsman_death_vertices, textured_indices);
 
 	// necromancer_idle sprite row
 	std::vector<TexturedVertex> necromancer_idle_vertices(4);

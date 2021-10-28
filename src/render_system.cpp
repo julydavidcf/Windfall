@@ -337,21 +337,110 @@ void RenderSystem::draw(float elapsed_ms)
 				int animType = registry.companions.has(entity) ? registry.companions.get(entity).curr_anim_type
 					: registry.enemies.get(entity).curr_anim_type;
 
+				// Get the current texture to alter
+				TEXTURE_ASSET_ID& currTexture = registry.renderRequests.get(entity).used_texture;
+				// Get the current geometry to alter
+				GEOMETRY_BUFFER_ID& currGeometry = registry.renderRequests.get(entity).used_geometry;
+				// Get the current frame
+				int* currFrame = registry.companions.has(entity) ? &registry.companions.get(entity).curr_frame
+					: &registry.enemies.get(entity).curr_frame;
+
+				// Get the current geometry to alter
+
 				switch (charType) {
 					case MAGE: {
 						switch (animType) {
-							case IDLE: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
-							case ATTACKING: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
-							case DEAD: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
-							default: break;
+							case IDLE: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::MAGE_IDLE) {
+									currGeometry = GEOMETRY_BUFFER_ID::MAGE_IDLE;
+									*currFrame = 0;
+								}
+								numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
 							}
+							case ATTACKING: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::MAGE_CASTING) {
+									currGeometry = GEOMETRY_BUFFER_ID::MAGE_CASTING;
+									*currFrame = 0;
+								}
+								numFrames = MAGE_CASTING_FRAMES; frame_width = MAGE_CASTING_FRAME_WIDTH; break;
+							}
+							case DEAD: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::MAGE_DEATH) {
+									currGeometry = GEOMETRY_BUFFER_ID::MAGE_DEATH;
+									*currFrame = 0;
+								}
+								numFrames = MAGE_DEATH_FRAMES; frame_width = MAGE_DEATH_FRAME_WIDTH; break;
+							}
+							default: break;
+						}
 						break;
 					}
 					case SWORDSMAN: {
 						switch (animType) {
-							case IDLE: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
-							case ATTACKING: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
-							case DEAD: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
+							case IDLE: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE) {
+									if (currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0) {
+										// Swordsman has finished walking back from his melee attack
+										reverseFrames = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::SWORDSMAN_IDLE;
+									currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE;
+									*currFrame = 0;
+								}
+								numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break; 
+							}
+							//case ATTACKING: {
+							//	switch (registry.attacks.get(entity).attackType) {
+							//		case MELEE: {
+							//			if (currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE) {
+							//				// Swordsman starts sliding towards enemy
+							//				currTexture = TEXTURE_ASSET_ID::SWORDSMAN_MELEE_0;
+							//				currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0;
+							//				*currFrame = 0;
+							//				numFrames = SWORDSMAN_MELEE_0_FRAMES; frame_width = SWORDSMAN_MELEE_0_FRAME_WIDTH; break;
+							//			}
+							//			else if (currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0) {
+							//				numFrames = SWORDSMAN_MELEE_0_FRAMES; frame_width = SWORDSMAN_MELEE_0_FRAME_WIDTH;
+							//				if (*currFrame == SWORDSMAN_MELEE_0_FRAMES - 1) {
+							//					// Swordsman reached enemy, begins to attack
+							//					currTexture = TEXTURE_ASSET_ID::SWORDSMAN_MELEE_1;
+							//					currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_1;
+							//					*currFrame = 0;
+							//					numFrames = SWORDSMAN_MELEE_1_FRAMES; frame_width = SWORDSMAN_MELEE_1_FRAME_WIDTH;
+							//				} 
+							//				break;
+							//			}
+							//			else if (currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_1) {
+							//				numFrames = SWORDSMAN_MELEE_1_FRAMES; frame_width = SWORDSMAN_MELEE_1_FRAME_WIDTH;
+							//				if (*currFrame == SWORDSMAN_MELEE_1_FRAMES - 1) {
+							//					// Swordsman finished attack, begins to walk back
+							//					currTexture = TEXTURE_ASSET_ID::SWORDSMAN_MELEE_0;
+							//					currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0;
+							//					numFrames = SWORDSMAN_MELEE_0_FRAMES; frame_width = SWORDSMAN_MELEE_0_FRAME_WIDTH; 
+							//					*currFrame = SWORDSMAN_MELEE_0_FRAMES - 1;
+							//					reverseFrames = 1;
+							//				}
+							//				break;
+							//			}
+							//		}
+							//		case TAUNT: {
+							//			if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT) {
+							//				currTexture = TEXTURE_ASSET_ID::SWORDSMAN_TAUNT;
+							//				currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT;
+							//				*currFrame = 0;
+							//			}
+							//			numFrames = SWORDSMAN_TAUNT_FRAMES; frame_width = SWORDSMAN_TAUNT_FRAME_WIDTH; break;
+							//		}
+							//	}
+							//}
+							case DEAD: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH) {
+									currTexture = TEXTURE_ASSET_ID::SWORDSMAN_DEATH;
+									currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH;
+									*currFrame = 0;
+								}
+								numFrames = SWORDSMAN_DEATH_FRAMES; frame_width = SWORDSMAN_DEATH_FRAME_WIDTH; break;
+							}
 							default: break;
 							}
 						break;
@@ -370,23 +459,23 @@ void RenderSystem::draw(float elapsed_ms)
 				}
 
 				if (*counter <= 0) {
-					// Increment frame count
-					if (registry.companions.has(entity)) {
-						curr_frame = registry.companions.get(entity).curr_frame;
-						curr_frame += 1;
-						registry.companions.get(entity).curr_frame = curr_frame % numFrames;
-					}
-					else if (registry.enemies.has(entity)) {
-						curr_frame = registry.enemies.get(entity).curr_frame;
-						curr_frame += 1;
-						registry.enemies.get(entity).curr_frame = curr_frame % numFrames;
+					
+					if (registry.companions.has(entity) || registry.enemies.has(entity)) {
+						curr_frame = *currFrame;
+						// Increment/decrement frame count
+						if (reverseFrames && currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0) {
+							curr_frame -= 1;
+						}
+						else {
+							curr_frame += 1;
+						}
+						*currFrame = curr_frame % numFrames;
 					}
 					// Reset frame timer
 					*counter = TIME_PER_FRAME;
 				}
 				else {
-					curr_frame = registry.companions.has(entity) ? registry.companions.get(entity).curr_frame
-																 : registry.enemies.get(entity).curr_frame;
+					curr_frame = *currFrame;
 				}
 			}
 

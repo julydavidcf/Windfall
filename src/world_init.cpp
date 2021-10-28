@@ -95,7 +95,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	companion.healthbar = createHealthBar(renderer, pos);
 	companion.companionType = SWORDSMAN;
 
-	registry.renderRequests.insert(
+	auto& abc = registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::SWORDSMAN_IDLE,
 			EFFECT_ASSET_ID::TEXTURED,

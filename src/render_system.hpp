@@ -43,6 +43,10 @@ class RenderSystem {
 			textures_path("greenCross.png"),
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
+			textures_path("swordsman_melee_0.png"),
+			textures_path("swordsman_melee_1.png"),
+			textures_path("swordsman_taunt.png"),
+			textures_path("swordsman_death.png"),
 			textures_path("necromancer_idle.png"),
 			textures_path("backgroundLayerOne.png"),
 			textures_path("backgroundLayerTwo.png"),
@@ -65,6 +69,9 @@ class RenderSystem {
 
 	// Time per frame in ms
 	float TIME_PER_FRAME = 100;
+
+	// Determines if we should play the frames in reverse order (For swordsman walking back)
+	int reverseFrames = 0;
 	
 	// ---------------------------------- Frame stats for each character animation -----------------------------------
 
@@ -72,9 +79,27 @@ class RenderSystem {
 	const int MAGE_IDLE_FRAMES = 8;
 	const GLfloat MAGE_IDLE_FRAME_WIDTH = 0.125;
 
+	const int MAGE_CASTING_FRAMES = 4;
+	const GLfloat MAGE_CASTING_FRAME_WIDTH = 0.250;
+
+	const int MAGE_DEATH_FRAMES = 8;
+	const GLfloat MAGE_DEATH_FRAME_WIDTH = 0.125;
+
 	// Swordsman frame stats
 	const int SWORDSMAN_IDLE_FRAMES = 16;
 	const GLfloat SWORDSMAN_IDLE_FRAME_WIDTH = 0.0625;
+
+	const int SWORDSMAN_MELEE_0_FRAMES = 8;
+	const GLfloat SWORDSMAN_MELEE_0_FRAME_WIDTH = 0.125;
+
+	const int SWORDSMAN_MELEE_1_FRAMES = 30;
+	const GLfloat SWORDSMAN_MELEE_1_FRAME_WIDTH = 0.03333333333;
+
+	const int SWORDSMAN_TAUNT_FRAMES = 18;
+	const GLfloat SWORDSMAN_TAUNT_FRAME_WIDTH = 0.05555555555;
+
+	const int SWORDSMAN_DEATH_FRAMES = 40;
+	const GLfloat SWORDSMAN_DEATH_FRAME_WIDTH = 0.025;
 
 	// Necromancer frame stats
 	const int NECROMANCER_IDLE_FRAMES = 4;
