@@ -19,7 +19,10 @@ const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 500;
 
 Entity currPlayer;
+Entity target;
 Entity prevPlayer;
+int isTaunt = 0;
+int enemyTaunt = 0;
 
 vec2 msPos = vec2(0, 0);
 
@@ -175,7 +178,7 @@ void WorldSystem::displayEnemyTurn() {
 	createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
-void WorldSystem::temporaryFireball(Entity currPlayer) {
+void WorldSystem::fireballAttack(Entity currPlayer) {
 	Motion enemy = registry.motions.get(currPlayer);
 	if (!registry.deathTimers.has(currPlayer)) {
 		// fireball action temporary until able to call behavior tree
@@ -183,6 +186,33 @@ void WorldSystem::temporaryFireball(Entity currPlayer) {
 		Motion* ballacc = &registry.motions.get(resultEntity);
 		ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);
 	}
+}
+
+void WorldSystem::rockAttack(Entity target) {
+	Motion enemy = registry.motions.get(target);
+	if (!registry.deathTimers.has(target)) {
+		// fireball action temporary until able to call behavior tree
+		Entity resultEntity = createRock(renderer, { enemy.position.x, enemy.position.y - 300 }, 0);
+	}
+}
+
+void WorldSystem::healSkill(Entity target, float amount) {
+	if (registry.stats.has(target)) {
+		Statistics* tStats = &registry.stats.get(target);
+		if (tStats->health + amount > tStats->max_health) {
+			tStats->health = tStats->max_health;
+		}
+		else
+		{
+			tStats->health += amount;
+		}
+	}
+	update_healthBars();
+}
+
+void WorldSystem::meleeSkill(Entity target) {
+	Motion enemy = registry.motions.get(target);
+	Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 0);
 }
 
 std::vector<Entity> roundVec;
@@ -684,9 +714,8 @@ public:
 
 	virtual BTState process(Entity e) override {
 		printf("If magician is taunted ... \n");	// print statement to visualize
-		int toggle = 0;
 		// check if player mage is taunted
-		if (toggle == 1) {	// if player mage is taunted, execute child which is fireball
+		if (isTaunt == 1) {	// if player mage is taunted, execute child which is fireball
 			printf("Magician is indeed taunted \n");
 			return m_child->process(e);
 		}
@@ -711,9 +740,8 @@ public:
 
 	virtual BTState process(Entity e) override {
 		printf("If magician is not taunted ... \n");	// print statement to visualize
-		int toggle = 0;
 		// check if player mage is taunted
-		if (toggle == 0) {	// if player mage is not taunted, execute child which is taunt
+		if (isTaunt == 0) {	// if player mage is not taunted, execute child which is taunt
 			printf("Magician is not taunted \n");
 			return m_child->process(e);
 		}
@@ -791,7 +819,7 @@ public:
 	virtual BTState process(Entity e) override {
 		printf("Checking if I am taunted ... \n");	// print statement to visualize
 		// to implement checking of taunt
-		if (registry.enemies.get(currPlayer).enemyType == MAGE) {	// TO CHANGE
+		if (enemyTaunt == 1) {
 			printf("I am indeed taunted \n");
 			return m_child->process(e);
 		}
@@ -818,7 +846,7 @@ public:
 	virtual BTState process(Entity e) override {
 		printf("Checking if I am taunted ... \n");	// print statement to visualize
 		// to implement checking of taunt
-		if (registry.enemies.get(currPlayer).enemyType == MAGE) {	// TO CHANGE
+		if (enemyTaunt == 0) {
 			printf("I am not taunted \n");
 			return m_child->process(e);
 		}
@@ -1013,7 +1041,7 @@ public:
 	virtual BTState process(Entity e) override {
 		printf("Checking if player side has swordsman ... \n");	// print statement to visualize
 		int toggle = 0;
-		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
+		for (int i = 0; i < registry.companions.components.size(); i++) {
 			Entity toCheck = registry.companions.entities[i];
 			if (registry.companions.get(toCheck).companionType == SWORDSMAN) {
 				toggle = 1;
@@ -1036,7 +1064,7 @@ private:
 	}
 	BTState process(Entity e) override {
 		printf("Shoot fireball \n");	// print statement to visualize
-		worldSystem.temporaryFireball(currPlayer);
+		worldSystem.fireballAttack(currPlayer);
 		// return progress
 		return BTState::Success;
 	}
@@ -1049,6 +1077,7 @@ private:
 	BTState process(Entity e) override {
 		// modify world
 		// cast taunt on selectedChar
+		isTaunt = 1;
 		printf("Cast Taunt \n");	// print statement to visualize
 
 		// return progress
@@ -1062,7 +1091,15 @@ private:
 	}
 	BTState process(Entity e) override {
 		// modify world
-		// melee attack on selectedChar
+		int i = 0;
+		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
+			Entity toGet = registry.companions.entities[i];
+			if (registry.motions.get(toGet).position.x > i) {
+				i = registry.motions.get(toGet).position.x;
+				target = toGet;	// get nearest player entity
+			}
+		}
+		worldSystem.meleeSkill(target); // TODO: melee target
 		printf("Melee Attack \n");	// print statement to visualize
 
 		// return progress
@@ -1070,14 +1107,21 @@ private:
 	}
 };
 
-class BTCastThunderbolt : public BTNode {
+class BTCastRock : public BTNode {
 private:
 	void init(Entity e) override {
 	}
 	BTState process(Entity e) override {
 		// modify world
-		// cast thunderbolt on selectedChar
-		printf("Cast Thunderbolt \n");	// print statement to visualize
+		// cast rocks on selectedChar
+		for (int i = 0; i < registry.companions.components.size(); i++) {
+			Entity toGet = registry.companions.entities[i];
+			if (registry.companions.get(toGet).companionType == SWORDSMAN) {
+				target = toGet;
+			}
+		}
+		worldSystem.rockAttack(target); // TODO: to get rock attack target ONLY SWORDSMAN
+		printf("Cast Rock \n");	// print statement to visualize
 
 		// return progress
 		return BTState::Success;
@@ -1091,6 +1135,13 @@ private:
 	BTState process(Entity e) override {
 		// modify world
 		// cast heal on selectedChar
+		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
+			Entity toGet = registry.companions.entities[i];
+			if (registry.enemies.get(toGet).enemyType == SWORDSMAN) {
+				target = toGet;
+			}
+		}
+		worldSystem.healSkill(target, 100); // TODO: to heal target
 		printf("Cast Heal \n");	// print statement to visualize
 
 		// return progress
@@ -1105,6 +1156,13 @@ private:
 	BTState process(Entity e) override {
 		// modify world
 		// cast heal on currentPlayer
+		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
+			Entity toGet = registry.companions.entities[i];
+			if (registry.enemies.get(toGet).enemyType == MAGE) {
+				target = toGet;
+			}
+		}
+		worldSystem.healSkill(target, 100); // TODO: to heal target
 		printf("Cast Heal \n");	// print statement to visualize
 
 		// return progress
@@ -1118,16 +1176,16 @@ private:
 // Set up enemy behavior tree flow
 // Leaf Nodes
 BTCastFireball castFireball;
-BTCastTaunt castTaunt;						// to implement
-BTMeleeAttack meleeAttack;					// to implement
-BTCastThunderbolt castThunderbolt;			// to implement
-BTCastHeal castHeal;						// to implement
-BTCastHealOnSelf castHealOnSelf;			// to implement
+BTCastTaunt castTaunt;				// to implement
+BTMeleeAttack meleeAttack;			// to implement
+BTCastRock castRock;				// to implement
+BTCastHeal castHeal;				// to implement
+BTCastHealOnSelf castHealOnSelf;	// to implement
 
 // Conditional Sub-Tree for Level 3 Nodes
 BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);				// done
 BTIfMageHPAboveHalf mageAboveHalf(&castHeal);					// done
-BTIfPlayerSideHasSwordsman haveSwordsman(&castThunderbolt);		// partial <- cast thunderbolt at swordsman specifically
+BTIfPlayerSideHasSwordsman haveSwordsman(&castRock);			// partial <- cast thunderbolt at swordsman specifically
 BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castFireball);	// done
 
 // Level 3 Nodes
@@ -1843,27 +1901,17 @@ void WorldSystem::healTarget(Entity target, float amount) {
 		else
 		{
 			tStats->health += amount;
-		}
-		
+		}		
 	}
 	update_healthBars();
-
 }
 
 void WorldSystem::damageTarget(Entity target, float amount) {
 	if (registry.stats.has(target)) {
 		Statistics* tStats = &registry.stats.get(target);
-		//if (tStats->health + amount > tStats->max_health) {
-		//	tStats->health = tStats->max_health;
-		//}
-		//else
-		//{
 			tStats->health -= amount;
-		//}
-
 	}
 	update_healthBars();
-
 }
 
 Entity WorldSystem::launchArrow(vec2 startPos) {
@@ -1879,18 +1927,13 @@ Entity WorldSystem::launchArrow(vec2 startPos) {
 	float vx = ARROWSPEED * dx / dxdy;
 	float vy = ARROWSPEED * dy / dxdy;
 
-	//printf("%f%f\n", vx, vy);
-
 	float angle = atan(dy / dx);
 	if (dx < 0) {
 		angle += M_PI;
 	}
-	//printf(" % f", angle);
 	Entity resultEntity = createArrow(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
 	Motion* arrowacc = &registry.motions.get(resultEntity);
 	arrowacc->acceleration = vec2(200 * vx / ARROWSPEED, 200 * vy / ARROWSPEED);
-
-
 	return  resultEntity;
 }
 
@@ -1934,17 +1977,10 @@ Entity WorldSystem::launchRock(Entity target) {
 	if (registry.companions.has(target)) {
 		int isFriendly = 0;
 	}
-	Entity resultEntity = createRock(renderer, {targetp.x,targetp.y-300}, isFriendly);
-
-
-	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
-	//int rng = rand() % 10;
-	//if (rng >= 4) {
-	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
-	//}
-
+	Entity resultEntity = createRock(renderer, {targetp.x, targetp.y - 300}, isFriendly);
 	return  resultEntity;
 }
+
 Entity WorldSystem::launchMelee(Entity target) {
 	int isFriendly = 1;
 	vec2 targetp = registry.motions.get(target).position;

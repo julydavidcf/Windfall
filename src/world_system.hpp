@@ -32,8 +32,11 @@ public:
 	// display enemy turn
 	void displayEnemyTurn();
 
-	// create temporary fireball attack
-	void temporaryFireball(Entity currPlayer);
+	// create attacks
+	void fireballAttack(Entity currPlayer);
+	void rockAttack(Entity target);
+	void healSkill(Entity target, float amount);
+	void meleeSkill(Entity target);
 
 	// creates a round
 	void createRound();
