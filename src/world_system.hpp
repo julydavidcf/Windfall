@@ -37,6 +37,7 @@ public:
 	void rockAttack(Entity target);
 	void healSkill(Entity target, float amount);
 	void meleeSkill(Entity target);
+	void tauntSkill(Entity target);
 
 	// creates a round
 	void createRound();
