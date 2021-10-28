@@ -777,13 +777,18 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT) {
 
 	}
-	// Test for health
+	// Test for skills
 	if (action == GLFW_RELEASE && key == GLFW_KEY_K) {
-		for(Entity entity: registry.stats.entities){
-			Statistics& hp = registry.stats.get(entity);
-			hp.health -= 20;
-		}
-		update_healthBars();
+		launchMelee(enemy_swordsman);
+		
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
+		healTarget(player_swordsman, 30);
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+		launchRock(enemy_mage);
 	}
 
 	// Resetting game
@@ -794,10 +799,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         restart_game();
 	}
 
-	// temp self-damaging skill "k"
-	if (action == GLFW_RELEASE && key == GLFW_KEY_K) {
-
-	}
 
 	// temp arrow skill "A"
 	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
@@ -897,11 +898,35 @@ void WorldSystem::deselectButton() {
 }
 
 //skills
-void WorldSystem::healTarget(Entity target) {
-	if (1) {
+void WorldSystem::healTarget(Entity target, float amount) {
+	if (registry.stats.has(target)) {
+		Statistics* tStats = &registry.stats.get(target);
+		if (tStats->health + amount > tStats->max_health) {
+			tStats->health = tStats->max_health;
+		}
+		else
+		{
+			tStats->health += amount;
+		}
+		
+	}
+	update_healthBars();
+
+}
+
+void WorldSystem::damageTarget(Entity target, float amount) {
+	if (registry.stats.has(target)) {
+		Statistics* tStats = &registry.stats.get(target);
+		//if (tStats->health + amount > tStats->max_health) {
+		//	tStats->health = tStats->max_health;
+		//}
+		//else
+		//{
+			tStats->health -= amount;
+		//}
 
 	}
-
+	update_healthBars();
 
 }
 
@@ -966,3 +991,39 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 
 	return  resultEntity;
 }
+
+Entity WorldSystem::launchRock(Entity target) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		int isFriendly = 0;
+	}
+	Entity resultEntity = createRock(renderer, {targetp.x,targetp.y-300}, isFriendly);
+
+
+	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
+	//int rng = rand() % 10;
+	//if (rng >= 4) {
+	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	//}
+
+	return  resultEntity;
+}
+Entity WorldSystem::launchMelee(Entity target) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		int isFriendly = 0;
+	}
+	Entity resultEntity = createMelee(renderer, { targetp.x,targetp.y }, isFriendly);
+
+
+	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
+	//int rng = rand() % 10;
+	//if (rng >= 4) {
+	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	//}
+
+	return  resultEntity;
+}
+

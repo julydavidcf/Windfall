@@ -58,6 +58,12 @@ struct Projectile
 
 };
 
+//Special effect : Taunt
+struct Taunt
+{
+	int duration = 3;
+};
+
 // reflects projectile
 struct Reflect
 {
@@ -78,6 +84,7 @@ struct Damage
 // entities starts from 100%
 struct Statistics 
 {
+	int max_health = 100;
 	int health = 100;
 	int speed = 0;	// new speed stat
 };
@@ -218,9 +225,10 @@ enum class TEXTURE_ASSET_ID {
 	MAGE_ANIM = ARROW + 1,
 	SWORDSMAN_IDLE = MAGE_ANIM + 1,
 	NECROMANCER_IDLE = SWORDSMAN_IDLE + 1,
+	ROCK = NECROMANCER_IDLE + 1,
 
 	// --------------------------
-	TEXTURE_COUNT = NECROMANCER_IDLE + 1
+	TEXTURE_COUNT = ROCK + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

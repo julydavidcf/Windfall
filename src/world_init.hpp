@@ -25,6 +25,8 @@ const float PLAYERTURN_WIDTH = 300.f;
 const float PLAYERTURN_HEIGHT = 100.f;
 const float ENEMYTURN_WIDTH = 300.f;
 const float ENEMYTURN_HEIGHT = 100.f;
+const float ROCK_WIDTH = 75.f;
+const float ROCK_HEIGHT = 75.f;
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -50,9 +52,14 @@ Entity createPlayerTurn(RenderSystem* renderer, vec2 position);
 Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 // barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position);
+//rock for magw
+Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
+
+Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly);
 // a basic, textured enemy
 Entity createEnemyMage(RenderSystem* renderer, vec2 position);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
+
 
 
