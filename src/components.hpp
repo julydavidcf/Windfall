@@ -13,16 +13,29 @@ enum CharacterType {
 	NECROMANCER = 5
 };
 
+
 enum AnimType {
 	IDLE = 1,
 	ATTACKING = 2,
 	DEAD = 3,
 };
 
+enum AttackType {
+	FIREBALL = 1,
+	SILENCE = 2,
+	WALL = 3,
+};
+
 // Health bar entity
 struct HealthBar
 {
 
+};
+
+// Currently attacking
+struct Attack
+{
+	int attack_type = 0;
 };
 
 struct Companion
