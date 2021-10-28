@@ -73,6 +73,9 @@ private:
 	// Helper function for updating health in collision
 	void update_health(Entity entity, Entity other_entity);
 
+	// Updates all healthbars
+	void update_healthBars();
+
 	// restart level
 	void restart_game();
 
@@ -84,6 +87,11 @@ private:
 
 	//Skills Function
 	Entity launchFireball(vec2 startPos);
+	Entity WorldSystem::launchArrow(vec2 startPos);
+	Entity WorldSystem::launchRock(Entity target);
+	Entity WorldSystem::launchMelee(Entity target);
+	void WorldSystem::healTarget(Entity target, float amount);
+	void WorldSystem::damageTarget(Entity target, float amount);
 
 	// Game state
 	RenderSystem* renderer;
@@ -111,5 +119,5 @@ private:
 
 	//skill constants
 	float FIREBALLSPEED = 100.f;
-
+	float ARROWSPEED = 700.f;
 };

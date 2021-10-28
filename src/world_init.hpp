@@ -15,6 +15,8 @@ const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 7.f;
 const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
+const float ARROW_WIDTH = 80.f;
+const float ARROW_HEIGHT = 10.f;
 const float FIREBALL_ICON_WIDTH = 80.f;
 const float FIREBALL_ICON_HEIGHT = 80.f;
 const float BARRIER_WIDTH = 50.f;
@@ -23,6 +25,8 @@ const float PLAYERTURN_WIDTH = 300.f;
 const float PLAYERTURN_HEIGHT = 100.f;
 const float ENEMYTURN_WIDTH = 300.f;
 const float ENEMYTURN_HEIGHT = 100.f;
+const float ROCK_WIDTH = 75.f;
+const float ROCK_HEIGHT = 75.f;
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -38,6 +42,8 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos);
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // the fireball
 Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
+
+Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
@@ -46,9 +52,14 @@ Entity createPlayerTurn(RenderSystem* renderer, vec2 position);
 Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 // barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position);
+//rock for magw
+Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
+
+Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly);
 // a basic, textured enemy
 Entity createEnemyMage(RenderSystem* renderer, vec2 position);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
+
 
 

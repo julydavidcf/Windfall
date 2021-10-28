@@ -46,10 +46,22 @@ struct Enemy
 };
 
 
+// this object is effected by gravity
+struct Gravity
+{
+	float gravity = 98;
+};
+
 // Projectiles: Fireball
 struct Projectile
 {
 
+};
+
+//Special effect : Taunt
+struct Taunt
+{
+	int duration = 3;
 };
 
 // reflects projectile
@@ -72,6 +84,7 @@ struct Damage
 // entities starts from 100%
 struct Statistics 
 {
+	int max_health = 100;
 	int health = 100;
 	int speed = 0;	// new speed stat
 };
@@ -207,13 +220,15 @@ enum class TEXTURE_ASSET_ID {
 	DEATH_PARTICLE = HEALTHBAR + 1,
 	PLAYER_TURN = DEATH_PARTICLE + 1,
 	ENEMY_TURN = PLAYER_TURN + 1,
+	ARROW = ENEMY_TURN + 1,
 	// ------- Animations -------
-	MAGE_ANIM = ENEMY_TURN + 1,
+	MAGE_ANIM = ARROW + 1,
 	SWORDSMAN_IDLE = MAGE_ANIM + 1,
 	NECROMANCER_IDLE = SWORDSMAN_IDLE + 1,
+	ROCK = NECROMANCER_IDLE + 1,
 
 	// --------------------------
-	TEXTURE_COUNT = NECROMANCER_IDLE + 1
+	TEXTURE_COUNT = ROCK + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

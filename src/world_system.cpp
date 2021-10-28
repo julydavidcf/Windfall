@@ -1370,6 +1370,9 @@ void WorldSystem::restart_game() {
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 }
 
+
+
+
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
 	if(registry.projectiles.has(entity)){
 		Damage& damage = registry.damages.get(entity);
@@ -1383,8 +1386,8 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 			}
 		} else {
 			if(registry.companions.has(other_entity)){
-				Companion& enemy = registry.companions.get(other_entity);
-				healthbar = enemy.healthbar;
+				Companion& companion = registry.companions.get(other_entity);
+				healthbar = companion.healthbar;
 				hp = &registry.stats.get(other_entity);
 			}
 		}
@@ -1412,6 +1415,76 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 		}
 	}
 }
+/*
+void WorldSystem::update_healthBars() {
+	printf("updating healths\n");
+	for(Entity entity: registry.stats.entities){
+		printf("in loop\n");
+		Statistics& hp = registry.stats.get(entity);
+		Entity healthbar;
+		if(registry.enemies.has(entity)){
+			printf("if?\n");
+			Enemy& enemy = registry.enemies.get(entity);
+			printf("end if?\n");
+			healthbar = enemy.healthbar;
+		} else if (registry.companions.has(entity)){
+			printf("else?\n");
+			Companion& companion = registry.companions.get(entity);
+			printf("end else?\n");
+			healthbar = companion.healthbar;
+		}
+		if(healthbar){
+			Motion& motion = registry.motions.get(healthbar);
+			if(hp.health<=0){
+				if(!registry.deathTimers.has(entity)){
+					registry.deathTimers.emplace(entity);
+				}
+				motion.scale = vec2({ (HEALTHBAR_WIDTH*(99.f/100.f)), HEALTHBAR_HEIGHT });
+				
+			} else {
+				motion.scale = vec2({ (HEALTHBAR_WIDTH*(hp.health/100.f)), HEALTHBAR_HEIGHT });
+			}
+		}
+		Motion& motion = registry.motions.get(healthbar);
+			
+		
+	}
+}
+*/
+
+void WorldSystem::update_healthBars() {
+	for(Entity entity: registry.enemies.entities){
+		Enemy& enemy = registry.enemies.get(entity);
+		Statistics& stat = registry.stats.get(entity);
+		Entity healthbar = enemy.healthbar;
+		Motion& motion = registry.motions.get(healthbar);
+		motion.scale = vec2({ (HEALTHBAR_WIDTH*(stat.health/100.f)), HEALTHBAR_HEIGHT });	
+	}
+	for(Entity entity: registry.companions.entities){
+		Companion& enemy = registry.companions.get(entity);
+		Statistics& stat = registry.stats.get(entity);
+		Entity healthbar = enemy.healthbar;
+		Motion& motion = registry.motions.get(healthbar);
+		motion.scale = vec2({ (HEALTHBAR_WIDTH*(stat.health/100.f)), HEALTHBAR_HEIGHT });	
+	}
+}
+
+
+
+//void WorldSystem::simple_hp_update(Entity target) {
+//	Entity healthbar = registry.enemies.get(target);
+//	Motion& motion = registry.motions.get(healthbar);
+//	if (hp->health <= 0) {
+//		if (!registry.deathTimers.has(target)) {
+//			registry.deathTimers.emplace(target);
+//		}
+//		motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
+//
+//	}
+//	else {
+//		motion.scale = vec2({ (HEALTHBAR_WIDTH * (hp->health / 100.f)), HEALTHBAR_HEIGHT });
+//	}
+//}
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
@@ -1640,6 +1713,19 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT) {
 
 	}
+	// Test for skills
+	if (action == GLFW_RELEASE && key == GLFW_KEY_K) {
+		launchMelee(enemy_swordsman);
+		
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
+		healTarget(player_swordsman, 30);
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+		launchRock(enemy_mage);
+	}
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
@@ -1647,6 +1733,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwGetWindowSize(window, &w, &h);
 
         restart_game();
+	}
+
+
+	// temp arrow skill "A"
+	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+		launchArrow(registry.motions.get(player_mage).position);
 	}
 
 	// Debugging
@@ -1742,6 +1834,67 @@ void WorldSystem::deselectButton() {
 }
 
 //skills
+void WorldSystem::healTarget(Entity target, float amount) {
+	if (registry.stats.has(target)) {
+		Statistics* tStats = &registry.stats.get(target);
+		if (tStats->health + amount > tStats->max_health) {
+			tStats->health = tStats->max_health;
+		}
+		else
+		{
+			tStats->health += amount;
+		}
+		
+	}
+	update_healthBars();
+
+}
+
+void WorldSystem::damageTarget(Entity target, float amount) {
+	if (registry.stats.has(target)) {
+		Statistics* tStats = &registry.stats.get(target);
+		//if (tStats->health + amount > tStats->max_health) {
+		//	tStats->health = tStats->max_health;
+		//}
+		//else
+		//{
+			tStats->health -= amount;
+		//}
+
+	}
+	update_healthBars();
+
+}
+
+Entity WorldSystem::launchArrow(vec2 startPos) {
+
+	float proj_x = startPos.x + 50;
+	float proj_y = startPos.y;
+	float mouse_x = msPos.x;
+	float mouse_y = msPos.y;
+
+	float dx = mouse_x - proj_x;
+	float dy = mouse_y - proj_y;
+	float dxdy = sqrt((dx * dx) + (dy * dy));
+	float vx = ARROWSPEED * dx / dxdy;
+	float vy = ARROWSPEED * dy / dxdy;
+
+	//printf("%f%f\n", vx, vy);
+
+	float angle = atan(dy / dx);
+	if (dx < 0) {
+		angle += M_PI;
+	}
+	//printf(" % f", angle);
+	Entity resultEntity = createArrow(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
+	Motion* arrowacc = &registry.motions.get(resultEntity);
+	arrowacc->acceleration = vec2(200 * vx / ARROWSPEED, 200 * vy / ARROWSPEED);
+
+
+	return  resultEntity;
+}
+
+
 Entity WorldSystem::launchFireball(vec2 startPos) {
 
 	float proj_x = startPos.x + 50;
@@ -1774,3 +1927,39 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 
 	return  resultEntity;
 }
+
+Entity WorldSystem::launchRock(Entity target) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		int isFriendly = 0;
+	}
+	Entity resultEntity = createRock(renderer, {targetp.x,targetp.y-300}, isFriendly);
+
+
+	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
+	//int rng = rand() % 10;
+	//if (rng >= 4) {
+	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	//}
+
+	return  resultEntity;
+}
+Entity WorldSystem::launchMelee(Entity target) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		int isFriendly = 0;
+	}
+	Entity resultEntity = createMelee(renderer, { targetp.x,targetp.y }, isFriendly);
+
+
+	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
+	//int rng = rand() % 10;
+	//if (rng >= 4) {
+	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	//}
+
+	return  resultEntity;
+}
+
