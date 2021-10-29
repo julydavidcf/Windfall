@@ -13,16 +13,39 @@ enum CharacterType {
 	NECROMANCER = 5
 };
 
+
 enum AnimType {
 	IDLE = 1,
 	ATTACKING = 2,
 	DEAD = 3,
 };
 
+enum AttackType {
+	// Categories
+	MELEE 		= 1,
+	TAUNT 		= 2,
+	CASTING 	= 3,
+
+	// Specific attacks
+	// Casting
+	FIREBALL 	= 31,
+	ROCK 		= 32,
+	HEAL		= 33,
+};
+
 // Health bar entity
 struct HealthBar
 {
 
+};
+
+// Currently attacking
+struct Attack
+{
+	int attack_type = 0;
+	Entity target;
+	vec2 mouse_pos;
+	float counter_ms = 1000;
 };
 
 struct Companion
@@ -95,6 +118,24 @@ struct Statistics
 	int health = 100;
 	int speed = 0;	// new speed stat
 };
+
+// Silence component: state of a silenced entity
+struct Silenced
+{
+	// silenced for number of turns
+	int turns = 1;	
+	// the rendered speech bubble entity
+	Entity silenced_effect;
+};
+
+
+// The power to be able to silence
+// TODO: check if needed
+struct Silence
+{
+
+};
+
 
 // All data relevant to the shape and motion of entities
 struct Motion {
@@ -223,8 +264,11 @@ enum class TEXTURE_ASSET_ID {
 	FIREBALL = BARRIER + 1,
 	FIREBALLICON = FIREBALL + 1,
 	FIREBALLICONSELECTED = FIREBALLICON + 1,
-	HEALTHBAR = FIREBALLICONSELECTED + 1,
-	DEATH_PARTICLE = HEALTHBAR + 1,
+	SILENCEICON = FIREBALLICONSELECTED + 1,
+	SILENCEICONSELECTED = SILENCEICON + 1,
+	HEALTHBAR = SILENCEICONSELECTED + 1,
+	SILENCEBUBBLE = HEALTHBAR + 1,
+	DEATH_PARTICLE = SILENCEBUBBLE + 1,
 	PLAYER_TURN = DEATH_PARTICLE + 1,
 	ENEMY_TURN = PLAYER_TURN + 1,
 	ARROW = ENEMY_TURN + 1,

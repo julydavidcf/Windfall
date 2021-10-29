@@ -13,12 +13,16 @@ const float NECROMANCER_WIDTH = 150.f;
 const float NECROMANCER_HEIGHT = 180.f;
 const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 7.f;
+const float SILENCEBUBBLE_WIDTH = 40.f;
+const float SILENCEBUBBLE_HEIGHT = 20.f;
 const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
 const float ARROW_WIDTH = 80.f;
 const float ARROW_HEIGHT = 10.f;
 const float FIREBALL_ICON_WIDTH = 80.f;
 const float FIREBALL_ICON_HEIGHT = 80.f;
+const float SILENCE_ICON_WIDTH = 80.f;
+const float SILENCE_ICON_HEIGHT = 80.f;
 const float BARRIER_WIDTH = 50.f;
 const float BARRIER_HEIGHT = 200.f;
 const float PLAYERTURN_WIDTH = 300.f;
@@ -49,6 +53,8 @@ Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos);
 
 //healthbar
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
+// create the silence bubble
+Entity createSilenceBubble(RenderSystem* renderer, vec2 position);
 // the fireball
 Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 
@@ -56,6 +62,10 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 // the fireball icon
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
+
+// the silence icon
+Entity createSilenceIcon(RenderSystem* renderer, vec2 position);
+Entity createSilenceIconSelected(RenderSystem* renderer, vec2 position);
 
 // Turn indicators
 Entity createPlayerTurn(RenderSystem* renderer, vec2 position);

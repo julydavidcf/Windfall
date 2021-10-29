@@ -23,6 +23,7 @@ public:
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
+	ComponentContainer<Silenced> silenced;
 	ComponentContainer<Statistics> stats;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
@@ -30,6 +31,7 @@ public:
 	ComponentContainer<HitTimer> hit_timer;
 	ComponentContainer<Reflect> reflects;
 	ComponentContainer<TurnIndicator> turnIndicators;
+	ComponentContainer<Attack> attackers;
 	ComponentContainer<Gravity> gravities;
 	ComponentContainer<Taunt> taunts;
 
@@ -47,6 +49,7 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&silenced);
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);
@@ -54,6 +57,7 @@ public:
 		registry_list.push_back(&hit_timer);
 		registry_list.push_back(&reflects);
 		registry_list.push_back(&turnIndicators);
+		registry_list.push_back(&attackers);
 		registry_list.push_back(&gravities);
 		registry_list.push_back(&taunts);
 	}

@@ -71,8 +71,15 @@ private:
 	// check if mouse in button
 	bool inButton(vec2 buttonPos, float buttonX, float buttonY);
 
+
+	// check if mouse in entity
+	bool inEntity(const Entity entity);
+
 	// deselect current button (after using ability)
 	void deselectButton();
+
+	// reset all selected buttons if there are any (when a button is clicked)
+	void deselectButtons();
 
 	// Helper function for updating health in collision
 	void update_health(Entity entity, Entity other_entity);
@@ -90,13 +97,13 @@ private:
 	unsigned int points;
 
 	//Skills Function
-	Entity launchFireball(vec2 startPos);
-	Entity WorldSystem::launchArrow(vec2 startPos);
-	Entity WorldSystem::launchRock(Entity target);
-	Entity WorldSystem::launchMelee(Entity target);
-	void WorldSystem::launchTaunt(Entity target);
-	void WorldSystem::healTarget(Entity target, float amount);
-	void WorldSystem::damageTarget(Entity target, float amount);
+	Entity launchFireball(vec2 startPos, vec2 mouse_pos);
+	Entity launchArrow(vec2 startPos);
+	Entity launchRock(Entity target);
+	Entity launchMelee(Entity target);
+	void launchTaunt(Entity target);
+	void healTarget(Entity target, float amount);
+	void damageTarget(Entity target, float amount);
 
 	// Game state
 	RenderSystem* renderer;
@@ -108,6 +115,7 @@ private:
 	Entity necromancer;
 	Entity fireball;
 	Entity fireball_icon;
+	Entity silence_icon;
 
 
 	// music references

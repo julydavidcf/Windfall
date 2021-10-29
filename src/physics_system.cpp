@@ -9,16 +9,82 @@ vec2 get_bounding_box(const Motion& motion)
 	return { abs(motion.scale.x), abs(motion.scale.y) };
 }
 
+vec2 PhysicsSystem::get_custom_bounding_box(Entity entity)
+{
+	Motion& motion = registry.motions.get(entity);
+	if(registry.companions.has(entity) || registry.enemies.has(entity)){
+		int type;
+		
+		if(registry.companions.has(entity)){
+			Companion& companion = registry.companions.get(entity);
+			type = companion.companionType;
+		} else {
+			Enemy& enemy = registry.enemies.get(entity);
+			type = enemy.enemyType;
+		}
+
+		if(type==MAGE){
+			return { abs(motion.scale.x), abs(motion.scale.y)/1.5 };
+		} else if(type==SWORDSMAN){
+			return { abs(motion.scale.x)/2, 4*(abs(motion.scale.y)/5) };
+		} else if(type==NECROMANCER){
+			return { 12*(abs(motion.scale.x)/10), 13*(abs(motion.scale.y)/10) };
+		} else {
+			return motion.position;
+		}
+
+	} else {
+		return { abs(motion.scale.x), abs(motion.scale.y) };
+	}
+}
+
+vec2 PhysicsSystem::get_custom_position(Entity entity)
+{
+	Motion& motion = registry.motions.get(entity);
+	if(registry.companions.has(entity) || registry.enemies.has(entity)){
+		int type;
+		
+		if(registry.companions.has(entity)){
+			Companion& companion = registry.companions.get(entity);
+			type = companion.companionType;
+		} else {
+			Enemy& enemy = registry.enemies.get(entity);
+			type = enemy.enemyType;
+		}
+
+		if(type==MAGE){
+			float offset = motion.scale.y/4;
+			return {motion.position.x, motion.position.y+offset};
+		} else if(type==SWORDSMAN){
+			float offset_y = motion.scale.y/5;
+			float offset_x = motion.scale.x/12;
+			return {motion.position.x-offset_x, motion.position.y+offset_y};
+		} else if(type==NECROMANCER){
+			return motion.position;
+		} else {
+			return vec2(abs(motion.scale.x), abs(motion.scale.y));
+		}
+
+	} else {
+		return motion.position;
+	}
+}
+
+
+
 // This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees
 // if the center point of either object is inside the other's bounding-box-circle. You can
 // surely implement a more accurate detection
-bool collides(const Motion& motion1, const Motion& motion2)
+bool collides(const Entity entity_i, const Entity entity_j)
 {
-	vec2 dp = motion1.position - motion2.position;
+	PhysicsSystem ps;
+	vec2 custom_pos_i = ps.get_custom_position(entity_i);
+	vec2 custom_pos_j = ps.get_custom_position(entity_j);
+	vec2 dp = custom_pos_i - custom_pos_j;
 	float dist_squared = dot(dp,dp);
-	const vec2 other_bonding_box = get_bounding_box(motion1) / 2.f;
+	const vec2 other_bonding_box = ps.get_custom_bounding_box(entity_i) / 2.f;
 	const float other_r_squared = dot(other_bonding_box, other_bonding_box);
-	const vec2 my_bonding_box = get_bounding_box(motion2) / 2.f;
+	const vec2 my_bonding_box = ps.get_custom_bounding_box(entity_j) / 2.f;
 	const float my_r_squared = dot(my_bonding_box, my_bonding_box);
 	const float r_squared = max(other_r_squared, my_r_squared);
 	if (dist_squared < r_squared)
@@ -80,9 +146,10 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				continue;
 
 			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
+			Entity entity_j = motion_container.entities[j];
+			//if (collides(motion_i, motion_j))
+			if(collides(entity_i, entity_j))
 			{
-				Entity entity_j = motion_container.entities[j];
 				// Create a collisions event
 				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
 				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
@@ -103,14 +170,68 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		{
 			Motion& motion_i = motion_container.components[i];
 			Entity entity_i = motion_container.entities[i];
+	
+			vec3 point0 	= {0.f, 0.f, 1.f};
+			vec3 pointy 	= {0.f, 1.f, 1.f};
+			vec3 pointx 	= {1.f, 0.f, 1.f};
+			vec3 pointxy 	= {1.f, 1.f, 1.f};
 
-			// visualize the radius with two axis-aligned lines
-			const vec2 bonding_box = get_bounding_box(motion_i);
-			float radius = sqrt(dot(bonding_box/2.f, bonding_box/2.f));
-			vec2 line_scale1 = { motion_i.scale.x / 10, 2*radius };
-			Entity line1 = createLine(motion_i.position, line_scale1);
-			vec2 line_scale2 = { 2*radius, motion_i.scale.x / 10};
-			Entity line2 = createLine(motion_i.position, line_scale2);
+			Transform transform;
+			vec2 new_scale = get_custom_bounding_box(entity_i);
+			vec2 custom_pos = get_custom_position(entity_i);
+			
+			vec2 offset = {((cos(motion_i.angle)*new_scale.x)/2-(sin(motion_i.angle)*new_scale.y)/2), 
+								((sin(motion_i.angle)*new_scale.x)/2+(cos(motion_i.angle)*new_scale.y)/2)};
+			vec2 new_pos = custom_pos - offset;
+			transform.translate(new_pos);
+			transform.rotate(motion_i.angle);
+			transform.scale(new_scale);
+			
+			point0 	= transform.mat * point0;
+			pointy 	= transform.mat * pointy;
+			pointx 	= transform.mat * pointx;
+			pointxy = transform.mat * pointxy;
+
+			vec2 points[4] = {point0, pointx, pointy, pointxy};
+			
+			float min_x = point0.x;
+			float max_x = pointx.x;
+			float min_y = point0.y;
+			float max_y = pointy.y;
+			
+			for(vec2 vec: points){
+				if(vec.x<min_x){
+					min_x = vec.x;
+				}
+				if(vec.x>max_x){
+					max_x = vec.x;
+				}
+				if(vec.y<min_y){
+					min_y = vec.y;
+				}
+				if(vec.y>max_y){
+					max_y = vec.y;
+				}
+			}
+
+			float line_thickness = 1.5f;
+
+			vec2 line1_pos = {(max_x+min_x)/2, min_y};
+			vec2 line2_pos = {(max_x+min_x)/2, max_y};
+			vec2 line3_pos = {min_x, (max_y+min_y)/2};
+			vec2 line4_pos = {max_x, (max_y+min_y)/2};
+
+			vec2 line1_scale = {(max_x-min_x), line_thickness};
+			vec2 line3_scale = {line_thickness, (max_y-min_y)};
+
+			
+			Entity line1 = createLine(line1_pos, line1_scale);
+			Entity line2 = createLine(line2_pos, line1_scale);
+			Entity line3 = createLine(line3_pos, line3_scale);
+			Entity line4 = createLine(line4_pos, line3_scale);
+
+			// center = pos
+			Entity center = createLine(get_custom_position(entity_i), {5.f, 5.f});
 
 		}
 	}

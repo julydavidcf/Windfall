@@ -1,6 +1,7 @@
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
+#include "physics_system.hpp"
 
 // stlib
 #include <cassert>
@@ -25,6 +26,7 @@ int isTaunt = 0;
 int enemyTaunt = 0;
 
 vec2 msPos = vec2(0, 0);
+bool is_ms_clicked = false;
 
 float next_barrier_spawn = 1000;
 
@@ -32,6 +34,7 @@ float enemy_turn_timer = 1000;
 
 //Button status
 int FIREBALLSELECTED = 0;
+int SILENCESELECTED = 0;
 
 //selected button
 Entity selectedButton;
@@ -1109,7 +1112,12 @@ private:
 				target = toGet;	// get nearest player entity
 			}
 		}
-		worldSystem.meleeSkill(target); // TODO: melee target
+		//worldSystem.meleeSkill(target); // TODO: melee target
+		Enemy& enemy = registry.enemies.get(e);
+		enemy.curr_anim_type = MELEE;
+		Attack& attack = registry.attackers.emplace(e);
+		attack.attack_type = MELEE;
+		attack.target = target;
 		printf("Melee Attack \n\n");	// print statement to visualize
 
 		// return progress
@@ -1128,7 +1136,12 @@ private:
 				target = toGet;
 			}
 		}
-		worldSystem.rockAttack(target); // TODO: to get rock attack target ONLY SWORDSMAN
+		//worldSystem.rockAttack(e, target); // TODO: to get rock attack target ONLY SWORDSMAN
+		Enemy& enemy = registry.enemies.get(e);
+		enemy.curr_anim_type = CASTING;
+		Attack& attack = registry.attackers.emplace(e);
+		attack.attack_type = ROCK;
+		attack.target = target;
 		printf("Cast Rock \n\n");	// print statement to visualize
 
 		// return progress
@@ -1147,7 +1160,12 @@ private:
 				target = toGet;
 			}
 		}
-		worldSystem.healSkill(target, 100); // TODO: to heal target
+		//worldSystem.healSkill(target, 100); // TODO: to heal target
+		Enemy& enemy = registry.enemies.get(e);
+		enemy.curr_anim_type = CASTING;
+		Attack& attack = registry.attackers.emplace(e);
+		attack.attack_type = HEAL;
+		attack.target = target;
 		printf("Cast Heal \n\n");	// print statement to visualize
 
 		// return progress
@@ -1166,7 +1184,12 @@ private:
 				target = toGet;
 			}
 		}
-		worldSystem.healSkill(target, 100); // TODO: to heal target
+		//worldSystem.healSkill(target, 100); // TODO: to heal target
+		Enemy& enemy = registry.enemies.get(e);
+		enemy.curr_anim_type = CASTING;
+		Attack& attack = registry.attackers.emplace(e);
+		attack.attack_type = HEAL;
+		attack.target = target;
 		printf("Cast Heal On Self \n\n");	// print statement to visualize
 
 		// return progress
@@ -1275,6 +1298,38 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	// Attack
+	for(Entity attacker: registry.attackers.entities){
+		Attack& attack = registry.attackers.get(attacker);
+		// Updating animation time
+		attack.counter_ms -= elapsed_ms_since_last_update;
+		printf("Animation seconds left: %f\n", attack.counter_ms);
+		if(attack.counter_ms<=0.f){
+			// Attack
+			if(registry.companions.has(attacker)){
+				printf("Companion is attacking\n");
+				Companion& companion = registry.companions.get(attacker);
+				Motion& companion_motion = registry.motions.get(attacker);
+				switch(attack.attack_type){
+					case FIREBALL: currentProjectile = launchFireball(companion_motion.position, attack.mouse_pos); break;
+				}
+				companion.curr_anim_type = IDLE;
+				printf("Not attacking anymore in idle\n");
+				registry.attackers.remove(attacker);
+			} else if(registry.enemies.has(attacker)){
+				printf("Enemy is attacking\n");
+				Enemy& enemy = registry.enemies.get(attacker);
+				switch(attack.attack_type){
+					case ROCK: rockAttack(attack.target); break;
+					case HEAL: healSkill(attack.target, 100); break;
+					case MELEE: meleeSkill(attack.target); break;
+				}
+				enemy.curr_anim_type = IDLE;
+				printf("Not attacking anymore in idle\n");
+				registry.attackers.remove(attacker);
+			}
+		}
+	}
 
 	if (player_turn == 1) {
 		prevPlayer = currPlayer;
@@ -1454,6 +1509,8 @@ void WorldSystem::restart_game() {
 	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now
 	// Create the fireball icon
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
+	silence_icon = createSilenceIcon(renderer, { 800, 700 });;
+
 }
 
 
@@ -1875,7 +1932,14 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 				else {
 					if (FIREBALLSELECTED == 1) {
 						Motion player = registry.motions.get(currPlayer);	// need to change to based on turn system
-						currentProjectile = launchFireball(player.position);
+						Companion& player_companion = registry.companions.get(currPlayer);
+						Attack& attacker = registry.attackers.emplace(currPlayer);
+						printf("Companion is casting\n");
+						player_companion.curr_anim_type = CASTING;
+						attacker.attack_type = FIREBALL;
+						attacker.mouse_pos = msPos;
+						//attacker.attack_type = CASTING;
+						//currentProjectile = launchFireball(player.position);
 						FIREBALLSELECTED = 0;
 						//active this when ai is done
 						deselectButton();
@@ -1883,8 +1947,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						checkRound();
 					}
 				}
-			}
-			else {
+			} else {
 				if (roundVec.empty()) {
 					printf("roundVec is empty at player turn, createRound now \n");
 					createRound();						
@@ -1899,13 +1962,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE SALMON ROTATION HERE
-	// xpos and ypos are relative to the top-left of the window, the salmon's
-	// default facing direction is (1, 0)
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	msPos = mouse_position;
-	//printf("%f", msPos.x);
 }
 
 bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {
@@ -1917,8 +1974,32 @@ bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {
 	return false;
 }
 
+bool WorldSystem::inEntity(const Entity entity) {
+	PhysicsSystem physicsSystem;
+	vec2 custom_pos = physicsSystem.get_custom_position(entity);
+	vec2 custom_scale = physicsSystem.get_custom_bounding_box(entity);
+	float left_bound = custom_pos.x - (custom_scale.x/2);
+	float right_bound = custom_pos.x + (custom_scale.x/2);
+	float upper_bound = custom_pos.y - (custom_scale.y/2);
+	float lower_bound = custom_pos.y + (custom_scale.y/2);
+	if((left_bound <= msPos.x)&&(msPos.x <= right_bound)){
+		if((upper_bound <= msPos.y)&&(msPos.y <= lower_bound)){
+			return true;
+		}
+	} 
+	return false;
+}
+
 void WorldSystem::deselectButton() {
 	registry.remove_all_components_of(selectedButton);
+}
+
+void WorldSystem::deselectButtons() {
+	if(selectedButton){
+		FIREBALLSELECTED = 0;
+		SILENCESELECTED = 0;
+		registry.remove_all_components_of(selectedButton);
+	}
 }
 
 //skills
@@ -1971,12 +2052,12 @@ Entity WorldSystem::launchArrow(vec2 startPos) {
 }
 
 
-Entity WorldSystem::launchFireball(vec2 startPos) {
+Entity WorldSystem::launchFireball(vec2 startPos, vec2 mouse_pos) {
 
 	float proj_x = startPos.x + 50;
 	float proj_y = startPos.y;
-	float mouse_x = msPos.x;
-	float mouse_y = msPos.y;
+	float mouse_x = mouse_pos.x;
+	float mouse_y = mouse_pos.y;
 
 	float dx = mouse_x - proj_x;
 	float dy = mouse_y - proj_y;
@@ -1988,7 +2069,6 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	if (dx < 0) {
 		angle += M_PI;
 	}
-
 	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);
