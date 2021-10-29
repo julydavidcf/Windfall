@@ -96,6 +96,9 @@ private:
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
 
+	// Death particle activation
+	void activate_deathParticles(Entity entity);
+
 	//Skills Function
 	Entity launchFireball(vec2 startPos, vec2 mouse_pos);
 	Entity launchArrow(vec2 startPos);

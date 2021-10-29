@@ -1118,7 +1118,7 @@ private:
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = MELEE;
 		attack.target = target;
-		attack.counter_ms = 1000.f;
+		attack.counter_ms = 2000.f;
 		printf("Melee Attack \n\n");	// print statement to visualize
 
 		// return progress
@@ -1423,6 +1423,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// restart the game once the death timer expired
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
+			activate_deathParticles(entity);
 			screen.darken_screen_factor = 0;
             // restart_game();
 			return true;
@@ -1541,6 +1542,15 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 			if (registry.stats.get(currPlayer).health <= 0) {	// check if HP of currPlayer is 0, checkRound to skip this player
 				if (!registry.deathTimers.has(other_entity)) {
 					registry.deathTimers.emplace(other_entity);
+					if(registry.companions.has(other_entity)){
+						printf("Companion is dead\n");
+						Companion& companion = registry.companions.get(other_entity);
+						companion.curr_anim_type = DEAD;
+					} else if(registry.enemies.has(other_entity)){
+						printf("Enemy is dead\n");
+						Enemy& enemy = registry.enemies.get(other_entity);
+						enemy.curr_anim_type = DEAD;
+					}
 				}
 				checkRound();
 				motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
@@ -1549,6 +1559,15 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 				if (hp->health <= 0) {
 					if (!registry.deathTimers.has(other_entity)) {
 						registry.deathTimers.emplace(other_entity);
+						if(registry.companions.has(other_entity)){
+							printf("Companion is dead\n");
+							Companion& companion = registry.companions.get(other_entity);
+							companion.curr_anim_type = DEAD;
+						} else if(registry.enemies.has(other_entity)){
+							printf("Enemy is dead\n");
+							Enemy& enemy = registry.enemies.get(other_entity);
+							enemy.curr_anim_type = DEAD;
+						}
 					}
 					motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
 				}
@@ -1630,6 +1649,34 @@ void WorldSystem::update_healthBars() {
 //	}
 //}
 
+void WorldSystem::activate_deathParticles(Entity entity)
+{
+	/*
+	Entity entityHealthbar = registry.companions.get(entity).healthbar;
+	registry.motions.remove(entityHealthbar);
+	*/
+
+	DeathParticle particleEffects;
+	for (int p = 0; p <= NUM_DEATH_PARTICLES; p++) {
+		auto& motion = registry.motions.get(entity);
+		DeathParticle particle;
+		float random1 = ((rand() % 100) - 50) / 10.0f;
+		float random2 = ((rand() % 200) - 100) / 10.0f;
+		float rColor = 0.5f + ((rand() % 100) / 100.0f);
+		// particle.motion.position = motion.position + random + vec2({ 20,20 });
+		particle.motion.position.x = motion.position.x + random1 + 20.f;
+		particle.motion.position.y = motion.position.y + random2 + 40.f;
+		particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+		particle.motion.velocity *= 0.1f;
+		particle.motion.scale = vec2({ 10, 10 });
+		particleEffects.deathParticles.push_back(particle);
+	}
+	if (!registry.deathParticles.has(entity)) {
+		registry.deathParticles.insert(entity, particleEffects);
+	}
+}
+
+
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
 	// reduce turne
@@ -1674,9 +1721,25 @@ void WorldSystem::handle_collisions() {
 				}
 			}
 			// create death particles. Register for rendering.
+			
 			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
 			{
 				// get rid of dead entity's healthbar.
+				Entity entityHealthbar = registry.companions.get(entity).healthbar;
+				registry.motions.remove(entityHealthbar);
+				if(registry.companions.has(entity)){
+					printf("Companion is dead\n");
+					Companion& companion = registry.companions.get(entity);
+					companion.curr_anim_type = DEAD;
+				} else if(registry.enemies.has(entity)){
+					printf("Enemy is dead\n");
+					Enemy& enemy = registry.enemies.get(entity);
+					enemy.curr_anim_type = DEAD;
+				}
+				//registry.deathTimers.emplace(entity);
+
+				//activate_deathParticles(entity);
+				/*
 				Entity entityHealthbar = registry.companions.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
 
@@ -1698,7 +1761,9 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathParticles.has(entity)) {
 					registry.deathParticles.insert(entity, particleEffects);
 				}
+				*/
 			}
+			
 		}
     
 		// Deal with fireball - Enemy collisions
@@ -1762,7 +1827,18 @@ void WorldSystem::handle_collisions() {
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
+				if(registry.companions.has(entity)){
+					printf("Companion is dead\n");
+					Companion& companion = registry.companions.get(entity);
+					companion.curr_anim_type = DEAD;
+				} else if(registry.enemies.has(entity)){
+					printf("Enemy is dead\n");
+					Enemy& enemy = registry.enemies.get(entity);
+					enemy.curr_anim_type = DEAD;
+				}
+				//registry.deathTimers.emplace(entity);
 
+				/*
 				DeathParticle particleEffects;
 				for (int p = 0; p <= NUM_DEATH_PARTICLES; p++) {
 					auto& motion = registry.motions.get(entity);
@@ -1780,7 +1856,7 @@ void WorldSystem::handle_collisions() {
 				}
 				if (!registry.deathParticles.has(entity)) {
 					registry.deathParticles.insert(entity, particleEffects);
-				}
+				}*/
 			}
 		}
 		// barrier collection

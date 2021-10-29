@@ -170,7 +170,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		{
 			Motion& motion_i = motion_container.components[i];
 			Entity entity_i = motion_container.entities[i];
-	
+
 			vec3 point0 	= {0.f, 0.f, 1.f};
 			vec3 pointy 	= {0.f, 1.f, 1.f};
 			vec3 pointx 	= {1.f, 0.f, 1.f};

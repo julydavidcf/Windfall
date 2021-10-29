@@ -329,6 +329,7 @@ void RenderSystem::draw(float elapsed_ms)
 			GLint curr_frame = 0;
 			GLfloat frame_width = 0;
 			int numFrames = 0;
+			int timePerFrame = 0;
 
 			// Handle animation frames
 			if (registry.companions.has(entity) || registry.enemies.has(entity)) {
@@ -363,21 +364,21 @@ void RenderSystem::draw(float elapsed_ms)
 									currGeometry = GEOMETRY_BUFFER_ID::MAGE_IDLE;
 									*currFrame = 0;
 								}
-								numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
+								numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; timePerFrame = MAGE_IDLE_FRAME_TIME; break;
 							}
 							case ATTACKING: {
 								if (currGeometry != GEOMETRY_BUFFER_ID::MAGE_CASTING) {
 									currGeometry = GEOMETRY_BUFFER_ID::MAGE_CASTING;
 									*currFrame = 0;
 								}
-								numFrames = MAGE_CASTING_FRAMES; frame_width = MAGE_CASTING_FRAME_WIDTH; break;
+								numFrames = MAGE_CASTING_FRAMES; frame_width = MAGE_CASTING_FRAME_WIDTH; timePerFrame = MAGE_ATTACK_FRAME_TIME; break;
 							}
 							case DEAD: {
 								if (currGeometry != GEOMETRY_BUFFER_ID::MAGE_DEATH) {
 									currGeometry = GEOMETRY_BUFFER_ID::MAGE_DEATH;
 									*currFrame = 0;
 								}
-								numFrames = MAGE_DEATH_FRAMES; frame_width = MAGE_DEATH_FRAME_WIDTH; break;
+								numFrames = MAGE_DEATH_FRAMES; frame_width = MAGE_DEATH_FRAME_WIDTH; timePerFrame = MAGE_DEATH_FRAME_TIME; break;
 							}
 							default: break;
 						}
@@ -391,7 +392,7 @@ void RenderSystem::draw(float elapsed_ms)
 								}
 								currTexture = TEXTURE_ASSET_ID::SWORDSMAN_IDLE;
 								currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE;
-								numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break; 
+								numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; timePerFrame = SWORDSMAN_IDLE_FRAME_TIME; break;
 							}
 							case ATTACKING: {
 								switch (registry.attackers.get(entity).attack_type) {
@@ -401,7 +402,7 @@ void RenderSystem::draw(float elapsed_ms)
 										}
 										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_ATTACK;
 										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK;
-										numFrames = SWORDSMAN_ATTACK_FRAMES; frame_width = SWORDSMAN_ATTACK_FRAME_WIDTH; break;
+										numFrames = SWORDSMAN_ATTACK_FRAMES; frame_width = SWORDSMAN_ATTACK_FRAME_WIDTH; timePerFrame = SWORDSMAN_ATTACK_FRAME_TIME; break;
 									}
 									case TAUNT: {
 										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT) {
@@ -409,15 +410,15 @@ void RenderSystem::draw(float elapsed_ms)
 										}
 										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_TAUNT;
 										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT;
-										numFrames = SWORDSMAN_TAUNT_FRAMES; frame_width = SWORDSMAN_TAUNT_FRAME_WIDTH; break;
+										numFrames = SWORDSMAN_TAUNT_FRAMES; frame_width = SWORDSMAN_TAUNT_FRAME_WIDTH; timePerFrame = SWORDSMAN_TAUNT_FRAME_TIME; break;
 									}
 									case FIREBALL: {
-										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK) {
+										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT) {
 											*currFrame = 0;
 										}
-										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_ATTACK;
-										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK;
-										numFrames = SWORDSMAN_ATTACK_FRAMES; frame_width = SWORDSMAN_ATTACK_FRAME_WIDTH; break;
+										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_TAUNT;
+										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT;
+										numFrames = SWORDSMAN_TAUNT_FRAMES; frame_width = SWORDSMAN_TAUNT_FRAME_WIDTH; timePerFrame = SWORDSMAN_TAUNT_FRAME_TIME; break;
 									}
 									default: break;
 								}
@@ -429,7 +430,7 @@ void RenderSystem::draw(float elapsed_ms)
 									currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH;
 									*currFrame = 0;
 								}
-								numFrames = SWORDSMAN_DEATH_FRAMES; frame_width = SWORDSMAN_DEATH_FRAME_WIDTH; break;
+								numFrames = SWORDSMAN_DEATH_FRAMES; frame_width = SWORDSMAN_DEATH_FRAME_WIDTH; timePerFrame = SWORDSMAN_DEATH_FRAME_TIME; break;
 							}
 							default: break;
 						}
@@ -457,7 +458,7 @@ void RenderSystem::draw(float elapsed_ms)
 						*currFrame = curr_frame % numFrames;
 					}
 					// Reset frame timer
-					*counter = TIME_PER_FRAME;
+					*counter = timePerFrame;
 				}
 				else {
 					curr_frame = *currFrame;

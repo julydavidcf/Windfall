@@ -46,7 +46,7 @@ class RenderSystem {
 			textures_path("greenCross.png"),
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
-			textures_path("swordsman_attack0y.png"),
+			textures_path("swordsman_attack.png"),
 			textures_path("swordsman_taunt.png"),
 			textures_path("swordsman_death.png"),
 			textures_path("necromancer_idle.png"),
@@ -69,9 +69,16 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
-	// Time per frame in ms
-	float TIME_PER_FRAME = 130;
-	
+	// Time per frame in ms, for each action
+	float MAGE_IDLE_FRAME_TIME = 175;
+	float MAGE_ATTACK_FRAME_TIME = 150;
+	float MAGE_DEATH_FRAME_TIME = 280;
+
+	float SWORDSMAN_IDLE_FRAME_TIME = 150;
+	float SWORDSMAN_ATTACK_FRAME_TIME = 60;
+	float SWORDSMAN_TAUNT_FRAME_TIME = 100;
+	float SWORDSMAN_DEATH_FRAME_TIME = 80;
+
 	// ---------------------------------- Frame stats for each character animation -----------------------------------
 
 	// Mage frame stats
