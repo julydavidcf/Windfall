@@ -1118,6 +1118,7 @@ private:
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = MELEE;
 		attack.target = target;
+		attack.counter_ms = 1000.f;
 		printf("Melee Attack \n\n");	// print statement to visualize
 
 		// return progress

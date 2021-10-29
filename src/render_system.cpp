@@ -355,8 +355,6 @@ void RenderSystem::draw(float elapsed_ms)
 				int* currFrame = registry.companions.has(entity) ? &registry.companions.get(entity).curr_frame
 					: &registry.enemies.get(entity).curr_frame;
 
-				// Get the current geometry to alter
-
 				switch (charType) {
 					case MAGE: {
 						switch (animType) {
@@ -389,59 +387,41 @@ void RenderSystem::draw(float elapsed_ms)
 						switch (animType) {
 							case IDLE: {
 								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE) {
-									if (currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0) {
-										// Swordsman has finished walking back from his melee attack
-										reverseFrames = 0;
-									}
-									currTexture = TEXTURE_ASSET_ID::SWORDSMAN_IDLE;
-									currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE;
 									*currFrame = 0;
 								}
+								currTexture = TEXTURE_ASSET_ID::SWORDSMAN_IDLE;
+								currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE;
 								numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break; 
 							}
 							case ATTACKING: {
 								switch (registry.attackers.get(entity).attack_type) {
 									case MELEE: {
-										if (currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE) {
-											// Swordsman starts sliding towards enemy
-											currTexture = TEXTURE_ASSET_ID::SWORDSMAN_MELEE_0;
-											currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0;
+										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK) {
 											*currFrame = 0;
-											numFrames = SWORDSMAN_MELEE_0_FRAMES; frame_width = SWORDSMAN_MELEE_0_FRAME_WIDTH; break;
 										}
-										else if (currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0) {
-											numFrames = SWORDSMAN_MELEE_0_FRAMES; frame_width = SWORDSMAN_MELEE_0_FRAME_WIDTH;
-											if (*currFrame == SWORDSMAN_MELEE_0_FRAMES - 1) {
-												// Swordsman reached enemy, begins to attack
-												currTexture = TEXTURE_ASSET_ID::SWORDSMAN_MELEE_1;
-												currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_1;
-												*currFrame = 0;
-												numFrames = SWORDSMAN_MELEE_1_FRAMES; frame_width = SWORDSMAN_MELEE_1_FRAME_WIDTH;
-											} 
-											break;
-										}
-										else if (currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_1) {
-											numFrames = SWORDSMAN_MELEE_1_FRAMES; frame_width = SWORDSMAN_MELEE_1_FRAME_WIDTH;
-											if (*currFrame == SWORDSMAN_MELEE_1_FRAMES - 1) {
-												// Swordsman finished attack, begins to walk back
-												currTexture = TEXTURE_ASSET_ID::SWORDSMAN_MELEE_0;
-												currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0;
-												numFrames = SWORDSMAN_MELEE_0_FRAMES; frame_width = SWORDSMAN_MELEE_0_FRAME_WIDTH; 
-												*currFrame = SWORDSMAN_MELEE_0_FRAMES - 1;
-												reverseFrames = 1;
-											}
-											break;
-										}
+										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_ATTACK;
+										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK;
+										numFrames = SWORDSMAN_ATTACK_FRAMES; frame_width = SWORDSMAN_ATTACK_FRAME_WIDTH; break;
 									}
 									case TAUNT: {
 										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT) {
-											currTexture = TEXTURE_ASSET_ID::SWORDSMAN_TAUNT;
-											currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT;
 											*currFrame = 0;
 										}
+										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_TAUNT;
+										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT;
 										numFrames = SWORDSMAN_TAUNT_FRAMES; frame_width = SWORDSMAN_TAUNT_FRAME_WIDTH; break;
 									}
+									case FIREBALL: {
+										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK) {
+											*currFrame = 0;
+										}
+										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_ATTACK;
+										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK;
+										numFrames = SWORDSMAN_ATTACK_FRAMES; frame_width = SWORDSMAN_ATTACK_FRAME_WIDTH; break;
+									}
+									default: break;
 								}
+							    break;
 							}
 							case DEAD: {
 								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH) {
@@ -452,33 +432,28 @@ void RenderSystem::draw(float elapsed_ms)
 								numFrames = SWORDSMAN_DEATH_FRAMES; frame_width = SWORDSMAN_DEATH_FRAME_WIDTH; break;
 							}
 							default: break;
-							}
+						}
 						break;
-					case NECROMANCER: {
-						switch (animType) {
+				}
+				case NECROMANCER: {
+					switch (animType) {
 						case IDLE: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAME_WIDTH; break;
 						case ATTACKING: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
 						case DEAD: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
 						default: break;
-						}
-						break;
 					}
+					break;
 				}
 					// TODO: Implement healer, archer, necromancer cases later
 				default: break;
-				}
+			}
 
 				if (*counter <= 0) {
 					
 					if (registry.companions.has(entity) || registry.enemies.has(entity)) {
 						curr_frame = *currFrame;
-						// Increment/decrement frame count
-						if (reverseFrames && currGeometry == GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE_0) {
-							curr_frame -= 1;
-						}
-						else {
-							curr_frame += 1;
-						}
+						// Increment frame count
+						curr_frame += 1;
 						*currFrame = curr_frame % numFrames;
 					}
 					// Reset frame timer

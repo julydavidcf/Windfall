@@ -46,8 +46,7 @@ class RenderSystem {
 			textures_path("greenCross.png"),
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
-			textures_path("swordsman_melee_0.png"),
-			textures_path("swordsman_melee_1.png"),
+			textures_path("swordsman_attack0y.png"),
 			textures_path("swordsman_taunt.png"),
 			textures_path("swordsman_death.png"),
 			textures_path("necromancer_idle.png"),
@@ -71,9 +70,7 @@ class RenderSystem {
 	std::array<Mesh, geometry_count> meshes;
 
 	// Time per frame in ms
-	float TIME_PER_FRAME = 100;
-	// Determines if we should play the frames in reverse order (For swordsman walking back)
-	int reverseFrames = 0;
+	float TIME_PER_FRAME = 130;
 	
 	// ---------------------------------- Frame stats for each character animation -----------------------------------
 
@@ -91,11 +88,8 @@ class RenderSystem {
 	const int SWORDSMAN_IDLE_FRAMES = 16;
 	const GLfloat SWORDSMAN_IDLE_FRAME_WIDTH = 0.0625;
 
-	const int SWORDSMAN_MELEE_0_FRAMES = 8;
-	const GLfloat SWORDSMAN_MELEE_0_FRAME_WIDTH = 0.125;
-
-	const int SWORDSMAN_MELEE_1_FRAMES = 30;
-	const GLfloat SWORDSMAN_MELEE_1_FRAME_WIDTH = 0.03333333333;
+	const int SWORDSMAN_ATTACK_FRAMES = 30;
+	const GLfloat SWORDSMAN_ATTACK_FRAME_WIDTH = 0.03333333333;
 
 	const int SWORDSMAN_TAUNT_FRAMES = 18;
 	const GLfloat SWORDSMAN_TAUNT_FRAME_WIDTH = 0.05555555555;
