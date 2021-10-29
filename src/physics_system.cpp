@@ -93,17 +93,40 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 	auto& motion_registry = registry.motions;
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{
+
+
 		// !!! TODO: Calculate newest fireball position based on step_seconds and motion.velocity
 
 		Motion* motion = &motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+
+		//gravity effect
+		if (registry.gravities.has(entity)){
+			motion->acceleration.y += registry.gravities.get(entity).gravity;
+
+		}
+
+		//normal movement
 		motion->velocity.x += step_seconds * motion->acceleration.x;
 		motion->velocity.y += step_seconds * motion->acceleration.y;
 		motion->position.x += step_seconds * motion->velocity.x;
 		motion->position.y += step_seconds * motion->velocity.y;
 		//printf("acc:%f %f\n", motion->acceleration.x, motion->acceleration.y);
 		//printf("v:%f %f\n", motion->velocity.x, motion->velocity.y);
+
+		// assume gravity effected object need to adjest angels
+
+		if (registry.gravities.has(entity)) {
+			float angle = atan(motion->velocity.y / motion->velocity.x);
+			if (motion->velocity.x < 0) {
+				angle += M_PI;
+			}
+			motion->angle = angle;
+
+		}
+
+
 
 	}
 

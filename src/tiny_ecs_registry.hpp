@@ -22,8 +22,8 @@ public:
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
-	ComponentContainer<HP> healthPoints;
 	ComponentContainer<Silenced> silenced;
+	ComponentContainer<Statistics> stats;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
 	ComponentContainer<ButtonItem> buttons;
@@ -31,6 +31,8 @@ public:
 	ComponentContainer<Reflect> reflects;
 	ComponentContainer<TurnIndicator> turnIndicators;
 	ComponentContainer<Attack> attackers;
+	ComponentContainer<Gravity> gravities;
+	ComponentContainer<Taunt> taunts;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -55,6 +57,8 @@ public:
 		registry_list.push_back(&reflects);
 		registry_list.push_back(&turnIndicators);
 		registry_list.push_back(&attackers);
+		registry_list.push_back(&gravities);
+		registry_list.push_back(&taunts);
 	}
 
 	void clear_all_components() {

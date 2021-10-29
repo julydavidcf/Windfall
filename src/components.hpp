@@ -21,9 +21,16 @@ enum AnimType {
 };
 
 enum AttackType {
-	FIREBALL = 1,
-	SILENCE = 2,
-	WALL = 3,
+	// Categories
+	MELEE 		= 1,
+	TAUNT 		= 2,
+	CASTING 	= 3,
+
+	// Specific attacks
+	// Casting
+	FIREBALL 	= 31,
+	ROCK 		= 32,
+	HEAL		= 33,
 };
 
 // Health bar entity
@@ -36,6 +43,9 @@ struct HealthBar
 struct Attack
 {
 	int attack_type = 0;
+	Entity target;
+	vec2 mouse_pos;
+	float counter_ms = 1000;
 };
 
 struct Companion
@@ -59,10 +69,22 @@ struct Enemy
 };
 
 
+// this object is effected by gravity
+struct Gravity
+{
+	float gravity = 98;
+};
+
 // Projectiles: Fireball
 struct Projectile
 {
 
+};
+
+//Special effect : Taunt
+struct Taunt
+{
+	int duration = 3;
 };
 
 // reflects projectile
@@ -83,9 +105,11 @@ struct Damage
 
 // HP for enemy and companion
 // entities starts from 100%
-struct HP 
+struct Statistics 
 {
+	int max_health = 100;
 	int health = 100;
+	int speed = 0;	// new speed stat
 };
 
 // Silence component: state of a silenced entity
@@ -180,7 +204,7 @@ struct Mesh
 
 struct HitTimer
 {
-	float counter_ms = 500;
+	float counter_ms = 250;
 };
 
 struct TurnIndicator
@@ -240,10 +264,14 @@ enum class TEXTURE_ASSET_ID {
 	DEATH_PARTICLE = SILENCEBUBBLE + 1,
 	PLAYER_TURN = DEATH_PARTICLE + 1,
 	ENEMY_TURN = PLAYER_TURN + 1,
+	ARROW = ENEMY_TURN + 1,
+	ROCK = ARROW + 1,
+	GREENCROSS = ROCK+1,
 	// ------- Animations -------
-	MAGE_ANIM = ENEMY_TURN + 1,
+	MAGE_ANIM = GREENCROSS + 1,
 	SWORDSMAN_IDLE = MAGE_ANIM + 1,
 	NECROMANCER_IDLE = SWORDSMAN_IDLE + 1,
+	
 
 	// --------------------------
 	TEXTURE_COUNT = NECROMANCER_IDLE + 1

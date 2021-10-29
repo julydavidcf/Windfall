@@ -41,9 +41,14 @@ class RenderSystem {
 			textures_path("particle.png"),
 			textures_path("playerTurn.png"),
 			textures_path("enemyTurn.png"),
+			textures_path("arrow.png"),
+			textures_path("rock.png"),
+			textures_path("greenCross.png"),
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("necromancer_idle.png")
+
+
   };
   
 	std::array<GLuint, effect_count> effects;

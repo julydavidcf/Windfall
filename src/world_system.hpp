@@ -26,6 +26,25 @@ public:
 	// starts the game
 	void init(RenderSystem* renderer);
 
+	// display player turn
+	void displayPlayerTurn();
+
+	// display enemy turn
+	void displayEnemyTurn();
+
+	// create attacks
+	void fireballAttack(Entity currPlayer);
+	void rockAttack(Entity target);
+	void healSkill(Entity target, float amount);
+	void meleeSkill(Entity target);
+	void tauntSkill(Entity target);
+
+	// creates a round
+	void createRound();
+
+	// check a round
+	void checkRound();
+
 	// Releases all associated resources
 	~WorldSystem();
 
@@ -65,6 +84,9 @@ private:
 	// Helper function for updating health in collision
 	void update_health(Entity entity, Entity other_entity);
 
+	// Updates all healthbars
+	void update_healthBars();
+
 	// restart level
 	void restart_game();
 
@@ -75,7 +97,13 @@ private:
 	unsigned int points;
 
 	//Skills Function
-	Entity launchFireball(vec2 startPos);
+	Entity launchFireball(vec2 startPos, vec2 mouse_pos);
+	Entity launchArrow(vec2 startPos);
+	Entity launchRock(Entity target);
+	Entity launchMelee(Entity target);
+	void launchTaunt(Entity target);
+	void healTarget(Entity target, float amount);
+	void damageTarget(Entity target, float amount);
 
 	// Game state
 	RenderSystem* renderer;
@@ -104,5 +132,5 @@ private:
 
 	//skill constants
 	float FIREBALLSPEED = 100.f;
-
+	float ARROWSPEED = 700.f;
 };
