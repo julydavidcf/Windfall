@@ -24,13 +24,9 @@ enum AttackType {
 	// Categories
 	MELEE 		= 1,
 	TAUNT 		= 2,
-	CASTING 	= 3,
-
-	// Specific attacks
-	// Casting
-	FIREBALL 	= 31,
-	ROCK 		= 32,
-	HEAL		= 33,
+	FIREBALL 	= 3,
+	ROCK 		= 4,
+	HEAL		= 5,
 };
 
 // Health bar entity

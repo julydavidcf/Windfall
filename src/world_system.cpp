@@ -1110,7 +1110,7 @@ private:
 		}
 		//worldSystem.meleeSkill(target); // TODO: melee target
 		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = MELEE;
+		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = MELEE;
 		attack.target = target;
@@ -1134,7 +1134,7 @@ private:
 		}
 		//worldSystem.rockAttack(e, target); // TODO: to get rock attack target ONLY SWORDSMAN
 		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = CASTING;
+		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = ROCK;
 		attack.target = target;
@@ -1158,7 +1158,7 @@ private:
 		}
 		//worldSystem.healSkill(target, 100); // TODO: to heal target
 		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = CASTING;
+		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = HEAL;
 		attack.target = target;
@@ -1182,7 +1182,7 @@ private:
 		}
 		//worldSystem.healSkill(target, 100); // TODO: to heal target
 		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = CASTING;
+		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = HEAL;
 		attack.target = target;
@@ -1915,7 +1915,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						Companion& player_companion = registry.companions.get(currPlayer);
 						Attack& attacker = registry.attackers.emplace(currPlayer);
 						printf("Companion is casting\n");
-						player_companion.curr_anim_type = CASTING;
+						player_companion.curr_anim_type = ATTACKING;
 						attacker.attack_type = FIREBALL;
 						attacker.mouse_pos = msPos;
 						//attacker.attack_type = CASTING;
