@@ -1870,7 +1870,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
-		launchRock(player_swordsman);
+		launchRock(player_mage);
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_T) {

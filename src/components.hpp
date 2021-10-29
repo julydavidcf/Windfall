@@ -45,7 +45,7 @@ struct Attack
 	int attack_type = 0;
 	Entity target;
 	vec2 mouse_pos;
-	float counter_ms = 1000;
+	float counter_ms = 250;
 };
 
 struct Companion

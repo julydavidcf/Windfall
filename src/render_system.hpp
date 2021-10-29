@@ -72,7 +72,6 @@ class RenderSystem {
 
 	// Time per frame in ms
 	float TIME_PER_FRAME = 100;
-
 	// Determines if we should play the frames in reverse order (For swordsman walking back)
 	int reverseFrames = 0;
 	

@@ -178,10 +178,10 @@ void RenderSystem::initializeGlGeometryBuffers()
 	mage_casting_vertices[1].position = { +1.f, +1.f / 2, 0.f };
 	mage_casting_vertices[2].position = { +1.f, -1.f, 0.f };
 	mage_casting_vertices[3].position = { -1.f, -1.f, 0.f };
-	mage_casting_vertices[0].texcoord = { 0.f, 0.88888888888 };      // Bottom left
-	mage_casting_vertices[1].texcoord = { 0.250, 0.88888888888 };    // Bottom right
-	mage_casting_vertices[2].texcoord = { 0.250, 0.77777777777 };            // Top right
-	mage_casting_vertices[3].texcoord = { 0.f, 0.77777777777 };              // Top left
+	mage_casting_vertices[0].texcoord = { 0.f, 0.77777777777 };      // Bottom left
+	mage_casting_vertices[1].texcoord = { 0.250, 0.77777777777 };    // Bottom right
+	mage_casting_vertices[2].texcoord = { 0.250, 0.66666666666 };            // Top right
+	mage_casting_vertices[3].texcoord = { 0.f, 0.66666666666 };              // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_CASTING, mage_casting_vertices, textured_indices);
 
 	// mage_death sprite row
@@ -190,10 +190,10 @@ void RenderSystem::initializeGlGeometryBuffers()
 	mage_death_vertices[1].position = { +1.f, +1.f / 2, 0.f };
 	mage_death_vertices[2].position = { +1.f, -1.f, 0.f };
 	mage_death_vertices[3].position = { -1.f, -1.f, 0.f };
-	mage_death_vertices[0].texcoord = { 0.f, 0.99999999999 };      // Bottom left
-	mage_death_vertices[1].texcoord = { 0.125, 0.99999999999 };    // Bottom right
-	mage_death_vertices[2].texcoord = { 0.125, 0.88888888888 };            // Top right
-	mage_death_vertices[3].texcoord = { 0.f, 0.88888888888 };              // Top left
+	mage_death_vertices[0].texcoord = { 0.f, 0.88888888888 };      // Bottom left
+	mage_death_vertices[1].texcoord = { 0.125, 0.88888888888 };    // Bottom right
+	mage_death_vertices[2].texcoord = { 0.125, 0.77777777777 };            // Top right
+	mage_death_vertices[3].texcoord = { 0.f, 0.77777777777 };              // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_DEATH, mage_death_vertices, textured_indices);
 
 	// swordsman_idle sprite row
