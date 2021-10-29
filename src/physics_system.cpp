@@ -30,7 +30,7 @@ vec2 PhysicsSystem::get_custom_bounding_box(Entity entity)
 		} else if(type==NECROMANCER){
 			return { 12*(abs(motion.scale.x)/10), 13*(abs(motion.scale.y)/10) };
 		} else{
-			abs(motion.scale.x), abs(motion.scale.y);
+			return abs(motion.scale.x), abs(motion.scale.y);
 		}
 
 	} else {
@@ -62,7 +62,7 @@ vec2 PhysicsSystem::get_custom_position(Entity entity)
 		} else if(type==NECROMANCER){
 			return motion.position;
 		} else{
-			motion.position;
+			return motion.position;
 		}
 
 	} else {
