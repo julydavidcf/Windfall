@@ -70,6 +70,7 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
+
 	// Time per frame in ms, for each action
 	float MAGE_IDLE_FRAME_TIME = 175;
 	float MAGE_ATTACK_FRAME_TIME = 150;
@@ -81,6 +82,13 @@ class RenderSystem {
 	float SWORDSMAN_TAUNT_FRAME_TIME = 90;
 	float SWORDSMAN_DEATH_FRAME_TIME = 80;
 
+	// pixel positions for the light balls in the background
+	std::vector<float> lightBallsXcoords;
+	std::vector<float> lightBallsYcoords;
+
+	// Time per frame in ms
+	float TIME_PER_FRAME = 100;
+	
 	// ---------------------------------- Frame stats for each character animation -----------------------------------
 
 	// Mage frame stats
@@ -153,6 +161,8 @@ public:
 	mat3 createProjectionMatrix();
 
 	mat3 createCameraProjection(Motion& motion);
+
+	void createRandomLightBallPosForBackground(int windowWidth, int windowHeight);
 
 private:
 	// Internal drawing functions for each entity type

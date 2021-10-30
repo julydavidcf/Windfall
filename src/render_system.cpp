@@ -2,6 +2,9 @@
 #include "render_system.hpp"
 #include <SDL.h>
 
+#include <string>
+#include <sstream>
+
 #include "tiny_ecs_registry.hpp"
 
 void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
@@ -82,8 +85,8 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 			gl_has_errors();
 		}
 	}
-	// glDisable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void RenderSystem::drawTexturedMesh(Entity entity,
@@ -233,7 +236,8 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 	// Enabling alpha channel for textures
 	glDisable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDisable(GL_DEPTH_TEST);
 
 	// Draw the screen texture on the quad geometry
@@ -247,9 +251,30 @@ void RenderSystem::drawToScreen()
 	// Set clock
 	GLuint time_uloc = glGetUniformLocation(water_program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(water_program, "darken_screen_factor");
-	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
+	glUniform1f(time_uloc, (float)(glfwGetTime()));
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
+
+	GLuint resoltion_x_loc = glGetUniformLocation(water_program, "resolutionX");
+	GLuint resoltion_y_loc = glGetUniformLocation(water_program, "resolutionY");
+	glUniform1f(resoltion_x_loc, (float)w);
+	glUniform1f(resoltion_y_loc, (float)h);
+
+	for (int i = 0; i < lightBallsXcoords.size(); i++) {
+		std::string s1("thingie.xCoordinates[");
+		std::string s2("thingie.yCoordinates[");
+		std::string iInS = std::to_string(i);
+		s1 += iInS + "]";
+		s2 += iInS + "]";
+
+		// printf("%f %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
+		GLuint locX = glGetUniformLocation(water_program, s1.c_str());
+		GLuint locY = glGetUniformLocation(water_program, s2.c_str());
+		glUniform1f(locX, lightBallsXcoords[i]);
+		glUniform1f(locY, lightBallsYcoords[i]);
+	}
+
+
 	gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)
@@ -260,7 +285,6 @@ void RenderSystem::drawToScreen()
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
 	// Draw
