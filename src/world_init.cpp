@@ -211,7 +211,7 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	return entity;
 }
 
-Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
+Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
 
@@ -240,14 +240,14 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	registry.projectiles.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::FIREBALL,
+		{ TEXTURE_ASSET_ID::ICESHARD,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
 
-Entity createFireballIcon(RenderSystem* renderer, vec2 position)
+Entity createIceShardIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
@@ -265,7 +265,7 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::FIREBALLICON,
+		{ TEXTURE_ASSET_ID::ICESHARDICON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

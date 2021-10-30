@@ -86,7 +86,7 @@ private:
 	unsigned int points;
 
 	//Skills Function
-	Entity launchFireball(vec2 startPos);
+	Entity WorldSystem::launchIceShard(vec2 startPos);
 	Entity WorldSystem::launchArrow(vec2 startPos);
 	Entity WorldSystem::launchRock(Entity target);
 	Entity WorldSystem::launchMelee(Entity target);
@@ -102,8 +102,8 @@ private:
 	Entity player_swordsman;
 	Entity enemy_swordsman;
 	Entity necromancer;
-	Entity fireball;
-	Entity fireball_icon;
+	Entity iceShard;
+	Entity iceShard_icon;
 
 
 	// music references
@@ -119,6 +119,20 @@ private:
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
 	//skill constants
-	float FIREBALLSPEED = 100.f;
+	float ICESHARDSPEED = 100.f;
 	float ARROWSPEED = 700.f;
+
+
+
+};
+
+enum class SKILL_ID {
+	SK_ICESHARD = 0,
+	SK_FIREBALL = SK_ICESHARD + 1,
+	SK_ROCK = SK_FIREBALL + 1,
+	SK_HEAL = SK_ROCK + 1,
+
+
+
+	SKILL_COUNT = SK_HEAL + 1,
 };

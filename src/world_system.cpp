@@ -28,7 +28,9 @@ float next_barrier_spawn = 1000;
 float enemy_turn_timer = 1000;
 
 //Button status
-int FIREBALLSELECTED = 0;
+int ICESHARDLSELECTED = 0;
+
+//skills
 
 //selected button
 Entity selectedButton;
@@ -179,9 +181,9 @@ void WorldSystem::temporaryFireball(Entity currPlayer) {
 	Motion enemy = registry.motions.get(currPlayer);
 	if (!registry.deathTimers.has(currPlayer)) {
 		// fireball action temporary until able to call behavior tree
-		Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
+		Entity resultEntity = createIceShard(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
 		Motion* ballacc = &registry.motions.get(resultEntity);
-		ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);
+		ballacc->acceleration = vec2(1000 * -100 / ICESHARDSPEED, 1000 * 0 / ICESHARDSPEED);
 	}
 }
 
@@ -453,7 +455,7 @@ void WorldSystem::restart_game() {
 	// Create the necromancer
 	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now
 	// Create the fireball icon
-	fireball_icon = createFireballIcon(renderer, { 600, 700 });
+	iceShard_icon = createIceShardIcon(renderer, { 600, 700 });
 }
 
 
@@ -853,26 +855,27 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 		if (player_turn == 1) {
 			displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
-				Motion icon = registry.motions.get(fireball_icon);
+				Motion icon = registry.motions.get(iceShard_icon);
 				if (inButton(icon.position, FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT)) {
-					if (FIREBALLSELECTED == 0) {
-						registry.renderRequests.get(fireball_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONSELECTED;
+					if (ICESHARDLSELECTED == 0) {
+						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
 						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
-						FIREBALLSELECTED = 1;
+						ICESHARDLSELECTED = 1;
 					}
 					else {
-						registry.renderRequests.get(fireball_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						//deselectButton();
-						FIREBALLSELECTED = 0;
+						ICESHARDLSELECTED = 0;
 					}
 				}
 				else {
-					if (FIREBALLSELECTED == 1) {
+					if (ICESHARDLSELECTED == 1) {
 						Motion player = registry.motions.get(currPlayer);	// need to change to based on turn system
-						currentProjectile = launchFireball(player.position);
-						FIREBALLSELECTED = 0;
+						currentProjectile = launchIceShard(player.position);
+						ICESHARDLSELECTED = 0;
 						//active this when ai is done
 						//deselectButton();
+						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						printf("player has attacked, checkRound now \n");
 						checkRound();
 					}
@@ -980,7 +983,7 @@ Entity WorldSystem::launchArrow(vec2 startPos) {
 }
 
 
-Entity WorldSystem::launchFireball(vec2 startPos) {
+Entity WorldSystem::launchIceShard(vec2 startPos) {
 
 	float proj_x = startPos.x + 50;
 	float proj_y = startPos.y;
@@ -990,8 +993,8 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 	float dx = mouse_x - proj_x;
 	float dy = mouse_y - proj_y;
 	float dxdy = sqrt((dx*dx) + (dy*dy));
-	float vx = FIREBALLSPEED * dx / dxdy;
-	float vy = FIREBALLSPEED * dy / dxdy;
+	float vx = ICESHARDSPEED * dx / dxdy;
+	float vy = ICESHARDSPEED * dy / dxdy;
 
 	//printf("%f%f\n", vx, vy);
 
@@ -1000,9 +1003,9 @@ Entity WorldSystem::launchFireball(vec2 startPos) {
 		angle += M_PI;
 	}
 	//printf(" % f", angle);
-	Entity resultEntity = createFireball(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
+	Entity resultEntity = createIceShard(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
-	ballacc->acceleration = vec2(1000 * vx/ FIREBALLSPEED, 1000 * vy/ FIREBALLSPEED);
+	ballacc->acceleration = vec2(1000 * vx/ ICESHARDSPEED, 1000 * vy/ ICESHARDSPEED);
 	
 	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
 	//int rng = rand() % 10;

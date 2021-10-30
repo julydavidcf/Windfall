@@ -41,6 +41,13 @@ class RenderSystem {
 			textures_path("arrow.png"),
 			textures_path("rock.png"),
 			textures_path("greenCross.png"),
+			textures_path("iceShard.png"),
+			textures_path("iceShardIcon.png"),
+			textures_path("iceShardIconSelected.png"),
+			textures_path("rockIcon.png"),
+			textures_path("rockIconSelected.png"),
+			textures_path("healIcon.png"),
+			textures_path("healIconSelected.png"),
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("necromancer_idle.png")

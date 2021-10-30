@@ -41,11 +41,11 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos);
 //healthbar
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // the fireball
-Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
+Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 
 Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 // the fireball icon
-Entity createFireballIcon(RenderSystem* renderer, vec2 position);
+Entity createIceShardIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
 // Turn indicators
 Entity createPlayerTurn(RenderSystem* renderer, vec2 position);
