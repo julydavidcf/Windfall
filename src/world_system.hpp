@@ -87,7 +87,7 @@ private:
 
 	//Skills Function
 	Entity WorldSystem::launchIceShard(vec2 startPos);
-	Entity WorldSystem::launchArrow(vec2 startPos);
+	Entity WorldSystem::launchFireball(vec2 startPos);
 	Entity WorldSystem::launchRock(Entity target);
 	Entity WorldSystem::launchMelee(Entity target);
 	void WorldSystem::launchTaunt(Entity target);
@@ -103,7 +103,10 @@ private:
 	Entity enemy_swordsman;
 	Entity necromancer;
 	Entity iceShard;
+
+	//icons
 	Entity iceShard_icon;
+	Entity fireBall_icon;
 
 
 	// music references
@@ -120,17 +123,17 @@ private:
 
 	//skill constants
 	float ICESHARDSPEED = 100.f;
-	float ARROWSPEED = 700.f;
+	float FIREBALLSPEED = 700.f;
 
 
 
 };
-
+// Can't use diretly somehow so just for reference
 enum class SKILL_ID {
 	SK_ICESHARD = 0,
-	SK_FIREBALL = SK_ICESHARD + 1,
-	SK_ROCK = SK_FIREBALL + 1,
-	SK_HEAL = SK_ROCK + 1,
+	SK_FIREBALL = SK_ICESHARD + 1, //1
+	SK_ROCK = SK_FIREBALL + 1, //2
+	SK_HEAL = SK_ROCK + 1, //3
 
 
 

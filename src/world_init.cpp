@@ -172,7 +172,7 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
+Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
 
@@ -189,7 +189,7 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	motion.position = position;
 
 
-	motion.scale = vec2({ ARROW_WIDTH, ARROW_HEIGHT });
+	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
 
 
 	// Set damage here--------------------------------
@@ -204,7 +204,7 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	registry.renderRequests.insert(
 		entity,
 		//currently using fireball
-		{ TEXTURE_ASSET_ID::ARROW,
+		{ TEXTURE_ASSET_ID::FIREBALL,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -226,7 +226,7 @@ Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	motion.position = position;
 
 
-	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
+	motion.scale = vec2({ ICESHARD_WIDTH, ICESHARD_HEIGHT });
 
 
 	// Set damage here--------------------------------
@@ -262,7 +262,7 @@ Entity createIceShardIcon(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
-	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::ICESHARDICON,
@@ -272,7 +272,7 @@ Entity createIceShardIcon(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
+Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
@@ -287,11 +287,11 @@ Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
-	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::FIREBALLICONSELECTED,
+		{ TEXTURE_ASSET_ID::FIREBALLICON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

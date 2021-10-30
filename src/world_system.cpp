@@ -28,7 +28,7 @@ float next_barrier_spawn = 1000;
 float enemy_turn_timer = 1000;
 
 //Button status
-int ICESHARDLSELECTED = 0;
+int selected_skill = -1;
 
 //skills
 
@@ -268,6 +268,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		restart_game();
 	}
 
+
+
 	// Updating window title with points (MAYBE USE FOR LATER)
 	//std::stringstream title_ss;
 	//title_ss << "Points: " << points;
@@ -454,8 +456,11 @@ void WorldSystem::restart_game() {
 	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	// Create the necromancer
 	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now
-	// Create the fireball icon
+	// 
+	// 
+	// Create the icons here
 	iceShard_icon = createIceShardIcon(renderer, { 600, 700 });
+	fireBall_icon = createFireballIcon(renderer, { 700, 700 });
 }
 
 
@@ -753,10 +758,10 @@ void WorldSystem::handle_boundary_collision() {
 	auto& projectilesRegistry = registry.projectiles;
 	for (uint i = 0; i < projectilesRegistry.components.size(); i++) {
 		Entity entity = projectilesRegistry.entities[i];
-		if (registry.motions.get(entity).position.x <= 20 ||
-			registry.motions.get(entity).position.x >= screen_width - 20 ||
-			registry.motions.get(entity).position.y <= 20 ||
-			registry.motions.get(entity).position.y >= screen_height - 20) {
+		if (registry.motions.get(entity).position.x <= 0-20 ||
+			registry.motions.get(entity).position.x >= screen_width + 20 ||
+			registry.motions.get(entity).position.y <= 0-20 ||
+			registry.motions.get(entity).position.y >= screen_height + 20) {
 			registry.remove_all_components_of(entity);
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
@@ -818,10 +823,10 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 
-	// temp arrow skill "A"
-	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-		launchArrow(registry.motions.get(player_mage).position);
-	}
+	//// temp fireball skill "A"
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+	//	launchFireball(registry.motions.get(player_mage).position);
+	//}
 
 	// Debugging
 	if (key == GLFW_KEY_D) {
@@ -851,31 +856,55 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 void WorldSystem::on_mouse_button( int button , int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-		// fireball
+		
 		if (player_turn == 1) {
 			displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
-				Motion icon = registry.motions.get(iceShard_icon);
-				if (inButton(icon.position, FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT)) {
-					if (ICESHARDLSELECTED == 0) {
+				//iceshard
+				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+					if (selected_skill == -1) {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
 						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
-						ICESHARDLSELECTED = 1;
+						selected_skill = 0;
 					}
 					else {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						//deselectButton();
-						ICESHARDLSELECTED = 0;
+						selected_skill = -1;
+					}
+				}
+				//fireball
+				else if (inButton(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+					   if (selected_skill == -1) {
+						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONSELECTED;
+						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
+						selected_skill = 1;
+					}
+					else {
+						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+						//deselectButton();
+						selected_skill = -1;
 					}
 				}
 				else {
-					if (ICESHARDLSELECTED == 1) {
+					//iceshard
+					if (selected_skill == 0) {
 						Motion player = registry.motions.get(currPlayer);	// need to change to based on turn system
 						currentProjectile = launchIceShard(player.position);
-						ICESHARDLSELECTED = 0;
+						selected_skill = -1;
 						//active this when ai is done
 						//deselectButton();
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
+						printf("player has attacked, checkRound now \n");
+						checkRound();
+					}
+					//fireball
+					if (selected_skill == 1) {
+						Motion player = registry.motions.get(currPlayer);
+						currentProjectile = launchFireball(player.position);
+						selected_skill = -1;
+
+						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 						printf("player has attacked, checkRound now \n");
 						checkRound();
 					}
@@ -954,7 +983,7 @@ void WorldSystem::damageTarget(Entity target, float amount) {
 
 }
 
-Entity WorldSystem::launchArrow(vec2 startPos) {
+Entity WorldSystem::launchFireball(vec2 startPos) {
 
 	float proj_x = startPos.x + 50;
 	float proj_y = startPos.y;
@@ -964,8 +993,8 @@ Entity WorldSystem::launchArrow(vec2 startPos) {
 	float dx = mouse_x - proj_x;
 	float dy = mouse_y - proj_y;
 	float dxdy = sqrt((dx * dx) + (dy * dy));
-	float vx = ARROWSPEED * dx / dxdy;
-	float vy = ARROWSPEED * dy / dxdy;
+	float vx = FIREBALLSPEED * dx / dxdy;
+	float vy = FIREBALLSPEED * dy / dxdy;
 
 	//printf("%f%f\n", vx, vy);
 
@@ -974,9 +1003,9 @@ Entity WorldSystem::launchArrow(vec2 startPos) {
 		angle += M_PI;
 	}
 	//printf(" % f", angle);
-	Entity resultEntity = createArrow(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
+	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
 	Motion* arrowacc = &registry.motions.get(resultEntity);
-	arrowacc->acceleration = vec2(200 * vx / ARROWSPEED, 200 * vy / ARROWSPEED);
+	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
 
 
 	return  resultEntity;
