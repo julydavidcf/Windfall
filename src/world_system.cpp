@@ -449,10 +449,10 @@ void WorldSystem::restart_game() {
 	// Create a player swordsman
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 400 });
 	// Create an enemy mage
-	enemy_mage = createEnemyMage(renderer, { 900, 450 });
+	enemy_mage = createEnemyMage(renderer, { 1000, 450 });
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 	// Create an enemy swordsman
-	enemy_swordsman = createEnemySwordsman(renderer, { 700, 400 });
+	enemy_swordsman = createEnemySwordsman(renderer, { 750, 400 });
 	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	// Create the necromancer
 	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now

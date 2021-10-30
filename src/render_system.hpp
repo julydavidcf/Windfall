@@ -48,6 +48,10 @@ class RenderSystem {
 			textures_path("rockIconSelected.png"),
 			textures_path("healIcon.png"),
 			textures_path("healIconSelected.png"),
+			textures_path("meleeIcon.png"),
+			textures_path("meleeIconSelected.png"),
+
+
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("necromancer_idle.png")
