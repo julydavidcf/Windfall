@@ -182,8 +182,8 @@ void WorldSystem::displayEnemyTurn() {
 }
 
 void WorldSystem::fireballAttack(Entity currPlayer) {
-	Motion enemy = registry.motions.get(currPlayer);
 	if (!registry.deathTimers.has(currPlayer)) {
+		Motion enemy = registry.motions.get(currPlayer);
 		Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
 		Motion* ballacc = &registry.motions.get(resultEntity);
 		ballacc->acceleration = vec2(1000 * -100 / FIREBALLSPEED, 1000 * 0 / FIREBALLSPEED);
@@ -193,8 +193,8 @@ void WorldSystem::fireballAttack(Entity currPlayer) {
 }
 
 void WorldSystem::rockAttack(Entity target) {
-	Motion enemy = registry.motions.get(target);
 	if (!registry.deathTimers.has(target)) {
+		Motion enemy = registry.motions.get(target);
 		// fireball action temporary until able to call behavior tree
 		Entity resultEntity = createRock(renderer, { enemy.position.x, enemy.position.y - 300 }, 0);
 		Projectile* proj = &registry.projectiles.get(resultEntity);
@@ -204,23 +204,27 @@ void WorldSystem::rockAttack(Entity target) {
 
 void WorldSystem::healSkill(Entity target, float amount) {
 	if (registry.stats.has(target)) {
-		vec2 targetp = registry.motions.get(target).position;
-		createGreenCross(renderer, targetp);
-		Statistics* tStats = &registry.stats.get(target);
-		if (tStats->health + amount > tStats->max_health) {
-			tStats->health = tStats->max_health;
-		}
-		else
-		{
-			tStats->health += amount;
+		if(!registry.deathTimers.has(target)){
+			vec2 targetp = registry.motions.get(target).position;
+			createGreenCross(renderer, targetp);
+			Statistics* tStats = &registry.stats.get(target);
+			if (tStats->health + amount > tStats->max_health) {
+				tStats->health = tStats->max_health;
+			}
+			else
+			{
+				tStats->health += amount;
+			}
 		}
 	}
 	update_healthBars();
 }
 
 void WorldSystem::meleeSkill(Entity target) {
-	Motion enemy = registry.motions.get(target);
-	Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 0);
+	if(!registry.deathTimers.has(target)){
+		Motion enemy = registry.motions.get(target);
+		Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 0);
+	}
 }
 
 void WorldSystem::tauntSkill(Entity target) {
@@ -1113,9 +1117,6 @@ private:
 	void init(Entity e) override {
 	}
 	BTState process(Entity e) override {
-		printf("\n\n");
-		printf("IN MELEE??????????????????");
-		printf("\n\n");
 		int i = 0;
 		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
 			Entity toGet = registry.companions.entities[i];
@@ -1137,11 +1138,13 @@ private:
 		rt.old_pos = enemy_motion.position;
 		rt.target = target;
 		// Have some offset
-		rt.target_position = {target_motion.position.x + 20, target_motion.position.y};
+		rt.target_position = {target_motion.position.x + 100, target_motion.position.y};
 
 		// Change enemy's velocity
 		float speed = 250.f;
 		enemy_motion.velocity = {-speed,0.f};
+		Motion& healthBar = registry.motions.get(enemy.healthbar);
+		healthBar.velocity = enemy_motion.velocity;
 
 		// Calculate the timer
 		float time = (enemy_motion.position.x - rt.target_position.x)/speed;
@@ -1331,7 +1334,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	for(Entity runner: registry.runners.entities){
 		RunTowards& run = registry.runners.get(runner);
 		Motion& runner_motion = registry.motions.get(runner);
-		printf("Current walking secs: %f \n", run.counter_ms);
+		//printf("Current walking secs: %f \n", run.counter_ms);
 		run.counter_ms -= elapsed_ms_since_last_update;
 		if(run.counter_ms <= 0.f){
 			printf("Reached destination\n");
@@ -1339,6 +1342,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 			auto& anim_type = registry.companions.has(runner) ? registry.companions.get(runner).curr_anim_type
 				: registry.enemies.get(runner).curr_anim_type;
+
+			Entity healthbar = registry.companions.has(runner) ? registry.companions.get(runner).healthbar
+				: registry.enemies.get(runner).healthbar;
+			Motion& healthbar_motion = registry.motions.get(healthbar);
+			healthbar_motion.velocity = runner_motion.velocity;
 
 			anim_type = ATTACKING;
 
@@ -1357,42 +1365,56 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		Attack& attack = registry.attackers.get(attacker);
 		// Updating animation time
 		attack.counter_ms -= elapsed_ms_since_last_update;
-		printf("Animation seconds left: %f\n", attack.counter_ms);
-		if(attack.counter_ms<=0.f){
-			// Attack
-			if(registry.companions.has(attacker)){
-				printf("Companion is attacking\n");
-				Companion& companion = registry.companions.get(attacker);
-				Motion& companion_motion = registry.motions.get(attacker);
-				switch(attack.attack_type){
-					case FIREBALL: currentProjectile = launchFireball(companion_motion.position, attack.old_pos); break;
+		//printf("Animation seconds left: %f\n", attack.counter_ms);
+		if(!registry.deathTimers.has(attacker)){
+			if(attack.counter_ms<=0.f){
+				// Attack
+				if(registry.companions.has(attacker)){
+					printf("Companion is attacking\n");
+					Companion& companion = registry.companions.get(attacker);
+					Motion& companion_motion = registry.motions.get(attacker);
+					switch(attack.attack_type){
+						case FIREBALL: currentProjectile = launchFireball(companion_motion.position, attack.old_pos); break;
+					}
+					companion.curr_anim_type = IDLE;
+					printf("Not attacking anymore in idle\n");
+					registry.attackers.remove(attacker);
+				} else if(registry.enemies.has(attacker)){
+					printf("Enemy is attacking\n");
+					Enemy& enemy = registry.enemies.get(attacker);
+					switch(attack.attack_type){
+						case ROCK: {
+									printf("Rock attack enemy\n");
+									rockAttack(attack.target); 
+									break;
+									}
+						case HEAL: {
+									printf("heal attack enemy\n");
+									healSkill(attack.target, 100); 
+									break;
+									}
+						case MELEE: {
+									printf("melee attack enemy\n");
+									Motion& motion = registry.motions.get(attacker);
+									motion.position = attack.old_pos;
+									Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
+									healthbar_motion.position.x = attack.old_pos.x;
+									meleeSkill(attack.target); 
+									break;
+									}
+						case TAUNT: {
+									printf("taunt attack enemy\n");
+									tauntSkill(target);
+									Taunt* t = &registry.taunts.get(target);
+									t->duration = 3;
+									isTaunt = 1;
+									break;
+									}
+					}
+					enemy.curr_anim_type = IDLE;
+					printf("Not attacking anymore in idle\n");
+					registry.attackers.remove(attacker);
 				}
-				companion.curr_anim_type = IDLE;
-				printf("Not attacking anymore in idle\n");
-				registry.attackers.remove(attacker);
-			} else if(registry.enemies.has(attacker)){
-				printf("Enemy is attacking\n");
-				Enemy& enemy = registry.enemies.get(attacker);
-				switch(attack.attack_type){
-					case ROCK: rockAttack(attack.target); break;
-					case HEAL: healSkill(attack.target, 100); break;
-					case MELEE: {
-								Motion& motion = registry.motions.get(attacker);
-								motion.position = attack.old_pos;
-								meleeSkill(attack.target); 
-								break;
-								}
-					case TAUNT: {
-								tauntSkill(target);
-								Taunt* t = &registry.taunts.get(target);
-								t->duration = 3;
-								isTaunt = 1;
-								break;
-								}
-				}
-				enemy.curr_anim_type = IDLE;
-				printf("Not attacking anymore in idle\n");
-				registry.attackers.remove(attacker);
 			}
 		}
 	}
@@ -1787,11 +1809,12 @@ void WorldSystem::handle_collisions() {
 			}
 			// create death particles. Register for rendering.
 			
-			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
 			{
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.companions.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
+				registry.deathTimers.emplace(entity);
 				if(registry.companions.has(entity)){
 					printf("Companion is dead\n");
 					Companion& companion = registry.companions.get(entity);
@@ -1886,11 +1909,12 @@ void WorldSystem::handle_collisions() {
 			}
 
 			// create death particles. Register for rendering.
-			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
 			{				
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
+				registry.deathTimers.emplace(entity);
 				if(registry.companions.has(entity)){
 					printf("Companion is dead\n");
 					Companion& companion = registry.companions.get(entity);
