@@ -54,7 +54,6 @@ int main()
 		float elapsed_ms =
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
-
 		world.step(elapsed_ms);
 		ai.step(elapsed_ms);
 		physics.step(elapsed_ms, window_width_px, window_height_px);

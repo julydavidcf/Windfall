@@ -46,7 +46,8 @@ class RenderSystem {
 			textures_path("greenCross.png"),
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
-			textures_path("swordsman_attack.png"),
+			textures_path("swordsman_walk.png"),
+			textures_path("swordsman_melee.png"),
 			textures_path("swordsman_taunt.png"),
 			textures_path("swordsman_death.png"),
 			textures_path("necromancer_idle.png"),
@@ -75,8 +76,9 @@ class RenderSystem {
 	float MAGE_DEATH_FRAME_TIME = 280;
 
 	float SWORDSMAN_IDLE_FRAME_TIME = 150;
-	float SWORDSMAN_ATTACK_FRAME_TIME = 60;
-	float SWORDSMAN_TAUNT_FRAME_TIME = 100;
+	float SWORDSMAN_MELEE_FRAME_TIME = 50;
+	float SWORDSMAN_WALK_FRAME_TIME = 175;
+	float SWORDSMAN_TAUNT_FRAME_TIME = 90;
 	float SWORDSMAN_DEATH_FRAME_TIME = 80;
 
 	// ---------------------------------- Frame stats for each character animation -----------------------------------
@@ -95,8 +97,11 @@ class RenderSystem {
 	const int SWORDSMAN_IDLE_FRAMES = 16;
 	const GLfloat SWORDSMAN_IDLE_FRAME_WIDTH = 0.0625;
 
-	const int SWORDSMAN_ATTACK_FRAMES = 30;
-	const GLfloat SWORDSMAN_ATTACK_FRAME_WIDTH = 0.03333333333;
+	const int SWORDSMAN_WALK_FRAMES = 8;
+	const GLfloat SWORDSMAN_WALK_FRAME_WIDTH = 0.125;
+
+	const int SWORDSMAN_MELEE_FRAMES = 30;
+	const GLfloat SWORDSMAN_MELEE_FRAME_WIDTH = 0.03333333333;
 
 	const int SWORDSMAN_TAUNT_FRAMES = 18;
 	const GLfloat SWORDSMAN_TAUNT_FRAME_WIDTH = 0.05555555555;

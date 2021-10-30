@@ -296,6 +296,7 @@ void WorldSystem::checkRound() {
 		prevPlayer = currPlayer;
 		checkRound();
 	}
+	printf("finished check round \n");
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -1088,10 +1089,18 @@ private:
 	void init(Entity e) override {
 	}
 	BTState process(Entity e) override {
+		/*
 		worldSystem.tauntSkill(target);
 		Taunt* t = &registry.taunts.get(target);
 		t->duration = 3;
 		isTaunt = 1;
+		*/
+		Enemy& enemy = registry.enemies.get(e);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(e);
+		attack.attack_type = TAUNT;
+		attack.target = target;
+		attack.counter_ms = 1500.f;
 		printf("Cast Taunt \n\n");	// print statement to visualize
 
 		// return progress
@@ -1104,6 +1113,9 @@ private:
 	void init(Entity e) override {
 	}
 	BTState process(Entity e) override {
+		printf("\n\n");
+		printf("IN MELEE??????????????????");
+		printf("\n\n");
 		int i = 0;
 		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
 			Entity toGet = registry.companions.entities[i];
@@ -1114,11 +1126,27 @@ private:
 		}
 		//worldSystem.meleeSkill(target); // TODO: melee target
 		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(e);
-		attack.attack_type = MELEE;
-		attack.target = target;
-		attack.counter_ms = 2000.f;
+		enemy.curr_anim_type = WALKING;
+		
+
+		Motion& enemy_motion = registry.motions.get(e);
+		Motion& target_motion = registry.motions.get(target);
+
+		// Add enemy to the running component
+		RunTowards& rt = registry.runners.emplace(e);
+		rt.old_pos = enemy_motion.position;
+		rt.target = target;
+		// Have some offset
+		rt.target_position = {target_motion.position.x + 20, target_motion.position.y};
+
+		// Change enemy's velocity
+		float speed = 250.f;
+		enemy_motion.velocity = {-speed,0.f};
+
+		// Calculate the timer
+		float time = (enemy_motion.position.x - rt.target_position.x)/speed;
+		rt.counter_ms = time*1000;
+		
 		printf("Melee Attack \n\n");	// print statement to visualize
 
 		// return progress
@@ -1299,6 +1327,31 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	// Walk
+	for(Entity runner: registry.runners.entities){
+		RunTowards& run = registry.runners.get(runner);
+		Motion& runner_motion = registry.motions.get(runner);
+		printf("Current walking secs: %f \n", run.counter_ms);
+		run.counter_ms -= elapsed_ms_since_last_update;
+		if(run.counter_ms <= 0.f){
+			printf("Reached destination\n");
+			runner_motion.velocity = {0.f, 0.f};
+
+			auto& anim_type = registry.companions.has(runner) ? registry.companions.get(runner).curr_anim_type
+				: registry.enemies.get(runner).curr_anim_type;
+
+			anim_type = ATTACKING;
+
+			// Attack
+			Attack& attack = registry.attackers.emplace(runner);
+			attack.attack_type = MELEE;
+			attack.old_pos = run.old_pos;
+			attack.target = run.target;
+			attack.counter_ms = 1500.f;
+			registry.runners.remove(runner);
+		}
+	}
+
 	// Attack
 	for(Entity attacker: registry.attackers.entities){
 		Attack& attack = registry.attackers.get(attacker);
@@ -1312,7 +1365,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				Companion& companion = registry.companions.get(attacker);
 				Motion& companion_motion = registry.motions.get(attacker);
 				switch(attack.attack_type){
-					case FIREBALL: currentProjectile = launchFireball(companion_motion.position, attack.mouse_pos); break;
+					case FIREBALL: currentProjectile = launchFireball(companion_motion.position, attack.old_pos); break;
 				}
 				companion.curr_anim_type = IDLE;
 				printf("Not attacking anymore in idle\n");
@@ -1323,7 +1376,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				switch(attack.attack_type){
 					case ROCK: rockAttack(attack.target); break;
 					case HEAL: healSkill(attack.target, 100); break;
-					case MELEE: meleeSkill(attack.target); break;
+					case MELEE: {
+								Motion& motion = registry.motions.get(attacker);
+								motion.position = attack.old_pos;
+								meleeSkill(attack.target); 
+								break;
+								}
+					case TAUNT: {
+								tauntSkill(target);
+								Taunt* t = &registry.taunts.get(target);
+								t->duration = 3;
+								isTaunt = 1;
+								break;
+								}
 				}
 				enemy.curr_anim_type = IDLE;
 				printf("Not attacking anymore in idle\n");
@@ -1768,7 +1833,6 @@ void WorldSystem::handle_collisions() {
     
 		// Deal with fireball - Enemy collisions
 		if (registry.enemies.has(entity)) {
-
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
 
@@ -2014,7 +2078,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						printf("Companion is casting\n");
 						player_companion.curr_anim_type = ATTACKING;
 						attacker.attack_type = FIREBALL;
-						attacker.mouse_pos = msPos;
+						attacker.old_pos = msPos;
 						//attacker.attack_type = CASTING;
 						//currentProjectile = launchFireball(player.position);
 						FIREBALLSELECTED = 0;

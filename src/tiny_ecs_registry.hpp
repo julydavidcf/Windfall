@@ -32,6 +32,7 @@ public:
 	ComponentContainer<Reflect> reflects;
 	ComponentContainer<TurnIndicator> turnIndicators;
 	ComponentContainer<Attack> attackers;
+	ComponentContainer<RunTowards> runners;
 	ComponentContainer<Gravity> gravities;
 	ComponentContainer<Taunt> taunts;
 
@@ -60,6 +61,8 @@ public:
 		registry_list.push_back(&attackers);
 		registry_list.push_back(&gravities);
 		registry_list.push_back(&taunts);
+		registry_list.push_back(&runners);
+
 	}
 
 	void clear_all_components() {

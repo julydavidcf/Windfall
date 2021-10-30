@@ -208,17 +208,29 @@ void RenderSystem::initializeGlGeometryBuffers()
 	swordsman_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE, swordsman_idle_vertices, textured_indices);
 
-	// swordsman_attack sprite row
-	std::vector<TexturedVertex> swordsman_attack_vertices(4);
-	swordsman_attack_vertices[0].position = { -1.f, +1.f, 0.f };
-	swordsman_attack_vertices[1].position = { +1.f, +1.f, 0.f };
-	swordsman_attack_vertices[2].position = { +1.f, -1.f, 0.f };
-	swordsman_attack_vertices[3].position = { -1.f, -1.f, 0.f };
-	swordsman_attack_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
-	swordsman_attack_vertices[1].texcoord = { 0.03333333333, 1.f };        // Bottom right
-	swordsman_attack_vertices[2].texcoord = { 0.03333333333, 0.f };        // Top right
-	swordsman_attack_vertices[3].texcoord = { 0.f, 0.f };           // Top left
-	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK, swordsman_attack_vertices, textured_indices);
+	// swordsman_walk sprite row
+	std::vector<TexturedVertex> swordsman_walk_vertices(4);
+	swordsman_walk_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_walk_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_walk_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_walk_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_walk_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_walk_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	swordsman_walk_vertices[2].texcoord = { 0.125, 0.f };        // Top right
+	swordsman_walk_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_WALK, swordsman_walk_vertices, textured_indices);
+
+	// swordsman_melee sprite row
+	std::vector<TexturedVertex> swordsman_melee_vertices(4);
+	swordsman_melee_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_melee_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_melee_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_melee_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_melee_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_melee_vertices[1].texcoord = { 0.03333333333, 1.f };        // Bottom right
+	swordsman_melee_vertices[2].texcoord = { 0.03333333333, 0.f };        // Top right
+	swordsman_melee_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE, swordsman_melee_vertices, textured_indices);
 
 	// swordsman_taunt sprite row
 	std::vector<TexturedVertex> swordsman_taunt_vertices(4);

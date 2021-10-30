@@ -302,12 +302,18 @@ void RenderSystem::draw(float elapsed_ms)
 
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
-		// Handle camera focus on projectiles
+		// Handle camera focus on projectiles and swordsman melee
 		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0) {
 			Motion& motion = registry.motions.get(entity);
 			hasTravellingProjectile = 1;
 			projectionMat = createCameraProjection(motion);
 		}
+		//else if (registry.runners.has(entity) 
+		//	|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
+		//	|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+		//	Motion& motion = registry.motions.get(entity);
+		//	projectionMat = createCameraProjection(motion);
+		//}
 	}
 
 	// Draw all textured meshes that have a position and size component
@@ -397,12 +403,12 @@ void RenderSystem::draw(float elapsed_ms)
 							case ATTACKING: {
 								switch (registry.attackers.get(entity).attack_type) {
 									case MELEE: {
-										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK) {
+										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE) {
 											*currFrame = 0;
 										}
-										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_ATTACK;
-										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_ATTACK;
-										numFrames = SWORDSMAN_ATTACK_FRAMES; frame_width = SWORDSMAN_ATTACK_FRAME_WIDTH; timePerFrame = SWORDSMAN_ATTACK_FRAME_TIME; break;
+										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_MELEE;
+										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE;
+										numFrames = SWORDSMAN_MELEE_FRAMES; frame_width = SWORDSMAN_MELEE_FRAME_WIDTH; timePerFrame = SWORDSMAN_MELEE_FRAME_TIME; break;
 									}
 									case TAUNT: {
 										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT) {
@@ -423,6 +429,14 @@ void RenderSystem::draw(float elapsed_ms)
 									default: break;
 								}
 							    break;
+							}
+							case WALKING: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_WALK) {
+									currTexture = TEXTURE_ASSET_ID::SWORDSMAN_WALK;
+									currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_WALK;
+									*currFrame = 0;
+								}
+								numFrames = SWORDSMAN_WALK_FRAMES; frame_width = SWORDSMAN_WALK_FRAME_WIDTH; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
 							}
 							case DEAD: {
 								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH) {

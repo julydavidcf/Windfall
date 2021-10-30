@@ -18,6 +18,7 @@ enum AnimType {
 	IDLE = 1,
 	ATTACKING = 2,
 	DEAD = 3,
+	WALKING = 4,
 };
 
 enum AttackType {
@@ -40,8 +41,16 @@ struct Attack
 {
 	int attack_type = 0;
 	Entity target;
-	vec2 mouse_pos;
+	vec2 old_pos;
 	float counter_ms = 250;
+};
+
+struct RunTowards
+{
+	float counter_ms = 1000;
+	Entity target;
+	vec2 target_position;
+	vec2 old_pos;
 };
 
 struct Companion
@@ -273,8 +282,9 @@ enum class TEXTURE_ASSET_ID {
 	// ------- Animations -------
 	MAGE_ANIM = GREENCROSS + 1,
 	SWORDSMAN_IDLE = MAGE_ANIM + 1,
-	SWORDSMAN_ATTACK = SWORDSMAN_IDLE + 1,
-	SWORDSMAN_TAUNT = SWORDSMAN_ATTACK + 1,
+	SWORDSMAN_WALK = SWORDSMAN_IDLE + 1,
+	SWORDSMAN_MELEE = SWORDSMAN_WALK + 1,
+	SWORDSMAN_TAUNT = SWORDSMAN_MELEE + 1,
 	SWORDSMAN_DEATH = SWORDSMAN_TAUNT + 1,
 	NECROMANCER_IDLE = SWORDSMAN_DEATH + 1,
 	
@@ -311,8 +321,9 @@ enum class GEOMETRY_BUFFER_ID {
 	MAGE_CASTING = MAGE_IDLE + 1,
 	MAGE_DEATH = MAGE_CASTING + 1,
 	SWORDSMAN_IDLE = MAGE_DEATH + 1,
-	SWORDSMAN_ATTACK = SWORDSMAN_IDLE + 1,
-	SWORDSMAN_TAUNT = SWORDSMAN_ATTACK + 1,
+	SWORDSMAN_WALK = SWORDSMAN_IDLE + 1,
+	SWORDSMAN_MELEE = SWORDSMAN_WALK + 1,
+	SWORDSMAN_TAUNT = SWORDSMAN_MELEE + 1,
 	SWORDSMAN_DEATH = SWORDSMAN_TAUNT + 1,
 	NECROMANCER_IDLE = SWORDSMAN_DEATH + 1,
 	// --------------------------
