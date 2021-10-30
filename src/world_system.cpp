@@ -16,7 +16,7 @@ const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
-const int NUM_DEATH_PARTICLES = 500;
+const int NUM_DEATH_PARTICLES = 120;
 
 Entity currPlayer;
 Entity prevPlayer;

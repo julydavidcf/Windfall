@@ -83,51 +83,62 @@ void main()
     vec3 col =vec3(fbm(uv,5.,1.));
     vec3 col2 = col + vec3(fbm(uv, 3., 2.4));
     vec3 col3 = col2 + vec3(fbm(uv, 1., 3.4));
-	outPut = vec3(col*0.1);
-    // color = vec4(outPut, 0.1);
+    outPut = vec3(col*0.2);
+    // outPut = vec3(col*0.2 * vec3(0.4, 0.4, 1.3));
+	// outPut = vec3(col*0.3 * vec3(sin(.3 + time*0.3),sin(.3 + time * 0.3),sin(1. + time * 0.3)));
+    color += vec4(outPut, 1.);
       
 
     // For the lightballs
     vec2 r =  2.0*vec2( gl_FragCoord.xy - 0.5*vec2(resolutionX, resolutionY))/resolutionY;
 
     for(int i = 0; i < 25; i++) {
-        vec2 starCentre = vec2(thingie.xCoordinates[i], thingie.yCoordinates[i]);
-        vec2 d = r - starCentre;
-        if (length(d) < 0.01) {
-            float v1 = sin(d.x +0.4*time);
-            float v2 = sin(d.y +0.4*time);
-            float v3 = sin(d.x+d.y +0.4*time);
-            float v4 = sin(length(d) + 1.*time);
-	        float v = v1+v2+v3+v4;
-            v *= 1.;
-            // color = vec4(vec3(sin(v + time*0.5 + 0.7), sin(v + time*0.5 + 1.2), sin(v + time*0.5 + 0.1)), 1.);
-            color = vec4(vec3(sin(v * 0.5 * PI), sin(v + 0.1 * PI), sin(v + 1.0 * PI)), 1.);
-            // color = vec4(vec3(v4), 1.);
+        vec2 starCentre = vec2(thingie.xCoordinates[i], thingie.yCoordinates[i]);            
+            
+            vec2 uv2 = gl_FragCoord.xy / resolutionY;
+            vec2 lightBall = uv2 - starCentre;
+            float lightBallLuminance = max( 0.0, 1.0 - dot( lightBall, lightBall ) );
+            vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 9000.0 );
+            color += vec4(col * 1.2, 1.0);
+            color += vec4(vec3(0.9, 0.8, 0.4) * 0.5 * pow( lightBallLuminance, 3000.0 ), 1.0);
 
-        } 
+        // } 
     }
 
     for(int i = 25; i < 50; i++) {
         vec2 starCentre = vec2(thingie.xCoordinates[i], thingie.yCoordinates[i]);
         vec2 d = r - starCentre;
-        if (length(d) < 0.01) {
+        // if (length(d) < 0.01) {
             float v1 = sin(d.x +0.4*time);
             float v2 = sin(d.y +0.4*time);
             float v3 = sin(d.x+d.y +0.4*time);
             float v4 = sin(length(d) + 1.*time);
 	        float v = v1+v2+v3+v4;
             v *= 1.;
-            color = vec4(vec3(sin(v + 0.5*PI), 0., sin(v + 0.5*PI)), 1.);
-            // color = vec4(vec3(sin(v * 0.5 * PI), sin(v + 0.1 * PI), sin(v + 1.0 * PI)), 1.);
+            // color = vec4(vec3(sin(v + 0.5*PI), 0., sin(v + 0.5*PI)), 1.);
+            // color += vec4(vec3(sin(v * 0.5 * PI), sin(v + 0.1 * PI), sin(v + 1.0 * PI)), 0.4);
             // color = vec4(vec3(v4), 1.);
+            // color += vec4(vec3(0.2, 0.2, 0.2), 1.);
+            // vec3 col =vec3(fbm(uv,5.,1.));
+            // vec3 col2 = col + vec3(fbm(uv, 3., 2.4));
+            // vec3 col3 = col2 + vec3(fbm(uv, 1., 3.4));
+	        // outPut = vec3(col3*0.2);
+            // color += vec4(outPut, 1.);
 
-        } 
+            vec2 uv2 = gl_FragCoord.xy / resolutionY;
+            vec2 vUvMoonDiff = uv2 - starCentre;
+            float fMoonDot = max( 0.0, 1.0 - dot( vUvMoonDiff, vUvMoonDiff ) );
+            vec3 col = vec3(0.1, 0.2, 0.5) * 0.7 * pow( fMoonDot, 8000.0 );
+            color += vec4(col, 1.0);
+            color += vec4(vec3(0.1, 0.2, 0.5) * pow( fMoonDot, 3000.0 ), 1.0);
+
+       //  } 
     }
 
-    for (int i = 50; i < 100; i++) {
+    for (int i = 50; i < 60; i++) {
         vec2 starCentre = vec2(thingie.xCoordinates[i], thingie.yCoordinates[i]);
         vec2 d = r - starCentre;
-        if (length(d) < 0.01) {
+        // if (length(d) < 0.01) {
             float v1 = sin(d.x +0.5*time);
             float v2 = sin(d.y +0.5*time);
             float v3 = sin(d.x+d.y +0.5*time);
@@ -135,9 +146,17 @@ void main()
 	        float v = v1+v2+v3+v4;
             v *= 1.;
             // color = vec4(vec3(sin(v + time*0.5 + 0.7), sin(v + time*0.5 + 1.2), sin(v + time*0.5 + 0.1)), 1.);
-            color = vec4(vec3(sin(v * 0.5 * PI), sin(v + 0.1 * PI), 0.3), 1.);
+            // color += vec4(vec3(sin(v * 0.5 * PI), sin(v + 0.1 * PI), 0.3), 0.4);
             // color = vec4(vec3(v4), 1.);
+            // color += vec4(vec3(0.2, 0.2, 0.2), 1.);
 
-        } 
+            vec2 uv2 = gl_FragCoord.xy / resolutionY;
+            vec2 vUvMoonDiff = uv2 - starCentre;
+            float fMoonDot = max( 0.0, 1.0 - dot( vUvMoonDiff, vUvMoonDiff ) );
+            vec3 col = vec3(0.9, 0.8, 0.4) * 0.3 * pow( fMoonDot, 8000.0 );
+            // color += vec4(col, 1.0);
+            // color += vec4(vec3(0.9, 0.8, 0.4) * 0.5 *pow( fMoonDot, 3000.0 ), 1.0);
+
+        // } 
     }        
 }

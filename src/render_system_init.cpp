@@ -432,7 +432,7 @@ void RenderSystem::createRandomLightBallPosForBackground(int windowWidth, int wi
 		//RenderSystem::lightBallsXcoords.push_back(RandomFloat(-(float)windowWidth/ (float)windowHeight,
 		// 													   (float)windowWidth / (float)windowHeight));
 		RenderSystem::lightBallsXcoords.push_back(RandomFloat(-(float)w / (float)h, (float)w / (float)h));
-		RenderSystem::lightBallsYcoords.push_back(RandomFloat(0.7, 1.));
+		RenderSystem::lightBallsYcoords.push_back(RandomFloat(0.8, 1.));
 	}
 
 	for (int i = 0; i < lightBallsXcoords.size(); i++) {
