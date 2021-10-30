@@ -351,6 +351,7 @@ void RenderSystem::draw(float elapsed_ms)
 							case IDLE: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
 							case ATTACKING: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
 							case DEAD: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
+							case WALKING: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
 							default: break;
 							}
 						break;

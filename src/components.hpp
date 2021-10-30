@@ -18,6 +18,7 @@ enum AnimType {
 	IDLE = 1,
 	ATTACKING = 2,
 	DEAD = 3,
+	WALKING = 4,
 };
 
 enum AttackType {
@@ -40,8 +41,16 @@ struct Attack
 {
 	int attack_type = 0;
 	Entity target;
-	vec2 mouse_pos;
+	vec2 old_pos;
 	float counter_ms = 1000;
+};
+
+struct RunTowards
+{
+	float counter_ms = 1000;
+	Entity target;
+	vec2 target_position;
+	vec2 old_pos;
 };
 
 struct Companion
