@@ -359,7 +359,7 @@ public:
 		BTState state = m_children[m_index]->process(e);
 
 		// select a new active child and initialize its internal state
-		if (state == BTState::Success) {	// if child return success
+		if (state == BTState::Failure) {	// if child return success
 			++m_index;	// increment index
 			if (m_index >= 2) {	// check whether the second child is executed already
 				return BTState::Success;
@@ -405,7 +405,7 @@ public:
 		BTState state = m_children[m_index]->process(e);
 
 		// select a new active child and initialize its internal state
-		if (state == BTState::Success) {	// if child return success
+		if (state == BTState::Failure) {	// if child return success
 			++m_index;	// increment index
 			if (m_index >= 2) {	// check whether the second child is executed already
 				return BTState::Success;
@@ -451,7 +451,7 @@ public:
 		BTState state = m_children[m_index]->process(e);
 
 		// select a new active child and initialize its internal state
-		if (state == BTState::Success) {	// if child return success
+		if (state == BTState::Failure) {	// if child return success
 			++m_index;	// increment index
 			if (m_index >= 2) {	// check whether the second child is executed already
 				return BTState::Success;
@@ -497,7 +497,7 @@ public:
 		BTState state = m_children[m_index]->process(e);
 
 		// select a new active child and initialize its internal state
-		if (state == BTState::Success) {	// if child return success
+		if (state == BTState::Failure) {	// if child return success
 			++m_index;	// increment index
 			if (m_index >= 2) {	// check whether the second child is executed already
 				return BTState::Success;
@@ -543,7 +543,7 @@ public:
 		BTState state = m_children[m_index]->process(e);
 
 		// select a new active child and initialize its internal state
-		if (state == BTState::Success) {	// if child return success
+		if (state == BTState::Failure) {	// if child return success
 			++m_index;	// increment index
 			if (m_index >= 2) {	// check whether the second child is executed already
 				return BTState::Success;
@@ -589,7 +589,7 @@ public:
 		BTState state = m_children[m_index]->process(e);
 
 		// select a new active child and initialize its internal state
-		if (state == BTState::Success) {	// if child return success
+		if (state == BTState::Failure) {	// if child return success
 			++m_index;	// increment index
 			if (m_index >= 2) {	// check whether the second child is executed already
 				return BTState::Success;
@@ -635,7 +635,7 @@ public:
 		BTState state = m_children[m_index]->process(e);
 
 		// select a new active child and initialize its internal state
-		if (state == BTState::Success) {	// if child return success
+		if (state == BTState::Failure) {	// if child return success
 			++m_index;	// increment index
 			if (m_index >= 2) {	// check whether the second child is executed already
 				return BTState::Success;
@@ -677,7 +677,7 @@ public:
 			return m_child->process(e);
 		}
 		else
-			return BTState::Success;
+			return BTState::Failure;
 	}
 private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
@@ -709,7 +709,7 @@ public:
 			return m_child->process(e);
 		}
 		else
-			return BTState::Success;
+			return BTState::Failure;
 	}
 private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
@@ -735,7 +735,7 @@ public:
 			return m_child->process(e);
 		}
 		else
-			return BTState::Success;
+			return BTState::Failure;
 	}
 private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
@@ -761,7 +761,7 @@ public:
 			return m_child->process(e);
 		}
 		else
-			return BTState::Success;
+			return BTState::Failure;
 	}
 private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
@@ -786,7 +786,7 @@ public:
 			return m_child->process(e);
 		}
 		else {
-			return BTState::Success;
+			return BTState::Failure;
 		}
 	}
 private:
@@ -812,7 +812,7 @@ public:
 			return m_child->process(e);
 		}
 		else {
-			return BTState::Success;
+			return BTState::Failure;
 		}
 	}
 private:
@@ -839,7 +839,7 @@ public:
 			return m_child->process(e);
 		}
 		else {
-			return BTState::Success;
+			return BTState::Failure;
 		}
 	}
 private:
@@ -866,7 +866,7 @@ public:
 			return m_child->process(e);
 		}
 		else {
-			return BTState::Success;
+			return BTState::Failure;
 		}
 	}
 private:
@@ -903,7 +903,7 @@ public:
 			return m_child->process(e);
 		}
 		else {
-			return BTState::Success;
+			return BTState::Failure;
 		}
 	}
 private:
@@ -939,7 +939,7 @@ public:
 			return m_child->process(e);
 		}
 		else {
-			return BTState::Success;
+			return BTState::Failure;
 		}
 	}
 private:
@@ -969,7 +969,7 @@ public:
 			return m_child->process(e);
 		}
 		else {
-			return BTState::Success;
+			return BTState::Failure;
 		}
 	}
 private:
@@ -1001,7 +1001,7 @@ public:
 			return m_child->process(e);
 		}
 		else {
-			return BTState::Success;
+			return BTState::Failure;
 		}
 	}
 private:
@@ -1034,7 +1034,7 @@ public:
 			return m_child->process(e);
 		}
 		else
-			return BTState::Success;
+			return BTState::Failure;
 	}
 private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
@@ -1066,7 +1066,7 @@ public:
 			return m_child->process(e);
 		}
 		else
-			return BTState::Success;
+			return BTState::Failure;
 	}
 private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
@@ -1374,12 +1374,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				printf("Enemy is attacking\n");
 				Enemy& enemy = registry.enemies.get(attacker);
 				switch(attack.attack_type){
-					case ROCK: rockAttack(attack.target); break;
-					case HEAL: healSkill(attack.target, 100); break;
+					case ROCK: rockAttack(attack.target);
+						//checkRound(); // NEW
+						break;
+					case HEAL: healSkill(attack.target, 100);
+						//checkRound(); // NEW
+						break;
 					case MELEE: {
 								Motion& motion = registry.motions.get(attacker);
 								motion.position = attack.old_pos;
 								meleeSkill(attack.target); 
+								//checkRound(); // NEW
 								break;
 								}
 					case TAUNT: {
@@ -1387,6 +1392,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 								Taunt* t = &registry.taunts.get(target);
 								t->duration = 3;
 								isTaunt = 1;
+								//checkRound(); // NEW
 								break;
 								}
 				}
@@ -1403,39 +1409,48 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 	// this area is to check for edge cases to allow for enemies to hit twice if the round allows it
 	if (player_turn == 0) {
-		displayEnemyTurn();
-		if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if selected character has died so as to progress to an enemy's
-			if (registry.stats.get(prevPlayer).health <= 0) {
-				checkChar.init(currPlayer);
-				for (int i = 0; i < 100; i++) {
-					BTState state = checkChar.process(currPlayer);
-					if (state != BTState::Running) {	// break out of for loop when all branches checked
-						break;
-					}
-				}
-				// temporaryFireball(currPlayer);
-				printf("enemy has attacked, checkRound now \n");
-				checkRound();
-			}
-		}
-		if (registry.enemies.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if enemy is going right after another enemy's turn
-			enemy_turn_timer -= elapsed_ms_since_last_update;
-			if (enemy_turn_timer < 0) {
-				if (registry.companions.size() == 0) {
-					restart_game();
-				}
-				else {
-					prevPlayer = currPlayer;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			displayEnemyTurn();
+			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if selected character has died so as to progress to an enemy's
+				if (registry.stats.get(prevPlayer).health <= 0) {
 					checkChar.init(currPlayer);
 					for (int i = 0; i < 100; i++) {
 						BTState state = checkChar.process(currPlayer);
-						if (state != BTState::Running) {	// break out of for loop when all branches checked
+						if (state == BTState::Success) {	// break out of for loop when all branches checked
 							break;
 						}
 					}
 					// temporaryFireball(currPlayer);
 					printf("enemy has attacked, checkRound now \n");
-					checkRound();
+					if (!registry.checkRoundTimer.has(currPlayer)) {
+						registry.checkRoundTimer.emplace(currPlayer);
+					}
+					// checkRound();
+				}
+			}
+			if (registry.enemies.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if enemy is going right after another enemy's turn
+				enemy_turn_timer -= elapsed_ms_since_last_update;
+				if (enemy_turn_timer < 0) {
+					if (registry.companions.size() == 0) {
+						restart_game();
+					}
+					else {
+						prevPlayer = currPlayer;
+						checkChar.init(currPlayer);
+						for (int i = 0; i < 100; i++) {
+							BTState state = checkChar.process(currPlayer);
+							if (state == BTState::Success) {	// break out of for loop when all branches checked
+								break;
+							}
+						}
+						// temporaryFireball(currPlayer);
+						printf("enemy has attacked, checkRound now \n");
+						if (!registry.checkRoundTimer.has(currPlayer)) {
+							registry.checkRoundTimer.emplace(currPlayer);
+						}
+						// checkRound();
+					}
 				}
 			}
 		}
@@ -1521,6 +1536,24 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					registry.motions.get(entity).position.x -= 20;
 				}
 			}				
+			return true;
+		}
+	}
+
+	// update timer for checking round
+	float min_counter_ms_3 = 4000.f;
+	for (Entity entity : registry.checkRoundTimer.entities) {
+		// progress timer
+		CheckRoundTimer& timerCounter = registry.checkRoundTimer.get(entity);
+		timerCounter.counter_ms -= elapsed_ms_since_last_update;
+		if (timerCounter.counter_ms < min_counter_ms_3) {
+			min_counter_ms_3 = timerCounter.counter_ms;
+		}
+
+		// check round once the timer expired
+		if (timerCounter.counter_ms < 0) {
+			registry.checkRoundTimer.remove(entity);
+			checkRound();
 			return true;
 		}
 	}
@@ -1859,24 +1892,29 @@ void WorldSystem::handle_collisions() {
 
 							//enemy turn start
 							if (player_turn == 0) {
-								displayEnemyTurn();
-								if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-									prevPlayer = currPlayer;
-									checkChar.init(currPlayer);
-									for (int i = 0; i < 100; i++) {
-										BTState state = checkChar.process(currPlayer);
-										if (state != BTState::Running) {	// break out of for loop when all branches checked
-											break;
+								if (!registry.checkRoundTimer.has(currPlayer)) {
+									displayEnemyTurn();
+									if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+										prevPlayer = currPlayer;
+										checkChar.init(currPlayer);
+										for (int i = 0; i < 100; i++) {
+											BTState state = checkChar.process(currPlayer);
+											if (state == BTState::Success) {	// break out of for loop when all branches checked
+												break;
+											}
 										}
+										// temporaryFireball(currPlayer);
+										printf("enemy has attacked, checkRound now \n");
+										if (!registry.checkRoundTimer.has(currPlayer)) {
+											registry.checkRoundTimer.emplace(currPlayer);
+										}
+										// checkRound();
 									}
-									// temporaryFireball(currPlayer);
-									printf("enemy has attacked, checkRound now \n");
-									checkRound();
-								}
-								else {
-									if (roundVec.empty()) {
-										printf("roundVec is empty at enemy turn, createRound now \n");
-										createRound();
+									else {
+										if (roundVec.empty()) {
+											printf("roundVec is empty at enemy turn, createRound now \n");
+											createRound();
+										}
 									}
 								}
 							}
@@ -1964,23 +2002,28 @@ void WorldSystem::handle_boundary_collision() {
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
 			//enemy turn start
 			if (player_turn == 0) {
-				displayEnemyTurn();
-				if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-					checkChar.init(currPlayer);
-					for (int i = 0; i < 100; i++) {
-						BTState state = checkChar.process(currPlayer);
-						if (state != BTState::Running) {	// break out of for loop when all branches checked
-							break;
+				if (!registry.checkRoundTimer.has(currPlayer)) {
+					displayEnemyTurn();
+					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+						checkChar.init(currPlayer);
+						for (int i = 0; i < 100; i++) {
+							BTState state = checkChar.process(currPlayer);
+							if (state == BTState::Success) {	// break out of for loop when all branches checked
+								break;
+							}
 						}
+						// temporaryFireball(currPlayer);
+						printf("enemy has attacked, checkRound now \n");
+						if (!registry.checkRoundTimer.has(currPlayer)) {
+							registry.checkRoundTimer.emplace(currPlayer);
+						}
+						// checkRound();
 					}
-					// temporaryFireball(currPlayer);
-					printf("enemy has attacked, checkRound now \n");
-					checkRound();
-				}
-				else {
-					if (roundVec.empty()) {
-						printf("roundVec is empty at enemy turn, createRound now \n");
-						createRound();
+					else {
+						if (roundVec.empty()) {
+							printf("roundVec is empty at enemy turn, createRound now \n");
+							createRound();
+						}
 					}
 				}
 			}
