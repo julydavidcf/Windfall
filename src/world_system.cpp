@@ -756,6 +756,7 @@ void WorldSystem::handle_boundary_collision() {
 			registry.motions.get(entity).position.y <= 20 ||
 			registry.motions.get(entity).position.y >= screen_height - 20) {
 			registry.remove_all_components_of(entity);
+			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
 			//enemy turn start
 			if (player_turn == 0) {
@@ -855,11 +856,13 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 				Motion icon = registry.motions.get(fireball_icon);
 				if (inButton(icon.position, FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT)) {
 					if (FIREBALLSELECTED == 0) {
-						selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
+						registry.renderRequests.get(fireball_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONSELECTED;
+						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 						FIREBALLSELECTED = 1;
 					}
 					else {
-						deselectButton();
+						registry.renderRequests.get(fireball_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+						//deselectButton();
 						FIREBALLSELECTED = 0;
 					}
 				}
@@ -869,7 +872,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						currentProjectile = launchFireball(player.position);
 						FIREBALLSELECTED = 0;
 						//active this when ai is done
-						deselectButton();
+						//deselectButton();
 						printf("player has attacked, checkRound now \n");
 						checkRound();
 					}
