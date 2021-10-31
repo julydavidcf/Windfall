@@ -2452,6 +2452,20 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						selected_skill = -1;
 					}
 				}
+				//melee
+				else if (inButton(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 5)) {
+					if (selected_skill == -1) {
+						registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICONSELECTED;
+						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
+						selected_skill = 5;
+					}
+					else {
+						registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
+						//deselectButton();
+						selected_skill = -1;
+					}
+				}
 				else {
 					//iceshard
 					if (selected_skill == 0) {
@@ -2488,10 +2502,12 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					//rock
 					if (selected_skill == 2) {
 						for (int j = 0; j < registry.enemies.components.size(); j++) {
-							printf("inhere");
+							//printf("inhere");
+							PhysicsSystem physicsSystem;
+							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
-								-registry.motions.get(registry.enemies.entities[j]).scale.x,
-								registry.motions.get(registry.enemies.entities[j]).scale.y)) {
+								b_box.x,
+								b_box.y)) {
 								currentProjectile = launchRock(registry.enemies.entities[j]);
 								selected_skill = -1;
 
@@ -2504,10 +2520,12 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					// heal
 					if (selected_skill == 3) {
 						for (int j = 0; j < registry.companions.components.size(); j++) {
-							printf("inhere");
+							//printf("inhere");
+							PhysicsSystem physicsSystem;
+							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.companions.entities[j]);
 							if (inButton(registry.motions.get(registry.companions.entities[j]).position,
-								registry.motions.get(registry.companions.entities[j]).scale.x,
-								registry.motions.get(registry.companions.entities[j]).scale.y)) {
+								b_box.x,
+								b_box.y)) {
 								healTarget(registry.companions.entities[j], 30);
 
 								//basiclly to have something hitting the boundary
@@ -2526,10 +2544,12 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					//taunt
 					if (selected_skill == 4) {
 						for (int j = 0; j < registry.enemies.components.size(); j++) {
-							printf("inhere");
+							//printf("inhere");
+							PhysicsSystem physicsSystem;
+							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
-								-registry.motions.get(registry.enemies.entities[j]).scale.x,
-								registry.motions.get(registry.enemies.entities[j]).scale.y)) {
+								b_box.x,
+								b_box.y)) {
 								
 								launchTaunt(registry.enemies.entities[j]);
 
@@ -2544,7 +2564,32 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 								printf("player has attacked, checkRound now \n");
 								checkRound();
 							}
-						}						
+						}
+					}
+					//melee
+					if (selected_skill == 5) {
+						for (int j = 0; j < registry.enemies.components.size(); j++) {
+							//printf("inhere");
+							PhysicsSystem physicsSystem;
+							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
+							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
+								b_box.x,
+								b_box.y)) {
+
+								launchMelee(currPlayer,registry.enemies.entities[j]);
+
+								//basiclly to have something hitting the boundary
+								currentProjectile = launchFireball({ -20,-20 });
+								Motion* projm = &registry.motions.get(currentProjectile);
+								projm->velocity = { -100,0 };
+								projm->acceleration = { -100,0 };
+								selected_skill = -1;
+
+								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+								printf("player has attacked, checkRound now \n");
+								checkRound();
+							}
+						}
 					}
 				}
 			} else {
@@ -2685,7 +2730,7 @@ Entity WorldSystem::launchIceShard(vec2 startPos) {
 }
 
 Entity WorldSystem::launchRock(Entity target) {
-	int isFriendly = 0;
+	int isFriendly = 1;
 	vec2 targetp = registry.motions.get(target).position;
 	if (registry.companions.has(target)) {
 		int isFriendly = 0;
@@ -2697,39 +2742,40 @@ Entity WorldSystem::launchRock(Entity target) {
 }
 
 void WorldSystem::launchMelee(Entity origin, Entity target) {
-	Companion& companion = registry.companions.get(origin);
-	companion.curr_anim_type = WALKING;
+	Companion comp = registry.companions.get(origin);
+	comp.curr_anim_type = WALKING;
 
-	Motion& companion_motion = registry.motions.get(origin);
+	Motion enemy_motion = registry.motions.get(origin);
 	Motion target_motion = registry.motions.get(target);
 
 	// Add enemy to the running component
 	RunTowards& rt = registry.runners.emplace(origin);
 	if (registry.hit_timer.has(origin)) {
-		rt.old_pos = { companion_motion.position.x - hit_position, companion_motion.position.y };
+		rt.old_pos = { enemy_motion.position.x - hit_position, enemy_motion.position.y };
 	}
 	else {
-		rt.old_pos = companion_motion.position;
+		rt.old_pos = enemy_motion.position;
 	}
 
 	rt.target = target;
 	// Have some offset
-	rt.target_position = { target_motion.position.x + 125, target_motion.position.y };
+	rt.target_position = { target_motion.position.x - 125, target_motion.position.y };
 
 	// Change enemy's velocity
 	float speed = 250.f;
-	companion_motion.velocity = { -speed,0.f };
-	Motion& healthBar = registry.motions.get(companion.healthbar);
-	healthBar.velocity = companion_motion.velocity;
+	enemy_motion.velocity = { -speed,0.f };
+	Motion& healthBar = registry.motions.get(comp.healthbar);
+	healthBar.velocity = enemy_motion.velocity;
 
 	// Calculate the timer
-	float time = (companion_motion.position.x - rt.target_position.x) / speed;
+	float time = (enemy_motion.position.x - rt.target_position.x) / speed;
 	rt.counter_ms = time * 1000;
 
 	if (!registry.checkRoundTimer.has(currPlayer)) {
 		auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 		timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
 	}
+
 }
 
 void WorldSystem::launchTaunt(Entity target) {
