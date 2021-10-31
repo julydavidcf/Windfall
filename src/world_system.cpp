@@ -19,7 +19,7 @@ const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 500;
 
-const float animation_timer = 500.f;
+const float animation_timer = 250.f;
 const float hit_position = 20.f;
 
 Entity currPlayer;
@@ -1161,7 +1161,7 @@ private:
 		
 		rt.target = target;
 		// Have some offset
-		rt.target_position = {target_motion.position.x + 100, target_motion.position.y};
+		rt.target_position = {target_motion.position.x + 125, target_motion.position.y};
 
 		// Change enemy's velocity
 		float speed = 250.f;
@@ -1175,7 +1175,7 @@ private:
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1500.f + animation_timer;
+			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
 		}
 		
 		printf("Melee Attack \n\n");	// print statement to visualize
@@ -1398,7 +1398,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			attack.attack_type = MELEE;
 			attack.old_pos = run.old_pos;
 			attack.target = run.target;
-			attack.counter_ms = 1500.f;
+			attack.counter_ms = 1250.f;
 			registry.runners.remove(runner);
 		}
 	}
@@ -2189,6 +2189,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						//active this when ai is done
 						deselectButton();
 						printf("player has attacked, checkRound now \n");
+
 						checkRound();
 					}
 				}
