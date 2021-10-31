@@ -2518,19 +2518,19 @@ Entity WorldSystem::launchRock(Entity target) {
 }
 
 void WorldSystem::launchMelee(Entity origin, Entity target) {
-	Companion& companion = registry.companions.get(origin);
-	companion.curr_anim_type = WALKING;
+	Companion& comp = registry.companions.get(origin);
+	comp.curr_anim_type = WALKING;
 
-	Motion& companion_motion = registry.motions.get(origin);
+	Motion& enemy_motion = registry.motions.get(origin);
 	Motion target_motion = registry.motions.get(target);
 
 	// Add enemy to the running component
 	RunTowards& rt = registry.runners.emplace(origin);
 	if (registry.hit_timer.has(origin)) {
-		rt.old_pos = { companion_motion.position.x - hit_position, companion_motion.position.y };
+		rt.old_pos = { enemy_motion.position.x - hit_position, enemy_motion.position.y };
 	}
 	else {
-		rt.old_pos = companion_motion.position;
+		rt.old_pos = enemy_motion.position;
 	}
 
 	rt.target = target;
@@ -2539,18 +2539,19 @@ void WorldSystem::launchMelee(Entity origin, Entity target) {
 
 	// Change enemy's velocity
 	float speed = 250.f;
-	companion_motion.velocity = { -speed,0.f };
-	Motion& healthBar = registry.motions.get(companion.healthbar);
-	healthBar.velocity = companion_motion.velocity;
+	enemy_motion.velocity = { -speed,0.f };
+	Motion& healthBar = registry.motions.get(comp.healthbar);
+	healthBar.velocity = enemy_motion.velocity;
 
 	// Calculate the timer
-	float time = (companion_motion.position.x - rt.target_position.x) / speed;
+	float time = (enemy_motion.position.x - rt.target_position.x) / speed;
 	rt.counter_ms = time * 1000;
 
 	if (!registry.checkRoundTimer.has(currPlayer)) {
 		auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 		timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
 	}
+
 }
 
 void WorldSystem::launchTaunt(Entity target) {
