@@ -89,6 +89,10 @@ struct Statistics
 	int speed = 0;	// new speed stat
 };
 
+struct StatIndicator
+{
+	Entity owner;
+};
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
@@ -237,8 +241,12 @@ enum class TEXTURE_ASSET_ID {
 	MELEEICON = HEALICONSELECTED + 1,
 	MELEEICONSELECTED = MELEEICON + 1,
 
+	TAUNT = MELEEICONSELECTED+1,
+	TAUNTICON = TAUNT + 1,
+	TAUNTICONSELECTED = TAUNTICON + 1,
+
 	// ------- Animations -------
-	MAGE_ANIM = MELEEICONSELECTED + 1,
+	MAGE_ANIM = TAUNTICONSELECTED + 1,
 	SWORDSMAN_IDLE = MAGE_ANIM + 1,
 	NECROMANCER_IDLE = SWORDSMAN_IDLE + 1,
 	

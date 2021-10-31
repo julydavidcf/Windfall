@@ -302,10 +302,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	for (int i = (int)registry.taunts.components.size() - 1; i >= 0; --i) {
-		if (registry.taunts.components[i].duration <= 0) {
-			registry.remove_all_components_of(registry.taunts.entities[i]);
-			printf("taunt removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	//check taunt for enemy and companion
+	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
+		if (registry.taunts.has(registry.enemies.entities[i])) {
+			if (registry.taunts.get(registry.enemies.entities[i]).duration<=0) {
+				removeTaunt(registry.enemies.entities[i]);
+			}
+		}
+	}
+	for (int i = (int)registry.companions.components.size() - 1; i >= 0; --i) {
+		if (registry.taunts.has(registry.companions.entities[i])) {
+			if (registry.taunts.get(registry.companions.entities[i]).duration <= 0) {
+				removeTaunt(registry.companions.entities[i]);
+			}
 		}
 	}
 
@@ -459,8 +468,12 @@ void WorldSystem::restart_game() {
 	// 
 	// 
 	// Create the icons here
+	taunt_icon = createTauntIcon(renderer, { 300, 700 });
+	heal_icon = createHealIcon(renderer, { 400, 700 });
+	melee_icon = createMeleeIcon(renderer, { 500, 700 });
 	iceShard_icon = createIceShardIcon(renderer, { 600, 700 });
 	fireBall_icon = createFireballIcon(renderer, { 700, 700 });
+	rock_icon = createRockIcon(renderer, { 800, 700 });
 }
 
 
@@ -628,6 +641,9 @@ void WorldSystem::handle_collisions() {
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.companions.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
+
+				// get rid of dead entity's stats indicators 
+				removeTaunt(entity);
 
 				DeathParticle particleEffects;
 				for (int p = 0; p <= NUM_DEATH_PARTICLES; p++) {
@@ -798,20 +814,26 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 	// Test for skills
 	if (action == GLFW_RELEASE && key == GLFW_KEY_K) {
-		launchMelee(enemy_swordsman);
+		launchMelee(player_swordsman, enemy_swordsman);
 		
 	}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
-		healTarget(player_swordsman, 30);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
+	//	healTarget(player_swordsman, 30);
+	//}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
-		launchRock(enemy_mage);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+	//	launchRock(enemy_mage);
+	//}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_T) {
-		launchTaunt(player_swordsman);
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_T) {
+	//	launchTaunt(player_swordsman);
+	//}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Y) {
+		for (int i = (int)registry.taunts.components.size() - 1; i >= 0; --i) {
+			Taunt* t = &registry.taunts.get(registry.taunts.entities[i]);
+			t->duration -= 1;
+		}
 	}
 
 	// Resetting game
@@ -886,6 +908,45 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						selected_skill = -1;
 					}
 				}
+				//rock
+				else if (inButton(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+					if (selected_skill == -1) {
+						registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONSELECTED;
+						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
+						selected_skill = 2;
+					}
+					else {
+						registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
+						//deselectButton();
+						selected_skill = -1;
+					}
+				}
+				//heal
+				else if (inButton(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+					if (selected_skill == -1) {
+						registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONSELECTED;
+						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
+						selected_skill = 3;
+					}
+					else {
+						registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
+						//deselectButton();
+						selected_skill = -1;
+					}
+				}
+				//taunt
+				else if (inButton(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+					if (selected_skill == -1) {
+						registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONSELECTED;
+						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
+						selected_skill = 4;
+					}
+					else {
+						registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+						//deselectButton();
+						selected_skill = -1;
+					}
+				}
 				else {
 					//iceshard
 					if (selected_skill == 0) {
@@ -908,6 +969,67 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						printf("player has attacked, checkRound now \n");
 						checkRound();
 					}
+					//rock
+					if (selected_skill == 2) {
+						for (int j = 0; j < registry.enemies.components.size(); j++) {
+							printf("inhere");
+							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
+								-registry.motions.get(registry.enemies.entities[j]).scale.x,
+								registry.motions.get(registry.enemies.entities[j]).scale.y)) {
+								currentProjectile = launchRock(registry.enemies.entities[j]);
+								selected_skill = -1;
+
+								registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
+								printf("player has attacked, checkRound now \n");
+								checkRound();
+							}
+						}
+					}
+					// heal
+					if (selected_skill == 3) {
+						for (int j = 0; j < registry.companions.components.size(); j++) {
+							printf("inhere");
+							if (inButton(registry.motions.get(registry.companions.entities[j]).position,
+								registry.motions.get(registry.companions.entities[j]).scale.x,
+								registry.motions.get(registry.companions.entities[j]).scale.y)) {
+								healTarget(registry.companions.entities[j], 30);
+
+								//basiclly to have something hitting the boundary
+								currentProjectile = launchFireball({-20,-20});
+								Motion* projm = &registry.motions.get(currentProjectile);
+								projm->velocity = { -100,0 };
+								projm->acceleration = { -100,0 };
+								selected_skill = -1;
+
+								registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
+								printf("player has attacked, checkRound now \n");
+								checkRound();
+							}
+						}
+					}
+					//taunt
+					if (selected_skill == 4) {
+						printf("inhere");
+						if (inButton(registry.motions.get(currPlayer).position,
+							registry.motions.get(currPlayer).scale.x,
+							registry.motions.get(currPlayer).scale.y)) {
+
+							launchTaunt(currPlayer);
+							//basiclly to have something hitting the boundary
+							currentProjectile = launchFireball({ -20,-20 });
+							Motion* projm = &registry.motions.get(currentProjectile);
+							projm->velocity = { -100,0 };
+							projm->acceleration = { -100,0 };
+							selected_skill = -1;
+
+							registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+							printf("player has attacked, checkRound now \n");
+							checkRound();
+						}
+
+						
+					}
+
 				}
 			}
 			else {
@@ -1062,7 +1184,7 @@ Entity WorldSystem::launchRock(Entity target) {
 
 	return  resultEntity;
 }
-Entity WorldSystem::launchMelee(Entity target) {
+Entity WorldSystem::launchMelee(Entity origion, Entity target) {
 	int isFriendly = 1;
 	vec2 targetp = registry.motions.get(target).position;
 	if (registry.companions.has(target)) {
@@ -1081,17 +1203,31 @@ Entity WorldSystem::launchMelee(Entity target) {
 }
 
 void WorldSystem::launchTaunt(Entity target) {
-	registry.taunts.emplace(target);
-	Taunt* t =& registry.taunts.get(target);
-	t->duration = 3;
-	printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
+	if (!registry.taunts.has(target)) {
+		registry.taunts.emplace(target);
+		Taunt* t = &registry.taunts.get(target);
+		t->duration = 3;
+		createTauntIndicator(renderer, target);
+		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
+	else {
+		Taunt* t = &registry.taunts.get(target);
+		t->duration = 3;
+		createTauntIndicator(renderer, target);
+		printf("taunt extended!\n");
+	}
 
 
-	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
-	//int rng = rand() % 10;
-	//if (rng >= 4) {
-	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
-	//}
+}
 
-	//return  resultEntity;
+void WorldSystem::removeTaunt(Entity target) {
+	if (registry.taunts.has(target)) {
+		registry.taunts.remove(target);
+		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
+			if (registry.statsindicators.components[j].owner == target) {
+				registry.remove_all_components_of(registry.statsindicators.entities[j]);
+			}
+		}
+		printf("taunt removed!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
 }

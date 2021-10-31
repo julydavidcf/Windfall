@@ -89,8 +89,9 @@ private:
 	Entity WorldSystem::launchIceShard(vec2 startPos);
 	Entity WorldSystem::launchFireball(vec2 startPos);
 	Entity WorldSystem::launchRock(Entity target);
-	Entity WorldSystem::launchMelee(Entity target);
+	void WorldSystem::launchMelee(Entity origion, Entity target);
 	void WorldSystem::launchTaunt(Entity target);
+	void WorldSystem::removeTaunt(Entity target);
 	void WorldSystem::healTarget(Entity target, float amount);
 	void WorldSystem::damageTarget(Entity target, float amount);
 
@@ -105,8 +106,13 @@ private:
 	Entity iceShard;
 
 	//icons
+	Entity melee_icon;
 	Entity iceShard_icon;
 	Entity fireBall_icon;
+	Entity taunt_icon;
+	Entity heal_icon;
+	Entity rock_icon;
+
 
 
 	// music references
@@ -134,8 +140,10 @@ enum class SKILL_ID {
 	SK_FIREBALL = SK_ICESHARD + 1, //1
 	SK_ROCK = SK_FIREBALL + 1, //2
 	SK_HEAL = SK_ROCK + 1, //3
+	SK_TAUNT = SK_HEAL+1,//4
+	SK_MELEE = SK_TAUNT +1,//5
 
 
 
-	SKILL_COUNT = SK_HEAL + 1,
+	SKILL_COUNT = SK_MELEE + 1,
 };

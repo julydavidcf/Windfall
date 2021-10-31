@@ -50,6 +50,9 @@ class RenderSystem {
 			textures_path("healIconSelected.png"),
 			textures_path("meleeIcon.png"),
 			textures_path("meleeIconSelected.png"),
+			textures_path("taunt.png"),
+			textures_path("tauntIcon.png"),
+			textures_path("tauntIconSelected.png"),
 
 
 			textures_path("mage_anim.png"),

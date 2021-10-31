@@ -298,6 +298,117 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+//melee icon
+
+Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MELEEICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//taunt icon
+
+Entity createTauntIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TAUNTICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//heal icon
+
+Entity createHealIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::HEALICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//rock icon
+
+Entity createRockIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ROCKICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
 
 //turn indicators
 Entity createPlayerTurn(RenderSystem* renderer, vec2 position)
@@ -390,7 +501,7 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 	motion.acceleration = { 0.f, 0.f };
 	motion.position = position;
 
-	motion.scale = vec2({ ROCK_WIDTH, ROCK_HEIGHT });
+	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::GREENCROSS,
@@ -399,6 +510,34 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+
+Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto*statid =  &registry.statsindicators.emplace(entity);
+	statid->owner = owner;
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.acceleration = { 0.f, 0.f };
+	motion.position = {0.f,0.f};
+
+	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TAUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 // create rock
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 {

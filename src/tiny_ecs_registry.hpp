@@ -31,6 +31,7 @@ public:
 	ComponentContainer<TurnIndicator> turnIndicators;
 	ComponentContainer<Gravity> gravities;
 	ComponentContainer<Taunt> taunts;
+	ComponentContainer<StatIndicator> statsindicators;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -55,6 +56,7 @@ public:
 		registry_list.push_back(&turnIndicators);
 		registry_list.push_back(&gravities);
 		registry_list.push_back(&taunts);
+		registry_list.push_back(&statsindicators);
 	}
 
 	void clear_all_components() {
