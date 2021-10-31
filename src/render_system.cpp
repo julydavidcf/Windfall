@@ -329,7 +329,7 @@ void RenderSystem::draw(float elapsed_ms)
 	glDepthRange(0.00001, 10);
 
 	// Background color
-	glClearColor(0.2, 0.2, 0.2, 0.65);
+	glClearColor(0.54509803921, 0.f, 0.54509803921, 1);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);

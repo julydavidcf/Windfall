@@ -240,6 +240,12 @@ struct DeathParticle
 	}
 };
 
+// A timer that will be associated to dying companions/enemies
+struct CheckRoundTimer
+{
+	float counter_ms = 3000;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
