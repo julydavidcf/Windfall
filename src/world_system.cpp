@@ -17,7 +17,7 @@ const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
-const int NUM_DEATH_PARTICLES = 500;
+const int NUM_DEATH_PARTICLES = 120;
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
@@ -50,7 +50,7 @@ Entity selectedButton;
 Entity currentProjectile;
 
 WorldSystem::WorldSystem()
-	: points(0) {
+	: points(0), gameLevel(1) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -1520,6 +1520,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
 
+	if (renderer->transitioningToNextLevel) {
+		renderer->nextLevelTranistionPeriod_ms -= elapsed_ms_since_last_update;
+		if (renderer->nextLevelTranistionPeriod_ms <= 0.) {
+			renderer->transitioningToNextLevel = false;
+			renderer->nextLevelTranistionPeriod_ms = renderer->DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS;
+		}
+	}
+
 	// restart game if enemies or companions are 0
 	if (registry.enemies.size() <= 0 || registry.companions.size() <= 0) {
 		restart_game();
@@ -1798,7 +1806,27 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 }
 
 // Reset the world state to its initial state
-void WorldSystem::restart_game() {
+void WorldSystem::restart_game(bool force_restart) {
+
+	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
+		gameLevel++;
+		renderer->transitioningToNextLevel = true;
+		renderer->gameLevel = gameLevel;
+	}
+	if (gameLevel > MAX_GAME_LEVELS) {
+		gameLevel = 1;
+		renderer->gameLevel = gameLevel;
+	}
+	if (registry.companions.size() == 0) {
+		gameLevel = 1;
+		renderer->gameLevel = gameLevel;
+		// renderer->transitioningToNextLevel = true;
+	}
+	if (force_restart) {
+		gameLevel = 1;
+		renderer->gameLevel = gameLevel;
+	}
+
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 	printf("Restarting\n");
@@ -1838,9 +1866,14 @@ void WorldSystem::restart_game() {
 	// Create an enemy mage
 	enemy_mage = createEnemyMage(renderer, { 1050, 575 });
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
-	// Create an enemy swordsman
-	enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
-	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+	
+	if (gameLevel > 1) {
+		// Create an enemy swordsman
+		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
+		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+	}
+	// Create the fireball icon
+	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 
 	// Create the icons here
 	taunt_icon = createTauntIcon(renderer, { 300, 700 });
@@ -2187,7 +2220,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-        restart_game();
+        restart_game(true);
 	}
 
 	// Debugging

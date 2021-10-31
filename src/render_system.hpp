@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "components.hpp"
 #include "tiny_ecs.hpp"
+#include <map>
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
@@ -90,6 +91,7 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
+
 	// Time per frame in ms, for each action
 	float MAGE_IDLE_FRAME_TIME = 175;
 	float MAGE_ATTACK_FRAME_TIME = 150;
@@ -101,6 +103,13 @@ class RenderSystem {
 	float SWORDSMAN_TAUNT_FRAME_TIME = 90;
 	float SWORDSMAN_DEATH_FRAME_TIME = 80;
 
+	// pixel positions for the light balls in the background
+	std::vector<float> lightBallsXcoords;
+	std::vector<float> lightBallsYcoords;
+
+	// Time per frame in ms
+	float TIME_PER_FRAME = 100;
+	
 	// ---------------------------------- Frame stats for each character animation -----------------------------------
 
 	// Mage frame stats
@@ -145,6 +154,14 @@ class RenderSystem {
 
 public:
 
+	const float DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS = 4500.f;
+	bool transitioningToNextLevel = false;
+	float nextLevelTranistionPeriod_ms = DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS;
+	float dimScreenFactor = 0.4f;
+	float fogFactor = 0.2;
+	std::map<int, int> deferredRenderingEntities = {};
+	int gameLevel = 1;
+
 	// Initialize the window
 	bool init(int width, int height, GLFWwindow* window);
 
@@ -173,6 +190,8 @@ public:
 	mat3 createProjectionMatrix();
 
 	mat3 createCameraProjection(Motion& motion);
+
+	void createRandomLightBallPosForBackground(int windowWidth, int windowHeight);
 
 private:
 	// Internal drawing functions for each entity type
