@@ -35,6 +35,7 @@ public:
 	ComponentContainer<RunTowards> runners;
 	ComponentContainer<Gravity> gravities;
 	ComponentContainer<Taunt> taunts;
+	ComponentContainer<StatIndicator> statsindicators;
 
 	ComponentContainer<CheckRoundTimer> checkRoundTimer;
 
@@ -64,9 +65,8 @@ public:
 		registry_list.push_back(&gravities);
 		registry_list.push_back(&taunts);
 		registry_list.push_back(&runners);
-
 		registry_list.push_back(&checkRoundTimer);
-
+		registry_list.push_back(&statsindicators);
 	}
 
 	void clear_all_components() {
