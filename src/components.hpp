@@ -87,6 +87,7 @@ struct Statistics
 	int max_health = 100;
 	int health = 100;
 	int speed = 0;	// new speed stat
+	int classID = -1; // 0= mage, 1= swordsman for now
 };
 
 struct StatIndicator

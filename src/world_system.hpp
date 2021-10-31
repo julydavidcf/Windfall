@@ -95,6 +95,8 @@ private:
 	void WorldSystem::healTarget(Entity target, float amount);
 	void WorldSystem::damageTarget(Entity target, float amount);
 
+	bool WorldSystem::canUseSkill(Entity user, int skill);
+
 	// Game state
 	RenderSystem* renderer;
 	float current_speed;
@@ -131,6 +133,13 @@ private:
 	float ICESHARDSPEED = 100.f;
 	float FIREBALLSPEED = 700.f;
 
+	std::vector<std::vector<bool>> skill_character_aviability = {
+		// ice  fire  rock  heal  taunt  melee
+//mage
+		{ true, true, true, true, false, false},
+//swordsman
+		{ false, false, false, false, true, true}
+	};
 
 
 };

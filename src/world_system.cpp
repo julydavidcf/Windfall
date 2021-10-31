@@ -682,6 +682,8 @@ void WorldSystem::handle_collisions() {
 							registry.remove_all_components_of(entity_other); 
 							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
+								// get rid of dead entity's stats indicators 
+								removeTaunt(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
 							else {
@@ -883,7 +885,8 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 			displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
 				//iceshard
-				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 0)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
 						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
@@ -896,7 +899,8 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					}
 				}
 				//fireball
-				else if (inButton(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+				else if (inButton(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 1)) {
 					   if (selected_skill == -1) {
 						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONSELECTED;
 						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
@@ -909,7 +913,8 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					}
 				}
 				//rock
-				else if (inButton(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+				else if (inButton(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 2)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONSELECTED;
 						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
@@ -922,7 +927,8 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					}
 				}
 				//heal
-				else if (inButton(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+				else if (inButton(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 3)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONSELECTED;
 						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
@@ -935,7 +941,8 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					}
 				}
 				//taunt
-				else if (inButton(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+				else if (inButton(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 4)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONSELECTED;
 						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
@@ -1009,24 +1016,26 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					}
 					//taunt
 					if (selected_skill == 4) {
-						printf("inhere");
-						if (inButton(registry.motions.get(currPlayer).position,
-							registry.motions.get(currPlayer).scale.x,
-							registry.motions.get(currPlayer).scale.y)) {
+						for (int j = 0; j < registry.enemies.components.size(); j++) {
+							printf("inhere");
+							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
+								-registry.motions.get(registry.enemies.entities[j]).scale.x,
+								registry.motions.get(registry.enemies.entities[j]).scale.y)) {
+								
+								launchTaunt(registry.enemies.entities[j]);
 
-							launchTaunt(currPlayer);
-							//basiclly to have something hitting the boundary
-							currentProjectile = launchFireball({ -20,-20 });
-							Motion* projm = &registry.motions.get(currentProjectile);
-							projm->velocity = { -100,0 };
-							projm->acceleration = { -100,0 };
-							selected_skill = -1;
+								//basiclly to have something hitting the boundary
+								currentProjectile = launchFireball({ -20,-20 });
+								Motion* projm = &registry.motions.get(currentProjectile);
+								projm->velocity = { -100,0 };
+								projm->acceleration = { -100,0 };
+								selected_skill = -1;
 
-							registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
-							printf("player has attacked, checkRound now \n");
-							checkRound();
+								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+								printf("player has attacked, checkRound now \n");
+								checkRound();
+							}
 						}
-
 						
 					}
 
@@ -1184,22 +1193,7 @@ Entity WorldSystem::launchRock(Entity target) {
 
 	return  resultEntity;
 }
-Entity WorldSystem::launchMelee(Entity origion, Entity target) {
-	int isFriendly = 1;
-	vec2 targetp = registry.motions.get(target).position;
-	if (registry.companions.has(target)) {
-		int isFriendly = 0;
-	}
-	Entity resultEntity = createMelee(renderer, { targetp.x,targetp.y }, isFriendly);
-
-
-	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
-	//int rng = rand() % 10;
-	//if (rng >= 4) {
-	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
-	//}
-
-	return  resultEntity;
+void WorldSystem::launchMelee(Entity origion, Entity target) {
 }
 
 void WorldSystem::launchTaunt(Entity target) {
@@ -1213,7 +1207,6 @@ void WorldSystem::launchTaunt(Entity target) {
 	else {
 		Taunt* t = &registry.taunts.get(target);
 		t->duration = 3;
-		createTauntIndicator(renderer, target);
 		printf("taunt extended!\n");
 	}
 
@@ -1230,4 +1223,9 @@ void WorldSystem::removeTaunt(Entity target) {
 		}
 		printf("taunt removed!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
+}
+
+bool WorldSystem::canUseSkill(Entity user, int skill) {
+	Statistics pStat = registry.stats.get(user);
+	return skill_character_aviability[pStat.classID][skill];
 }

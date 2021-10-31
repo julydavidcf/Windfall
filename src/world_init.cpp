@@ -20,6 +20,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
 	stat.speed = 14;
+	stat.classID = 0;
 	
 
 	// Add a healthbar
@@ -89,6 +90,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
 	stat.speed = 12;
+	stat.classID = 1;
 
 	// Add a healthbar
 	Companion& companion = registry.companions.emplace(entity);
@@ -561,7 +563,7 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 10;
+	damage.minDamage = 70;
 	damage.range = 10;
 	//------------------------------------------------
 
