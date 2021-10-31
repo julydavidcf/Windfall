@@ -1634,6 +1634,11 @@ void WorldSystem::restart_game() {
 		gameLevel = 1;
 		renderer->gameLevel = gameLevel;
 	}
+	if (registry.companions.size() == 0) {
+		gameLevel = 1;
+		renderer->gameLevel = gameLevel;
+		// renderer->transitioningToNextLevel = true;
+	}
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
@@ -1679,7 +1684,6 @@ void WorldSystem::restart_game() {
 		// Create an enemy swordsman
 		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
 		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
-
 	}
 	// Create the necromancer
 	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now

@@ -134,7 +134,7 @@ class RenderSystem {
 
 public:
 
-	const float DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS = 6000.f;
+	const float DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS = 4500.f;
 	bool transitioningToNextLevel = false;
 	float nextLevelTranistionPeriod_ms = DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS;
 	float dimScreenFactor = 0.4f;
