@@ -1623,7 +1623,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 }
 
 // Reset the world state to its initial state
-void WorldSystem::restart_game() {
+void WorldSystem::restart_game(bool force_restart) {
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
 		gameLevel++;
@@ -1638,6 +1638,10 @@ void WorldSystem::restart_game() {
 		gameLevel = 1;
 		renderer->gameLevel = gameLevel;
 		// renderer->transitioningToNextLevel = true;
+	}
+	if (force_restart) {
+		gameLevel = 1;
+		renderer->gameLevel = gameLevel;
 	}
 
 	// Debugging for memory/component leaks
@@ -2154,7 +2158,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-        restart_game();
+        restart_game(true);
 	}
 
 

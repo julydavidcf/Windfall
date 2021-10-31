@@ -88,7 +88,7 @@ private:
 	void update_healthBars();
 
 	// restart level
-	void restart_game();
+	void restart_game(bool force_restart = false);
 
 	// OpenGL window handle
 	GLFWwindow* window;
