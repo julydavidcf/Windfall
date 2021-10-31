@@ -100,13 +100,17 @@ private:
 	void activate_deathParticles(Entity entity);
 
 	//Skills Function
-	Entity launchFireball(vec2 startPos, vec2 mouse_pos);
-	Entity launchArrow(vec2 startPos);
-	Entity launchRock(Entity target);
-	Entity launchMelee(Entity target);
-	void launchTaunt(Entity target);
-	void healTarget(Entity target, float amount);
-	void damageTarget(Entity target, float amount);
+	Entity WorldSystem::launchIceShard(vec2 startPos);
+	Entity WorldSystem::launchFireball(vec2 startPos);
+	Entity WorldSystem::launchRock(Entity target);
+	void WorldSystem::launchMelee(Entity origin, Entity target);
+	void WorldSystem::launchTaunt(Entity target);
+	void WorldSystem::removeTaunt(Entity target);
+	void WorldSystem::healTarget(Entity target, float amount);
+	void WorldSystem::damageTarget(Entity target, float amount);
+
+	bool WorldSystem::canUseSkill(Entity user, int skill);
+	void WorldSystem::showCorrectSkills();
 
 	// Game state
 	RenderSystem* renderer;
@@ -116,10 +120,20 @@ private:
 	Entity player_swordsman;
 	Entity enemy_swordsman;
 	Entity necromancer;
+
 	Entity fireball;
 	Entity fireball_icon;
 	Entity silence_icon;
 
+	Entity iceShard;
+
+	//icons
+	Entity melee_icon;
+	Entity iceShard_icon;
+	Entity fireBall_icon;
+	Entity taunt_icon;
+	Entity heal_icon;
+	Entity rock_icon;
 
 	// music references
 	Mix_Music* background_music;
@@ -138,6 +152,29 @@ private:
 	float CAM_OFFSET_YMAX = 0.2;
 
 	//skill constants
-	float FIREBALLSPEED = 100.f;
-	float ARROWSPEED = 700.f;
+	float ICESHARDSPEED = 100.f;
+	float FIREBALLSPEED = 700.f;
+
+	std::vector<std::vector<bool>> skill_character_aviability = {
+		// ice  fire  rock  heal  taunt  melee
+//mage
+		{ true, true, true, true, false, false},
+//swordsman
+		{ false, false, false, false, true, true}
+	};
+
+
+};
+// Can't use diretly somehow so just for reference
+enum class SKILL_ID {
+	SK_ICESHARD = 0,
+	SK_FIREBALL = SK_ICESHARD + 1, //1
+	SK_ROCK = SK_FIREBALL + 1, //2
+	SK_HEAL = SK_ROCK + 1, //3
+	SK_TAUNT = SK_HEAL+1,//4
+	SK_MELEE = SK_TAUNT +1,//5
+
+
+
+	SKILL_COUNT = SK_MELEE + 1,
 };
