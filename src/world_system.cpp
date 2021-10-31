@@ -2322,9 +2322,11 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					if (selected_skill == 2) {
 						for (int j = 0; j < registry.enemies.components.size(); j++) {
 							//printf("inhere");
+							PhysicsSystem physicsSystem;
+							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
-								-registry.motions.get(registry.enemies.entities[j]).scale.x,
-								registry.motions.get(registry.enemies.entities[j]).scale.y)) {
+								b_box.x,
+								b_box.y)) {
 								currentProjectile = launchRock(registry.enemies.entities[j]);
 								selected_skill = -1;
 
@@ -2338,9 +2340,11 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					if (selected_skill == 3) {
 						for (int j = 0; j < registry.companions.components.size(); j++) {
 							//printf("inhere");
+							PhysicsSystem physicsSystem;
+							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.companions.entities[j]);
 							if (inButton(registry.motions.get(registry.companions.entities[j]).position,
-								registry.motions.get(registry.companions.entities[j]).scale.x,
-								registry.motions.get(registry.companions.entities[j]).scale.y)) {
+								b_box.x,
+								b_box.y)) {
 								healTarget(registry.companions.entities[j], 30);
 
 								//basiclly to have something hitting the boundary
@@ -2360,10 +2364,11 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					if (selected_skill == 4) {
 						for (int j = 0; j < registry.enemies.components.size(); j++) {
 							//printf("inhere");
-							//vec2 b_box = get_custom_bounding_box(registry.enemies.entities[j]);
+							PhysicsSystem physicsSystem;
+							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
-								-registry.motions.get(registry.enemies.entities[j]).scale.x,
-								registry.motions.get(registry.enemies.entities[j]).scale.y)) {
+								b_box.x,
+								b_box.y)) {
 								
 								launchTaunt(registry.enemies.entities[j]);
 
@@ -2384,9 +2389,11 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					if (selected_skill == 5) {
 						for (int j = 0; j < registry.enemies.components.size(); j++) {
 							//printf("inhere");
+							PhysicsSystem physicsSystem;
+							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
-								-registry.motions.get(registry.enemies.entities[j]).scale.x,
-								registry.motions.get(registry.enemies.entities[j]).scale.y)) {
+								b_box.x,
+								b_box.y)) {
 
 								launchMelee(currPlayer,registry.enemies.entities[j]);
 

@@ -71,7 +71,6 @@ private:
 	// check if mouse in button
 	bool inButton(vec2 buttonPos, float buttonX, float buttonY);
 
-
 	// check if mouse in entity
 	bool inEntity(const Entity entity);
 
