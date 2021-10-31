@@ -40,6 +40,7 @@ file(GLOB SOURCE_FILES src/*.cpp src/*.hpp)
 #	src/world.cpp
 #	src/mini_ecs.cpp
 # 	src/pebbles.cpp
+# 	src/json_loader.cpp
 
 #    ext/project_path.hpp
 #	src/common.hpp
@@ -50,6 +51,7 @@ file(GLOB SOURCE_FILES src/*.cpp src/*.hpp)
 #	src/world.hpp
 #	src/mini_ecs.hpp
 #	src/pebbles.hpp
+# 	src/json_loader.hpp
 #	)
 
 # external libraries will be installed into /usr/local/include and /usr/local/lib but that folder is not automatically included in the search on MACs
@@ -75,6 +77,8 @@ if (OPENGL_FOUND)
    target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
    target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENGL_gl_LIBRARY})
 endif()
+
+
 
 set(glm_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext/glm/cmake/glm) # if necessary
 find_package(glm REQUIRED)
@@ -169,7 +173,14 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm)
+
+find_package(nlohmann_json REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm nlohmann_json::nlohmann_json)
+
+if(NOT MSVC)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE JSON_NOEXCEPTION)
+    target_compile_options(${PROJECT_NAME} PRIVATE -fno-exceptions)
+endif()
 
 # Needed to add this
 if(IS_OS_LINUX)

@@ -4,7 +4,7 @@
 
 // stlib
 #include <chrono>
-//hi hi
+#include <iostream>
 
 
 // internal
@@ -12,8 +12,10 @@
 #include "physics_system.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
+#include "json_loader.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
+using namespace std;
 
 const int window_width_px = 1200;
 const int window_height_px = 800;
@@ -41,6 +43,14 @@ int main()
 	world.init(&renderer);
 	world.createRound();
 	world.checkRound();
+
+	std::ifstream jsonFile("../src/small_example.json");
+    if (jsonFile.is_open()){
+        //std::cout << jsonFile.rdbuf();
+	}
+	else {printf("not open?\n");}
+    nlohmann::json j = nlohmann::json::parse(jsonFile);
+    std::cout << j << std::endl;
 
 	// variable timestep loop
 	auto t = Clock::now();
