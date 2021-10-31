@@ -20,6 +20,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
 	stat.speed = 14;
+	stat.classID = 0;
 	
 
 	// Add a healthbar
@@ -89,13 +90,14 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
 	stat.speed = 12;
+	stat.classID = 1;
 
 	// Add a healthbar
 	Companion& companion = registry.companions.emplace(entity);
 	companion.healthbar = createHealthBar(renderer, pos);
 	companion.companionType = SWORDSMAN;
 
-	registry.renderRequests.insert(
+	auto& abc = registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::SWORDSMAN_IDLE,
 			EFFECT_ASSET_ID::TEXTURED,
@@ -172,13 +174,15 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
+Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
+	auto & gravity = registry.gravities.emplace(entity);
+	gravity.gravity = 30;
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
@@ -201,6 +205,7 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	registry.projectiles.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
+		//currently using fireball
 		{ TEXTURE_ASSET_ID::FIREBALL,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
@@ -208,7 +213,43 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	return entity;
 }
 
-Entity createFireballIcon(RenderSystem* renderer, vec2 position)
+Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.position = position;
+
+
+	motion.scale = vec2({ ICESHARD_WIDTH, ICESHARD_HEIGHT });
+
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = 30;
+	damage.range = 10;
+	//------------------------------------------------
+
+
+	registry.projectiles.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ICESHARD,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createIceShardIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
@@ -223,7 +264,33 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
-	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ICESHARDICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createFireballIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::FIREBALLICON,
@@ -233,7 +300,144 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
+//melee icon
+
+Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MELEEICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//taunt icon
+
+Entity createTauntIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TAUNTICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//heal icon
+
+Entity createHealIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::HEALICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//rock icon
+
+Entity createRockIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ROCKICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createSilenceIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ SILENCE_ICON_WIDTH, SILENCE_ICON_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::SILENCEICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createSilenceIconSelected(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
@@ -252,7 +456,7 @@ Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::FIREBALLICONSELECTED,
+		{ TEXTURE_ASSET_ID::SILENCEICONSELECTED,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -336,6 +540,132 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+Entity createGreenCross(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, -500.f };
+	motion.acceleration = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::GREENCROSS,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto*statid =  &registry.statsindicators.emplace(entity);
+	statid->owner = owner;
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.acceleration = { 0.f, 0.f };
+	motion.position = {0.f,0.f};
+
+	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TAUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+// create rock
+Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = {0.f,50};
+	motion.acceleration = { 0.f,1000 };
+	motion.position = position;
+
+
+	motion.scale = vec2({ ROCK_WIDTH, ROCK_HEIGHT });
+
+	registry.projectiles.emplace(entity);
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = 70;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ROCK,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+// create rock
+Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f,0 };
+	motion.acceleration = { 0.f,0 };
+	motion.position = position;
+
+
+	motion.scale = vec2({ 1, 1 });
+
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = 10;
+	damage.range = 10;
+	//------------------------------------------------
+
+
+	registry.projectiles.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ROCK,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
 
 Entity createHealthBar(RenderSystem* renderer, vec2 position)
 {
@@ -362,6 +692,32 @@ Entity createHealthBar(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	position[1] -= 30;
+	position[0] += 70;
+	motion.position = position;
+
+	motion.scale = vec2({ SILENCEBUBBLE_WIDTH, SILENCEBUBBLE_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::SILENCEBUBBLE,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 Entity createLine(vec2 position, vec2 scale)
 {
 	Entity entity = Entity();
@@ -381,6 +737,93 @@ Entity createLine(vec2 position, vec2 scale)
 	motion.scale = scale;
 
 	registry.debugComponents.emplace(entity);
+	return entity;
+}
+
+Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.position = pos;
+	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
+	backgroundLayer.isAutoScroll = 1;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERONE,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBackgroundLayerTwo(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.position = pos;
+	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
+	backgroundLayer.isCameraScrollOne = 1;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERTWO,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBackgroundLayerThree(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.position = pos;
+	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERTHREE,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.position = pos;
+	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+
+	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
+	backgroundLayer.isCameraScrollTwo = 1;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERFOUR,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
 	return entity;
 }
 

@@ -124,6 +124,16 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// Input data location as in the vertex buffer
 	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
+		
+		GLint silenced_uloc = glGetUniformLocation(program, "silenced");
+		gl_has_errors();
+		assert(silenced_uloc >= 0);
+		if(registry.silenced.has(entity)){
+			glUniform1i(silenced_uloc, 1);
+		} else {
+			glUniform1i(silenced_uloc, 0);
+		}
+
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
 		gl_has_errors();
@@ -277,7 +287,7 @@ void RenderSystem::draw(float elapsed_ms)
 	glDepthRange(0.00001, 10);
 
 	// Background color
-	glClearColor(0.2, 0.2, 0.2, 0.65);
+	glClearColor(0.54509803921, 0.f, 0.54509803921, 1);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
@@ -288,11 +298,28 @@ void RenderSystem::draw(float elapsed_ms)
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
 	std::vector<Entity> needParticleEffects;
-	
+	int hasTravellingProjectile = 0;
+
+	mat3 projectionMat = createProjectionMatrix();
+	for (Entity entity : registry.renderRequests.entities) {
+		// Handle camera focus on projectiles and swordsman melee
+		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0) {
+			Motion& motion = registry.motions.get(entity);
+			hasTravellingProjectile = 1;
+			projectionMat = createCameraProjection(motion);
+		}
+		//else if (registry.runners.has(entity) 
+		//	|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
+		//	|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+		//	Motion& motion = registry.motions.get(entity);
+		//	projectionMat = createCameraProjection(motion);
+		//}
+	}
 
 	// Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
 	{
+		mat3 projectionToUse = projectionMat;
 		if (!registry.motions.has(entity))
 			continue;
 		// if an entity has a deathParticle compononent, that means the 
@@ -308,6 +335,7 @@ void RenderSystem::draw(float elapsed_ms)
 			GLint curr_frame = 0;
 			GLfloat frame_width = 0;
 			int numFrames = 0;
+			int timePerFrame = 0;
 
 			// Handle animation frames
 			if (registry.companions.has(entity) || registry.enemies.has(entity)) {
@@ -326,60 +354,154 @@ void RenderSystem::draw(float elapsed_ms)
 				int animType = registry.companions.has(entity) ? registry.companions.get(entity).curr_anim_type
 					: registry.enemies.get(entity).curr_anim_type;
 
+				// Get the current texture to alter
+				TEXTURE_ASSET_ID& currTexture = registry.renderRequests.get(entity).used_texture;
+				// Get the current geometry to alter
+				GEOMETRY_BUFFER_ID& currGeometry = registry.renderRequests.get(entity).used_geometry;
+				// Get the current frame
+				int* currFrame = registry.companions.has(entity) ? &registry.companions.get(entity).curr_frame
+					: &registry.enemies.get(entity).curr_frame;
+
 				switch (charType) {
 					case MAGE: {
 						switch (animType) {
-							case IDLE: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
-							case ATTACKING: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
-							case DEAD: numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; break;
-							default: break;
+							case IDLE: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::MAGE_IDLE) {
+									currGeometry = GEOMETRY_BUFFER_ID::MAGE_IDLE;
+									*currFrame = 0;
+								}
+								numFrames = MAGE_IDLE_FRAMES; frame_width = MAGE_IDLE_FRAME_WIDTH; timePerFrame = MAGE_IDLE_FRAME_TIME; break;
 							}
+							case ATTACKING: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::MAGE_CASTING) {
+									currGeometry = GEOMETRY_BUFFER_ID::MAGE_CASTING;
+									*currFrame = 0;
+								}
+								numFrames = MAGE_CASTING_FRAMES; frame_width = MAGE_CASTING_FRAME_WIDTH; timePerFrame = MAGE_ATTACK_FRAME_TIME; break;
+							}
+							case DEAD: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::MAGE_DEATH) {
+									currGeometry = GEOMETRY_BUFFER_ID::MAGE_DEATH;
+									*currFrame = 0;
+								}
+								numFrames = MAGE_DEATH_FRAMES; frame_width = MAGE_DEATH_FRAME_WIDTH; timePerFrame = MAGE_DEATH_FRAME_TIME; break;
+							}
+							default: break;
+						}
 						break;
 					}
 					case SWORDSMAN: {
 						switch (animType) {
-							case IDLE: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
-							case ATTACKING: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
-							case DEAD: numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; break;
-							default: break;
+							case IDLE: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE) {
+									*currFrame = 0;
+								}
+								currTexture = TEXTURE_ASSET_ID::SWORDSMAN_IDLE;
+								currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE;
+								numFrames = SWORDSMAN_IDLE_FRAMES; frame_width = SWORDSMAN_IDLE_FRAME_WIDTH; timePerFrame = SWORDSMAN_IDLE_FRAME_TIME; break;
 							}
+							case ATTACKING: {
+								switch (registry.attackers.get(entity).attack_type) {
+									case MELEE: {
+										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE) {
+											*currFrame = 0;
+										}
+										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_MELEE;
+										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE;
+										numFrames = SWORDSMAN_MELEE_FRAMES; frame_width = SWORDSMAN_MELEE_FRAME_WIDTH; timePerFrame = SWORDSMAN_MELEE_FRAME_TIME; break;
+									}
+									case TAUNT: {
+										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT) {
+											*currFrame = 0;
+										}
+										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_TAUNT;
+										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT;
+										numFrames = SWORDSMAN_TAUNT_FRAMES; frame_width = SWORDSMAN_TAUNT_FRAME_WIDTH; timePerFrame = SWORDSMAN_TAUNT_FRAME_TIME; break;
+									}
+									case FIREBALL: {
+										if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT) {
+											*currFrame = 0;
+										}
+										currTexture = TEXTURE_ASSET_ID::SWORDSMAN_TAUNT;
+										currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT;
+										numFrames = SWORDSMAN_TAUNT_FRAMES; frame_width = SWORDSMAN_TAUNT_FRAME_WIDTH; timePerFrame = SWORDSMAN_TAUNT_FRAME_TIME; break;
+									}
+									default: break;
+								}
+							    break;
+							}
+							case WALKING: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_WALK) {
+									currTexture = TEXTURE_ASSET_ID::SWORDSMAN_WALK;
+									currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_WALK;
+									*currFrame = 0;
+								}
+								numFrames = SWORDSMAN_WALK_FRAMES; frame_width = SWORDSMAN_WALK_FRAME_WIDTH; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
+							}
+							case DEAD: {
+								if (currGeometry != GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH) {
+									currTexture = TEXTURE_ASSET_ID::SWORDSMAN_DEATH;
+									currGeometry = GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH;
+									*currFrame = 0;
+								}
+								numFrames = SWORDSMAN_DEATH_FRAMES; frame_width = SWORDSMAN_DEATH_FRAME_WIDTH; timePerFrame = SWORDSMAN_DEATH_FRAME_TIME; break;
+							}
+							default: break;
+						}
 						break;
-					case NECROMANCER: {
-						switch (animType) {
+				}
+				case NECROMANCER: {
+					switch (animType) {
 						case IDLE: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAME_WIDTH; break;
 						case ATTACKING: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
 						case DEAD: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
 						default: break;
-						}
-						break;
 					}
+					break;
 				}
 					// TODO: Implement healer, archer, necromancer cases later
 				default: break;
-				}
+			}
 
 				if (*counter <= 0) {
-					// Increment frame count
-					if (registry.companions.has(entity)) {
-						curr_frame = registry.companions.get(entity).curr_frame;
+					
+					if (registry.companions.has(entity) || registry.enemies.has(entity)) {
+						curr_frame = *currFrame;
+						// Increment frame count
 						curr_frame += 1;
-						registry.companions.get(entity).curr_frame = curr_frame % numFrames;
-					}
-					else if (registry.enemies.has(entity)) {
-						curr_frame = registry.enemies.get(entity).curr_frame;
-						curr_frame += 1;
-						registry.enemies.get(entity).curr_frame = curr_frame % numFrames;
+						*currFrame = curr_frame % numFrames;
 					}
 					// Reset frame timer
-					*counter = TIME_PER_FRAME;
+					*counter = timePerFrame;
 				}
 				else {
-					curr_frame = registry.companions.has(entity) ? registry.companions.get(entity).curr_frame
-																 : registry.enemies.get(entity).curr_frame;
+					curr_frame = *currFrame;
+				}
+			}
+
+			// Handle the background layers and scrolling
+			if (registry.backgroundLayers.has(entity)) {
+				if (registry.backgroundLayers.get(entity).isAutoScroll) {
+					registry.backgroundLayers.get(entity).scrollX += AUTOSCROLL_RATE;
+					curr_frame = registry.backgroundLayers.get(entity).scrollX;
+					frame_width = 0.01;
+				}
+				else if (registry.backgroundLayers.get(entity).isCameraScrollOne && hasTravellingProjectile) {
+					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_ONE;
+					curr_frame = registry.backgroundLayers.get(entity).scrollX;
+					frame_width = 0.001;
+				}
+				else if (registry.backgroundLayers.get(entity).isCameraScrollTwo && hasTravellingProjectile) {
+					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_TWO;
+					curr_frame = registry.backgroundLayers.get(entity).scrollX;
+					frame_width = 0.001;
 				}
 
 			}
-			drawTexturedMesh(entity, projection_2D, curr_frame, frame_width);
+			// UI-related entities should remain in constant position on screen
+			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;
+
+			drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width);
 		}
 
 	}
@@ -413,5 +535,20 @@ mat3 RenderSystem::createProjectionMatrix()
 	float sy = 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
-	return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
+	return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx , ty, 1.f}};
+}
+
+mat3 RenderSystem::createCameraProjection(Motion& motion)
+{
+	float left = (motion.position.x - motion.scale.x / 2) - CAMERA_OFFSET_LEFT;
+	float top = (motion.position.y - motion.scale.y / 2) - CAMERA_OFFSET_TOP;
+
+	float right = (motion.position.x + motion.scale.x / 2) + CAMERA_OFFSET_RIGHT;
+	float bottom = (motion.position.y + motion.scale.y / 2) + CAMERA_OFFSET_BOTTOM;
+
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
+	return { {sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f} };
 }
