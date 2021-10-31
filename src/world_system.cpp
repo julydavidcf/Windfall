@@ -62,6 +62,12 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(fireball_explosion_sound);
 	if (death_enemy_sound != nullptr)
 		Mix_FreeChunk(death_enemy_sound);
+	if (fire_spell_sound != nullptr)
+		Mix_FreeChunk(fire_spell_sound);
+	if (rock_spell_sound != nullptr)
+		Mix_FreeChunk(rock_spell_sound);
+	if (heal_spell_sound != nullptr)
+		Mix_FreeChunk(heal_spell_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -140,15 +146,28 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
 	fireball_explosion_sound = Mix_LoadWAV(audio_path("fireball_explosion_short.wav").c_str());
 	death_enemy_sound = Mix_LoadWAV(audio_path("death_enemy.wav").c_str());
+	fire_spell_sound = Mix_LoadWAV(audio_path("fireball_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	rock_spell_sound = Mix_LoadWAV(audio_path("rock_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 
-	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr
-		|| hit_enemy_sound == nullptr || fireball_explosion_sound == nullptr || death_enemy_sound == nullptr) {
+	if (background_music == nullptr 
+		|| salmon_dead_sound == nullptr 
+		|| salmon_eat_sound == nullptr
+		|| hit_enemy_sound == nullptr 
+		|| fireball_explosion_sound == nullptr 
+		|| death_enemy_sound == nullptr
+		|| fire_spell_sound == nullptr 
+		|| rock_spell_sound == nullptr
+		|| heal_spell_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
 			audio_path("salmon_eat.wav").c_str(),
 			audio_path("hit_enemy.wav").c_str(),
 			audio_path("fireball_explosion_short.wav").c_str(),
+			audio_path("fireball_spell.wav").c_str(),
+			audio_path("rock_spell.wav").c_str(),
+			audio_path("heal_spell.wav").c_str(),
 			audio_path("death_enemy.wav").c_str());
 		return nullptr;
 	}
@@ -182,6 +201,7 @@ void WorldSystem::displayEnemyTurn() {
 }
 
 void WorldSystem::fireballAttack(Entity currPlayer) {
+	Mix_PlayChannel(-1, fire_spell_sound, 0); // added fire spell sound but doesnt work
 	Motion enemy = registry.motions.get(currPlayer);
 	if (!registry.deathTimers.has(currPlayer)) {
 		Entity resultEntity = createFireball(renderer, { enemy.position.x, enemy.position.y }, 3.14159, { -100, 0 }, 0);
@@ -651,6 +671,52 @@ public:
 	}
 };
 
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckSwordsmanTaunt : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckSwordsmanTaunt(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		: m_index(0) {
+		m_children[0] = c0;
+		m_children[1] = c1;
+	}
+
+	void init(Entity e) override
+	{
+		m_index = 0;	// set index to 0 to execute first child
+		// initialize the first child
+		const auto& child = m_children[m_index];
+		child->init(e);
+	}
+
+	BTState process(Entity e) override {
+		printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+		if (m_index >= 2)
+			return BTState::Success;
+
+		// process current child
+		BTState state = m_children[m_index]->process(e);
+
+		// select a new active child and initialize its internal state
+		if (state == BTState::Failure) {	// if child return success
+			++m_index;	// increment index
+			if (m_index >= 2) {	// check whether the second child is executed already
+				return BTState::Success;
+			}
+			else {
+				m_children[m_index]->init(e);	// initialize next child to run 
+				return BTState::Running;
+			}
+		}
+		else {
+			return state;
+		}
+	}
+};
+
 // A general decorator with lambda condition
 class BTIfPlayerSideDoNotHaveMageHardCoded : public BTNode
 {
@@ -1072,6 +1138,60 @@ private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
 };
 
+// A general decorator with lambda condition
+class BTIfSwordsmanNotTaunted : public BTNode
+{
+public:
+	BTIfSwordsmanNotTaunted(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if I am not taunted ... \n");	// print statement to visualize
+		// to implement checking of taunt
+		if (enemyTaunt == 0) {
+			printf("I am not taunted \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Failure;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfSwordsmanTaunted : public BTNode
+{
+public:
+	BTIfSwordsmanTaunted(BTNode* child)	// Has one child
+		: m_child(child) {
+	}
+
+	virtual void init(Entity e) override {
+		m_child->init(e);
+	}
+
+	virtual BTState process(Entity e) override {
+		printf("Checking if I am taunted ... \n");	// print statement to visualize
+		// to implement checking of taunt
+		if (enemyTaunt == 1) {
+			printf("I am indeed taunted \n");
+			return m_child->process(e);
+		}
+		else {
+			return BTState::Failure;
+		}
+	}
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
 class BTCastFireball : public BTNode {
 private:
 	void init(Entity e) override {
@@ -1279,34 +1399,37 @@ BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);				// done
 BTIfMageHPAboveHalf mageAboveHalf(&castHeal);					// done
 BTIfPlayerSideHasSwordsman haveSwordsman(&castRock);			// partial <- cast thunderbolt at swordsman specifically
 BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castFireball);	// done
+BTIfMagicianTauntedHardCoded isTaunted(&meleeAttack);			// to implement <- melee attack at magician specifically
+BTIfMagicianNotTauntedHardCoded notTaunted(&castTaunt);			// to implement <- cast taunt at magician specifically
 
 // Level 3 Nodes
 BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);		// run pair do not need any further implementation? can merge all run pairs later and test
 BTRunCheckSwordsman checkSwordsman(&haveSwordsman, &noSwordsman);	// run pair
+BTRunCheckTaunt checkTaunted(&isTaunted, &notTaunted);				// run pair
 
 // Conditional Sub-Tree for Level 2 Nodes
 BTIfOneLessThanHalf atLeastOne(&checkMageHP);						// done
 BTIfNoneLessThanHalf none(&checkSwordsman);							// done
-BTIfMagicianTauntedHardCoded isTaunted(&meleeAttack);				// to implement <- melee attack at magician specifically
-BTIfMagicianNotTauntedHardCoded notTaunted(&castTaunt);				// to implement <- cast taunt at magician specifically
-
-// Level 2 Nodes
-BTRunCheckEnemyHP checkHP(&none, &atLeastOne);			// run pair
-BTRunCheckTaunt checkTaunted(&isTaunted, &notTaunted);	// run pair
-
-// Conditionl Sub-Tree for Level 1 Nodes
-BTIfIAmNotTaunted nonTaunted(&checkHP);								// to implement
-BTIfIAmTaunted taunted(&checkSwordsman);							// to implement
 BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);				// done
 BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// done
 
+// Level 2 Nodes
+BTRunCheckEnemyHP checkHP(&none, &atLeastOne);			// run pair
+BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);	// run pair
+
+// Conditionl Sub-Tree for Level 1 Nodes
+BTIfIAmNotTaunted nonTaunted(&checkHP);		// to implement
+BTIfIAmTaunted taunted(&checkSwordsman);	// to implement
+BTIfSwordsmanNotTaunted swordsmanNotTaunted(&checkMage);
+BTIfSwordsmanTaunted swordsmanTaunted(&meleeAttack);
+
 // Level 1 Nodes
-BTRunCheckEnemyTaunt checkEnemyTaunt(&taunted, &nonTaunted);	// run pair
-BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);			// run pair
+BTRunCheckEnemyTaunt checkEnemyTaunt(&taunted, &nonTaunted);							// run pair
+BTRunCheckSwordsmanTaunt checkSwordsmanTaunt(&swordsmanNotTaunted, &swordsmanTaunted);	// run pair
 
 // Conditional Sub-Trees for Level 0
-BTIfEnemyIsMagician isMagician(&checkEnemyTaunt);	// done
-BTIfEnemyIsSwordsman isSwordsman(&checkMage);		// done
+BTIfEnemyIsMagician isMagician(&checkEnemyTaunt);		// done
+BTIfEnemyIsSwordsman isSwordsman(&checkSwordsmanTaunt);	// done
 
 // Level 0 Root Node
 BTRunCheckCharacter checkChar(&isMagician, &isSwordsman);	// run pair
@@ -1410,17 +1533,18 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				printf("Enemy is attacking\n");
 				Enemy& enemy = registry.enemies.get(attacker);
 				switch(attack.attack_type){
-					case ROCK: rockAttack(attack.target);
-						//checkRound(); // NEW
+					case ROCK: 
+						Mix_PlayChannel(-1, rock_spell_sound, 0); // added rock spell sound	
+						rockAttack(attack.target);
 						break;
-					case HEAL: healSkill(attack.target, 100);
-						//checkRound(); // NEW
+					case HEAL: 
+						Mix_PlayChannel(-1, heal_spell_sound, 0); // added rock spell sound 
+						healSkill(attack.target, 100);
 						break;
 					case MELEE: {
 								Motion& motion = registry.motions.get(attacker);
 								motion.position = attack.old_pos;
-								meleeSkill(attack.target); 
-								//checkRound(); // NEW
+								meleeSkill(attack.target);
 								break;
 								}
 					case TAUNT: {
@@ -1428,7 +1552,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 								Taunt* t = &registry.taunts.get(target);
 								t->duration = 3;
 								isTaunt = 1;
-								//checkRound(); // NEW
 								break;
 								}
 				}
