@@ -243,16 +243,22 @@ void WorldSystem::checkRound() {
 		printf("its %g player turn \n", float(registry.stats.get(toPlay).speed));
 		player_turn = 1;
 		currPlayer = toPlay;
+		//update skills display
+		showCorrectSkills();
 	}
 	else if (registry.enemies.has(toPlay) && registry.stats.get(toPlay).health > 0) {	// toPlay is enemy, put to currPlayer to pass for fireball
 		printf("its %g enemy turn \n", float(registry.stats.get(toPlay).speed));
 		player_turn = 0;
 		currPlayer = toPlay;
+		//update skills display
+		showCorrectSkills();
 	}
 	else {
 		printf("no player or enemy, checking round now \n");
 		prevPlayer = currPlayer;
 		checkRound();
+		//update skills display
+		showCorrectSkills();
 	}
 }
 
@@ -301,6 +307,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			}
 		}
 	}
+
 
 	//check taunt for enemy and companion
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
@@ -1228,4 +1235,53 @@ void WorldSystem::removeTaunt(Entity target) {
 bool WorldSystem::canUseSkill(Entity user, int skill) {
 	Statistics pStat = registry.stats.get(user);
 	return skill_character_aviability[pStat.classID][skill];
+}
+
+
+// helper that shows the correct skills based on current player
+void WorldSystem::showCorrectSkills() {
+	if (currPlayer != NULL && registry.companions.has(currPlayer)) {
+		Statistics pStat = registry.stats.get(currPlayer);
+		if (!skill_character_aviability[pStat.classID][0] ) {
+			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
+		}
+		else {
+			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
+		}
+
+		if (!skill_character_aviability[pStat.classID][1]) {
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONSELECTED;
+		}
+		else {
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+		}
+
+		if (!skill_character_aviability[pStat.classID][2]) {
+			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONSELECTED;
+		}
+		else {
+			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
+		}
+
+		if (!skill_character_aviability[pStat.classID][3]) {
+			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONSELECTED;
+		}
+		else {
+			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
+		}
+
+		if (!skill_character_aviability[pStat.classID][4]) {
+			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONSELECTED;
+		}
+		else {
+			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+		}
+
+		if (!skill_character_aviability[pStat.classID][5]) {
+			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICONSELECTED;
+		}
+		else {
+			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
+		}
+	}
 }

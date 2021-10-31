@@ -96,6 +96,7 @@ private:
 	void WorldSystem::damageTarget(Entity target, float amount);
 
 	bool WorldSystem::canUseSkill(Entity user, int skill);
+	void WorldSystem::showCorrectSkills();
 
 	// Game state
 	RenderSystem* renderer;
