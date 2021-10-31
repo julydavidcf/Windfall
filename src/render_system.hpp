@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "components.hpp"
 #include "tiny_ecs.hpp"
+#include <map>
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
@@ -132,6 +133,14 @@ class RenderSystem {
 	float CAMERA_SCROLL_RATE_TWO = 3.0;
 
 public:
+
+	const float DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS = 6000.f;
+	bool transitioningToNextLevel = false;
+	float nextLevelTranistionPeriod_ms = DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS;
+	float dimScreenFactor = 0.4f;
+	float fogFactor = 0.2;
+	std::map<int, int> deferredRenderingEntities = {};
+	int gameLevel = 1;
 
 	// Initialize the window
 	bool init(int width, int height, GLFWwindow* window);

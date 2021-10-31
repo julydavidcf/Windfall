@@ -43,7 +43,7 @@ Entity selectedButton;
 Entity currentProjectile;
 
 WorldSystem::WorldSystem()
-	: points(0) {
+	: points(0), gameLevel(1) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -1286,6 +1286,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
 
+	if (renderer->transitioningToNextLevel) {
+		renderer->nextLevelTranistionPeriod_ms -= elapsed_ms_since_last_update;
+		if (renderer->nextLevelTranistionPeriod_ms <= 0.) {
+			renderer->transitioningToNextLevel = false;
+			renderer->nextLevelTranistionPeriod_ms = renderer->DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS;
+		}
+	}
+
 	// restart game if enemies or companions are 0
 	if (registry.enemies.size() <= 0 || registry.companions.size() <= 0) {
 		restart_game();
@@ -1552,6 +1560,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
+
+	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
+		gameLevel++;
+		renderer->transitioningToNextLevel = true;
+		renderer->gameLevel = gameLevel;
+	}
+	if (gameLevel > MAX_GAME_LEVELS) {
+		gameLevel = 1;
+		renderer->gameLevel = gameLevel;
+	}
+
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 	printf("Restarting\n");
@@ -1591,15 +1610,18 @@ void WorldSystem::restart_game() {
 	// Create an enemy mage
 	enemy_mage = createEnemyMage(renderer, { 1050, 575 });
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
-	// Create an enemy swordsman
-	enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
-	registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+	
+	if (gameLevel > 1) {
+		// Create an enemy swordsman
+		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
+		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+
+	}
 	// Create the necromancer
 	// necromancer = createNecromancer(renderer, { 1100, 400 }); // remove for now
 	// Create the fireball icon
 	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 	silence_icon = createSilenceIcon(renderer, { 800, 700 });;
-
 }
 
 

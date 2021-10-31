@@ -140,4 +140,7 @@ private:
 	//skill constants
 	float FIREBALLSPEED = 100.f;
 	float ARROWSPEED = 700.f;
+
+	int16 gameLevel;
+	const int16 MAX_GAME_LEVELS = 2;
 };

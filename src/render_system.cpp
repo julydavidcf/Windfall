@@ -260,6 +260,24 @@ void RenderSystem::drawToScreen()
 	glUniform1f(resoltion_x_loc, (float)w);
 	glUniform1f(resoltion_y_loc, (float)h);
 
+	glUniform1i(glGetUniformLocation(water_program, "gameLevel"), gameLevel);
+
+	if (transitioningToNextLevel) {
+		glUniform1i(glGetUniformLocation(water_program, "nextLevelTransition"), true);
+		glUniform1f(glGetUniformLocation(water_program, "dimScreenFactor"), dimScreenFactor);
+		glUniform1f(glGetUniformLocation(water_program, "fogFactor"), fogFactor);
+		if (dimScreenFactor >= -0.1) {
+			dimScreenFactor -= 0.02;
+		}
+		if (dimScreenFactor <= 0) {
+			fogFactor += 0.01;
+		}
+	} else {
+		dimScreenFactor = 1.f;
+		fogFactor = 0.3;
+		glUniform1i(glGetUniformLocation(water_program, "nextLevelTransition"), false);
+	}
+
 	for (int i = 0; i < lightBallsXcoords.size(); i++) {
 		std::string s1("thingie.xCoordinates[");
 		std::string s2("thingie.yCoordinates[");
@@ -525,7 +543,16 @@ void RenderSystem::draw(float elapsed_ms)
 			// UI-related entities should remain in constant position on screen
 			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;
 
-			drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width);
+			if (registry.enemies.has(entity)) {
+				deferredRenderingEntities.emplace(registry.enemies.get(entity).healthbar, entity);
+			}
+			if (transitioningToNextLevel && registry.enemies.has(entity)) {
+				// delay rendering of enemies when transitioning to next level
+			} else if (transitioningToNextLevel && deferredRenderingEntities.count(entity) > 0) {
+				// delay rendering of enemy healthbar when transitioning to next level
+			} else {
+				drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width);
+			}
 		}
 
 	}

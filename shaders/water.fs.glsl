@@ -5,7 +5,11 @@ uniform float time;
 uniform float darken_screen_factor;
 uniform float resolutionX;
 uniform float resolutionY;
-
+uniform bool nextLevelTransition;
+uniform int gamesLevel;
+uniform float dimScreenFactor;
+uniform float fogFactor;
+uniform int gameLevel;
 in vec2 texcoord;
 
 layout(location = 0) out vec4 color;
@@ -83,9 +87,19 @@ void main()
     vec3 col =vec3(fbm(uv,5.,1.));
     vec3 col2 = col + vec3(fbm(uv, 3., 2.4));
     vec3 col3 = col2 + vec3(fbm(uv, 1., 3.4));
-    outPut = vec3(col*0.2);
-    // outPut = vec3(col*0.2 * vec3(0.4, 0.4, 1.3));
-	// outPut = vec3(col*0.3 * vec3(sin(.3 + time*0.3),sin(.3 + time * 0.3),sin(1. + time * 0.3)));
+    if (gameLevel == 1) {
+        outPut = vec3(col*0.2);
+    }
+    if (gameLevel == 2){
+        outPut = vec3(col*0.25 * vec3(0.2, 0.4, 1.5));
+        // outPut = vec3(col*0.5 * vec3(0.5, 0.1, 0.7));
+    }
+    if (nextLevelTransition) {
+         outPut = vec3(col * fogFactor * vec3(dimScreenFactor));
+        // outPut = vec3(col*0.3 * vec3(sin(.3 + time*0.7), sin(.3 + time * 0.7), sin(1. + time * 0.7)));
+        // outPut += vec3(sin(.3 + time*0.5), sin(.3 + time * 0.5), sin(1. + time * 0.5));
+        // outPut += vec3(col*0.1 * vec3(0.2, 0.4, 1.5));
+    } 
     color += vec4(outPut, 1.);
       
 
