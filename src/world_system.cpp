@@ -1079,6 +1079,17 @@ private:
 	BTState process(Entity e) override {
 		printf("Shoot fireball \n\n");	// print statement to visualize
 		worldSystem.fireballAttack(currPlayer);
+
+		Enemy& enemy = registry.enemies.get(e);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(e);
+		attack.attack_type = FIREBALL;
+		attack.target = target;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms + 100.f;
+		}
 		// return progress
 		return BTState::Success;
 	}
@@ -1101,6 +1112,11 @@ private:
 		attack.attack_type = TAUNT;
 		attack.target = target;
 		attack.counter_ms = 1500.f;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + 100.f;
+		}
 		printf("Cast Taunt \n\n");	// print statement to visualize
 
 		// return progress
@@ -1146,6 +1162,11 @@ private:
 		// Calculate the timer
 		float time = (enemy_motion.position.x - rt.target_position.x)/speed;
 		rt.counter_ms = time*1000;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = rt.counter_ms + 1500.f + 100.f;
+		}
 		
 		printf("Melee Attack \n\n");	// print statement to visualize
 
@@ -1171,6 +1192,11 @@ private:
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = ROCK;
 		attack.target = target;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + 100.f;
+		}
 		printf("Cast Rock \n\n");	// print statement to visualize
 
 		// return progress
@@ -1195,6 +1221,11 @@ private:
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = HEAL;
 		attack.target = target;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + 100.f;
+		}
 		printf("Cast Heal \n\n");	// print statement to visualize
 
 		// return progress
@@ -1219,6 +1250,11 @@ private:
 		Attack& attack = registry.attackers.emplace(e);
 		attack.attack_type = HEAL;
 		attack.target = target;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + 100.f;
+		}
 		printf("Cast Heal On Self \n\n");	// print statement to visualize
 
 		// return progress
@@ -1423,9 +1459,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					// temporaryFireball(currPlayer);
 					printf("enemy has attacked, checkRound now \n");
-					if (!registry.checkRoundTimer.has(currPlayer)) {
-						registry.checkRoundTimer.emplace(currPlayer);
-					}
 					// checkRound();
 				}
 			}
@@ -1446,9 +1479,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						}
 						// temporaryFireball(currPlayer);
 						printf("enemy has attacked, checkRound now \n");
-						if (!registry.checkRoundTimer.has(currPlayer)) {
-							registry.checkRoundTimer.emplace(currPlayer);
-						}
 						// checkRound();
 					}
 				}
@@ -1639,7 +1669,13 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 			Motion& motion = registry.motions.get(healthbar);
 			if (registry.stats.get(currPlayer).health <= 0) {	// check if HP of currPlayer is 0, checkRound to skip this player
 				if (!registry.deathTimers.has(other_entity)) {
-					registry.deathTimers.emplace(other_entity);
+					auto& deathTimer = registry.deathTimers.emplace(other_entity);
+
+					if (!registry.checkRoundTimer.has(currPlayer)) {
+						auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+						timer.counter_ms = deathTimer.counter_ms + 50.f;
+					}
+
 					if(registry.companions.has(other_entity)){
 						printf("Companion is dead\n");
 						Companion& companion = registry.companions.get(other_entity);
@@ -1656,7 +1692,13 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 			else {
 				if (hp->health <= 0) {
 					if (!registry.deathTimers.has(other_entity)) {
-						registry.deathTimers.emplace(other_entity);
+						auto& deathTimer = registry.deathTimers.emplace(other_entity);
+
+						if (!registry.checkRoundTimer.has(currPlayer)) {
+							auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+							timer.counter_ms = deathTimer.counter_ms + 50.f;
+						}
+
 						if(registry.companions.has(other_entity)){
 							printf("Companion is dead\n");
 							Companion& companion = registry.companions.get(other_entity);
@@ -1905,9 +1947,6 @@ void WorldSystem::handle_collisions() {
 										}
 										// temporaryFireball(currPlayer);
 										printf("enemy has attacked, checkRound now \n");
-										if (!registry.checkRoundTimer.has(currPlayer)) {
-											registry.checkRoundTimer.emplace(currPlayer);
-										}
 										// checkRound();
 									}
 									else {
@@ -2014,9 +2053,6 @@ void WorldSystem::handle_boundary_collision() {
 						}
 						// temporaryFireball(currPlayer);
 						printf("enemy has attacked, checkRound now \n");
-						if (!registry.checkRoundTimer.has(currPlayer)) {
-							registry.checkRoundTimer.emplace(currPlayer);
-						}
 						// checkRound();
 					}
 					else {
@@ -2054,7 +2090,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
-		launchRock(player_mage);
+		launchRock(player_swordsman);
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_T) {
