@@ -288,6 +288,7 @@ void WorldSystem::tauntSkill(Entity target) {
 }
 
 void WorldSystem::startTauntAttack(Entity origin, Entity target){
+	printf("here \n");
 	Mix_PlayChannel(-1, taunt_spell_sound, 0);
 	if(registry.enemies.has(origin)){
 		Enemy& enemy = registry.enemies.get(origin);
@@ -2050,9 +2051,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// this area is to check for edge cases for enemy to attack during their turn
 	if (player_turn == 0) {
+		printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
+		printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
+
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			displayEnemyTurn();
-			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected character has died so as to progress to an enemy's
+			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected companion character has died so as to progress to an enemy's
 				if (registry.stats.get(prevPlayer).health <= 0 || playerUseMelee == 1) {	// Second case: (Brute force) playerUseMelee checks if the previous player used melee attack
 					checkPlayersDead.init(currPlayer);
 					for (int i = 0; i < 100; i++) {
@@ -2077,6 +2081,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 							if (state == BTState::Success) {	// break out of for loop when all branches checked
 								break;
 							}
+						}
+					}
+				}
+				if (registry.stats.get(prevPlayer).health <= 0) {	// Checks if selected enemy character has died so as to progress to an enemy's TO TEST
+					checkPlayersDead.init(currPlayer);
+					for (int i = 0; i < 100; i++) {
+						BTState state = checkPlayersDead.process(currPlayer);
+						if (state == BTState::Success) {	// break out of for loop when all branches checked
+							break;
 						}
 					}
 				}
@@ -2295,6 +2308,8 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 				if (!registry.deathTimers.has(other_entity)) {
 					auto& deathTimer = registry.deathTimers.emplace(other_entity);
 
+					prevPlayer = currPlayer;	// needed to allow checking of the edge case where the enemy dies and the next enemy goes
+
 					if (!registry.checkRoundTimer.has(currPlayer)) {
 						auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 						timer.counter_ms = deathTimer.counter_ms + animation_timer;
@@ -2316,6 +2331,8 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 				if (hp->health <= 0) {
 					if (!registry.deathTimers.has(other_entity)) {
 						auto& deathTimer = registry.deathTimers.emplace(other_entity);
+
+						prevPlayer = currPlayer;	// needed to allow checking of the edge case where the enemy dies and the next enemy goes
 
 						if (!registry.checkRoundTimer.has(currPlayer)) {
 							auto& timer = registry.checkRoundTimer.emplace(currPlayer);
