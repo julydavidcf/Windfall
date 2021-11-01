@@ -849,7 +849,65 @@ Entity createPebble(vec2 pos, vec2 size)
 
 	return entity;
 }
+Entity createRestartIndicator(RenderSystem* renderer, vec2 position){
+	auto entity = Entity();
 
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { 400, 40 };
+
+	// Create and (empty) Salmon component to be able to refer to all turtles
+	registry.restartIndicator.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::RESTARTINDICATOR, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createIndicators(RenderSystem* renderer, vec2 position, std::string type) {
+	auto entity = Entity();
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { 400, 40 };
+
+	if (type == "VICTORY") {
+		registry.indicators.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::VICTORY, // TEXTURE_COUNT indicates that no txture is needed
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "DEFEATED") {
+		registry.indicators.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::DEFEATED, // TEXTURE_COUNT indicates that no txture is needed
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "LOADLVTWO") {
+		registry.indicators.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::LOADINGTOLEVELTWO, // TEXTURE_COUNT indicates that no txture is needed
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+
+
+	return entity;
+}
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
 	auto entity = Entity();
 

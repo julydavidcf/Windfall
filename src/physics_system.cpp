@@ -139,10 +139,12 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 	for (uint i = 0; i < statsid_container.components.size(); i++)
 	{
 		Motion* motion_i = &registry.motions.get(statsid_container.entities[i]);
-		Motion motion_o = registry.motions.get(statsid_container.components[i].owner);
-		motion_i->position.x = motion_o.position.x + 20;
-		motion_i->position.y = motion_o.position.y - 50 ;
 
+		if (registry.motions.has(statsid_container.components[i].owner)) {
+			Motion motion_o = registry.motions.get(statsid_container.components[i].owner);
+			motion_i->position.x = motion_o.position.x + 20;
+			motion_i->position.y = motion_o.position.y - 50;
+		}
 	}
 
 	// Check for collisions between all moving entities

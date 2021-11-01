@@ -38,6 +38,8 @@ public:
 	ComponentContainer<StatIndicator> statsindicators;
 	ComponentContainer<CheckRoundTimer> checkRoundTimer;
 	ComponentContainer<toolTip> toolTip;
+	ComponentContainer<RestartIndicator> restartIndicator;
+	ComponentContainer<Indicators> indicators;
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -67,6 +69,8 @@ public:
 		registry_list.push_back(&checkRoundTimer);
 		registry_list.push_back(&statsindicators);
 		registry_list.push_back(&toolTip);
+		registry_list.push_back(&restartIndicator);
+		registry_list.push_back(&indicators);
 	}
 
 	void clear_all_components() {

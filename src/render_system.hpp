@@ -83,7 +83,15 @@ class RenderSystem {
 			textures_path("rockToolTip.png"),
 			textures_path("meleeToolTip.png"),
 			textures_path("tauntToolTip.png"),
-			textures_path("healToolTip.png")
+			textures_path("healToolTip.png"),
+
+			// restart
+			textures_path("restartIndicator.png"),
+
+			// indicators
+			textures_path("Victory.png"),
+			textures_path("Defeated.png"),
+			textures_path("loadingToLevelTwo.png")
   };
   
 	std::array<GLuint, effect_count> effects;

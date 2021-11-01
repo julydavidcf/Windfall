@@ -28,7 +28,7 @@ enum AttackType {
 	FIREBALL 	= 3,
 	ROCK 		= 4,
 	HEAL		= 5,
-	ICESHARD    = 6
+	ICESHARD    = 6,
 };
 
 // Health bar entity
@@ -259,7 +259,15 @@ struct toolTip
 {
 
 };
+struct RestartIndicator
+{
 
+};
+
+struct Indicators
+{
+
+};
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -338,15 +346,21 @@ enum class TEXTURE_ASSET_ID {
 	BACKGROUNDLAYERTWO = BACKGROUNDLAYERONE + 1,
 	BACKGROUNDLAYERTHREE = BACKGROUNDLAYERTWO + 1,
 	BACKGROUNDLAYERFOUR = BACKGROUNDLAYERTHREE + 1,
-	//------- iconToolTips -------------
+	//------- IconToolTips -------------
 	FIREBALLTOOLTIP = BACKGROUNDLAYERFOUR + 1,
 	ICESHARDTOOLTIP = FIREBALLTOOLTIP + 1,
 	ROCKTOOLTIP = ICESHARDTOOLTIP + 1,
 	MELEETOOLTIP = ROCKTOOLTIP + 1,
 	TAUNTTOOLTIP = MELEETOOLTIP + 1,
 	HEALTOOLTIP = TAUNTTOOLTIP + 1,
-	// --------------------------
-	TEXTURE_COUNT = HEALTOOLTIP + 1
+	// ------------ Indicators --------------
+	RESTARTINDICATOR = HEALTOOLTIP + 1,
+	VICTORY = RESTARTINDICATOR + 1,
+	DEFEATED = VICTORY + 1,
+	LOADINGTOLEVELTWO = DEFEATED + 1,
+
+	//------------------------
+	TEXTURE_COUNT = LOADINGTOLEVELTWO + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
