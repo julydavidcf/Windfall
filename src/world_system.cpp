@@ -1884,6 +1884,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 
+
 	//check taunt for enemy and companion
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.enemies.entities[i])) {
@@ -1897,6 +1898,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if (registry.taunts.get(registry.companions.entities[i]).duration <= 0) {
 				removeTaunt(registry.companions.entities[i]);
 			}
+		}
+	}
+	// maintain correct health
+	for (int i = (int)registry.stats.components.size() - 1; i >= 0; --i) {
+		if (registry.stats.components[i].health > registry.stats.components[i].max_health) {
+			Statistics* stat = &registry.stats.components[i];
+			stat->health = stat->max_health;
+			update_healthBars();
 		}
 	}
 
@@ -2011,7 +2020,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						case HEAL: {
 							        Mix_PlayChannel(-1, heal_spell_sound, 0);
 									printf("heal attack enemy\n");
-									healSkill(attack.target, 100); 
+									healSkill(attack.target, 30); 
 									break;
 									}
 						case MELEE: {
@@ -2428,6 +2437,7 @@ void WorldSystem::handle_collisions() {
 							update_health(entity_other, entity);
 							registry.remove_all_components_of(entity_other);
 							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							showCorrectSkills();
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
@@ -2641,6 +2651,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 		if (player_turn == 1) {
 			// displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
+
 				//iceshard
 				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)
 					&& canUseSkill(currPlayer, 0)) {
@@ -3149,42 +3160,42 @@ bool WorldSystem::canUseSkill(Entity user, int skill) {
 void WorldSystem::showCorrectSkills() {
 	if (currPlayer != NULL && registry.companions.has(currPlayer)) {
 		Statistics pStat = registry.stats.get(currPlayer);
-		if (!skill_character_aviability[pStat.classID][0] ) {
+		if (!skill_character_aviability[pStat.classID][0] || pStat.health<0) {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][1]) {
+		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0) {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][2]) {
+		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0) {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][3]) {
+		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0) {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][4]) {
+		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0) {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][5]) {
+		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0) {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICONDISABLED;
 		}
 		else {
