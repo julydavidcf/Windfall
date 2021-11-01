@@ -2280,7 +2280,7 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 						enemy.curr_anim_type = DEAD;
 					}
 				}
-				motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
+				motion.scale = vec2({ (HEALTHBAR_WIDTH * (0.f / 100.f)), HEALTHBAR_HEIGHT });
 			}
 			else {
 				if (hp->health <= 0) {
@@ -2302,7 +2302,7 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 							enemy.curr_anim_type = DEAD;
 						}
 					}
-					motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
+					motion.scale = vec2({ (HEALTHBAR_WIDTH * (0.f / 100.f)), HEALTHBAR_HEIGHT });
 				}
 				else {
 					motion.scale = vec2({ (HEALTHBAR_WIDTH * (hp->health / 100.f)), HEALTHBAR_HEIGHT });
