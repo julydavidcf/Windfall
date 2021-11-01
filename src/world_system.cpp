@@ -27,6 +27,7 @@ Entity target;
 Entity prevPlayer;
 
 int playersDead = 0;
+int playerUseMelee = 0;
 
 vec2 msPos = vec2(0, 0);
 bool is_ms_clicked = false;
@@ -182,7 +183,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
 	
 	// Playing background music indefinitely (Later)
-	Mix_VolumeMusic(16);	// adjust volume from 0 to 128
+	Mix_VolumeMusic(8);	// adjust volume from 0 to 128
 	Mix_PlayMusic(background_music, -1);
 
 	fprintf(stderr, "Loaded music\n");
@@ -325,10 +326,8 @@ void WorldSystem::startHealAttack(Entity origin, Entity target){
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
 		}
-
 	}
 }
-
 
 void WorldSystem::startIceShardAttack(Entity origin, Entity target){
 	printf("Started the ice shard attack\n");
@@ -354,10 +353,8 @@ void WorldSystem::startIceShardAttack(Entity origin, Entity target){
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
 		}
-
 	}
 }
-
 
 void WorldSystem::startFireballAttack(Entity origin){
 	if(registry.enemies.has(origin)){
@@ -438,6 +435,8 @@ void WorldSystem::startMeleeAttack(Entity origin, Entity target){
 			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
 		}
 
+		playerUseMelee = 1;
+
 	} else if(registry.companions.has(origin)){
 		Companion& companion = registry.companions.get(origin);
 		companion.curr_anim_type = WALKING;
@@ -472,13 +471,12 @@ void WorldSystem::startMeleeAttack(Entity origin, Entity target){
 			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
 		}
 
+		playerUseMelee = 1;
 	}
 }
 
 std::vector<Entity> roundVec;
 void WorldSystem::createRound() {
-
-
 
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// iterate through all enemies to get speed stats
@@ -528,8 +526,6 @@ void WorldSystem::createRound() {
 	for (int i = 0; i < roundVec.size(); i++) {
 		printf("%g \n", float(registry.stats.get(roundVec[i]).speed));
 	}
-
-
 }
 
 void WorldSystem::checkRound() {
@@ -565,7 +561,9 @@ void WorldSystem::checkRound() {
 		//update skills display
 		showCorrectSkills();
 	}
+
 	printf("finished check round \n");
+	printf("playerUseMelee is %g \n", float(playerUseMelee));
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -2020,12 +2018,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		prevPlayer = currPlayer;
 
 	}
-	// this area is to check for edge cases to allow for enemies to hit twice if the round allows it
+
+	// this area is to check for edge cases for enemy to attack during their turn
 	if (player_turn == 0) {
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			displayEnemyTurn();
-			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if selected character has died so as to progress to an enemy's
-				if (registry.stats.get(prevPlayer).health <= 0) {
+			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected character has died so as to progress to an enemy's
+				if (registry.stats.get(prevPlayer).health <= 0 || playerUseMelee == 1) {	// Second case: (Brute force) playerUseMelee checks if the previous player used melee attack
 					checkPlayersDead.init(currPlayer);
 					for (int i = 0; i < 100; i++) {
 						BTState state = checkPlayersDead.process(currPlayer);
@@ -2146,6 +2145,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// check round once the timer expired
 		if (timerCounter.counter_ms < 0) {
 			registry.checkRoundTimer.remove(entity);
+			printf("check round timer finished, checking round now \n");
 			checkRound();
 			return true;
 		}
@@ -2456,7 +2456,7 @@ void WorldSystem::handle_collisions() {
 											}
 										}
 										// temporaryFireball(currPlayer);
-										printf("enemy has attacked, checkRound now \n");
+										// printf("enemy has attacked, checkRound now \n");
 										// checkRound();
 									}
 									else {
@@ -2607,7 +2607,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 				//fireball
 				else if (inButton(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)
 					&& canUseSkill(currPlayer, 1)) {
-					   if (selected_skill == -1) {
+					if (selected_skill == -1) {
 						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONSELECTED;
 						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 						selected_skill = 1;
@@ -2696,9 +2696,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						//active this when ai is done
 						//deselectButton();
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
-						printf("player has attacked, checkRound now \n");
 
-						checkRound();
+						//printf("player has attacked, checkRound now \n"); // REMOVE FIRST
+						//checkRound();
+						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
 					//fireball
 					if (selected_skill == 1) {
@@ -2706,8 +2707,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 						selected_skill = -1;
 
 						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
-						printf("player has attacked, checkRound now \n");
-						checkRound();
+						
+						//printf("player has attacked, checkRound now \n"); // REMOVE FIRST
+						//checkRound();
+						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
 					//rock
 					if (selected_skill == 2) {
@@ -2722,8 +2725,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 								selected_skill = -1;
 
 								registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
-								printf("player has attacked, checkRound now \n");
-								checkRound();
+								
+								//printf("player has attacked, checkRound now \n");	// REMOVE FIRST
+								//checkRound();
+								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 							}
 						}
 					}
@@ -2749,8 +2754,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 								selected_skill = -1;
 
 								registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
-								printf("player has attacked, checkRound now \n");
-								checkRound();
+
+								//printf("player has attacked, checkRound now \n");	// REMOVE FIRST
+								//checkRound();
+								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 							}
 						}
 					}
@@ -2767,8 +2774,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 								selected_skill = -1;
 
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
-								printf("player has attacked, checkRound now \n");
-								checkRound();
+								
+								//printf("player has attacked, checkRound now \n");	// REMOVE FIRST
+								//checkRound();
+								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 							}
 						}
 					}
@@ -2794,8 +2803,9 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 								selected_skill = -1;
 
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
-								printf("player has attacked, checkRound now \n");
-								checkRound();
+
+								//printf("player has attacked, checkRound now \n");	// REMOVE FIRST
+								//checkRound();
 							}
 						}
 					}
