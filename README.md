@@ -53,3 +53,6 @@ The game is now a turn-based RPG, where the player can choose to use different a
 5. https://www.coolgenerator.com/png-text-generator
 6. https://free-game-assets.itch.io/free-cartoon-forest-2d-backgrounds
 7. https://oco.itch.io/medieval-fantasy-character-pack-2
+8. https://www.pngwing.com/en/free-png-zxihk
+9. https://www.pikpng.com/pngvi/JhRJw_anime-angry-face-png-anime-angry-vein-png/
+10.https://dribbble.com/shots/4325775-Shard-of-ice
