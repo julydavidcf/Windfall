@@ -434,6 +434,7 @@ void WorldSystem::startMeleeAttack(Entity origin, Entity target){
 
 		// Change enemy's velocity
 		float speed = 550.f;
+
 		enemy_motion.velocity = {-speed,0.f};
 		Motion& healthBar = registry.motions.get(enemy.healthbar);
 		healthBar.velocity = enemy_motion.velocity;
@@ -470,6 +471,7 @@ void WorldSystem::startMeleeAttack(Entity origin, Entity target){
 
 		// Change companion's velocity
 		float speed = 550.f;
+
 		companion_motion.velocity = {speed,0.f};
 		Motion& healthBar = registry.motions.get(companion.healthbar);
 		healthBar.velocity = companion_motion.velocity;
@@ -2304,7 +2306,7 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 						enemy.curr_anim_type = DEAD;
 					}
 				}
-				motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
+				motion.scale = vec2({ (HEALTHBAR_WIDTH * (0.f / 100.f)), HEALTHBAR_HEIGHT });
 			}
 			else {
 				if (hp->health <= 0) {
@@ -2326,7 +2328,7 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 							enemy.curr_anim_type = DEAD;
 						}
 					}
-					motion.scale = vec2({ (HEALTHBAR_WIDTH * (99.f / 100.f)), HEALTHBAR_HEIGHT });
+					motion.scale = vec2({ (HEALTHBAR_WIDTH * (0.f / 100.f)), HEALTHBAR_HEIGHT });
 				}
 				else {
 					motion.scale = vec2({ (HEALTHBAR_WIDTH * (hp->health / 100.f)), HEALTHBAR_HEIGHT });
