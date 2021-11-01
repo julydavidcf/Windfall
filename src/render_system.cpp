@@ -350,12 +350,12 @@ void RenderSystem::draw(float elapsed_ms)
 			hasTravellingProjectile = 1;
 			projectionMat = createCameraProjection(motion);
 		}
-		//else if (registry.runners.has(entity) 
-		//	|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
-		//	|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
-		//	Motion& motion = registry.motions.get(entity);
-		//	projectionMat = createCameraProjection(motion);
-		//}
+		else if (registry.runners.has(entity) 
+			|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
+			|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+			Motion& motion = registry.motions.get(entity);
+			projectionMat = createCameraProjection(motion);
+		}
 	}
 
 	// Draw all textured meshes that have a position and size component

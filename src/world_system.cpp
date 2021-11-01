@@ -1930,6 +1930,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						case FIREBALL: {
 										printf("Fireball attack companion\n");
 										currentProjectile = launchFireball(companion_motion.position, attack.old_pos); 
+										Projectile* proj = &registry.projectiles.get(currentProjectile);
+										proj->flyingTimer = 2000.f;
 										break;
 										}
 						case TAUNT: {
