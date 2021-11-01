@@ -250,8 +250,14 @@ void WorldSystem::healSkill(Entity target, float amount) {
 
 void WorldSystem::meleeSkill(Entity target) {
 	if(!registry.deathTimers.has(target)){
+		printf("creating a melee skill\n");
 		Motion enemy = registry.motions.get(target);
-		Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 0);
+		if(registry.companions.has(target)){
+			Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 0);
+		} else {
+			Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 1);
+		}
+		
 	}
 }
 
@@ -1748,10 +1754,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						case MELEE: {
 									//launchMelee(attacker,attack.target);
 									//basiclly to have something hitting the boundary
-									currentProjectile = launchFireball({ -20,-20 });
-									Motion* projm = &registry.motions.get(currentProjectile);
-									projm->velocity = { -100,0 };
-									projm->acceleration = { -100,0 };
 									Motion& motion = registry.motions.get(attacker);
 									motion.position = attack.old_pos;
 									Motion& healthbar_motion = registry.motions.get(companion.healthbar);
