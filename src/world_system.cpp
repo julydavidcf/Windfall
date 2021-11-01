@@ -41,6 +41,7 @@ int SILENCESELECTED = 0;
 
 int selected_skill = -1;
 
+int hover_skill = -1;
 //selected button
 Entity selectedButton;
 
@@ -2049,9 +2050,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// this area is to check for edge cases for enemy to attack during their turn
 	if (player_turn == 0) {
+		printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
+		printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
+
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			displayEnemyTurn();
-			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected character has died so as to progress to an enemy's
+			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected companion character has died so as to progress to an enemy's
 				if (registry.stats.get(prevPlayer).health <= 0 || playerUseMelee == 1) {	// Second case: (Brute force) playerUseMelee checks if the previous player used melee attack
 					checkPlayersDead.init(currPlayer);
 					for (int i = 0; i < 100; i++) {
@@ -2076,6 +2080,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 							if (state == BTState::Success) {	// break out of for loop when all branches checked
 								break;
 							}
+						}
+					}
+				}
+				if (registry.stats.get(prevPlayer).health <= 0) {	// Checks if selected enemy character has died so as to progress to an enemy's TO TEST
+					checkPlayersDead.init(currPlayer);
+					for (int i = 0; i < 100; i++) {
+						BTState state = checkPlayersDead.process(currPlayer);
+						if (state == BTState::Success) {	// break out of for loop when all branches checked
+							break;
 						}
 					}
 				}
@@ -2260,6 +2273,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	fireBall_icon = createFireballIcon(renderer, { 700, 700 });
 	rock_icon = createRockIcon(renderer, { 800, 700 });
 
+	//Create a tooltip
+	tooltip;
+
 	displayPlayerTurn();	// display player turn when restart game
 }
 
@@ -2291,6 +2307,8 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 				if (!registry.deathTimers.has(other_entity)) {
 					auto& deathTimer = registry.deathTimers.emplace(other_entity);
 
+					prevPlayer = currPlayer;	// needed to allow checking of the edge case where the enemy dies and the next enemy goes
+
 					if (!registry.checkRoundTimer.has(currPlayer)) {
 						auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 						timer.counter_ms = deathTimer.counter_ms + animation_timer;
@@ -2312,6 +2330,8 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 				if (hp->health <= 0) {
 					if (!registry.deathTimers.has(other_entity)) {
 						auto& deathTimer = registry.deathTimers.emplace(other_entity);
+
+						prevPlayer = currPlayer;	// needed to allow checking of the edge case where the enemy dies and the next enemy goes
 
 						if (!registry.checkRoundTimer.has(currPlayer)) {
 							auto& timer = registry.checkRoundTimer.emplace(currPlayer);
@@ -2851,9 +2871,73 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 		}
 	}		
 }
+vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float width, float height) {
+	vec2 placePos;
+	if (mouse_position.x <= icon_position.x && mouse_position.y >= icon_position.y) {
+		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
+	}
+	else if (mouse_position.x <= icon_position.x && mouse_position.y <= icon_position.y) {
+		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
+	}
+	else if (mouse_position.x >= icon_position.x && mouse_position.y >= icon_position.y) {
+		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
+	}
+	else if (mouse_position.x >= icon_position.x && mouse_position.y <= icon_position.y) {
+		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
+	}
+
+	return placePos;
+}
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
+		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT), "IS");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT), "RK");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT), "HL");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "TT");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
+			}
+		}
+		else {
+			registry.renderRequests.remove(tooltip);
+			registry.toolTip.clear();
+		}
+}
+
+bool WorldSystem::mouseInArea(vec2 buttonPos, float buttonX, float buttonY) {
+	float left_bound = buttonPos.x - (buttonX / 2);
+	float right_bound = buttonPos.x + (buttonX / 2);
+	float upper_bound = buttonPos.y - (buttonY / 2);
+	float lower_bound = buttonPos.y + (buttonY / 2);
+	if ((left_bound <= msPos.x) && (msPos.x <= right_bound)) {
+		if ((upper_bound <= msPos.y) && (msPos.y <= lower_bound)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {

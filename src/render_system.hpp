@@ -75,7 +75,15 @@ class RenderSystem {
 			textures_path("backgroundLayerOne.png"),
 			textures_path("backgroundLayerTwo.png"),
 			textures_path("backgroundLayerThree.png"),
-			textures_path("backgroundLayerFour.png")
+			textures_path("backgroundLayerFour.png"),
+
+			//tootips
+			textures_path("fireBallToolTip.png"),
+			textures_path("iceShardToolTip.png"),
+			textures_path("rockToolTip.png"),
+			textures_path("meleeToolTip.png"),
+			textures_path("tauntToolTip.png"),
+			textures_path("healToolTip.png")
   };
   
 	std::array<GLuint, effect_count> effects;
