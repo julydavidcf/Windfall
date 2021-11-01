@@ -43,6 +43,7 @@ The game is now a turn-based RPG, where the player can choose to use different a
 1. https://freesound.org/people/tonsil5/sounds/416839/
 2. https://mixkit.co/free-sound-effects/explosion/
 3. https://freesound.org/people/tonsil5/sounds/416838/
+4. Background music: Darkest Dungeon OST
 
 # Image references
 
