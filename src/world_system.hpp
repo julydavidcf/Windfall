@@ -152,6 +152,8 @@ private:
 	Mix_Chunk* fire_spell_sound;
 	Mix_Chunk* rock_spell_sound;
 	Mix_Chunk* heal_spell_sound;
+	Mix_Chunk* taunt_spell_sound;
+	Mix_Chunk* melee_spell_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;

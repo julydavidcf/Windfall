@@ -73,6 +73,10 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(rock_spell_sound);
 	if (heal_spell_sound != nullptr)
 		Mix_FreeChunk(heal_spell_sound);
+	if (taunt_spell_sound != nullptr)
+		Mix_FreeChunk(taunt_spell_sound);
+	if (melee_spell_sound != nullptr)
+		Mix_FreeChunk(melee_spell_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -154,6 +158,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	fire_spell_sound = Mix_LoadWAV(audio_path("fireball_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	rock_spell_sound = Mix_LoadWAV(audio_path("rock_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 
 	if (background_music == nullptr 
 		|| salmon_dead_sound == nullptr 
@@ -163,7 +169,9 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| death_enemy_sound == nullptr
 		|| fire_spell_sound == nullptr 
 		|| rock_spell_sound == nullptr
-		|| heal_spell_sound == nullptr) {
+		|| heal_spell_sound == nullptr
+		|| taunt_spell_sound == nullptr
+		|| melee_spell_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -173,6 +181,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("fireball_spell.wav").c_str(),
 			audio_path("rock_spell.wav").c_str(),
 			audio_path("heal_spell.wav").c_str(),
+			audio_path("taunt_spell.wav").c_str(),
+			audio_path("melee_spell.wav").c_str(),
 			audio_path("death_enemy.wav").c_str());
 		return nullptr;
 	}
@@ -261,6 +271,7 @@ void WorldSystem::meleeSkill(Entity target) {
 }
 
 void WorldSystem::tauntSkill(Entity target) {
+	Mix_PlayChannel(-1, taunt_spell_sound, 0);
 	if (!registry.taunts.has(target)) {
 		registry.taunts.emplace(target);
 		Taunt* t = &registry.taunts.get(target);
@@ -276,6 +287,7 @@ void WorldSystem::tauntSkill(Entity target) {
 }
 
 void WorldSystem::startTauntAttack(Entity origin, Entity target){
+	Mix_PlayChannel(-1, taunt_spell_sound, 0);
 	if(registry.enemies.has(origin)){
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -421,7 +433,7 @@ void WorldSystem::startMeleeAttack(Entity origin, Entity target){
 		rt.target_position = {target_motion.position.x + 125, target_motion.position.y};
 
 		// Change enemy's velocity
-		float speed = 250.f;
+		float speed = 550.f;
 		enemy_motion.velocity = {-speed,0.f};
 		Motion& healthBar = registry.motions.get(enemy.healthbar);
 		healthBar.velocity = enemy_motion.velocity;
@@ -457,7 +469,7 @@ void WorldSystem::startMeleeAttack(Entity origin, Entity target){
 		rt.target_position = {target_motion.position.x - 125, target_motion.position.y};
 
 		// Change companion's velocity
-		float speed = 250.f;
+		float speed = 550.f;
 		companion_motion.velocity = {speed,0.f};
 		Motion& healthBar = registry.motions.get(companion.healthbar);
 		healthBar.velocity = companion_motion.velocity;
@@ -1911,6 +1923,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			attack.target = run.target;
 			attack.counter_ms = 1250.f;
 			registry.runners.remove(runner);
+
+			// Replace with better melee sound effect
+			//Mix_PlayChannel(-1, melee_spell_sound, 0);
 		}
 	}
 
@@ -1928,6 +1943,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					Motion& companion_motion = registry.motions.get(attacker);
 					switch(attack.attack_type){
 						case FIREBALL: {
+							            Mix_PlayChannel(-1, fire_spell_sound, 0);
 										printf("Fireball attack companion\n");
 										currentProjectile = launchFireball(companion_motion.position, attack.old_pos); 
 										Projectile* proj = &registry.projectiles.get(currentProjectile);
@@ -1945,6 +1961,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 									break;
 									}
 						case ROCK: {
+							        Mix_Volume(5, 32);
+								    Mix_PlayChannel(5, rock_spell_sound, 0);
 									currentProjectile = launchRock(attack.target);
 									break;
 									}
@@ -1956,10 +1974,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 									break;
 									}
 						case ICESHARD: {
+							        Mix_Volume(5, 32);
+									Mix_PlayChannel(5, rock_spell_sound, 0);
 									currentProjectile = launchIceShard(companion_motion.position, attack.old_pos);
 									break;
 									}
 						case HEAL: {
+							        Mix_PlayChannel(-1, heal_spell_sound, 0);
 									healTarget(attack.target, 30);
 									//basiclly to have something hitting the boundary
 									currentProjectile = launchFireball({-20,-20}, {0,0});
@@ -1978,11 +1999,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					Enemy& enemy = registry.enemies.get(attacker);
 					switch(attack.attack_type){
 						case ROCK: {
+									Mix_Volume(5, 32);
+							        Mix_PlayChannel(-1, rock_spell_sound, 0);
 									printf("Rock attack enemy\n");
 									rockAttack(attack.target); 
 									break;
 									}
 						case HEAL: {
+							        Mix_PlayChannel(-1, heal_spell_sound, 0);
 									printf("heal attack enemy\n");
 									healSkill(attack.target, 100); 
 									break;
