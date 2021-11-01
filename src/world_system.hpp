@@ -95,7 +95,7 @@ private:
 	void update_healthBars();
 
 	// restart level
-	void restart_game();
+	void restart_game(bool force_restart = false);
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -162,8 +162,12 @@ private:
 	float CAM_OFFSET_YMAX = 0.2;
 
 	//skill constants
+	float FIREBALLSPEED = 100.f;
+	float ARROWSPEED = 700.f;
 	float ICESHARDSPEED = 100.f;
-	float FIREBALLSPEED = 700.f;
+
+	int16 gameLevel;
+	const int16 MAX_GAME_LEVELS = 2;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee
