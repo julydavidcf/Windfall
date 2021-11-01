@@ -43,6 +43,7 @@ int SILENCESELECTED = 0;
 
 int selected_skill = -1;
 
+int hover_skill = -1;
 //selected button
 Entity selectedButton;
 
@@ -1882,6 +1883,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	iceShard_icon = createIceShardIcon(renderer, { 600, 700 });
 	fireBall_icon = createFireballIcon(renderer, { 700, 700 });
 	rock_icon = createRockIcon(renderer, { 800, 700 });
+
+	//Create a tooltip
+	tooltip;
 }
 
 
@@ -2417,9 +2421,73 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 		}
 	}		
 }
+vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float width, float height) {
+	vec2 placePos;
+	if (mouse_position.x <= icon_position.x && mouse_position.y >= icon_position.y) {
+		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
+	}
+	else if (mouse_position.x <= icon_position.x && mouse_position.y <= icon_position.y) {
+		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
+	}
+	else if (mouse_position.x >= icon_position.x && mouse_position.y >= icon_position.y) {
+		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
+	}
+	else if (mouse_position.x >= icon_position.x && mouse_position.y <= icon_position.y) {
+		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
+	}
+
+	return placePos;
+}
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
+		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT), "IS");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT), "RK");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT), "HL");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "TT");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
+			}
+		}
+		else {
+			registry.renderRequests.remove(tooltip);
+			registry.toolTip.clear();
+		}
+}
+
+bool WorldSystem::mouseInArea(vec2 buttonPos, float buttonX, float buttonY) {
+	float left_bound = buttonPos.x - (buttonX / 2);
+	float right_bound = buttonPos.x + (buttonX / 2);
+	float upper_bound = buttonPos.y - (buttonY / 2);
+	float lower_bound = buttonPos.y + (buttonY / 2);
+	if ((left_bound <= msPos.x) && (msPos.x <= right_bound)) {
+		if ((upper_bound <= msPos.y) && (msPos.y <= lower_bound)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {

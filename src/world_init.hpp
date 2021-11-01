@@ -96,4 +96,6 @@ Entity createLine(vec2 position, vec2 size);
 
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 
+Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
+
 

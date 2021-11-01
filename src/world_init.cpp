@@ -848,3 +848,71 @@ Entity createPebble(vec2 pos, vec2 size)
 
 	return entity;
 }
+
+Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
+	auto entity = Entity();
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+
+	if (type == "FB") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::FIREBALLTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "IS") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::ICESHARDTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "RK") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::ROCKTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "HL") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::HEALTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "TT") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::TAUNTTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "ML") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::MELEETOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+
+
+	return entity;
+}

@@ -36,9 +36,8 @@ public:
 	ComponentContainer<Gravity> gravities;
 	ComponentContainer<Taunt> taunts;
 	ComponentContainer<StatIndicator> statsindicators;
-
 	ComponentContainer<CheckRoundTimer> checkRoundTimer;
-
+	ComponentContainer<toolTip> toolTip;
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -67,6 +66,7 @@ public:
 		registry_list.push_back(&runners);
 		registry_list.push_back(&checkRoundTimer);
 		registry_list.push_back(&statsindicators);
+		registry_list.push_back(&toolTip);
 	}
 
 	void clear_all_components() {
