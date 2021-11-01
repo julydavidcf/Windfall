@@ -82,6 +82,12 @@ private:
 	// check if mouse in entity
 	bool inEntity(const Entity entity);
 
+	// check if mouse is on an area
+	bool mouseInArea(vec2 buttonPos, float buttonX, float buttonY);
+
+	// make tooltip smartly place
+	vec2 placeDirection(vec2 mouse_position, vec2 icon_position, float width, float height);
+
 	// deselect current button (after using ability)
 	void deselectButton();
 
@@ -141,6 +147,7 @@ private:
 	Entity taunt_icon;
 	Entity heal_icon;
 	Entity rock_icon;
+	Entity tooltip;
 
 	// music references
 	Mix_Music* background_music;
