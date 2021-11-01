@@ -28,7 +28,7 @@ enum AttackType {
 	FIREBALL 	= 3,
 	ROCK 		= 4,
 	HEAL		= 5,
-	ICESHARD    = 6
+	ICESHARD    = 6,
 };
 
 // Health bar entity
