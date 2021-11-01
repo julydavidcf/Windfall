@@ -20,13 +20,13 @@ The game is now a turn-based RPG, where the player can choose to use different a
 * Particle Systems (10): The enemy will explode into hundreds of particles when HP reaches 0
 
 
-# Features to meet Milestone 2 goals (105 points total)
+# Features to meet Milestone 2 goals (100 points total)
 
 * Gameplay I (10): Added the swordsman character, added a few abilities, including Melee Attack, Taunt, Heal, Ice Shard, Rock. There are two levels for the player to get through, and they need to strategize based on the enemy AI.
 * Sprite animation (10): There are idle, death, and casting ability animations for both of the characters.
 * Graphics assets (5): Added swordsman sprite with spritesheet and mage's spritesheet. Added sprites for all the projectiles and ability effects.
 * Help (5): Added tooltips for all the abilities that show up after hovering over the ability icon.
-* External integration (10): Used FreeType to display text for tooltips and the restart screen.
+* Debugging Graphics (5): The user can press the "D" key to see precise collision boxes for all characters.
 * Advanced fragment shader (10): Added balls of light on the top of the screen with shifting colours, added fog effect.
 * State machine (10): Added states that correspond to different states in the animation system.
 * Behaviour tree (10): Used a behaviour tree to represent the enemy's AI. They will respond based on the player's choice of ability usage.
@@ -43,6 +43,7 @@ The game is now a turn-based RPG, where the player can choose to use different a
 1. https://freesound.org/people/tonsil5/sounds/416839/
 2. https://mixkit.co/free-sound-effects/explosion/
 3. https://freesound.org/people/tonsil5/sounds/416838/
+4. https://freesound.org/people/theuncertainman/sounds/402645/
 
 # Image references
 
