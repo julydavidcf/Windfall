@@ -1883,6 +1883,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 
+
 	//check taunt for enemy and companion
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.enemies.entities[i])) {
@@ -1896,6 +1897,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if (registry.taunts.get(registry.companions.entities[i]).duration <= 0) {
 				removeTaunt(registry.companions.entities[i]);
 			}
+		}
+	}
+	// maintain correct health
+	for (int i = (int)registry.stats.components.size() - 1; i >= 0; --i) {
+		if (registry.stats.components[i].health > registry.stats.components[i].max_health) {
+			Statistics* stat = &registry.stats.components[i];
+			stat->health = stat->max_health;
+			update_healthBars();
 		}
 	}
 
@@ -2010,7 +2019,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						case HEAL: {
 							        Mix_PlayChannel(-1, heal_spell_sound, 0);
 									printf("heal attack enemy\n");
-									healSkill(attack.target, 100); 
+									healSkill(attack.target, 30); 
 									break;
 									}
 						case MELEE: {
@@ -3167,7 +3176,7 @@ void WorldSystem::showCorrectSkills() {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][3]) {
+		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer)) {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONDISABLED;
 		}
 		else {

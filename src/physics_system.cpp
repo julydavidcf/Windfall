@@ -94,6 +94,8 @@ bool collides(const Entity entity_i, const Entity entity_j)
 
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
 {
+
+
 	auto& motion_registry = registry.motions;
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{
@@ -144,6 +146,14 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 			Motion motion_o = registry.motions.get(statsid_container.components[i].owner);
 			motion_i->position.x = motion_o.position.x + 20;
 			motion_i->position.y = motion_o.position.y - 50;
+
+			//lower it for mage 
+			if (registry.enemies.has(statsid_container.components[i].owner) && registry.enemies.get(statsid_container.components[i].owner).enemyType == MAGE) {
+				motion_i->position.y += 30;
+			}
+			if (registry.companions.has(statsid_container.components[i].owner) && registry.companions.get(statsid_container.components[i].owner).companionType == MAGE) {
+				motion_i->position.y += 30;
+			}
 		}
 	}
 
