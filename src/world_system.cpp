@@ -2648,6 +2648,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 		if (player_turn == 1) {
 			displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
+
 				//iceshard
 				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)
 					&& canUseSkill(currPlayer, 0)) {
