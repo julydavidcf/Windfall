@@ -28,7 +28,7 @@ enum AttackType {
 	FIREBALL 	= 3,
 	ROCK 		= 4,
 	HEAL		= 5,
-	ICESHARD    = 6
+	ICESHARD    = 6,
 };
 
 // Health bar entity
@@ -253,6 +253,13 @@ struct CheckRoundTimer
 	float counter_ms = 3000;
 };
 
+// Tooltip
+
+struct toolTip
+{
+
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -331,9 +338,15 @@ enum class TEXTURE_ASSET_ID {
 	BACKGROUNDLAYERTWO = BACKGROUNDLAYERONE + 1,
 	BACKGROUNDLAYERTHREE = BACKGROUNDLAYERTWO + 1,
 	BACKGROUNDLAYERFOUR = BACKGROUNDLAYERTHREE + 1,
-
+	//------- iconToolTips -------------
+	FIREBALLTOOLTIP = BACKGROUNDLAYERFOUR + 1,
+	ICESHARDTOOLTIP = FIREBALLTOOLTIP + 1,
+	ROCKTOOLTIP = ICESHARDTOOLTIP + 1,
+	MELEETOOLTIP = ROCKTOOLTIP + 1,
+	TAUNTTOOLTIP = MELEETOOLTIP + 1,
+	HEALTOOLTIP = TAUNTTOOLTIP + 1,
 	// --------------------------
-	TEXTURE_COUNT = BACKGROUNDLAYERFOUR + 1
+	TEXTURE_COUNT = HEALTOOLTIP + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

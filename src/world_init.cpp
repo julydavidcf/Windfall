@@ -18,7 +18,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to companion
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = player_swordsman_hp;
 	stat.speed = 14;
 	stat.classID = 0;
 	
@@ -54,7 +54,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.max_health = enemy_mage_hp;
 	stat.speed = 13;
 
 	// Add a healthbar
@@ -88,7 +88,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = player_swordsman_hp;
 	stat.speed = 12;
 	stat.classID = 1;
 
@@ -123,7 +123,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = enemy_swordsman_hp;
 	stat.speed = 11;
 
 	// Add a healthbar
@@ -197,7 +197,7 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 30;
+	damage.minDamage = fireball_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -234,7 +234,7 @@ Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 30;
+	damage.minDamage = iceshard_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -616,7 +616,7 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 70;
+	damage.minDamage = rock_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -652,7 +652,7 @@ Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 10;
+	damage.minDamage = melee_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -717,6 +717,7 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+
 
 Entity createLine(vec2 position, vec2 scale)
 {
@@ -845,6 +846,74 @@ Entity createPebble(vec2 pos, vec2 size)
 		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
 			EFFECT_ASSET_ID::PEBBLE,
 			GEOMETRY_BUFFER_ID::PEBBLE });
+
+	return entity;
+}
+
+Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
+	auto entity = Entity();
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+
+	if (type == "FB") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::FIREBALLTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "IS") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::ICESHARDTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "RK") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::ROCKTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "HL") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::HEALTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "TT") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::TAUNTTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "ML") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::MELEETOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+
 
 	return entity;
 }

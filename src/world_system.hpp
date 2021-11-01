@@ -39,6 +39,14 @@ public:
 	void meleeSkill(Entity target);
 	void tauntSkill(Entity target);
 
+	//Prep skill Function
+	void startTauntAttack(Entity origin, Entity target);
+	void startIceShardAttack(Entity origin, Entity target);
+	void startFireballAttack(Entity origin);
+	void startRockAttack(Entity origin, Entity target);
+	void startHealAttack(Entity origin, Entity target);
+	void startMeleeAttack(Entity origin, Entity target);
+
 	// creates a round
 	void createRound();
 
@@ -71,9 +79,14 @@ private:
 	// check if mouse in button
 	bool inButton(vec2 buttonPos, float buttonX, float buttonY);
 
-
 	// check if mouse in entity
 	bool inEntity(const Entity entity);
+
+	// check if mouse is on an area
+	bool mouseInArea(vec2 buttonPos, float buttonX, float buttonY);
+
+	// make tooltip smartly place
+	vec2 placeDirection(vec2 mouse_position, vec2 icon_position, float width, float height);
 
 	// deselect current button (after using ability)
 	void deselectButton();
@@ -100,17 +113,17 @@ private:
 	void activate_deathParticles(Entity entity);
 
 	//Skills Function
-	Entity WorldSystem::launchIceShard(vec2 startPos);
-	Entity WorldSystem::launchFireball(vec2 startPos);
-	Entity WorldSystem::launchRock(Entity target);
-	void WorldSystem::launchMelee(Entity origin, Entity target);
-	void WorldSystem::launchTaunt(Entity target);
-	void WorldSystem::removeTaunt(Entity target);
-	void WorldSystem::healTarget(Entity target, float amount);
-	void WorldSystem::damageTarget(Entity target, float amount);
+	Entity launchIceShard(vec2 startPos, vec2 ms_pos);
+	Entity launchFireball(vec2 startPos, vec2 ms_pos);
+	Entity launchRock(Entity target);
+	void launchMelee(Entity origin, Entity target);
+	void launchTaunt(Entity target);
+	void removeTaunt(Entity target);
+	void healTarget(Entity target, float amount);
+	void damageTarget(Entity target, float amount);
 
-	bool WorldSystem::canUseSkill(Entity user, int skill);
-	void WorldSystem::showCorrectSkills();
+	bool canUseSkill(Entity user, int skill);
+	void showCorrectSkills();
 
 	// Game state
 	RenderSystem* renderer;
@@ -134,6 +147,7 @@ private:
 	Entity taunt_icon;
 	Entity heal_icon;
 	Entity rock_icon;
+	Entity tooltip;
 
 	// music references
 	Mix_Music* background_music;
@@ -145,6 +159,8 @@ private:
 	Mix_Chunk* fire_spell_sound;
 	Mix_Chunk* rock_spell_sound;
 	Mix_Chunk* heal_spell_sound;
+	Mix_Chunk* taunt_spell_sound;
+	Mix_Chunk* melee_spell_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
@@ -155,7 +171,7 @@ private:
 	float CAM_OFFSET_YMAX = 0.2;
 
 	//skill constants
-	float FIREBALLSPEED = 100.f;
+	float FIREBALLSPEED = 700.f;
 	float ARROWSPEED = 700.f;
 	float ICESHARDSPEED = 100.f;
 

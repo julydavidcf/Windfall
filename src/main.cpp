@@ -41,6 +41,7 @@ int main()
 	world.init(&renderer);
 	world.createRound();
 	world.checkRound();
+	world.displayPlayerTurn();	// display player turn when world renders
 
 	// variable timestep loop
 	auto t = Clock::now();
