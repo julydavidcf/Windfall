@@ -564,7 +564,7 @@ void RenderSystem::draw(float elapsed_ms)
 
 			}
 			// UI-related entities should remain in constant position on screen
-			/*if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;*/
+			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;
 
 			if (registry.enemies.has(entity)) {
 				deferredRenderingEntities.emplace(registry.enemies.get(entity).healthbar, entity);
