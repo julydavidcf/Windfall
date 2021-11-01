@@ -304,6 +304,33 @@ void WorldSystem::startTauntAttack(Entity origin, Entity target){
 	}
 }
 
+void WorldSystem::startHealAttack(Entity origin, Entity target){
+	if(registry.enemies.has(origin)){
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = HEAL;
+		attack.target = target;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+
+	} else if(registry.companions.has(origin)){
+		Companion& companion = registry.companions.get(origin);
+		companion.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = HEAL;
+		attack.target = target;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+
+	}
+}
+
 
 void WorldSystem::startIceShardAttack(Entity origin, Entity target){
 	printf("Started the ice shard attack\n");
@@ -1453,20 +1480,6 @@ private:
 	BTState process(Entity e) override {
 		printf("Shoot Ice Shard \n\n");	// print statement to visualize
 		worldSystem.startIceShardAttack(e, currPlayer);
-		/*
-		worldSystem.iceShardAttack(currPlayer);
-
-		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(e);
-		attack.attack_type = FIREBALL;
-		attack.target = target;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms + animation_timer;
-		}
-		*/
 		// return progress
 		return BTState::Success;
 	}
@@ -1578,7 +1591,8 @@ private:
 				target = toGet;
 			}
 		}
-
+		worldSystem.startHealAttack(e, target);
+		/*
 		Enemy& enemy = registry.enemies.get(e);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(e);
@@ -1589,6 +1603,7 @@ private:
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
 		}
+		*/
 		printf("Cast Heal \n\n");	// print statement to visualize
 
 		// return progress
@@ -1607,7 +1622,7 @@ private:
 				target = toGet;
 			}
 		}
-
+		/*
 		Enemy& enemy = registry.enemies.get(e);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(e);
@@ -1617,7 +1632,8 @@ private:
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
+		}*/
+		worldSystem.startHealAttack(e, target);
 		printf("Cast Heal On Self \n\n");	// print statement to visualize
 
 		// return progress
@@ -1807,9 +1823,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 									Motion& healthbar_motion = registry.motions.get(companion.healthbar);
 									healthbar_motion.position.x = attack.old_pos.x;
 									meleeSkill(attack.target); 
+									break;
 									}
 						case ICESHARD: {
 									currentProjectile = launchIceShard(companion_motion.position, attack.old_pos);
+									break;
+									}
+						case HEAL: {
+									healTarget(attack.target, 30);
+									//basiclly to have something hitting the boundary
+									currentProjectile = launchFireball({-20,-20}, {0,0});
+									Motion* projm = &registry.motions.get(currentProjectile);
+									projm->velocity = { -100,0 };
+									projm->acceleration = { -100,0 };
 									break;
 									}
 						default: break;
@@ -2727,6 +2753,8 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 							if (inButton(registry.motions.get(registry.companions.entities[j]).position,
 								b_box.x,
 								b_box.y)) {
+									startHealAttack(currPlayer, registry.companions.entities[j]);
+									/*
 								healTarget(registry.companions.entities[j], 30);
 
 								//basiclly to have something hitting the boundary
@@ -2734,6 +2762,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 								Motion* projm = &registry.motions.get(currentProjectile);
 								projm->velocity = { -100,0 };
 								projm->acceleration = { -100,0 };
+								*/
 								selected_skill = -1;
 
 								registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
