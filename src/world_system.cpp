@@ -421,7 +421,7 @@ void WorldSystem::startMeleeAttack(Entity origin, Entity target){
 		rt.target_position = {target_motion.position.x + 125, target_motion.position.y};
 
 		// Change enemy's velocity
-		float speed = 250.f;
+		float speed = 500.f;
 		enemy_motion.velocity = {-speed,0.f};
 		Motion& healthBar = registry.motions.get(enemy.healthbar);
 		healthBar.velocity = enemy_motion.velocity;
@@ -457,7 +457,7 @@ void WorldSystem::startMeleeAttack(Entity origin, Entity target){
 		rt.target_position = {target_motion.position.x - 125, target_motion.position.y};
 
 		// Change companion's velocity
-		float speed = 250.f;
+		float speed = 500.f;
 		companion_motion.velocity = {speed,0.f};
 		Motion& healthBar = registry.motions.get(companion.healthbar);
 		healthBar.velocity = companion_motion.velocity;
