@@ -18,7 +18,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to companion
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 150;
+	stat.health = player_swordsman_hp;
 	stat.speed = 14;
 	stat.classID = 0;
 	
@@ -54,7 +54,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.max_health = 100;
+	stat.max_health = enemy_mage_hp;
 	stat.speed = 13;
 
 	// Add a healthbar
@@ -88,7 +88,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = player_swordsman_hp;
 	stat.speed = 12;
 	stat.classID = 1;
 
@@ -123,7 +123,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = enemy_swordsman_hp;
 	stat.speed = 11;
 
 	// Add a healthbar
@@ -197,7 +197,7 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 30;
+	damage.minDamage = fireball_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -234,7 +234,7 @@ Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 20;
+	damage.minDamage = iceshard_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -616,7 +616,7 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 10;
+	damage.minDamage = rock_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -652,7 +652,7 @@ Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 15;
+	damage.minDamage = melee_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 

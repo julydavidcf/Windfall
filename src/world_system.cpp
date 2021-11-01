@@ -2434,6 +2434,7 @@ void WorldSystem::handle_collisions() {
 							update_health(entity_other, entity);
 							registry.remove_all_components_of(entity_other);
 							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							showCorrectSkills();
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
@@ -3155,42 +3156,42 @@ bool WorldSystem::canUseSkill(Entity user, int skill) {
 void WorldSystem::showCorrectSkills() {
 	if (currPlayer != NULL && registry.companions.has(currPlayer)) {
 		Statistics pStat = registry.stats.get(currPlayer);
-		if (!skill_character_aviability[pStat.classID][0] ) {
+		if (!skill_character_aviability[pStat.classID][0] || pStat.health<0) {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][1]) {
+		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0) {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][2]) {
+		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0) {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer)) {
+		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0) {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][4]) {
+		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0) {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONDISABLED;
 		}
 		else {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][5]) {
+		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0) {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICONDISABLED;
 		}
 		else {

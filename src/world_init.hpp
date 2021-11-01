@@ -99,3 +99,18 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
 
 
+//Game Stats
+
+const int enemy_mage_hp = 100;
+const int enemy_swordsman_hp = 150;
+
+const int player_mage_hp = 50;
+const int player_swordsman_hp = 75;
+
+//skill dmg
+const int rock_dmg = 10;
+const int fireball_dmg = 30;
+const int iceshard_dmg = 20;
+const int melee_dmg = 15;
+
+
