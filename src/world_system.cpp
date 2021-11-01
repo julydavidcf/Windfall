@@ -271,7 +271,6 @@ void WorldSystem::meleeSkill(Entity target) {
 }
 
 void WorldSystem::tauntSkill(Entity target) {
-	Mix_PlayChannel(-1, taunt_spell_sound, 0);
 	if (!registry.taunts.has(target)) {
 		registry.taunts.emplace(target);
 		Taunt* t = &registry.taunts.get(target);
@@ -287,7 +286,6 @@ void WorldSystem::tauntSkill(Entity target) {
 }
 
 void WorldSystem::startTauntAttack(Entity origin, Entity target){
-	Mix_PlayChannel(-1, taunt_spell_sound, 0);
 	if(registry.enemies.has(origin)){
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -301,6 +299,7 @@ void WorldSystem::startTauntAttack(Entity origin, Entity target){
 		}
 
 	} else if(registry.companions.has(origin)){
+		Mix_PlayChannel(-1, taunt_spell_sound, 0);
 		Companion& companion = registry.companions.get(origin);
 		companion.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
@@ -2002,7 +2001,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					switch(attack.attack_type){
 						case ROCK: {
 									Mix_Volume(5, 32);
-							        Mix_PlayChannel(-1, rock_spell_sound, 0);
+							        Mix_PlayChannel(5, rock_spell_sound, 0);
 									printf("Rock attack enemy\n");
 									rockAttack(attack.target); 
 									break;
@@ -2023,6 +2022,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 									break;
 									}
 						case TAUNT: {
+									Mix_PlayChannel(-1, taunt_spell_sound, 0);
 									printf("taunt attack enemy\n");
 									tauntSkill(target);
 									break;

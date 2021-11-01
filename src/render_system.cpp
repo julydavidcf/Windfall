@@ -347,14 +347,27 @@ void RenderSystem::draw(float elapsed_ms)
 		// Handle camera focus on projectiles and swordsman melee
 		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0) {
 			Motion& motion = registry.motions.get(entity);
-			hasTravellingProjectile = 1;
 			projectionMat = createCameraProjection(motion);
+
+			if (registry.damages.has(entity) && registry.damages.get(entity).isFriendly) {
+				hasTravellingProjectile = 1;
+			}
+			else if (registry.damages.has(entity) && !registry.damages.get(entity).isFriendly) {
+				hasTravellingProjectile = 2;
+			}
 		}
 		else if (registry.runners.has(entity) 
 			|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
 			|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
 			Motion& motion = registry.motions.get(entity);
-			projectionMat = createCameraProjection(motion);
+
+			if (registry.companions.has(entity)) {
+				projectionMat = createCameraProjection(motion);
+			}
+			else if (registry.enemies.has(entity)) {
+				projectionMat = createCameraProjection(motion);
+			}
+			
 		}
 	}
 
@@ -529,19 +542,29 @@ void RenderSystem::draw(float elapsed_ms)
 					frame_width = 0.01;
 				}
 				else if (registry.backgroundLayers.get(entity).isCameraScrollOne && hasTravellingProjectile) {
-					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_ONE;
+					if (hasTravellingProjectile == 1) {
+						registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_ONE;
+					}
+					else {
+						registry.backgroundLayers.get(entity).scrollX -= CAMERA_SCROLL_RATE_ONE;
+					}
 					curr_frame = registry.backgroundLayers.get(entity).scrollX;
 					frame_width = 0.001;
 				}
 				else if (registry.backgroundLayers.get(entity).isCameraScrollTwo && hasTravellingProjectile) {
-					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_TWO;
+					if (hasTravellingProjectile == 1) {
+						registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_TWO;
+					}
+					else {
+						registry.backgroundLayers.get(entity).scrollX -= CAMERA_SCROLL_RATE_TWO;
+					}
 					curr_frame = registry.backgroundLayers.get(entity).scrollX;
 					frame_width = 0.001;
 				}
 
 			}
 			// UI-related entities should remain in constant position on screen
-			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;
+			/*if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;*/
 
 			if (registry.enemies.has(entity)) {
 				deferredRenderingEntities.emplace(registry.enemies.get(entity).healthbar, entity);
@@ -591,13 +614,13 @@ mat3 RenderSystem::createProjectionMatrix()
 
 mat3 RenderSystem::createCameraProjection(Motion& motion)
 {
-	float left = (motion.position.x - motion.scale.x / 2) - CAMERA_OFFSET_LEFT;
-	float top = (motion.position.y - motion.scale.y / 2) - CAMERA_OFFSET_TOP;
+	float left = (motion.position.x - abs(motion.scale.x / 2)) - CAMERA_OFFSET_LEFT;
+	float top = (motion.position.y - abs(motion.scale.y / 2)) - CAMERA_OFFSET_TOP;
 
-	float right = (motion.position.x + motion.scale.x / 2) + CAMERA_OFFSET_RIGHT;
-	float bottom = (motion.position.y + motion.scale.y / 2) + CAMERA_OFFSET_BOTTOM;
+	float right = (motion.position.x + abs(motion.scale.x / 2)) + CAMERA_OFFSET_RIGHT;
+	float bottom = (motion.position.y + abs(motion.scale.y / 2)) + CAMERA_OFFSET_BOTTOM;
 
-	float sx = 2.f / (right - left);
+	float sx = 2.f / abs(right - left);
 	float sy = 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
