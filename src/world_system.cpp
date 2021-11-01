@@ -1992,7 +1992,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 									}
 						case HEAL: {
 							        Mix_PlayChannel(-1, heal_spell_sound, 0);
-									healTarget(attack.target, 30);
+									healTarget(attack.target, 50);
 									//basiclly to have something hitting the boundary
 									currentProjectile = launchFireball({-20,-20}, {0,0});
 									Motion* projm = &registry.motions.get(currentProjectile);
