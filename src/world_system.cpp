@@ -316,6 +316,7 @@ void WorldSystem::startTauntAttack(Entity origin, Entity target){
 }
 
 void WorldSystem::startHealAttack(Entity origin, Entity target){
+	prevPlayer = currPlayer;
 	if(registry.enemies.has(origin)){
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -2044,6 +2045,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	if (player_turn == 1) {
+		displayPlayerTurn();
 		prevPlayer = currPlayer;
 
 	}
@@ -2057,6 +2059,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			displayEnemyTurn();
 			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected companion character has died so as to progress to an enemy's
 				if (registry.stats.get(prevPlayer).health <= 0 || playerUseMelee == 1) {	// Second case: (Brute force) playerUseMelee checks if the previous player used melee attack
+					prevPlayer = currPlayer;
 					checkPlayersDead.init(currPlayer);
 					for (int i = 0; i < 100; i++) {
 						BTState state = checkPlayersDead.process(currPlayer);
@@ -2436,7 +2439,7 @@ void WorldSystem::handle_collisions() {
 								registry.motions.get(entity).position.x -= 20; // character shifts backwards
 								registry.hit_timer.emplace(entity); // to move character back to original position
 							}
-							displayPlayerTurn();	// displays player turn when enemy hits collide
+							// displayPlayerTurn();	// displays player turn when enemy hits collide
 						}
 					}
 				}
@@ -2636,7 +2639,7 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
 		
 		if (player_turn == 1) {
-			displayPlayerTurn();
+			// displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
 				//iceshard
 				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)
