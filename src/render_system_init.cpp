@@ -13,6 +13,17 @@
 #include <iostream>
 #include <sstream>
 
+namespace {
+	float RandomFloat(float a, float b) {
+		float random = ((float)rand()) / (float)RAND_MAX;
+		float diff = b - a;
+		float r = random * diff;
+		return a + r;
+	}
+
+	const int NUM_LIGHT_BALLS_BACKGROUND = 100;
+};
+
 // World initialization
 bool RenderSystem::init(int width, int height, GLFWwindow* window_arg)
 {
@@ -54,6 +65,7 @@ bool RenderSystem::init(int width, int height, GLFWwindow* window_arg)
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	createRandomLightBallPosForBackground(width, height);
 
 	return true;
 }
@@ -157,6 +169,118 @@ void RenderSystem::initializeGlGeometryBuffers()
 	// Counterclockwise as it's the default opengl front winding direction.
 	const std::vector<uint16_t> textured_indices = { 0, 3, 1, 1, 3, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SPRITE, textured_vertices, textured_indices);
+
+	//------------------------------ SPRITE ROWS -------------------------------------
+
+	// mage_idle sprite row
+	std::vector<TexturedVertex> mage_idle_vertices(4);
+	mage_idle_vertices[0].position = { -1.f, +1.f/2, 0.f };   
+	mage_idle_vertices[1].position = { +1.f, +1.f/2, 0.f };   
+	mage_idle_vertices[2].position = { +1.f, -1.f, 0.f };   
+	mage_idle_vertices[3].position = { -1.f, -1.f, 0.f };   
+	mage_idle_vertices[0].texcoord = { 0.f, 0.11111111111 };      // Bottom left
+	mage_idle_vertices[1].texcoord = { 0.125, 0.11111111111 };    // Bottom right
+	mage_idle_vertices[2].texcoord = { 0.125, 0.001 };            // Top right
+	mage_idle_vertices[3].texcoord = { 0.f, 0.001 };              // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_IDLE, mage_idle_vertices, textured_indices);
+
+	// mage_casting sprite row
+	std::vector<TexturedVertex> mage_casting_vertices(4);
+	mage_casting_vertices[0].position = { -1.f, +1.f / 2, 0.f };
+	mage_casting_vertices[1].position = { +1.f, +1.f / 2, 0.f };
+	mage_casting_vertices[2].position = { +1.f, -1.f, 0.f };
+	mage_casting_vertices[3].position = { -1.f, -1.f, 0.f };
+	mage_casting_vertices[0].texcoord = { 0.f, 0.88888888888 };      // Bottom left
+	mage_casting_vertices[1].texcoord = { 0.125, 0.88888888888 };    // Bottom right
+	mage_casting_vertices[2].texcoord = { 0.125, 0.77777777777 };            // Top right
+	mage_casting_vertices[3].texcoord = { 0.f, 0.77777777777 };              // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_CASTING, mage_casting_vertices, textured_indices);
+
+	// mage_death sprite row
+	std::vector<TexturedVertex> mage_death_vertices(4);
+	mage_death_vertices[0].position = { -1.f, +1.f / 2, 0.f };
+	mage_death_vertices[1].position = { +1.f, +1.f / 2, 0.f };
+	mage_death_vertices[2].position = { +1.f, -1.f, 0.f };
+	mage_death_vertices[3].position = { -1.f, -1.f, 0.f };
+	mage_death_vertices[0].texcoord = { 0.f, 0.99999999999 };      // Bottom left
+	mage_death_vertices[1].texcoord = { 0.125, 0.99999999999 };    // Bottom right
+	mage_death_vertices[2].texcoord = { 0.125, 0.88888888888 };            // Top right
+	mage_death_vertices[3].texcoord = { 0.f, 0.88888888888 };              // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::MAGE_DEATH, mage_death_vertices, textured_indices);
+
+	// swordsman_idle sprite row
+	std::vector<TexturedVertex> swordsman_idle_vertices(4);
+	swordsman_idle_vertices[0].position = { -1.f, +1.f, 0.f };   
+	swordsman_idle_vertices[1].position = { +1.f, +1.f, 0.f };   
+	swordsman_idle_vertices[2].position = { +1.f, -1.f, 0.f };   
+	swordsman_idle_vertices[3].position = { -1.f, -1.f, 0.f };   
+	swordsman_idle_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_idle_vertices[1].texcoord = { 0.0625, 1.f };        // Bottom right
+	swordsman_idle_vertices[2].texcoord = { 0.0625, 0.f };        // Top right
+	swordsman_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE, swordsman_idle_vertices, textured_indices);
+
+	// swordsman_walk sprite row
+	std::vector<TexturedVertex> swordsman_walk_vertices(4);
+	swordsman_walk_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_walk_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_walk_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_walk_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_walk_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_walk_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	swordsman_walk_vertices[2].texcoord = { 0.125, 0.f };        // Top right
+	swordsman_walk_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_WALK, swordsman_walk_vertices, textured_indices);
+
+	// swordsman_melee sprite row
+	std::vector<TexturedVertex> swordsman_melee_vertices(4);
+	swordsman_melee_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_melee_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_melee_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_melee_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_melee_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_melee_vertices[1].texcoord = { 0.03333333333, 1.f };        // Bottom right
+	swordsman_melee_vertices[2].texcoord = { 0.03333333333, 0.f };        // Top right
+	swordsman_melee_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_MELEE, swordsman_melee_vertices, textured_indices);
+
+	// swordsman_taunt sprite row
+	std::vector<TexturedVertex> swordsman_taunt_vertices(4);
+	swordsman_taunt_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_taunt_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_taunt_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_taunt_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_taunt_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_taunt_vertices[1].texcoord = { 0.05555555555, 1.f };        // Bottom right
+	swordsman_taunt_vertices[2].texcoord = { 0.05555555555, 0.f };        // Top right
+	swordsman_taunt_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_TAUNT, swordsman_idle_vertices, textured_indices);
+
+	// swordsman_death sprite row
+	std::vector<TexturedVertex> swordsman_death_vertices(4);
+	swordsman_death_vertices[0].position = { -1.f, +1.f, 0.f };
+	swordsman_death_vertices[1].position = { +1.f, +1.f, 0.f };
+	swordsman_death_vertices[2].position = { +1.f, -1.f, 0.f };
+	swordsman_death_vertices[3].position = { -1.f, -1.f, 0.f };
+	swordsman_death_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	swordsman_death_vertices[1].texcoord = { 0.025, 1.f };        // Bottom right
+	swordsman_death_vertices[2].texcoord = { 0.025, 0.f };        // Top right
+	swordsman_death_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH, swordsman_death_vertices, textured_indices);
+
+	// necromancer_idle sprite row
+	std::vector<TexturedVertex> necromancer_idle_vertices(4);
+	necromancer_idle_vertices[0].position = { -1.f, +1.f, 0.f };
+	necromancer_idle_vertices[1].position = { +1.f, +1.f, 0.f };
+	necromancer_idle_vertices[2].position = { +1.f, -1.f, 0.f };
+	necromancer_idle_vertices[3].position = { -1.f, -1.f, 0.f };
+	necromancer_idle_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necromancer_idle_vertices[1].texcoord = { 0.25, 1.f };        // Bottom right
+	necromancer_idle_vertices[2].texcoord = { 0.25, 0.f };        // Top right
+	necromancer_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECROMANCER_IDLE, necromancer_idle_vertices, textured_indices);
+
+
 
 	////////////////////////
 	// Initialize pebble
@@ -373,3 +497,17 @@ bool loadEffectFromFile(
 	return true;
 }
 
+void RenderSystem::createRandomLightBallPosForBackground(int windowWidth, int windowHeight) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	for (int i = 0; i < NUM_LIGHT_BALLS_BACKGROUND; i++) {
+		//RenderSystem::lightBallsXcoords.push_back(RandomFloat(-(float)windowWidth/ (float)windowHeight,
+		// 													   (float)windowWidth / (float)windowHeight));
+		RenderSystem::lightBallsXcoords.push_back(RandomFloat(-(float)w / (float)h, (float)w / (float)h));
+		RenderSystem::lightBallsYcoords.push_back(RandomFloat(0.8, 1.));
+	}
+
+	for (int i = 0; i < lightBallsXcoords.size(); i++) {
+		printf("%f, %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
+	}
+}

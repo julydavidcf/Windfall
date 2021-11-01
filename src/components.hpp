@@ -5,29 +5,104 @@
 #include "../ext/stb_image/stb_image.h"
 
 
+enum CharacterType {
+	MAGE = 1,
+	SWORDSMAN = 2,
+	ARCHER = 3,
+	HEALER = 4,
+	NECROMANCER = 5
+};
+
+
+enum AnimType {
+	IDLE = 1,
+	ATTACKING = 2,
+	DEAD = 3,
+	WALKING = 4,
+};
+
+enum AttackType {
+	// Categories
+	MELEE 		= 1,
+	TAUNT 		= 2,
+	FIREBALL 	= 3,
+	ROCK 		= 4,
+	HEAL		= 5,
+	ICESHARD    = 6
+};
+
 // Health bar entity
 struct HealthBar
 {
 
 };
 
-// Companions: Mage
+// Currently attacking
+struct Attack
+{
+	int attack_type = 0;
+	Entity target;
+	vec2 old_pos;
+	float counter_ms = 250;
+};
+
+struct RunTowards
+{
+	float counter_ms = 1000;
+	Entity target;
+	vec2 target_position;
+	vec2 old_pos;
+};
+
 struct Companion
 {
 	Entity healthbar;
+	// Initialize companionType in world_init create method
+	int companionType = 0;
+	int curr_frame = 0;
+	int curr_anim_type = IDLE;
+	float frame_counter_ms = 100;
 };
 
-// Enemies: EnemyMage
 struct Enemy
 {
 	Entity healthbar;
+	// Initialize enemyType in world_init create method
+	int enemyType = 0;
+	int curr_frame = 0;
+	int curr_anim_type = IDLE;
+	float frame_counter_ms = 100;
 };
 
+struct BackgroundLayer
+{
+	float scrollX = 0.f;
+	int isAutoScroll = 0;
+	int isCameraScrollOne = 0;
+	int isCameraScrollTwo = 0;
+};
+
+// this object is effected by gravity
+struct Gravity
+{
+	float gravity = 98;
+};
 
 // Projectiles: Fireball
 struct Projectile
 {
+	float flyingTimer = 0.f;
+};
 
+//Special effect : Taunt
+struct Taunt
+{
+	int duration = 3;
+};
+
+// reflects projectile
+struct Reflect
+{
 };
 
 // Damage component for attacks
@@ -43,9 +118,35 @@ struct Damage
 
 // HP for enemy and companion
 // entities starts from 100%
-struct HP 
+struct Statistics 
 {
+	int max_health = 100;
 	int health = 100;
+	int speed = 0;	// new speed stat
+	int classID = -1; // 0= mage, 1= swordsman for now
+};
+
+// Silence component: state of a silenced entity
+struct Silenced
+{
+	// silenced for number of turns
+	int turns = 1;	
+	// the rendered speech bubble entity
+	Entity silenced_effect;
+};
+
+
+// The power to be able to silence
+// TODO: check if needed
+struct Silence
+{
+
+};
+
+
+struct StatIndicator
+{
+	Entity owner;
 };
 
 // All data relevant to the shape and motion of entities
@@ -91,8 +192,8 @@ struct DeathTimer
 };
 
 
-// Button indicator
-struct Button
+// ButtonItem indicator
+struct ButtonItem
 {
 };
 
@@ -122,7 +223,12 @@ struct Mesh
 
 struct HitTimer
 {
-	float counter_ms = 500;
+	float counter_ms = 250;
+};
+
+struct TurnIndicator
+{
+	
 };
 
 // Particles emitted during death
@@ -141,11 +247,19 @@ struct DeathParticle
 	}
 };
 
-//magical Barrier 
-struct Barrier
+// A timer that will be associated to dying companions/enemies
+struct CheckRoundTimer
+{
+	float counter_ms = 3000;
+};
+
+// Tooltip
+
+struct toolTip
 {
 
 };
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -171,23 +285,75 @@ struct Barrier
  */
 
 enum class TEXTURE_ASSET_ID {
-	MAGE = 0,
-	ENEMYMAGE = MAGE + 1,
-	FIREBALL = ENEMYMAGE + 1,
+	BARRIER = 0,
+	FIREBALL = BARRIER + 1,
 	FIREBALLICON = FIREBALL + 1,
 	FIREBALLICONSELECTED = FIREBALLICON + 1,
-	HEALTHBAR = FIREBALLICONSELECTED + 1,
+	SILENCEICON = FIREBALLICONSELECTED + 1,
+	SILENCEICONSELECTED = SILENCEICON + 1,
+	SILENCEBUBBLE = SILENCEICONSELECTED + 1,
+	FIREBALLICONDISABLED = SILENCEBUBBLE + 1,
+	HEALTHBAR = FIREBALLICONDISABLED + 1,
 	DEATH_PARTICLE = HEALTHBAR + 1,
-	MAGICALBARRIER = DEATH_PARTICLE + 1,
-	TEXTURE_COUNT = MAGICALBARRIER + 1
+	PLAYER_TURN = DEATH_PARTICLE + 1,
+	ENEMY_TURN = PLAYER_TURN + 1,
+	ARROW = ENEMY_TURN + 1,
+	ROCK = ARROW + 1,
+	GREENCROSS = ROCK+1,
+
+	ICESHARD = GREENCROSS + 1,
+	ICESHARDICON = ICESHARD +1,
+	ICESHARDICONSELECTED = ICESHARDICON+1,
+	ICESHARDICONDISABLED = ICESHARDICONSELECTED + 1,
+
+	ROCKICON = ICESHARDICONDISABLED +1,
+	ROCKICONSELECTED = ROCKICON +1,
+	ROCKICONDISABLED = ROCKICONSELECTED +1,
+
+	HEALICON = ROCKICONDISABLED +1,
+	HEALICONSELECTED = HEALICON +1,
+	HEALICONDISABLED = HEALICONSELECTED +1,
+
+	MELEEICON = HEALICONDISABLED + 1,
+	MELEEICONSELECTED = MELEEICON + 1,
+	MELEEICONDISABLED = MELEEICONSELECTED +1,
+
+	TAUNT = MELEEICONDISABLED +1,
+	TAUNTICON = TAUNT + 1,
+	TAUNTICONSELECTED = TAUNTICON + 1,
+	TAUNTICONDISABLED = TAUNTICONSELECTED+1,
+
+	// ------- Animations -------
+	MAGE_ANIM = TAUNTICONDISABLED + 1,
+	SWORDSMAN_IDLE = MAGE_ANIM + 1,
+	SWORDSMAN_WALK = SWORDSMAN_IDLE + 1,
+	SWORDSMAN_MELEE = SWORDSMAN_WALK + 1,
+	SWORDSMAN_TAUNT = SWORDSMAN_MELEE + 1,
+	SWORDSMAN_DEATH = SWORDSMAN_TAUNT + 1,
+	NECROMANCER_IDLE = SWORDSMAN_DEATH + 1,
+	
+
+	// ------- Background layers ------
+	BACKGROUNDLAYERONE = NECROMANCER_IDLE + 1,
+	BACKGROUNDLAYERTWO = BACKGROUNDLAYERONE + 1,
+	BACKGROUNDLAYERTHREE = BACKGROUNDLAYERTWO + 1,
+	BACKGROUNDLAYERFOUR = BACKGROUNDLAYERTHREE + 1,
+	//------- iconToolTips -------------
+	FIREBALLTOOLTIP = BACKGROUNDLAYERFOUR + 1,
+	ICESHARDTOOLTIP = FIREBALLTOOLTIP + 1,
+	ROCKTOOLTIP = ICESHARDTOOLTIP + 1,
+	MELEETOOLTIP = ROCKTOOLTIP + 1,
+	TAUNTTOOLTIP = MELEETOOLTIP + 1,
+	HEALTOOLTIP = TAUNTTOOLTIP + 1,
+	// --------------------------
+	TEXTURE_COUNT = HEALTOOLTIP + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
 enum class EFFECT_ASSET_ID {
 	COLOURED = 0,
 	PEBBLE = COLOURED + 1,
-	BASICENEMY = PEBBLE + 1,
-	TEXTURED = BASICENEMY + 1,
+	TEXTURED = PEBBLE + 1,
 	WATER = TEXTURED + 1,
 	PARTICLE = WATER + 1,
 	EFFECT_COUNT = PARTICLE + 1
@@ -195,13 +361,25 @@ enum class EFFECT_ASSET_ID {
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
-	BASICENEMY = 0,
-	SPRITE = BASICENEMY + 1,
+	SPRITE = 0,
 	PEBBLE = SPRITE + 1,
 	DEBUG_LINE = PEBBLE + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
-	PLAYERMAGE = SCREEN_TRIANGLE + 1,
-	GEOMETRY_COUNT = PLAYERMAGE + 1
+
+	// ------- Animations -------
+	MAGE_IDLE = SCREEN_TRIANGLE + 1,
+	MAGE_CASTING = MAGE_IDLE + 1,
+	MAGE_DEATH = MAGE_CASTING + 1,
+	SWORDSMAN_IDLE = MAGE_DEATH + 1,
+	SWORDSMAN_WALK = SWORDSMAN_IDLE + 1,
+	SWORDSMAN_MELEE = SWORDSMAN_WALK + 1,
+	SWORDSMAN_TAUNT = SWORDSMAN_MELEE + 1,
+	SWORDSMAN_DEATH = SWORDSMAN_TAUNT + 1,
+	NECROMANCER_IDLE = SWORDSMAN_DEATH + 1,
+	// --------------------------
+	BACKGROUND = NECROMANCER_IDLE + 1,
+
+	GEOMETRY_COUNT = BACKGROUND + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

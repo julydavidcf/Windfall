@@ -17,18 +17,27 @@ public:
 	ComponentContainer<Collision> collisions;
 	ComponentContainer<Companion> companions;
 	ComponentContainer<Mesh*> meshPtrs;
+	ComponentContainer<BackgroundLayer> backgroundLayers;
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
-	ComponentContainer<HP> healthPoints;
+	ComponentContainer<Silenced> silenced;
+	ComponentContainer<Statistics> stats;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
-	ComponentContainer<Button> buttons;
+	ComponentContainer<ButtonItem> buttons;
 	ComponentContainer<HitTimer> hit_timer;
-	ComponentContainer<Barrier> barrier;
-
+	ComponentContainer<Reflect> reflects;
+	ComponentContainer<TurnIndicator> turnIndicators;
+	ComponentContainer<Attack> attackers;
+	ComponentContainer<RunTowards> runners;
+	ComponentContainer<Gravity> gravities;
+	ComponentContainer<Taunt> taunts;
+	ComponentContainer<StatIndicator> statsindicators;
+	ComponentContainer<CheckRoundTimer> checkRoundTimer;
+	ComponentContainer<toolTip> toolTip;
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -43,12 +52,21 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&silenced);
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);
 		registry_list.push_back(&buttons);
 		registry_list.push_back(&hit_timer);
-		registry_list.push_back(&barrier);
+		registry_list.push_back(&reflects);
+		registry_list.push_back(&turnIndicators);
+		registry_list.push_back(&attackers);
+		registry_list.push_back(&gravities);
+		registry_list.push_back(&taunts);
+		registry_list.push_back(&runners);
+		registry_list.push_back(&checkRoundTimer);
+		registry_list.push_back(&statsindicators);
+		registry_list.push_back(&toolTip);
 	}
 
 	void clear_all_components() {

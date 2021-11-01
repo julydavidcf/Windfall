@@ -39,6 +39,8 @@ int main()
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
+	world.createRound();
+	world.checkRound();
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -52,14 +54,13 @@ int main()
 		float elapsed_ms =
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
-
 		world.step(elapsed_ms);
 		ai.step(elapsed_ms);
 		physics.step(elapsed_ms, window_width_px, window_height_px);
 		world.handle_collisions();
 		world.handle_boundary_collision();
 
-		renderer.draw();
+		renderer.draw(elapsed_ms);
 	}
 
 	return EXIT_SUCCESS;
