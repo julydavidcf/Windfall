@@ -237,7 +237,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				}
 			}
 
-			float line_thickness = 1.5f;
+			float line_thickness = 3.f;
 
 			vec2 line1_pos = {(max_x+min_x)/2, min_y};
 			vec2 line2_pos = {(max_x+min_x)/2, max_y};
