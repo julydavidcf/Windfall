@@ -39,9 +39,9 @@ int main()
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
-	world.createRound();
-	world.checkRound();
-	world.displayPlayerTurn();	// display player turn when world renders
+	//world.createRound();
+	//world.checkRound();
+	//world.displayPlayerTurn();	// display player turn when world renders
 
 	// variable timestep loop
 	auto t = Clock::now();

@@ -2236,14 +2236,12 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Reset the game speed
 	current_speed = 1.f;
 
-	player_turn = 1;	// player turn indicator
-	roundVec.clear();	// empty vector roundVec to create a new round
-	createRound();
-
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
 	    registry.remove_all_components_of(registry.motions.entities.back());
+
+
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
@@ -2287,6 +2285,12 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	//Create a tooltip
 	tooltip;
+
+	player_turn = 1;	// player turn indicator
+	roundVec.clear();	// empty vector roundVec to create a new round
+	createRound();
+	checkRound();
+	showCorrectSkills();
 
 	displayPlayerTurn();	// display player turn when restart game
 }
