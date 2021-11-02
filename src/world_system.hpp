@@ -171,7 +171,7 @@ private:
 	float CAM_OFFSET_YMAX = 0.2;
 
 	//skill constants
-	float FIREBALLSPEED = 700.f;
+	float FIREBALLSPEED = 900.f;
 	float ARROWSPEED = 700.f;
 	float ICESHARDSPEED = 100.f;
 
