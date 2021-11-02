@@ -2644,7 +2644,29 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 void WorldSystem::on_mouse_button( int button , int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-		
+
+		//show all skill
+		if (selected_skill != 0) {
+			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
+		}
+		if (selected_skill != 1) {
+			registry.renderRequests.get(fireball_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+		}
+		if (selected_skill != 2) {
+			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
+		}
+		if (selected_skill != 3) {
+			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
+		}
+		if (selected_skill != 4) {
+			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+		}
+		if (selected_skill != 5) {
+			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
+		}
+		//disable some skill
+		showCorrectSkills();
+
 		if (player_turn == 1) {
 			displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
