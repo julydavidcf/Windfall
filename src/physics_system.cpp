@@ -27,7 +27,7 @@ vec2 PhysicsSystem::get_custom_bounding_box(Entity entity)
 			return { abs(motion.scale.x), abs(motion.scale.y)/1.5 };
 		} else if(type==SWORDSMAN){
 			return { abs(motion.scale.x)/2, 4*(abs(motion.scale.y)/5) };
-		} else if(type==NECROMANCER){
+		} else if(type== NECROMANCER_ONE){
 			return { 12*(abs(motion.scale.x)/10), 13*(abs(motion.scale.y)/10) };
 		} else{
 			return { abs(motion.scale.x), abs(motion.scale.y) };
@@ -59,7 +59,7 @@ vec2 PhysicsSystem::get_custom_position(Entity entity)
 			float offset_y = motion.scale.y/5;
 			float offset_x = motion.scale.x/12;
 			return {motion.position.x-offset_x, motion.position.y+offset_y};
-		} else if(type==NECROMANCER){
+		} else if(type==NECROMANCER_ONE){
 			return motion.position;
 		} else{
 			return motion.position;

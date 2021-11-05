@@ -140,12 +140,12 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-Entity createNecromancer(RenderSystem* renderer, vec2 pos)
+Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECROMANCER_IDLE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Setting initial motion values
@@ -153,7 +153,7 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ -NECROMANCER_WIDTH, NECROMANCER_HEIGHT });
+	motion.scale = vec2({ -NECRO_MINION_WIDTH, NECRO_MINION_HEIGHT });
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
@@ -163,13 +163,82 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos)
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
 	enemy.healthbar = createHealthBar(renderer, pos);
-	enemy.enemyType = NECROMANCER;
+	enemy.enemyType = NECROMANCER_MINION;
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::NECROMANCER_IDLE,
+		{ TEXTURE_ASSET_ID::NECRO_MINION_IDLE,
 			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::NECROMANCER_IDLE });
+			GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE });
+
+	return entity;
+}
+
+
+Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ -NECRO_ONE_WIDTH, NECRO_ONE_HEIGHT });
+
+	// Give hp to enemy
+	Statistics& stat = registry.stats.emplace(entity);
+	stat.health = 100;
+	stat.speed = 100;
+
+	// Add a healthbar
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.enemyType = NECROMANCER_ONE;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::NECRO_ONE_IDLE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE });
+
+	return entity;
+}
+
+Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ NECRO_TWO_WIDTH, NECRO_TWO_HEIGHT });
+
+	// Give hp to enemy
+	Statistics& stat = registry.stats.emplace(entity);
+	stat.health = 100;
+	stat.speed = 100;
+
+	// Add a healthbar
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.enemyType = NECROMANCER_TWO;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::NECRO_TWO_IDLE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE });
 
 	return entity;
 }

@@ -128,7 +128,11 @@ private:
 	Entity enemy_mage;
 	Entity player_swordsman;
 	Entity enemy_swordsman;
-	Entity necromancer;
+
+	Entity necromancer_phase_one;
+	Entity necromancer_phase_two;
+	Entity necromancer_minion;
+
 	Entity fireball;
 	Entity fireball_icon;
 	Entity silence_icon;

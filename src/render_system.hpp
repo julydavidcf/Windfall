@@ -71,7 +71,16 @@ class RenderSystem {
 			textures_path("swordsman_melee.png"),
 			textures_path("swordsman_taunt.png"),
 			textures_path("swordsman_death.png"),
-			textures_path("necromancer_idle.png"),
+			textures_path("necro_one_idle.png"),
+			textures_path("necro_one_casting.png"),
+			textures_path("necro_one_summoning.png"),
+			textures_path("necro_one_death.png"),
+			textures_path("necro_two_idle.png"),
+			textures_path("necro_two_casting.png"),
+			textures_path("necro_minion_idle.png"),
+			textures_path("necro_minion_walk.png"),
+			textures_path("necro_minion_melee.png"),
+			textures_path("necro_minion_death.png"),
 			textures_path("backgroundLayerOne.png"),
 			textures_path("backgroundLayerTwo.png"),
 			textures_path("backgroundLayerThree.png"),
@@ -111,6 +120,18 @@ class RenderSystem {
 	float SWORDSMAN_TAUNT_FRAME_TIME = 90;
 	float SWORDSMAN_DEATH_FRAME_TIME = 80;
 
+	float NECRO_ONE_IDLE_FRAME_TIME = 100;
+	float NECRO_ONE_CASTING_FRAME_TIME = 100;
+	float NECRO_ONE_SUMMONING_FRAME_TIME = 100;
+	float NECRO_ONE_DEATH_FRAME_TIME = 100;
+
+	float NECRO_TWO_IDLE_FRAME_TIME = 250;
+	float NECRO_TWO_CASTING_FRAME_TIME = 250;
+
+	float NECRO_MINION_IDLE_FRAME_TIME = 300;
+	float NECRO_MINION_WALK_FRAME_TIME = 100;
+	float NECRO_MINION_MELEE_FRAME_TIME = 90;
+
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
 	std::vector<float> lightBallsYcoords;
@@ -146,9 +167,35 @@ class RenderSystem {
 	const int SWORDSMAN_DEATH_FRAMES = 40;
 	const GLfloat SWORDSMAN_DEATH_FRAME_WIDTH = 0.025;
 
-	// Necromancer frame stats
-	const int NECROMANCER_IDLE_FRAMES = 4;
-	const GLfloat NECROMANCER_IDLE_FRAME_WIDTH = 0.25;
+	// Necromancer phase 1 frame stats
+	const int NECRO_ONE_IDLE_FRAMES = 4;
+	const GLfloat NECRO_ONE_IDLE_FRAME_WIDTH = 0.25;
+
+	const int NECRO_ONE_CASTING_FRAMES = 4;
+	const GLfloat NECRO_ONE_CASTING_FRAME_WIDTH = 0.25;
+
+	const int NECRO_ONE_SUMMONING_FRAMES = 4;
+	const GLfloat NECRO_ONE_SUMMONING_FRAME_WIDTH = 0.25;
+
+	const int NECRO_ONE_DEATH_FRAMES = 4;
+	const GLfloat NECRO_ONE_DEATH_FRAME_WIDTH = 0.25;
+
+	// Necromancer phase 2 frame stats
+	const int NECRO_TWO_IDLE_FRAMES = 6;
+	const GLfloat NECRO_TWO_IDLE_FRAME_WIDTH = 0.16666666666;
+
+	const int NECRO_TWO_CASTING_FRAMES = 6;
+	const GLfloat NECRO_TWO_CASTING_FRAME_WIDTH = 0.16666666666;
+
+	// Necromancer minion frame stats
+	const int NECRO_MINION_IDLE_FRAMES = 5;
+	const GLfloat NECRO_MINION_IDLE_FRAME_WIDTH = 0.2;
+
+	const int NECRO_MINION_WALK_FRAMES = 5;
+	const GLfloat NECRO_MINION_WALK_FRAME_WIDTH = 0.2;
+
+	const int NECRO_MINION_MELEE_FRAMES = 5;
+	const GLfloat NECRO_MINION_MELEE_FRAME_WIDTH = 0.2;
 
 	// Camera/scrolling constants
 	float CAMERA_OFFSET_LEFT = 500;

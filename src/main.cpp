@@ -15,8 +15,8 @@
 
 using Clock = std::chrono::high_resolution_clock;
 
-const int window_width_px = 1200;
-const int window_height_px = 800;
+const int window_width_px = 1680;
+const int window_height_px = 1050;
 
 // Entry point
 int main()

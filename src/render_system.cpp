@@ -505,12 +505,30 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						break;
 				}
-				case NECROMANCER: {
+				case NECROMANCER_ONE: {
 					switch (animType) {
-						case IDLE: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAME_WIDTH; break;
-						case ATTACKING: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
-						case DEAD: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
+						case IDLE: numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAME_WIDTH; timePerFrame = NECRO_ONE_IDLE_FRAME_TIME; break;
+						case ATTACKING: numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAMES; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
+						case DEAD: numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAMES; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
 						default: break;
+					}
+					break;
+				}
+				case NECROMANCER_TWO: {
+					switch (animType) {
+					case IDLE: numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAME_WIDTH; timePerFrame = NECRO_TWO_IDLE_FRAME_TIME; break;
+					case ATTACKING: numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAMES; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
+					case DEAD: numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAMES; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
+					default: break;
+					}
+					break;
+				}
+				case NECROMANCER_MINION: {
+					switch (animType) {
+					case IDLE: numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME; break;
+					case ATTACKING: numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME; break;
+					case DEAD: numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME; break;
+					default: break;
 					}
 					break;
 				}

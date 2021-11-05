@@ -932,36 +932,38 @@ void WorldSystem::restart_game(bool force_restart) {
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
 	// Create a player mage
-	player_mage = createPlayerMage(renderer, { 100, 575 });
+	player_mage = createPlayerMage(renderer, { 200, 700 });
 	// Create a player swordsman
-	player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
-	// Create an enemy mage
-	enemy_mage = createEnemyMage(renderer, { 1050, 575 });
+	player_swordsman = createPlayerSwordsman(renderer, { 350, 600 });
+	//// Create an enemy mage
+	//enemy_mage = createEnemyMage(renderer, { 1050, 575 });
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
+	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 700 });
+	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 600 });
+	necromancer_minion = createNecromancerMinion(renderer, { 750, 750 });
+	
 	if (gameLevel > 1) {
 		// Create an enemy swordsman
 		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
 		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	}
-	// Create the fireball icon
-	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 
 	// Create the icons here
-	taunt_icon = createTauntIcon(renderer, { 300, 700 });
-	heal_icon = createHealIcon(renderer, { 400, 700 });
-	melee_icon = createMeleeIcon(renderer, { 500, 700 });
-	iceShard_icon = createIceShardIcon(renderer, { 600, 700 });
-	fireBall_icon = createFireballIcon(renderer, { 700, 700 });
-	rock_icon = createRockIcon(renderer, { 800, 700 });
+	taunt_icon = createTauntIcon(renderer, { 500, 900 });
+	heal_icon = createHealIcon(renderer, { 650, 900 });
+	melee_icon = createMeleeIcon(renderer, { 800, 900 });
+	iceShard_icon = createIceShardIcon(renderer, { 950, 900 });
+	fireBall_icon = createFireballIcon(renderer, { 1100, 900 });
+	rock_icon = createRockIcon(renderer, { 1250, 900 });
 
 	//Create a tooltip
 	tooltip;
 
 	player_turn = 1;	// player turn indicator
 	roundVec.clear();	// empty vector roundVec to create a new round
-	createRound();
-	checkRound();
+	//createRound();
+	//checkRound();
 	showCorrectSkills();
 
 	displayPlayerTurn();	// display player turn when restart game
