@@ -13,6 +13,7 @@
 
 #include "render_system.hpp"
 
+
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
 class WorldSystem
@@ -34,10 +35,6 @@ public:
 
 	// create attacks
 	void iceShardAttack(Entity currPlayer);
-	void rockAttack(Entity target);
-	void healSkill(Entity target, float amount);
-	void meleeSkill(Entity target);
-	void tauntSkill(Entity target);
 
 	//Prep skill Function
 	void startTauntAttack(Entity origin, Entity target);
@@ -116,12 +113,11 @@ private:
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos);
 	Entity launchFireball(vec2 startPos, vec2 ms_pos);
 	Entity launchRock(Entity target);
-	void launchMelee(Entity origin, Entity target);
 	void launchTaunt(Entity target);
 	void removeTaunt(Entity target);
-	void healTarget(Entity target, float amount);
 	void damageTarget(Entity target, float amount);
-
+	void launchHeal(Entity target, float amount);
+	void launchMelee(Entity target);
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
 
@@ -133,11 +129,9 @@ private:
 	Entity player_swordsman;
 	Entity enemy_swordsman;
 	Entity necromancer;
-
 	Entity fireball;
 	Entity fireball_icon;
 	Entity silence_icon;
-
 	Entity iceShard;
 
 	//icons
@@ -185,8 +179,6 @@ private:
 //swordsman
 		{ false, false, false, false, true, true}
 	};
-
-
 };
 // Can't use diretly somehow so just for reference
 enum class SKILL_ID {
@@ -196,8 +188,5 @@ enum class SKILL_ID {
 	SK_HEAL = SK_ROCK + 1, //3
 	SK_TAUNT = SK_HEAL+1,//4
 	SK_MELEE = SK_TAUNT +1,//5
-
-
-
 	SKILL_COUNT = SK_MELEE + 1,
 };
