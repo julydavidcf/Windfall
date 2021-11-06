@@ -8,8 +8,10 @@
 #include <sstream>
 
 #include "ai_system.hpp"
+#include <skills.cpp>
 
 AISystem ai;
+Skills sk;
 
 // Game configuration
 const size_t MAX_TURTLES = 15;
@@ -232,130 +234,130 @@ void WorldSystem::iceShardAttack(Entity currPlayer) {
 	}
 }
 
-void WorldSystem::startTauntAttack(Entity origin, Entity target) {
-	if (registry.enemies.has(origin)) {
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = TAUNT;
-		attack.target = target;
-		attack.counter_ms = 1500.f;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-	else if (registry.companions.has(origin)) {
-		Mix_PlayChannel(-1, taunt_spell_sound, 0);
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = TAUNT;
-		attack.target = target;
-		attack.counter_ms = 1500.f;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-}
+//void WorldSystem::startTauntAttack(Entity origin, Entity target) {
+//	if (registry.enemies.has(origin)) {
+//		Enemy& enemy = registry.enemies.get(origin);
+//		enemy.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = TAUNT;
+//		attack.target = target;
+//		attack.counter_ms = 1500.f;
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//	else if (registry.companions.has(origin)) {
+//		Mix_PlayChannel(-1, taunt_spell_sound, 0);
+//		Companion& companion = registry.companions.get(origin);
+//		companion.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = TAUNT;
+//		attack.target = target;
+//		attack.counter_ms = 1500.f;
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//}
 
-void WorldSystem::startHealAttack(Entity origin, Entity target) {
-	prevPlayer = currPlayer;
-	if (registry.enemies.has(origin)) {
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = HEAL;
-		attack.target = target;
+//void WorldSystem::startHealAttack(Entity origin, Entity target) {
+//	prevPlayer = currPlayer;
+//	if (registry.enemies.has(origin)) {
+//		Enemy& enemy = registry.enemies.get(origin);
+//		enemy.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = HEAL;
+//		attack.target = target;
+//
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//	else if (registry.companions.has(origin)) {
+//		Companion& companion = registry.companions.get(origin);
+//		companion.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = HEAL;
+//		attack.target = target;
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//}
 
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-	else if (registry.companions.has(origin)) {
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = HEAL;
-		attack.target = target;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-}
+//void WorldSystem::startIceShardAttack(Entity origin, Entity target) {
+//	printf("Started the ice shard attack\n");
+//	if (registry.enemies.has(origin)) {
+//		Enemy& enemy = registry.enemies.get(origin);
+//		enemy.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = ICESHARD;
+//		attack.target = target;
+//		attack.counter_ms += 50.f;
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//	else if (registry.companions.has(origin)) {
+//		Companion& companion = registry.companions.get(origin);
+//		companion.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = ICESHARD;
+//		attack.old_pos = msPos;
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//}
 
-void WorldSystem::startIceShardAttack(Entity origin, Entity target) {
-	printf("Started the ice shard attack\n");
-	if (registry.enemies.has(origin)) {
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = ICESHARD;
-		attack.target = target;
-		attack.counter_ms += 50.f;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-	else if (registry.companions.has(origin)) {
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = ICESHARD;
-		attack.old_pos = msPos;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-}
-
-void WorldSystem::startFireballAttack(Entity origin) {
-	if (registry.enemies.has(origin)) {
-		//TODO
-	}
-	else if (registry.companions.has(origin)) {
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = FIREBALL;
-		attack.counter_ms += 30.f;
-		attack.old_pos = msPos;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-}
-
-void WorldSystem::startRockAttack(Entity origin, Entity target) {
-	if (registry.enemies.has(origin)) {
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = ROCK;
-		attack.target = target;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-	else if (registry.companions.has(origin)) {
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = ROCK;
-		attack.target = target;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-}
+//void WorldSystem::startFireballAttack(Entity origin) {
+//	if (registry.enemies.has(origin)) {
+//		//TODO
+//	}
+//	else if (registry.companions.has(origin)) {
+//		Companion& companion = registry.companions.get(origin);
+//		companion.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = FIREBALL;
+//		attack.counter_ms += 30.f;
+//		attack.old_pos = msPos;
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//}
+//
+//void WorldSystem::startRockAttack(Entity origin, Entity target) {
+//	if (registry.enemies.has(origin)) {
+//		Enemy& enemy = registry.enemies.get(origin);
+//		enemy.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = ROCK;
+//		attack.target = target;
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//	else if (registry.companions.has(origin)) {
+//		Companion& companion = registry.companions.get(origin);
+//		companion.curr_anim_type = ATTACKING;
+//		Attack& attack = registry.attackers.emplace(origin);
+//		attack.attack_type = ROCK;
+//		attack.target = target;
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = attack.counter_ms + animation_timer;
+//		}
+//	}
+//}
 
 void WorldSystem::startMeleeAttack(Entity origin, Entity target) {
 	if (registry.enemies.has(origin)) {
@@ -1401,14 +1403,14 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				else {
 					//iceshard
 					if (selected_skill == 0) {
-						startIceShardAttack(currPlayer, currPlayer);
+						sk.startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
 					//fireball
 					if (selected_skill == 1) {
-						startFireballAttack(currPlayer);
+						sk.startFireballAttack(currPlayer);
 						selected_skill = -1;
 						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1419,7 +1421,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
-								startRockAttack(currPlayer, registry.enemies.entities[j]);
+								sk.startRockAttack(currPlayer, registry.enemies.entities[j]);
 								selected_skill = -1;
 								registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1432,7 +1434,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.companions.entities[j]);
 							if (inButton(registry.motions.get(registry.companions.entities[j]).position, b_box.x, b_box.y)) {
-								startHealAttack(currPlayer, registry.companions.entities[j]);
+								sk.startHealAttack(currPlayer, registry.companions.entities[j]);
 								selected_skill = -1;
 								registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1445,7 +1447,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
-								startTauntAttack(currPlayer, registry.enemies.entities[j]);
+								sk.startTauntAttack(currPlayer, registry.enemies.entities[j]);
 								selected_skill = -1;
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1766,4 +1768,8 @@ void WorldSystem::showCorrectSkills() {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
 	}
+}
+
+vec2 WorldSystem::getMouse() {
+	return msPos;
 }

@@ -1,6 +1,7 @@
 // internal
 #include "ai_system.hpp"
 #include "world_system.hpp"
+#include <skills.hpp>
 
 void AISystem::step(float elapsed_ms)
 {
@@ -11,6 +12,7 @@ void AISystem::step(float elapsed_ms)
 Entity target;
 int playersDead = 0;
 void BTNode::init(Entity e) {};
+
 
 // Define enemy behavior tree nodes
 // The return type of behaviour tree processing
@@ -841,8 +843,9 @@ BTState BTIfPlayersAlive::process(Entity e) {
 void BTCastIceShard::init(Entity e) {
 }
 BTState BTCastIceShard::process(Entity e) {
+	Skills sk;
 	printf("Shoot Ice Shard \n\n");	// print statement to visualize
-	worldSystem.startIceShardAttack(e, currPlayer);
+	sk.startIceShardAttack(e, currPlayer);
 	// return progress
 	return BTState::Success;
 }
@@ -850,13 +853,14 @@ BTState BTCastIceShard::process(Entity e) {
 void BTCastTaunt::init(Entity e) {
 }
 BTState BTCastTaunt::process(Entity e) {
+	Skills sk;
 	for (int i = 0; i < registry.companions.components.size(); i++) {
 		Entity toGet = registry.companions.entities[i];
 		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
 			target = toGet;
 		}
 	}
-	worldSystem.startTauntAttack(e, target);
+	sk.startTauntAttack(e, target);
 	printf("Cast Taunt \n\n");	// print statement to visualize
 
 	// return progress
@@ -885,13 +889,14 @@ BTState BTMeleeAttack::process(Entity e) {
 void BTCastRock::init(Entity e) {
 }
 BTState BTCastRock::process(Entity e) {
+	Skills sk;
 	for (int i = 0; i < registry.companions.components.size(); i++) {
 		Entity toGet = registry.companions.entities[i];
 		if (registry.companions.get(toGet).companionType == SWORDSMAN) {
 			target = toGet;
 		}
 	}
-	worldSystem.startRockAttack(e, target);
+	sk.startRockAttack(e, target);
 	printf("Cast Rock \n\n");	// print statement to visualize
 
 	// return progress
@@ -901,13 +906,14 @@ BTState BTCastRock::process(Entity e) {
 void BTCastHeal::init(Entity e) {
 }
 BTState BTCastHeal::process(Entity e) {
+	Skills sk;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {
 		Entity toGet = registry.enemies.entities[i];
 		if (registry.enemies.get(toGet).enemyType == SWORDSMAN) {
 			target = toGet;
 		}
 	}
-	worldSystem.startHealAttack(e, target);
+	sk.startHealAttack(e, target);
 
 	printf("Cast Heal \n\n");	// print statement to visualize
 
@@ -918,13 +924,14 @@ BTState BTCastHeal::process(Entity e) {
 void BTCastHealOnSelf::init(Entity e) {
 }
 BTState BTCastHealOnSelf::process(Entity e) {
+	Skills sk;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// checks player side for mage NOT WORKING
 		Entity toGet = registry.enemies.entities[i];
 		if (registry.enemies.get(toGet).enemyType == MAGE) {
 			target = toGet;
 		}
 	}
-	worldSystem.startHealAttack(e, target);
+	sk.startHealAttack(e, target);
 	printf("Cast Heal On Self \n\n");	// print statement to visualize
 
 	// return progress

@@ -12,6 +12,7 @@
 #include "physics_system.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
+#include <skills.hpp>
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -26,6 +27,7 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AISystem ai;
+	Skills sk;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);

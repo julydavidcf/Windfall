@@ -37,7 +37,7 @@ public:
 	void iceShardAttack(Entity currPlayer);
 
 	//Prep skill Function
-	void startTauntAttack(Entity origin, Entity target);
+	//void startTauntAttack(Entity origin, Entity target);
 	void startIceShardAttack(Entity origin, Entity target);
 	void startFireballAttack(Entity origin);
 	void startRockAttack(Entity origin, Entity target);
@@ -63,6 +63,8 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
+
+	vec2 getMouse();
 
 	int player_turn;
 
