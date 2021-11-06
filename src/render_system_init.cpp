@@ -287,8 +287,8 @@ void RenderSystem::initializeGlGeometryBuffers()
 	necro_two_idle_vertices[2].position = { +1.f, -1.f, 0.f };
 	necro_two_idle_vertices[3].position = { -1.f, -1.f, 0.f };
 	necro_two_idle_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
-	necro_two_idle_vertices[1].texcoord = { 0.16666666666, 1.f };        // Bottom right
-	necro_two_idle_vertices[2].texcoord = { 0.16666666666, 0.f };        // Top right
+	necro_two_idle_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	necro_two_idle_vertices[2].texcoord = { 0.125, 0.f };        // Top right
 	necro_two_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE, necro_two_idle_vertices, textured_indices);
 

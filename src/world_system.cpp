@@ -940,8 +940,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
 	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 700 });
-	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 600 });
+	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
 	necromancer_minion = createNecromancerMinion(renderer, { 750, 750 });
+	registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 	
 	if (gameLevel > 1) {
 		// Create an enemy swordsman
@@ -1676,6 +1677,7 @@ Entity WorldSystem::launchRock(Entity target) {
 	Entity resultEntity = createRock(renderer, { targetp.x, targetp.y - 300 }, isFriendly);
 	Projectile* proj = &registry.projectiles.get(resultEntity);
 	proj->flyingTimer = 2000.f;
+	proj->enableCameraTracking = 0;
 	return  resultEntity;
 }
 

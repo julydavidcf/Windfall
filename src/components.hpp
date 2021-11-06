@@ -94,6 +94,7 @@ struct Gravity
 struct Projectile
 {
 	float flyingTimer = 0.f;
+	int enableCameraTracking = 1;
 };
 
 //Special effect : Taunt
