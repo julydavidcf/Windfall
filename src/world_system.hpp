@@ -64,7 +64,6 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
-	vec2 getMouse();
 
 	int player_turn;
 

@@ -1500,6 +1500,7 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
+	sk.mousePos = mouse_position;
 	if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
 		if (registry.toolTip.size() == 0) {
 			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
@@ -1770,6 +1771,3 @@ void WorldSystem::showCorrectSkills() {
 	}
 }
 
-vec2 WorldSystem::getMouse() {
-	return msPos;
-}

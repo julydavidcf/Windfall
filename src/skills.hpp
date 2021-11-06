@@ -26,7 +26,9 @@ public:
 	//timers
 	const float animation_timer = 250.f;
 
-	WorldSystem ws;
+	vec2 mousePos = { 0,0 };
+
+	//WorldSystem ws;
 
 	void startTauntAttack(Entity origin, Entity target);
 	void startIceShardAttack(Entity origin, Entity target);

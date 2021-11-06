@@ -5,6 +5,8 @@
 
 Skills::Skills() {
 
+
+
 }
 
 Skills::~Skills() {
@@ -94,7 +96,7 @@ void Skills::startIceShardAttack(Entity origin, Entity target) {
 		companion.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ICESHARD;
-		attack.old_pos = ws.getMouse();
+		attack.old_pos = mousePos;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
@@ -112,7 +114,7 @@ void Skills::startFireballAttack(Entity origin) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = FIREBALL;
 		attack.counter_ms += 30.f;
-		attack.old_pos = ws.getMouse();
+		attack.old_pos = mousePos;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
