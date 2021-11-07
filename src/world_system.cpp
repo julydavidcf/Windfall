@@ -359,84 +359,84 @@ void WorldSystem::iceShardAttack(Entity currPlayer) {
 //	}
 //}
 
-void WorldSystem::startMeleeAttack(Entity origin, Entity target) {
-	if (registry.enemies.has(origin)) {
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = WALKING;
-
-		Motion& enemy_motion = registry.motions.get(origin);
-		Motion target_motion = registry.motions.get(target);
-
-		// Add enemy to the running component
-		RunTowards& rt = registry.runners.emplace(origin);
-		if (registry.hit_timer.has(origin)) {
-			rt.old_pos = { enemy_motion.position.x - hit_position, enemy_motion.position.y };
-		}
-		else {
-			rt.old_pos = enemy_motion.position;
-		}
-
-		rt.target = target;
-		// Have some offset
-		rt.target_position = { target_motion.position.x + 125, target_motion.position.y };
-
-		// Change enemy's velocity
-		float speed = 550.f;
-
-		enemy_motion.velocity = { -speed,0.f };
-		Motion& healthBar = registry.motions.get(enemy.healthbar);
-		healthBar.velocity = enemy_motion.velocity;
-
-		// Calculate the timer
-		float time = (enemy_motion.position.x - rt.target_position.x) / speed;
-		rt.counter_ms = time * 1000;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
-		}
-
-		playerUseMelee = 1;
-	}
-	else if (registry.companions.has(origin)) {
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = WALKING;
-
-		Motion& companion_motion = registry.motions.get(origin);
-		Motion target_motion = registry.motions.get(target);
-
-		// Add enemy to the running component
-		RunTowards& rt = registry.runners.emplace(origin);
-		if (registry.hit_timer.has(origin)) {
-			rt.old_pos = { companion_motion.position.x + hit_position, companion_motion.position.y };
-		}
-		else {
-			rt.old_pos = companion_motion.position;
-		}
-
-		rt.target = target;
-		// Have some offset
-		rt.target_position = { target_motion.position.x - 125, target_motion.position.y };
-
-		// Change companion's velocity
-		float speed = 550.f;
-
-		companion_motion.velocity = { speed,0.f };
-		Motion& healthBar = registry.motions.get(companion.healthbar);
-		healthBar.velocity = companion_motion.velocity;
-
-		// Calculate the timer
-		float time = (rt.target_position.x - companion_motion.position.x) / speed;
-		rt.counter_ms = time * 1000;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
-		}
-
-		playerUseMelee = 1;
-	}
-}
+//void WorldSystem::startMeleeAttack(Entity origin, Entity target) {
+//	if (registry.enemies.has(origin)) {
+//		Enemy& enemy = registry.enemies.get(origin);
+//		enemy.curr_anim_type = WALKING;
+//
+//		Motion& enemy_motion = registry.motions.get(origin);
+//		Motion target_motion = registry.motions.get(target);
+//
+//		// Add enemy to the running component
+//		RunTowards& rt = registry.runners.emplace(origin);
+//		if (registry.hit_timer.has(origin)) {
+//			rt.old_pos = { enemy_motion.position.x - hit_position, enemy_motion.position.y };
+//		}
+//		else {
+//			rt.old_pos = enemy_motion.position;
+//		}
+//
+//		rt.target = target;
+//		// Have some offset
+//		rt.target_position = { target_motion.position.x + 125, target_motion.position.y };
+//
+//		// Change enemy's velocity
+//		float speed = 550.f;
+//
+//		enemy_motion.velocity = { -speed,0.f };
+//		Motion& healthBar = registry.motions.get(enemy.healthbar);
+//		healthBar.velocity = enemy_motion.velocity;
+//
+//		// Calculate the timer
+//		float time = (enemy_motion.position.x - rt.target_position.x) / speed;
+//		rt.counter_ms = time * 1000;
+//
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+//		}
+//
+//		playerUseMelee = 1;
+//	}
+//	else if (registry.companions.has(origin)) {
+//		Companion& companion = registry.companions.get(origin);
+//		companion.curr_anim_type = WALKING;
+//
+//		Motion& companion_motion = registry.motions.get(origin);
+//		Motion target_motion = registry.motions.get(target);
+//
+//		// Add enemy to the running component
+//		RunTowards& rt = registry.runners.emplace(origin);
+//		if (registry.hit_timer.has(origin)) {
+//			rt.old_pos = { companion_motion.position.x + hit_position, companion_motion.position.y };
+//		}
+//		else {
+//			rt.old_pos = companion_motion.position;
+//		}
+//
+//		rt.target = target;
+//		// Have some offset
+//		rt.target_position = { target_motion.position.x - 125, target_motion.position.y };
+//
+//		// Change companion's velocity
+//		float speed = 550.f;
+//
+//		companion_motion.velocity = { speed,0.f };
+//		Motion& healthBar = registry.motions.get(companion.healthbar);
+//		healthBar.velocity = companion_motion.velocity;
+//
+//		// Calculate the timer
+//		float time = (rt.target_position.x - companion_motion.position.x) / speed;
+//		rt.counter_ms = time * 1000;
+//
+//		if (!registry.checkRoundTimer.has(currPlayer)) {
+//			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+//			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+//		}
+//
+//		playerUseMelee = 1;
+//	}
+//}
 
 std::vector<Entity> roundVec;
 void WorldSystem::createRound() {
@@ -1460,7 +1460,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
-								startMeleeAttack(currPlayer, registry.enemies.entities[j]);
+								sk.startMeleeAttack(currPlayer, registry.enemies.entities[j]);
 								selected_skill = -1;
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 							}

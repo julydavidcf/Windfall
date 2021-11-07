@@ -871,6 +871,7 @@ void BTMeleeAttack::init(Entity e) {
 }
 BTState BTMeleeAttack::process(Entity e) {
 	int i = 0;
+	Skills sk;
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
 		Entity toGet = registry.companions.entities[i];
 		if (registry.motions.get(toGet).position.x > i) {
@@ -878,7 +879,7 @@ BTState BTMeleeAttack::process(Entity e) {
 			target = toGet;	// get nearest player entity
 		}
 	}
-	worldSystem.startMeleeAttack(e, target);
+	sk.startMeleeAttack(e, target);
 
 	printf("Melee Attack \n\n");	// print statement to visualize
 
