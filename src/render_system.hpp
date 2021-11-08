@@ -74,11 +74,13 @@ class RenderSystem {
 			textures_path("necro_one_idle.png"),
 			textures_path("necro_one_casting.png"),
 			textures_path("necro_one_summoning.png"),
-			textures_path("necro_one_death.png"),
+			textures_path("necro_one_death_one.png"),
+			textures_path("necro_one_death_two.png"),
 			textures_path("necro_two_idle.png"),
 			textures_path("necro_two_melee.png"),
 			textures_path("necro_two_casting.png"),
 			textures_path("necro_two_death.png"),
+			textures_path("necro_minion_appear.png"),
 			textures_path("necro_minion_idle.png"),
 			textures_path("necro_minion_walk.png"),
 			textures_path("necro_minion_melee.png"),
@@ -130,6 +132,7 @@ class RenderSystem {
 	float NECRO_TWO_IDLE_FRAME_TIME = 200;
 	float NECRO_TWO_CASTING_FRAME_TIME = 250;
 
+	float NECRO_MINION_APPEAR_FRAME_TIME = 200;
 	float NECRO_MINION_IDLE_FRAME_TIME = 300;
 	float NECRO_MINION_WALK_FRAME_TIME = 100;
 	float NECRO_MINION_MELEE_FRAME_TIME = 90;
@@ -176,8 +179,8 @@ class RenderSystem {
 	const int NECRO_ONE_CASTING_FRAMES = 4;
 	const GLfloat NECRO_ONE_CASTING_FRAME_WIDTH = 0.25;
 
-	const int NECRO_ONE_SUMMONING_FRAMES = 4;
-	const GLfloat NECRO_ONE_SUMMONING_FRAME_WIDTH = 0.25;
+	const int NECRO_ONE_SUMMONING_FRAMES = 6;
+	const GLfloat NECRO_ONE_SUMMONING_FRAME_WIDTH = 0.16666666666;
 
 	const int NECRO_ONE_DEATH_ONE_FRAMES = 10;
 	const GLfloat NECRO_ONE_DEATH_ONE_FRAME_WIDTH = 0.10;
@@ -199,14 +202,20 @@ class RenderSystem {
 	const GLfloat NECRO_TWO_DEATH_FRAME_WIDTH = 0.14285714285;
 
 	// Necromancer minion frame stats
+	const int NECRO_MINION_APPEAR_FRAMES = 10;
+	const GLfloat NECRO_MINION_APPEAR_FRAME_WIDTH = 0.10;
+
 	const int NECRO_MINION_IDLE_FRAMES = 5;
 	const GLfloat NECRO_MINION_IDLE_FRAME_WIDTH = 0.2;
 
-	const int NECRO_MINION_WALK_FRAMES = 5;
-	const GLfloat NECRO_MINION_WALK_FRAME_WIDTH = 0.2;
+	const int NECRO_MINION_WALK_FRAMES = 8;
+	const GLfloat NECRO_MINION_WALK_FRAME_WIDTH = 0.125;
 
-	const int NECRO_MINION_MELEE_FRAMES = 5;
-	const GLfloat NECRO_MINION_MELEE_FRAME_WIDTH = 0.2;
+	const int NECRO_MINION_MELEE_FRAMES = 10;
+	const GLfloat NECRO_MINION_MELEE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_MINION_DEATH_FRAMES = 10;
+	const GLfloat NECRO_MINION_DEATH_WIDTH = 0.10;
 
 	// Camera/scrolling constants
 	float CAMERA_OFFSET_LEFT = 500;

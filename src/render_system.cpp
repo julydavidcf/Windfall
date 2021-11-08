@@ -508,9 +508,63 @@ void RenderSystem::draw(float elapsed_ms)
 				}
 				case NECROMANCER_ONE: {
 					switch (animType) {
-						case IDLE: numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAME_WIDTH; timePerFrame = NECRO_ONE_IDLE_FRAME_TIME; break;
-						case ATTACKING: numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAMES; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
-						case DEAD: numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAMES; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
+						case IDLE: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_ONE_IDLE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE;
+							numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAME_WIDTH; timePerFrame = NECRO_ONE_IDLE_FRAME_TIME; break;
+						}
+						case ATTACKING: {
+							switch (registry.attackers.get(entity).attack_type) {
+								case SUMMONING: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
+										*currFrame = 0;
+									}	
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
+									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME; break;
+								}
+								default: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING;
+									numFrames = NECRO_ONE_CASTING_FRAMES; frame_width = NECRO_ONE_CASTING_FRAME_WIDTH; timePerFrame = NECRO_ONE_CASTING_FRAME_TIME; break;
+								}
+							}
+							break;
+						}
+						case DEAD: {
+							// Starting to die
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE && currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO) {
+								*currFrame = 0;
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_ONE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE;
+								numFrames = NECRO_ONE_DEATH_ONE_FRAMES; frame_width = NECRO_ONE_DEATH_ONE_FRAME_WIDTH;
+							}
+							else if (currGeometry == GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_ONE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE;
+								numFrames = NECRO_ONE_DEATH_ONE_FRAMES; frame_width = NECRO_ONE_DEATH_ONE_FRAME_WIDTH;
+
+								// Half-dead, switch to second death anim
+								if (*currFrame == NECRO_ONE_DEATH_ONE_FRAMES - 1) {
+									*currFrame = 0;
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_TWO;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO;
+									numFrames = NECRO_ONE_DEATH_TWO_FRAMES; frame_width = NECRO_ONE_DEATH_TWO_FRAME_WIDTH;
+								}
+							}
+							else if (currGeometry == GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_TWO;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO;
+								numFrames = NECRO_ONE_DEATH_TWO_FRAMES; frame_width = NECRO_ONE_DEATH_TWO_FRAME_WIDTH;
+							}
+							timePerFrame = NECRO_ONE_DEATH_FRAME_TIME; break;
+						}
 						default: break;
 					}
 					break;
@@ -518,14 +572,15 @@ void RenderSystem::draw(float elapsed_ms)
 				case NECROMANCER_TWO: {
 					switch (animType) {
 					case IDLE: numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAME_WIDTH; timePerFrame = NECRO_TWO_IDLE_FRAME_TIME; break;
-					case ATTACKING: numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAMES; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
-					case DEAD: numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAMES; timePerFrame = SWORDSMAN_WALK_FRAME_TIME; break;
+					case ATTACKING: numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAMES; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
+					case DEAD: numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAMES; timePerFrame = NECRO_TWO_IDLE_FRAME_TIME; break;
 					default: break;
 					}
 					break;
 				}
 				case NECROMANCER_MINION: {
 					switch (animType) {
+					case APPEARING: numFrames = NECRO_MINION_APPEAR_FRAMES; frame_width = NECRO_MINION_APPEAR_FRAME_WIDTH; timePerFrame = NECRO_MINION_APPEAR_FRAME_TIME; break;
 					case IDLE: numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME; break;
 					case ATTACKING: numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME; break;
 					case DEAD: numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME; break;
