@@ -8,10 +8,7 @@
 #include <sstream>
 
 #include "ai_system.hpp"
-#include <skills.cpp>
-
-AISystem ai;
-Skills sk;
+#include "skill_system.hpp"
 
 // Game configuration
 const size_t MAX_TURTLES = 15;
@@ -194,8 +191,10 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	return window;
 }
 
-void WorldSystem::init(RenderSystem* renderer_arg) {
+void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem* skill_arg) {
 	this->renderer = renderer_arg;
+	this->ai = ai_arg;
+	this->sk = skill_arg;
 
 	// Playing background music indefinitely (Later)
 	//Mix_VolumeMusic(8);	// adjust volume from 0 to 128
@@ -479,7 +478,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					case ICESHARD: {
 						Mix_Volume(5, 32);
 						Mix_PlayChannel(5, rock_spell_sound, 0);
-						currentProjectile = sk.launchIceShard(companion_motion.position, attack.old_pos,renderer);
+						currentProjectile = sk->launchIceShard(companion_motion.position, attack.old_pos,renderer);
 						break;
 					}
 					case HEAL: {
@@ -560,7 +559,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected companion character has died so as to progress to an enemy's
 				if (registry.stats.get(prevPlayer).health <= 0 || playerUseMelee == 1) {	// Second case: (Brute force) playerUseMelee checks if the previous player used melee attack
 					prevPlayer = currPlayer;
-					ai.callTree(currPlayer);
+					ai->callTree(currPlayer);
 				}
 			}
 			if (registry.enemies.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if enemy is going right after another enemy's turn
@@ -571,11 +570,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					else {
 						prevPlayer = currPlayer;
-						ai.callTree(currPlayer);
+						ai->callTree(currPlayer);
 					}
 				}
 				if (registry.stats.get(prevPlayer).health <= 0) {	// Checks if selected enemy character has died so as to progress to an enemy's TO TEST
-					ai.callTree(currPlayer);
+					ai->callTree(currPlayer);
 				}
 			}
 		}
@@ -978,7 +977,7 @@ void WorldSystem::handle_collisions() {
 									displayEnemyTurn();
 									if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
 										prevPlayer = currPlayer;
-										ai.callTree(currPlayer);
+										ai->callTree(currPlayer);
 									}
 									else {
 										if (roundVec.empty()) {
@@ -1057,7 +1056,7 @@ void WorldSystem::handle_boundary_collision() {
 				if (!registry.checkRoundTimer.has(currPlayer)) {
 					displayEnemyTurn();
 					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-						ai.callTree(currPlayer);
+						ai->callTree(currPlayer);
 					}
 					else {
 						if (roundVec.empty()) {
@@ -1199,14 +1198,14 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				else {
 					//iceshard
 					if (selected_skill == 0) {
-						sk.startIceShardAttack(currPlayer, currPlayer);
+						sk->startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
 					//fireball
 					if (selected_skill == 1) {
-						sk.startFireballAttack(currPlayer);
+						sk->startFireballAttack(currPlayer);
 						selected_skill = -1;
 						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1217,7 +1216,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
-								sk.startRockAttack(currPlayer, registry.enemies.entities[j]);
+								sk->startRockAttack(currPlayer, registry.enemies.entities[j]);
 								selected_skill = -1;
 								registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1230,7 +1229,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.companions.entities[j]);
 							if (inButton(registry.motions.get(registry.companions.entities[j]).position, b_box.x, b_box.y)) {
-								sk.startHealAttack(currPlayer, registry.companions.entities[j]);
+								sk->startHealAttack(currPlayer, registry.companions.entities[j]);
 								selected_skill = -1;
 								registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1243,7 +1242,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
-								sk.startTauntAttack(currPlayer, registry.enemies.entities[j]);
+								sk->startTauntAttack(currPlayer, registry.enemies.entities[j]);
 								selected_skill = -1;
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1256,7 +1255,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
-								sk.startMeleeAttack(currPlayer, registry.enemies.entities[j]);
+								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j]);
 								selected_skill = -1;
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 							}
@@ -1296,7 +1295,7 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
-	sk.mousePos = mouse_position;
+	sk->mousePos = mouse_position;
 	if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
 		if (registry.toolTip.size() == 0) {
 			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");

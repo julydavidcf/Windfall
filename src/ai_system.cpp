@@ -1,7 +1,14 @@
 // internal
 #include "ai_system.hpp"
-#include "world_system.hpp"
-#include <skills.hpp>
+#include "skill_system.hpp"
+
+AISystem::AISystem() {
+
+}
+
+AISystem::~AISystem() {
+
+}
 
 void AISystem::step(float elapsed_ms)
 {
@@ -843,7 +850,7 @@ BTState BTIfPlayersAlive::process(Entity e) {
 void BTCastIceShard::init(Entity e) {
 }
 BTState BTCastIceShard::process(Entity e) {
-	Skills sk;
+	SkillSystem sk;
 	printf("Shoot Ice Shard \n\n");	// print statement to visualize
 	sk.startIceShardAttack(e, currPlayer);
 	// return progress
@@ -853,7 +860,7 @@ BTState BTCastIceShard::process(Entity e) {
 void BTCastTaunt::init(Entity e) {
 }
 BTState BTCastTaunt::process(Entity e) {
-	Skills sk;
+	SkillSystem sk;
 	for (int i = 0; i < registry.companions.components.size(); i++) {
 		Entity toGet = registry.companions.entities[i];
 		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
@@ -871,7 +878,7 @@ void BTMeleeAttack::init(Entity e) {
 }
 BTState BTMeleeAttack::process(Entity e) {
 	int i = 0;
-	Skills sk;
+	SkillSystem sk;
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
 		Entity toGet = registry.companions.entities[i];
 		if (registry.motions.get(toGet).position.x > i) {
@@ -890,7 +897,7 @@ BTState BTMeleeAttack::process(Entity e) {
 void BTCastRock::init(Entity e) {
 }
 BTState BTCastRock::process(Entity e) {
-	Skills sk;
+	SkillSystem sk;
 	for (int i = 0; i < registry.companions.components.size(); i++) {
 		Entity toGet = registry.companions.entities[i];
 		if (registry.companions.get(toGet).companionType == SWORDSMAN) {
@@ -907,7 +914,7 @@ BTState BTCastRock::process(Entity e) {
 void BTCastHeal::init(Entity e) {
 }
 BTState BTCastHeal::process(Entity e) {
-	Skills sk;
+	SkillSystem sk;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {
 		Entity toGet = registry.enemies.entities[i];
 		if (registry.enemies.get(toGet).enemyType == SWORDSMAN) {
@@ -925,7 +932,7 @@ BTState BTCastHeal::process(Entity e) {
 void BTCastHealOnSelf::init(Entity e) {
 }
 BTState BTCastHealOnSelf::process(Entity e) {
-	Skills sk;
+	SkillSystem sk;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// checks player side for mage NOT WORKING
 		Entity toGet = registry.enemies.entities[i];
 		if (registry.enemies.get(toGet).enemyType == MAGE) {

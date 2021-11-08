@@ -11,7 +11,9 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+#include "ai_system.hpp"
 #include "render_system.hpp"
+#include "skill_system.hpp"
 
 
 // Container for all our entities and game logic. Individual rendering / update is
@@ -25,7 +27,7 @@ public:
 	GLFWwindow* create_window(int width, int height);
 
 	// starts the game
-	void init(RenderSystem* renderer);
+	void init(RenderSystem* renderer, AISystem* ai_arg, SkillSystem* skill_arg);
 
 	// display player turn
 	void displayPlayerTurn();
@@ -124,6 +126,9 @@ private:
 
 	// Game state
 	RenderSystem* renderer;
+	AISystem* ai;
+	SkillSystem* sk;
+
 	float current_speed;
 	Entity player_mage;
 	Entity enemy_mage;

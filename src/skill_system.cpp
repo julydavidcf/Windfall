@@ -1,23 +1,20 @@
-#include "skills.hpp"
-#include "world_system.hpp"
-//#include <world_init.cpp>
-#include <world_init.hpp>
+#include "skill_system.hpp"
 
 
 
-Skills::Skills() {
+SkillSystem::SkillSystem() {
 
 
 
 }
 
-Skills::~Skills() {
+SkillSystem::~SkillSystem() {
 
 }
 
 
 
-void Skills::startTauntAttack(Entity origin, Entity target) {
+void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -52,7 +49,7 @@ void Skills::startTauntAttack(Entity origin, Entity target) {
 }
 
 
-void Skills::startHealAttack(Entity origin, Entity target) {
+void SkillSystem::startHealAttack(Entity origin, Entity target) {
 	//prevPlayer = currPlayer;
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
@@ -79,7 +76,7 @@ void Skills::startHealAttack(Entity origin, Entity target) {
 	}
 }
 
-void Skills::startIceShardAttack(Entity origin, Entity target) {
+void SkillSystem::startIceShardAttack(Entity origin, Entity target) {
 	printf("Started the ice shard attack\n");
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
@@ -106,7 +103,7 @@ void Skills::startIceShardAttack(Entity origin, Entity target) {
 	}
 }
 
-void Skills::startFireballAttack(Entity origin) {
+void SkillSystem::startFireballAttack(Entity origin) {
 	if (registry.enemies.has(origin)) {
 		//TODO
 	}
@@ -124,7 +121,7 @@ void Skills::startFireballAttack(Entity origin) {
 	}
 }
 
-void Skills::startRockAttack(Entity origin, Entity target) {
+void SkillSystem::startRockAttack(Entity origin, Entity target) {
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -150,7 +147,7 @@ void Skills::startRockAttack(Entity origin, Entity target) {
 }
 
 
-void Skills::startMeleeAttack(Entity origin, Entity target) {
+void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = WALKING;
@@ -229,7 +226,7 @@ void Skills::startMeleeAttack(Entity origin, Entity target) {
 	}
 }
 
-Entity Skills::launchIceShard(vec2 startPos, vec2 ms_pos,RenderSystem* renderer) {
+Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
 	float proj_x = startPos.x + 50;
 	float proj_y = startPos.y;

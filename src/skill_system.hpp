@@ -1,13 +1,18 @@
+#pragma once
+
 #include <vector>
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
-#include "world_system.hpp"
+#include "render_system.hpp"
+#include "world_init.hpp"
+#include <SDL.h>
+#include <SDL_mixer.h>
 
-class Skills
+class SkillSystem
 {
 public:
-	Skills();
-	~Skills();
+	SkillSystem();
+	~SkillSystem();
 	
 
 	// Music References
