@@ -39,4 +39,18 @@ public:
 	void startRockAttack(Entity origin, Entity target);
 	void startHealAttack(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target);
+
+
+	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
+	//Entity launchFireball(vec2 startPos, vec2 ms_pos);
+	//Entity launchRock(Entity target);
+	//void launchTaunt(Entity target);
+	//void launchHeal(Entity target, float amount);
+	//void launchMelee(Entity target);
+
+	//skill constants
+	float FIREBALLSPEED = 900.f;
+	float ARROWSPEED = 700.f;
+	float ICESHARDSPEED = 100.f;
+
 };

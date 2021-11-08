@@ -1,5 +1,6 @@
 #include "skills.hpp"
 #include "world_system.hpp"
+#include <world_init.hpp>
 
 
 
@@ -225,4 +226,36 @@ void Skills::startMeleeAttack(Entity origin, Entity target) {
 
 		playerUseMelee = 1;
 	}
+}
+
+Entity Skills::launchIceShard(vec2 startPos, vec2 ms_pos,RenderSystem* renderer) {
+
+	float proj_x = startPos.x + 50;
+	float proj_y = startPos.y;
+	float mouse_x = ms_pos.x;
+	float mouse_y = ms_pos.y;
+
+	float dx = mouse_x - proj_x;
+	float dy = mouse_y - proj_y;
+	float dxdy = sqrt((dx * dx) + (dy * dy));
+	float vx = ICESHARDSPEED * dx / dxdy;
+	float vy = ICESHARDSPEED * dy / dxdy;
+
+	float angle = atan(dy / dx);
+	if (dx < 0) {
+		angle += M_PI;
+	}
+	//printf(" % f", angle);
+	Entity resultEntity = createIceShard(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
+	Motion* ballacc = &registry.motions.get(resultEntity);
+	ballacc->acceleration = vec2(1000 * vx / ICESHARDSPEED, 1000 * vy / ICESHARDSPEED);
+	Projectile* proj = &registry.projectiles.get(resultEntity);
+	proj->flyingTimer = 2000.f;
+
+	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
+	//int rng = rand() % 10;
+	//if (rng >= 4) {
+	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
+	//}
+	return  resultEntity;
 }
