@@ -344,7 +344,7 @@ void RenderSystem::draw(float elapsed_ms)
 
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
-		// Handle camera focus on projectiles and swordsman melee
+		// Handle camera focus on projectiles (only ones with tracking enabled) and swordsman melee
 		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0
 			&& registry.projectiles.get(entity).enableCameraTracking) {
 			Motion& motion = registry.motions.get(entity);

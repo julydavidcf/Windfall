@@ -280,6 +280,54 @@ void RenderSystem::initializeGlGeometryBuffers()
 	necro_one_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE, necro_one_idle_vertices, textured_indices);
 
+	// necro_one_casting sprite row
+	std::vector<TexturedVertex> necro_one_casting_vertices(4);
+	necro_one_casting_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_casting_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_casting_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_casting_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_casting_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_one_casting_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	necro_one_casting_vertices[2].texcoord = { 0.125, 0.f };        // Top right
+	necro_one_casting_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING, necro_one_casting_vertices, textured_indices);
+
+	// necro_one_summoning sprite row
+	std::vector<TexturedVertex> necro_one_summoning_vertices(4);
+	necro_one_summoning_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_summoning_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_summoning_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_summoning_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_summoning_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_one_summoning_vertices[1].texcoord = { 0.20, 1.f };        // Bottom right
+	necro_one_summoning_vertices[2].texcoord = { 0.20, 0.f };        // Top right
+	necro_one_summoning_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING, necro_one_summoning_vertices, textured_indices);
+
+	// necro_one_death_one sprite row
+	std::vector<TexturedVertex> necro_one_death_one_vertices(4);
+	necro_one_death_one_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_death_one_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_death_one_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_death_one_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_death_one_vertices[0].texcoord = { 0.f, 0.5 };           // Bottom left
+	necro_one_death_one_vertices[1].texcoord = { 0.10, 0.5 };        // Bottom right
+	necro_one_death_one_vertices[2].texcoord = { 0.10, 0.f };        // Top right
+	necro_one_death_one_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE, necro_one_death_one_vertices, textured_indices);
+
+	// necro_one_death_two sprite row
+	std::vector<TexturedVertex> necro_one_death_two_vertices(4);
+	necro_one_death_two_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_death_two_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_death_two_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_death_two_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_death_two_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_one_death_two_vertices[1].texcoord = { 0.10, 1.f };        // Bottom right
+	necro_one_death_two_vertices[2].texcoord = { 0.10, 0.5 };        // Top right
+	necro_one_death_two_vertices[3].texcoord = { 0.f, 0.5 };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO, necro_one_death_two_vertices, textured_indices);
+
 	// necro_two_idle sprite row
 	std::vector<TexturedVertex> necro_two_idle_vertices(4);
 	necro_two_idle_vertices[0].position = { -1.f, +1.f, 0.f };
@@ -291,6 +339,42 @@ void RenderSystem::initializeGlGeometryBuffers()
 	necro_two_idle_vertices[2].texcoord = { 0.125, 0.f };        // Top right
 	necro_two_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE, necro_two_idle_vertices, textured_indices);
+
+	// necro_two_melee sprite row
+	std::vector<TexturedVertex> necro_two_melee_vertices(4);
+	necro_two_melee_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_melee_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_melee_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_melee_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_melee_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_melee_vertices[1].texcoord = { 0.10, 1.f };        // Bottom right
+	necro_two_melee_vertices[2].texcoord = { 0.10, 0.f };        // Top right
+	necro_two_melee_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE, necro_two_melee_vertices, textured_indices);
+
+	// necro_two_casting sprite row
+	std::vector<TexturedVertex> necro_two_casting_vertices(4);
+	necro_two_casting_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_casting_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_casting_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_casting_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_casting_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_casting_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	necro_two_casting_vertices[2].texcoord = { 0.125, 0.f };        // Top right
+	necro_two_casting_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING, necro_two_casting_vertices, textured_indices);
+
+	// necro_two_death sprite row
+	std::vector<TexturedVertex> necro_two_melee_vertices(4);
+	necro_two_melee_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_melee_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_melee_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_melee_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_melee_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_melee_vertices[1].texcoord = { 0.14285714285, 1.f };        // Bottom right
+	necro_two_melee_vertices[2].texcoord = { 0.14285714285, 0.f };        // Top right
+	necro_two_melee_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH, necro_two_melee_vertices, textured_indices);
 
 	// necro_minion_idle sprite row
 	std::vector<TexturedVertex> necro_minion_idle_ertices(4);

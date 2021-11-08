@@ -76,7 +76,9 @@ class RenderSystem {
 			textures_path("necro_one_summoning.png"),
 			textures_path("necro_one_death.png"),
 			textures_path("necro_two_idle.png"),
+			textures_path("necro_two_melee.png"),
 			textures_path("necro_two_casting.png"),
+			textures_path("necro_two_death.png"),
 			textures_path("necro_minion_idle.png"),
 			textures_path("necro_minion_walk.png"),
 			textures_path("necro_minion_melee.png"),
@@ -177,15 +179,24 @@ class RenderSystem {
 	const int NECRO_ONE_SUMMONING_FRAMES = 4;
 	const GLfloat NECRO_ONE_SUMMONING_FRAME_WIDTH = 0.25;
 
-	const int NECRO_ONE_DEATH_FRAMES = 4;
-	const GLfloat NECRO_ONE_DEATH_FRAME_WIDTH = 0.25;
+	const int NECRO_ONE_DEATH_ONE_FRAMES = 10;
+	const GLfloat NECRO_ONE_DEATH_ONE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_ONE_DEATH_TWO_FRAMES = 10;
+	const GLfloat NECRO_ONE_DEATH_TWO_FRAME_WIDTH = 0.10;
 
 	// Necromancer phase 2 frame stats
 	const int NECRO_TWO_IDLE_FRAMES = 8;
 	const GLfloat NECRO_TWO_IDLE_FRAME_WIDTH = 0.125;
 
-	const int NECRO_TWO_CASTING_FRAMES = 6;
-	const GLfloat NECRO_TWO_CASTING_FRAME_WIDTH = 0.16666666666;
+	const int NECRO_TWO_MELEE_FRAMES = 10;
+	const GLfloat NECRO_TWO_MELEE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_TWO_CASTING_FRAMES = 8;
+	const GLfloat NECRO_TWO_CASTING_FRAME_WIDTH = 0.125;
+
+	const int NECRO_TWO_DEATH_FRAMES = 7;
+	const GLfloat NECRO_TWO_DEATH_FRAME_WIDTH = 0.14285714285;
 
 	// Necromancer minion frame stats
 	const int NECRO_MINION_IDLE_FRAMES = 5;
