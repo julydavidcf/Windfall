@@ -381,14 +381,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.enemies.entities[i])) {
 			if (registry.taunts.get(registry.enemies.entities[i]).duration <= 0) {
-				removeTaunt(registry.enemies.entities[i]);
+				sk->removeTaunt(registry.enemies.entities[i]);
 			}
 		}
 	}
 	for (int i = (int)registry.companions.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.companions.entities[i])) {
 			if (registry.taunts.get(registry.companions.entities[i]).duration <= 0) {
-				removeTaunt(registry.companions.entities[i]);
+				sk->removeTaunt(registry.companions.entities[i]);
 			}
 		}
 	}
@@ -474,7 +474,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						companion_motion.position = attack.old_pos;
 						Motion& healthbar_motion = registry.motions.get(companion.healthbar);
 						healthbar_motion.position.x = attack.old_pos.x;
-						launchMelee(attack.target);
+						sk->launchMelee(attack.target,renderer);
 						break;
 					}
 					case ICESHARD: {
@@ -523,7 +523,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						motion.position = attack.old_pos;
 						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
 						healthbar_motion.position.x = attack.old_pos.x;
-						launchMelee(attack.target);
+						sk->launchMelee(attack.target,renderer);
 						break;
 					}
 					case ICESHARD: {
@@ -963,7 +963,7 @@ void WorldSystem::handle_collisions() {
 							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
 								// get rid of dead entity's stats indicators 
-								removeTaunt(entity);
+								sk->removeTaunt(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
 							else {
@@ -1234,6 +1234,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.companions.entities[j]);
 							if (inButton(registry.motions.get(registry.companions.entities[j]).position, b_box.x, b_box.y)) {
 								sk->startHealAttack(currPlayer, registry.companions.entities[j]);
+								prevPlayer = currPlayer;
 								update_healthBars();
 								selected_skill = -1;
 								registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
@@ -1387,136 +1388,6 @@ void WorldSystem::deselectButtons() {
 	}
 }
 
-////skills
-//void WorldSystem::launchHeal(Entity target, float amount) {
-//	vec2 targetp = registry.motions.get(target).position;
-//	createGreenCross(renderer, targetp);
-//	if (registry.stats.has(target)) {
-//		Statistics* tStats = &registry.stats.get(target);
-//		if (tStats->health + amount > tStats->max_health) {
-//			tStats->health = tStats->max_health;
-//		}
-//		else
-//		{
-//			tStats->health += amount;
-//		}
-//	}
-//	update_healthBars();
-//}
-//
-//void WorldSystem::damageTarget(Entity target, float amount) {
-//	if (registry.stats.has(target)) {
-//		Statistics* tStats = &registry.stats.get(target);
-//		tStats->health -= amount;
-//	}
-//	update_healthBars();
-//}
-//
-//Entity WorldSystem::launchFireball(vec2 startPos, vec2 ms_pos) {
-//
-//	float proj_x = startPos.x + 50;
-//	float proj_y = startPos.y;
-//	float mouse_x = ms_pos.x;
-//	float mouse_y = ms_pos.y;
-//
-//	float dx = mouse_x - proj_x;
-//	float dy = mouse_y - proj_y;
-//	float dxdy = sqrt((dx * dx) + (dy * dy));
-//	float vx = FIREBALLSPEED * dx / dxdy;
-//	float vy = FIREBALLSPEED * dy / dxdy;
-//
-//	float angle = atan(dy / dx);
-//	if (dx < 0) {
-//		angle += M_PI;
-//	}
-//	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
-//	Motion* arrowacc = &registry.motions.get(resultEntity);
-//	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
-//
-//	return  resultEntity;
-//}
-
-//Entity WorldSystem::launchIceShard(vec2 startPos, vec2 ms_pos) {
-//
-//	float proj_x = startPos.x + 50;
-//	float proj_y = startPos.y;
-//	float mouse_x = ms_pos.x;
-//	float mouse_y = ms_pos.y;
-//
-//	float dx = mouse_x - proj_x;
-//	float dy = mouse_y - proj_y;
-//	float dxdy = sqrt((dx * dx) + (dy * dy));
-//	float vx = ICESHARDSPEED * dx / dxdy;
-//	float vy = ICESHARDSPEED * dy / dxdy;
-//
-//	float angle = atan(dy / dx);
-//	if (dx < 0) {
-//		angle += M_PI;
-//	}
-//	//printf(" % f", angle);
-//	Entity resultEntity = createIceShard(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
-//	Motion* ballacc = &registry.motions.get(resultEntity);
-//	ballacc->acceleration = vec2(1000 * vx / ICESHARDSPEED, 1000 * vy / ICESHARDSPEED);
-//	Projectile* proj = &registry.projectiles.get(resultEntity);
-//	proj->flyingTimer = 2000.f;
-//
-//	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
-//	//int rng = rand() % 10;
-//	//if (rng >= 4) {
-//	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
-//	//}
-//	return  resultEntity;
-//}
-
-//Entity WorldSystem::launchRock(Entity target) {
-//	int isFriendly = 1;
-//	vec2 targetp = registry.motions.get(target).position;
-//	if (registry.companions.has(target)) {
-//		isFriendly = 0;
-//	}
-//	Entity resultEntity = createRock(renderer, { targetp.x, targetp.y - 300 }, isFriendly);
-//	Projectile* proj = &registry.projectiles.get(resultEntity);
-//	proj->flyingTimer = 2000.f;
-//	return  resultEntity;
-//}
-//
-//void WorldSystem::launchTaunt(Entity target) {
-//	if (!registry.taunts.has(target)) {
-//		registry.taunts.emplace(target);
-//		Taunt* t = &registry.taunts.get(target);
-//		t->duration = 3;
-//		createTauntIndicator(renderer, target);
-//		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
-//	}
-//	else {
-//		Taunt* t = &registry.taunts.get(target);
-//		t->duration = 3;
-//		printf("taunt extended!\n");
-//	}
-//}
-
-void WorldSystem::removeTaunt(Entity target) {
-	if (registry.taunts.has(target)) {
-		registry.taunts.remove(target);
-		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
-			if (registry.statsindicators.components[j].owner == target) {
-				registry.remove_all_components_of(registry.statsindicators.entities[j]);
-			}
-		}
-		printf("taunt removed!!!!!!!!!!!!!!!!!!!!!!!\n");
-	}
-}
-
-void WorldSystem::launchMelee(Entity target) {
-		printf("creating a melee skill\n");
-		Motion enemy = registry.motions.get(target);
-		if (registry.companions.has(target)) {
-			Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 0);
-		}
-		else {
-			Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 1);
-		}
-}
 
 bool WorldSystem::canUseSkill(Entity user, int skill) {
 	Statistics pStat = registry.stats.get(user);

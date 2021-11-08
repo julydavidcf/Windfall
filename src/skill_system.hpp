@@ -51,7 +51,10 @@ public:
 	Entity launchRock(Entity target, RenderSystem* renderer);
 	void launchTaunt(Entity target, RenderSystem* renderer);
 	void launchHeal(Entity target, float amount, RenderSystem* renderer);
-	//void launchMelee(Entity target);
+	void launchMelee(Entity target, RenderSystem* renderer);
+	
+	void removeTaunt(Entity target);
+	
 
 	//skill constants
 	float FIREBALLSPEED = 900.f;

@@ -326,3 +326,26 @@ void SkillSystem::launchTaunt(Entity target, RenderSystem* renderer) {
 		printf("taunt extended!\n");
 	}
 }
+
+void SkillSystem::removeTaunt(Entity target) {
+	if (registry.taunts.has(target)) {
+		registry.taunts.remove(target);
+		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
+			if (registry.statsindicators.components[j].owner == target) {
+				registry.remove_all_components_of(registry.statsindicators.entities[j]);
+			}
+		}
+		printf("taunt removed!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
+}
+
+void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
+	printf("creating a melee skill\n");
+	Motion enemy = registry.motions.get(target);
+	if (registry.companions.has(target)) {
+		Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 0);
+	}
+	else {
+		Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 1);
+	}
+}

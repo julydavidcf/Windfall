@@ -118,9 +118,9 @@ private:
 	//Entity launchRock(Entity target);
 	//void launchTaunt(Entity target);
 	void removeTaunt(Entity target);
-	void damageTarget(Entity target, float amount);
+	//void damageTarget(Entity target, float amount);
 	//void launchHeal(Entity target, float amount);
-	void launchMelee(Entity target);
+	//void launchMelee(Entity target);
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
 
