@@ -257,3 +257,72 @@ Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	//}
 	return  resultEntity;
 }
+
+void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* renderer) {
+	vec2 targetp = registry.motions.get(target).position;
+	createGreenCross(renderer, targetp);
+	if (registry.stats.has(target)) {
+		Statistics* tStats = &registry.stats.get(target);
+		if (tStats->health + amount > tStats->max_health) {
+			tStats->health = tStats->max_health;
+		}
+		else
+		{
+			tStats->health += amount;
+		}
+	}
+	//update_healthBars();
+}
+
+
+
+Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
+
+	float proj_x = startPos.x + 50;
+	float proj_y = startPos.y;
+	float mouse_x = ms_pos.x;
+	float mouse_y = ms_pos.y;
+
+	float dx = mouse_x - proj_x;
+	float dy = mouse_y - proj_y;
+	float dxdy = sqrt((dx * dx) + (dy * dy));
+	float vx = FIREBALLSPEED * dx / dxdy;
+	float vy = FIREBALLSPEED * dy / dxdy;
+
+	float angle = atan(dy / dx);
+	if (dx < 0) {
+		angle += M_PI;
+	}
+	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
+	Motion* arrowacc = &registry.motions.get(resultEntity);
+	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
+
+	return  resultEntity;
+}
+
+Entity SkillSystem::launchRock(Entity target, RenderSystem* renderer) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		isFriendly = 0;
+	}
+	Entity resultEntity = createRock(renderer, { targetp.x, targetp.y - 300 }, isFriendly);
+	Projectile* proj = &registry.projectiles.get(resultEntity);
+	proj->flyingTimer = 2000.f;
+	return  resultEntity;
+}
+
+void SkillSystem::launchTaunt(Entity target, RenderSystem* renderer) {
+	if (!registry.taunts.has(target)) {
+		registry.taunts.emplace(target);
+		Taunt* t = &registry.taunts.get(target);
+		t->duration = 3;
+		createTauntIndicator(renderer, target);
+		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
+	else {
+		Taunt* t = &registry.taunts.get(target);
+		t->duration = 3;
+		printf("taunt extended!\n");
+	}
+}

@@ -326,6 +326,8 @@ void WorldSystem::checkRound() {
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+
+
 	// Get the screen dimensions
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
@@ -447,16 +449,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					case FIREBALL: {
 						Mix_PlayChannel(-1, fire_spell_sound, 0);
 						printf("Fireball attack companion\n");
-						currentProjectile = launchFireball(companion_motion.position, attack.old_pos);
+						currentProjectile = sk->launchFireball(companion_motion.position, attack.old_pos,renderer);
 						Projectile* proj = &registry.projectiles.get(currentProjectile);
 						proj->flyingTimer = 2000.f;
 						break;
 					}
 					case TAUNT: {
 						printf("Taunt attack companion\n");
-						launchTaunt(attack.target);
+						sk->launchTaunt(attack.target,renderer);
 						//basiclly to have something hitting the boundary
-						currentProjectile = launchFireball({ -20,-20 }, { 0,0 }); // TODO: change to new launch dummy projectile without sound
+						currentProjectile = sk->launchFireball({ -20,-20 }, { 0,0 },renderer); // TODO: change to new launch dummy projectile without sound
 						Motion* projm = &registry.motions.get(currentProjectile);
 						projm->velocity = { -100,0 };
 						projm->acceleration = { -100,0 };
@@ -465,7 +467,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					case ROCK: {
 						Mix_Volume(5, 32);
 						Mix_PlayChannel(5, rock_spell_sound, 0);
-						currentProjectile = launchRock(attack.target);
+						currentProjectile = sk->launchRock(attack.target,renderer);
 						break;
 					}
 					case MELEE: {
@@ -483,9 +485,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case HEAL: {
 						Mix_PlayChannel(-1, heal_spell_sound, 0);
-						launchHeal(attack.target, 50);
+						sk->launchHeal(attack.target, 50,renderer);
+						update_healthBars();
 						//basiclly to have something hitting the boundary
-						currentProjectile = launchFireball({ -20,-20 }, { 0,0 });
+						currentProjectile = sk->launchFireball({ -20,-20 }, { 0,0 },renderer);
 						Motion* projm = &registry.motions.get(currentProjectile);
 						projm->velocity = { -100,0 };
 						projm->acceleration = { -100,0 };
@@ -504,14 +507,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					case TAUNT: {
 						Mix_PlayChannel(-1, taunt_spell_sound, 0);	// TODO
 						printf("taunt attack enemy\n");
-						launchTaunt(attack.target);
+						sk->launchTaunt(attack.target,renderer);
 						break;
 					}
 					case ROCK: {
 						Mix_Volume(5, 32);
 						Mix_PlayChannel(5, rock_spell_sound, 0);
 						printf("Rock attack enemy\n");
-						currentProjectile = launchRock(attack.target);
+						currentProjectile = sk->launchRock(attack.target,renderer);
 						break;
 					}
 					case MELEE: {
@@ -531,7 +534,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					case HEAL: {
 						Mix_PlayChannel(-1, heal_spell_sound, 0);
 						printf("heal attack enemy\n");
-						launchHeal(attack.target, 30);
+						sk->launchHeal(attack.target, 30,renderer);
+						update_healthBars();
 						break;
 					}
 					default: break;
@@ -1230,6 +1234,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.companions.entities[j]);
 							if (inButton(registry.motions.get(registry.companions.entities[j]).position, b_box.x, b_box.y)) {
 								sk->startHealAttack(currPlayer, registry.companions.entities[j]);
+								update_healthBars();
 								selected_skill = -1;
 								registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
@@ -1382,54 +1387,54 @@ void WorldSystem::deselectButtons() {
 	}
 }
 
-//skills
-void WorldSystem::launchHeal(Entity target, float amount) {
-	vec2 targetp = registry.motions.get(target).position;
-	createGreenCross(renderer, targetp);
-	if (registry.stats.has(target)) {
-		Statistics* tStats = &registry.stats.get(target);
-		if (tStats->health + amount > tStats->max_health) {
-			tStats->health = tStats->max_health;
-		}
-		else
-		{
-			tStats->health += amount;
-		}
-	}
-	update_healthBars();
-}
-
-void WorldSystem::damageTarget(Entity target, float amount) {
-	if (registry.stats.has(target)) {
-		Statistics* tStats = &registry.stats.get(target);
-		tStats->health -= amount;
-	}
-	update_healthBars();
-}
-
-Entity WorldSystem::launchFireball(vec2 startPos, vec2 ms_pos) {
-
-	float proj_x = startPos.x + 50;
-	float proj_y = startPos.y;
-	float mouse_x = ms_pos.x;
-	float mouse_y = ms_pos.y;
-
-	float dx = mouse_x - proj_x;
-	float dy = mouse_y - proj_y;
-	float dxdy = sqrt((dx * dx) + (dy * dy));
-	float vx = FIREBALLSPEED * dx / dxdy;
-	float vy = FIREBALLSPEED * dy / dxdy;
-
-	float angle = atan(dy / dx);
-	if (dx < 0) {
-		angle += M_PI;
-	}
-	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
-	Motion* arrowacc = &registry.motions.get(resultEntity);
-	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
-
-	return  resultEntity;
-}
+////skills
+//void WorldSystem::launchHeal(Entity target, float amount) {
+//	vec2 targetp = registry.motions.get(target).position;
+//	createGreenCross(renderer, targetp);
+//	if (registry.stats.has(target)) {
+//		Statistics* tStats = &registry.stats.get(target);
+//		if (tStats->health + amount > tStats->max_health) {
+//			tStats->health = tStats->max_health;
+//		}
+//		else
+//		{
+//			tStats->health += amount;
+//		}
+//	}
+//	update_healthBars();
+//}
+//
+//void WorldSystem::damageTarget(Entity target, float amount) {
+//	if (registry.stats.has(target)) {
+//		Statistics* tStats = &registry.stats.get(target);
+//		tStats->health -= amount;
+//	}
+//	update_healthBars();
+//}
+//
+//Entity WorldSystem::launchFireball(vec2 startPos, vec2 ms_pos) {
+//
+//	float proj_x = startPos.x + 50;
+//	float proj_y = startPos.y;
+//	float mouse_x = ms_pos.x;
+//	float mouse_y = ms_pos.y;
+//
+//	float dx = mouse_x - proj_x;
+//	float dy = mouse_y - proj_y;
+//	float dxdy = sqrt((dx * dx) + (dy * dy));
+//	float vx = FIREBALLSPEED * dx / dxdy;
+//	float vy = FIREBALLSPEED * dy / dxdy;
+//
+//	float angle = atan(dy / dx);
+//	if (dx < 0) {
+//		angle += M_PI;
+//	}
+//	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
+//	Motion* arrowacc = &registry.motions.get(resultEntity);
+//	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
+//
+//	return  resultEntity;
+//}
 
 //Entity WorldSystem::launchIceShard(vec2 startPos, vec2 ms_pos) {
 //
@@ -1463,32 +1468,32 @@ Entity WorldSystem::launchFireball(vec2 startPos, vec2 ms_pos) {
 //	return  resultEntity;
 //}
 
-Entity WorldSystem::launchRock(Entity target) {
-	int isFriendly = 1;
-	vec2 targetp = registry.motions.get(target).position;
-	if (registry.companions.has(target)) {
-		isFriendly = 0;
-	}
-	Entity resultEntity = createRock(renderer, { targetp.x, targetp.y - 300 }, isFriendly);
-	Projectile* proj = &registry.projectiles.get(resultEntity);
-	proj->flyingTimer = 2000.f;
-	return  resultEntity;
-}
-
-void WorldSystem::launchTaunt(Entity target) {
-	if (!registry.taunts.has(target)) {
-		registry.taunts.emplace(target);
-		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
-		createTauntIndicator(renderer, target);
-		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
-	}
-	else {
-		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
-		printf("taunt extended!\n");
-	}
-}
+//Entity WorldSystem::launchRock(Entity target) {
+//	int isFriendly = 1;
+//	vec2 targetp = registry.motions.get(target).position;
+//	if (registry.companions.has(target)) {
+//		isFriendly = 0;
+//	}
+//	Entity resultEntity = createRock(renderer, { targetp.x, targetp.y - 300 }, isFriendly);
+//	Projectile* proj = &registry.projectiles.get(resultEntity);
+//	proj->flyingTimer = 2000.f;
+//	return  resultEntity;
+//}
+//
+//void WorldSystem::launchTaunt(Entity target) {
+//	if (!registry.taunts.has(target)) {
+//		registry.taunts.emplace(target);
+//		Taunt* t = &registry.taunts.get(target);
+//		t->duration = 3;
+//		createTauntIndicator(renderer, target);
+//		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
+//	}
+//	else {
+//		Taunt* t = &registry.taunts.get(target);
+//		t->duration = 3;
+//		printf("taunt extended!\n");
+//	}
+//}
 
 void WorldSystem::removeTaunt(Entity target) {
 	if (registry.taunts.has(target)) {

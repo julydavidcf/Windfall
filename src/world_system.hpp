@@ -114,12 +114,12 @@ private:
 
 	//Skills Function
 	//Entity launchIceShard(vec2 startPos, vec2 ms_pos);
-	Entity launchFireball(vec2 startPos, vec2 ms_pos);
-	Entity launchRock(Entity target);
-	void launchTaunt(Entity target);
+	//Entity launchFireball(vec2 startPos, vec2 ms_pos);
+	//Entity launchRock(Entity target);
+	//void launchTaunt(Entity target);
 	void removeTaunt(Entity target);
 	void damageTarget(Entity target, float amount);
-	void launchHeal(Entity target, float amount);
+	//void launchHeal(Entity target, float amount);
 	void launchMelee(Entity target);
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
