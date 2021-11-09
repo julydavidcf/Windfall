@@ -12,6 +12,7 @@
 #include "physics_system.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
+#include "skill_system.hpp""
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -26,6 +27,7 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AISystem ai;
+	SkillSystem sk;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
@@ -38,7 +40,7 @@ int main()
 
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
-	world.init(&renderer);
+	world.init(&renderer, &ai, &sk);
 	//world.createRound();
 	//world.checkRound();
 	//world.displayPlayerTurn();	// display player turn when world renders

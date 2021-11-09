@@ -76,6 +76,7 @@ class RenderSystem {
 			textures_path("necro_one_summoning.png"),
 			textures_path("necro_one_death_one.png"),
 			textures_path("necro_one_death_two.png"),
+			textures_path("necro_two_appear.png"),
 			textures_path("necro_two_idle.png"),
 			textures_path("necro_two_melee.png"),
 			textures_path("necro_two_casting.png"),
@@ -129,13 +130,17 @@ class RenderSystem {
 	float NECRO_ONE_SUMMONING_FRAME_TIME = 100;
 	float NECRO_ONE_DEATH_FRAME_TIME = 100;
 
+	float NECRO_TWO_APPEAR_FRAME_TIME = 300;
 	float NECRO_TWO_IDLE_FRAME_TIME = 200;
-	float NECRO_TWO_CASTING_FRAME_TIME = 250;
+	float NECRO_TWO_MELEE_FRAME_TIME = 200;
+	float NECRO_TWO_CASTING_FRAME_TIME = 200;
+	float NECRO_TWO_DEATH_FRAME_TIME = 250;
 
 	float NECRO_MINION_APPEAR_FRAME_TIME = 200;
 	float NECRO_MINION_IDLE_FRAME_TIME = 300;
 	float NECRO_MINION_WALK_FRAME_TIME = 100;
 	float NECRO_MINION_MELEE_FRAME_TIME = 90;
+	float NECRO_MINION_DEATH_FRAME_TIME = 200;
 
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
@@ -189,6 +194,9 @@ class RenderSystem {
 	const GLfloat NECRO_ONE_DEATH_TWO_FRAME_WIDTH = 0.10;
 
 	// Necromancer phase 2 frame stats
+	const int NECRO_TWO_APPEAR_FRAMES = 6;
+	const GLfloat NECRO_TWO_APPEAR_FRAME_WIDTH = 0.16666666666;
+
 	const int NECRO_TWO_IDLE_FRAMES = 8;
 	const GLfloat NECRO_TWO_IDLE_FRAME_WIDTH = 0.125;
 
@@ -215,7 +223,7 @@ class RenderSystem {
 	const GLfloat NECRO_MINION_MELEE_FRAME_WIDTH = 0.10;
 
 	const int NECRO_MINION_DEATH_FRAMES = 10;
-	const GLfloat NECRO_MINION_DEATH_WIDTH = 0.10;
+	const GLfloat NECRO_MINION_DEATH_FRAME_WIDTH = 0.10;
 
 	// Camera/scrolling constants
 	float CAMERA_OFFSET_LEFT = 500;

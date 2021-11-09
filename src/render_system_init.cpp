@@ -328,6 +328,18 @@ void RenderSystem::initializeGlGeometryBuffers()
 	necro_one_death_two_vertices[3].texcoord = { 0.f, 0.5 };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO, necro_one_death_two_vertices, textured_indices);
 
+	// necro_two_appear sprite row
+	std::vector<TexturedVertex> necro_two_appear_vertices(4);
+	necro_two_appear_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_appear_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_appear_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_appear_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_appear_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_appear_vertices[1].texcoord = { 0.16666666666, 1.f };        // Bottom right
+	necro_two_appear_vertices[2].texcoord = { 0.16666666666, 0.f };        // Top right
+	necro_two_appear_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_APPEAR, necro_two_appear_vertices, textured_indices);
+
 	// necro_two_idle sprite row
 	std::vector<TexturedVertex> necro_two_idle_vertices(4);
 	necro_two_idle_vertices[0].position = { -1.f, +1.f, 0.f };
