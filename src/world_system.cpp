@@ -1262,6 +1262,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
 								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j]);
+								playerUseMelee = 1;
 								selected_skill = -1;
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 							}

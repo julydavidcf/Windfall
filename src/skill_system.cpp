@@ -184,7 +184,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
 		}
 
-		playerUseMelee = 1;
+		//playerUseMelee = 1;
 	}
 	else if (registry.companions.has(origin)) {
 		Companion& companion = registry.companions.get(origin);
@@ -222,7 +222,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
 		}
 
-		playerUseMelee = 1;
+		//playerUseMelee = 1;
 	}
 }
 

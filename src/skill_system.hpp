@@ -32,7 +32,6 @@ public:
 	const float animation_timer = 250.f;
 	const float hit_position = 20.f;
 
-	int playerUseMelee = 0;
 
 	vec2 mousePos = { 0,0 };
 
