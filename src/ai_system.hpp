@@ -3,11 +3,13 @@
 #include <vector>
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
-#include "world_system.hpp"
 
 class AISystem
 {
 public:
+	AISystem();
+	~AISystem();
+
 	void step(float elapsed_ms);
 	void callTree(Entity currPlayer);
 };
@@ -24,7 +26,6 @@ public:
 	virtual void init(Entity e);
 
 	virtual BTState process(Entity e) = 0;
-	WorldSystem worldSystem;
 };
 
 class BTRunCheckMage : public BTNode {
