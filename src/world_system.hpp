@@ -133,7 +133,7 @@ private:
 	Entity necromancer_minion;
 
 	Entity fireball;
-	Entity fireball_icon;
+	//Entity fireball_icon;
 	Entity silence_icon;
 	Entity iceShard;
 

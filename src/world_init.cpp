@@ -16,7 +16,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ MAGE_WIDTH, MAGE_HEIGHT });
 
-	// Give hp to companion
+	// Give statistics to companion mage
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = player_swordsman_hp;
 	stat.speed = 14;
@@ -52,7 +52,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { -MAGE_WIDTH, MAGE_HEIGHT };
 
-	// Give hp to enemy
+	// Give statistics to enemy mage
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.max_health = enemy_mage_hp;
 	stat.speed = 13;
@@ -86,7 +86,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
 
-	// Give hp to enemy
+	// Give statistics to companion swordsman
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = player_swordsman_hp;
 	stat.speed = 12;
@@ -121,7 +121,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ -SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
 
-	// Give hp to enemy
+	// Give statistics to enemy swordsman
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = enemy_swordsman_hp;
 	stat.speed = 11;
@@ -155,10 +155,10 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ -NECRO_MINION_WIDTH, NECRO_MINION_HEIGHT });
 
-	// Give hp to enemy
+	// Give statistics to necromancer minion
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
-	stat.speed = 100;
+	stat.speed = 0;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -190,10 +190,10 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ -NECRO_ONE_WIDTH, NECRO_ONE_HEIGHT });
 
-	// Give hp to enemy
+	// Give statistics to necromancer phase one
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
-	stat.speed = 100;
+	stat.speed = 1;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -224,10 +224,10 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ -NECRO_TWO_WIDTH, NECRO_TWO_HEIGHT });
 
-	// Give hp to enemy
+	// Give statistics to necromancer phase two
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
-	stat.speed = 100;
+	stat.speed = 2;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -258,10 +258,7 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	motion.angle = angle;
 	motion.velocity = velocity;
 	motion.position = position;
-
-
 	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
-
 
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
@@ -269,7 +266,6 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	damage.minDamage = fireball_dmg;
 	damage.range = 10;
 	//------------------------------------------------
-
 
 	registry.projectiles.emplace(entity);
 	registry.renderRequests.insert(
@@ -295,10 +291,7 @@ Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	motion.angle = angle;
 	motion.velocity = velocity;
 	motion.position = position;
-
-
 	motion.scale = vec2({ ICESHARD_WIDTH, ICESHARD_HEIGHT });
-
 
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
@@ -306,7 +299,6 @@ Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	damage.minDamage = iceshard_dmg;
 	damage.range = 10;
 	//------------------------------------------------
-
 
 	registry.projectiles.emplace(entity);
 	registry.renderRequests.insert(
@@ -332,8 +324,8 @@ Entity createIceShardIcon(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::ICESHARDICON,
@@ -357,7 +349,6 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 
 	registry.renderRequests.insert(
@@ -370,7 +361,6 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 }
 
 //melee icon
-
 Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
@@ -385,7 +375,6 @@ Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 
 	registry.renderRequests.insert(
@@ -398,7 +387,6 @@ Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
 }
 
 //taunt icon
-
 Entity createTauntIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
@@ -413,7 +401,6 @@ Entity createTauntIcon(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 
 	registry.renderRequests.insert(
@@ -426,7 +413,6 @@ Entity createTauntIcon(RenderSystem* renderer, vec2 position)
 }
 
 //heal icon
-
 Entity createHealIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
@@ -441,7 +427,6 @@ Entity createHealIcon(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 
 	registry.renderRequests.insert(
@@ -454,7 +439,6 @@ Entity createHealIcon(RenderSystem* renderer, vec2 position)
 }
 
 //rock icon
-
 Entity createRockIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
@@ -469,7 +453,6 @@ Entity createRockIcon(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 
 	registry.renderRequests.insert(
@@ -495,8 +478,8 @@ Entity createSilenceIcon(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ SILENCE_ICON_WIDTH, SILENCE_ICON_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::SILENCEICON,
@@ -520,7 +503,6 @@ Entity createSilenceIconSelected(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
 
 	registry.renderRequests.insert(
@@ -531,7 +513,6 @@ Entity createSilenceIconSelected(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
-
 
 //turn indicators
 Entity createPlayerTurn(RenderSystem* renderer, vec2 position)
@@ -547,8 +528,8 @@ Entity createPlayerTurn(RenderSystem* renderer, vec2 position)
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.position = position;
-
 	motion.scale = vec2({ PLAYERTURN_WIDTH, PLAYERTURN_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::PLAYER_TURN,
@@ -571,8 +552,8 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position)
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.position = position;
-
 	motion.scale = vec2({ ENEMYTURN_WIDTH, ENEMYTURN_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::ENEMY_TURN,
@@ -581,7 +562,6 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
-
 
 // create barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position)
@@ -599,8 +579,8 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	motion.velocity = { -500.f, 0.f };
 	motion.acceleration = { 300.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ BARRIER_WIDTH, BARRIER_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BARRIER,
@@ -609,6 +589,7 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+
 Entity createGreenCross(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
@@ -623,8 +604,8 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, -500.f };
 	motion.acceleration = { 0.f, 0.f };
 	motion.position = position;
-
 	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::GREENCROSS,
@@ -650,8 +631,8 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
 	motion.velocity = { 0.f, 0.f };
 	motion.acceleration = { 0.f, 0.f };
 	motion.position = {0.f,0.f};
-
 	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::TAUNT,
@@ -676,8 +657,6 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	motion.velocity = {0.f,50};
 	motion.acceleration = { 0.f,1000 };
 	motion.position = position;
-
-
 	motion.scale = vec2({ ROCK_WIDTH, ROCK_HEIGHT });
 
 	registry.projectiles.emplace(entity);
@@ -713,10 +692,7 @@ Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 	motion.velocity = { 0.f,0 };
 	motion.acceleration = { 0.f,0 };
 	motion.position = position;
-
-
 	motion.scale = vec2({ 1, 1 });
-
 
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
@@ -724,7 +700,6 @@ Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 	damage.minDamage = melee_dmg;
 	damage.range = 10;
 	//------------------------------------------------
-
 
 	registry.projectiles.emplace(entity);
 	registry.renderRequests.insert(
@@ -750,8 +725,8 @@ Entity createHealthBar(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	position[1] -= 75;
 	motion.position = position;
-
 	motion.scale = vec2({ HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::HEALTHBAR,
@@ -776,8 +751,8 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 	position[1] -= 30;
 	position[0] += 70;
 	motion.position = position;
-
 	motion.scale = vec2({ SILENCEBUBBLE_WIDTH, SILENCEBUBBLE_HEIGHT });
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::SILENCEBUBBLE,
@@ -982,7 +957,5 @@ Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
 			 EFFECT_ASSET_ID::TEXTURED,
 			 GEOMETRY_BUFFER_ID::SPRITE });
 	}
-
-
 	return entity;
 }

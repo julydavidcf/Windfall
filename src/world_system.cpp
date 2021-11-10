@@ -327,7 +327,6 @@ void WorldSystem::checkRound() {
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
-
 	// Get the screen dimensions
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
@@ -555,8 +554,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// this area is to check for edge cases for enemy to attack during their turn
 	if (player_turn == 0) {
-		printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
-		printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
+		//printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
+		//printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			displayEnemyTurn();
@@ -577,7 +576,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						ai->callTree(currPlayer);
 					}
 				}
-				if (registry.stats.get(prevPlayer).health <= 0) {	// Checks if selected enemy character has died so as to progress to an enemy's TO TEST
+				if (registry.stats.get(prevPlayer).health <= 0) {	// Checks if selected enemy character has died so as to progress to an enemy's TO TEST REMOVED FOR NOW
 					ai->callTree(currPlayer);
 				}
 			}
@@ -737,11 +736,11 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Create a player swordsman
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 600 });
 	//// Create an enemy mage
-	//enemy_mage = createEnemyMage(renderer, { 1050, 575 });
+	//enemy_mage = createEnemyMage(renderer, { 1050, 700 });
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
 	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 700 });
-	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
+	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
 	necromancer_minion = createNecromancerMinion(renderer, { 750, 750 });
 	registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 	
@@ -761,13 +760,11 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	//Create a tooltip
 	tooltip;
-
 	player_turn = 1;	// player turn indicator
 	roundVec.clear();	// empty vector roundVec to create a new round
-	//createRound();
-	//checkRound();
+	createRound();
+	checkRound();
 	showCorrectSkills();
-
 	displayPlayerTurn();	// display player turn when restart game
 }
 
@@ -1110,7 +1107,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 		if (selected_skill != 1) {
-			registry.renderRequests.get(fireball_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 		if (selected_skill != 2) {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
@@ -1124,6 +1121,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		if (selected_skill != 5) {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
+
 		//disable some skill
 		showCorrectSkills();
 

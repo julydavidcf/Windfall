@@ -3,18 +3,15 @@
 
 
 SkillSystem::SkillSystem() {
-
-
-
 }
 
 SkillSystem::~SkillSystem() {
-
 }
 
 
 
 void SkillSystem::startTauntAttack(Entity origin, Entity target) {
+	printf("Started the taunt attack\n");
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -50,6 +47,7 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 
 
 void SkillSystem::startHealAttack(Entity origin, Entity target) {
+	printf("Started the heal attack\n");
 	//prevPlayer = currPlayer;
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
@@ -104,6 +102,7 @@ void SkillSystem::startIceShardAttack(Entity origin, Entity target) {
 }
 
 void SkillSystem::startFireballAttack(Entity origin) {
+	printf("Started the fireball attack\n");
 	if (registry.enemies.has(origin)) {
 		//TODO
 	}
@@ -122,6 +121,7 @@ void SkillSystem::startFireballAttack(Entity origin) {
 }
 
 void SkillSystem::startRockAttack(Entity origin, Entity target) {
+	printf("Started the rock attack\n");
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -146,8 +146,8 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 	}
 }
 
-
 void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
+	printf("Started the melee attack\n");
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = WALKING;
