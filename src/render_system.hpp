@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "components.hpp"
 #include "tiny_ecs.hpp"
+#include <map>
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
@@ -36,14 +37,34 @@ class RenderSystem {
 			textures_path("fireballIconSelected.png"),
 			textures_path("silenceIcon.png"),
 			textures_path("silenceIconSelected.png"),
-			textures_path("healthbar.png"),
 			textures_path("silencebubble.png"),
+			textures_path("fireballIconDisable.png"),
+			textures_path("healthbar.png"),
 			textures_path("particle.png"),
 			textures_path("playerTurn.png"),
 			textures_path("enemyTurn.png"),
 			textures_path("arrow.png"),
 			textures_path("rock.png"),
 			textures_path("greenCross.png"),
+			textures_path("iceShard.png"),
+			textures_path("iceShardIcon.png"),
+			textures_path("iceShardIconSelected.png"),
+			textures_path("iceShardIconDisable.png"),
+			textures_path("rockIcon.png"),
+			textures_path("rockIconSelected.png"),
+			textures_path("rockIconDisable.png"),
+			textures_path("healIcon.png"),
+			textures_path("healIconSelected.png"),
+			textures_path("healIconDisable.png"),
+			textures_path("meleeIcon.png"),
+			textures_path("meleeIconSelected.png"),
+			textures_path("meleeIconDisable.png"),
+			textures_path("taunt.png"),
+			textures_path("tauntIcon.png"),
+			textures_path("tauntIconSelected.png"),
+			textures_path("tauntIconDisable.png"),
+
+
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("swordsman_walk.png"),
@@ -54,7 +75,15 @@ class RenderSystem {
 			textures_path("backgroundLayerOne.png"),
 			textures_path("backgroundLayerTwo.png"),
 			textures_path("backgroundLayerThree.png"),
-			textures_path("backgroundLayerFour.png")
+			textures_path("backgroundLayerFour.png"),
+
+			//tootips
+			textures_path("fireBallToolTip.png"),
+			textures_path("iceShardToolTip.png"),
+			textures_path("rockToolTip.png"),
+			textures_path("meleeToolTip.png"),
+			textures_path("tauntToolTip.png"),
+			textures_path("healToolTip.png")
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -70,6 +99,7 @@ class RenderSystem {
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
 
+
 	// Time per frame in ms, for each action
 	float MAGE_IDLE_FRAME_TIME = 175;
 	float MAGE_ATTACK_FRAME_TIME = 150;
@@ -77,10 +107,17 @@ class RenderSystem {
 
 	float SWORDSMAN_IDLE_FRAME_TIME = 150;
 	float SWORDSMAN_MELEE_FRAME_TIME = 50;
-	float SWORDSMAN_WALK_FRAME_TIME = 175;
+	float SWORDSMAN_WALK_FRAME_TIME = 100;
 	float SWORDSMAN_TAUNT_FRAME_TIME = 90;
 	float SWORDSMAN_DEATH_FRAME_TIME = 80;
 
+	// pixel positions for the light balls in the background
+	std::vector<float> lightBallsXcoords;
+	std::vector<float> lightBallsYcoords;
+
+	// Time per frame in ms
+	float TIME_PER_FRAME = 100;
+	
 	// ---------------------------------- Frame stats for each character animation -----------------------------------
 
 	// Mage frame stats
@@ -125,6 +162,14 @@ class RenderSystem {
 
 public:
 
+	const float DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS = 4500.f;
+	bool transitioningToNextLevel = false;
+	float nextLevelTranistionPeriod_ms = DEFAULT_GAME_LEVEL_TRANSITION_PERIOD_MS;
+	float dimScreenFactor = 0.4f;
+	float fogFactor = 0.2;
+	std::map<int, int> deferredRenderingEntities = {};
+	int gameLevel = 1;
+
 	// Initialize the window
 	bool init(int width, int height, GLFWwindow* window);
 
@@ -153,6 +198,8 @@ public:
 	mat3 createProjectionMatrix();
 
 	mat3 createCameraProjection(Motion& motion);
+
+	void createRandomLightBallPosForBackground(int windowWidth, int windowHeight);
 
 private:
 	// Internal drawing functions for each entity type

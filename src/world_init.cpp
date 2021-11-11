@@ -18,8 +18,9 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to companion
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = player_swordsman_hp;
 	stat.speed = 14;
+	stat.classID = 0;
 	
 
 	// Add a healthbar
@@ -53,7 +54,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.max_health = enemy_mage_hp;
 	stat.speed = 13;
 
 	// Add a healthbar
@@ -87,8 +88,9 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = player_swordsman_hp;
 	stat.speed = 12;
+	stat.classID = 1;
 
 	// Add a healthbar
 	Companion& companion = registry.companions.emplace(entity);
@@ -121,7 +123,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Give hp to enemy
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = enemy_swordsman_hp;
 	stat.speed = 11;
 
 	// Add a healthbar
@@ -172,7 +174,7 @@ Entity createNecromancer(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
-Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
+Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
 
@@ -189,13 +191,13 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	motion.position = position;
 
 
-	motion.scale = vec2({ ARROW_WIDTH, ARROW_HEIGHT });
+	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
 
 
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 30;
+	damage.minDamage = fireball_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -204,14 +206,14 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	registry.renderRequests.insert(
 		entity,
 		//currently using fireball
-		{ TEXTURE_ASSET_ID::ARROW,
+		{ TEXTURE_ASSET_ID::FIREBALL,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
 
-Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
+Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
 
@@ -226,13 +228,13 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	motion.position = position;
 
 
-	motion.scale = vec2({ FIREBALL_WIDTH, FIREBALL_HEIGHT });
+	motion.scale = vec2({ ICESHARD_WIDTH, ICESHARD_HEIGHT });
 
 
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 30;
+	damage.minDamage = iceshard_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -240,14 +242,14 @@ Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	registry.projectiles.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::FIREBALL,
+		{ TEXTURE_ASSET_ID::ICESHARD,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
 
-Entity createFireballIcon(RenderSystem* renderer, vec2 position)
+Entity createIceShardIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
@@ -262,17 +264,17 @@ Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
-	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::FIREBALLICON,
+		{ TEXTURE_ASSET_ID::ICESHARDICON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
 
-Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
+Entity createFireballIcon(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
@@ -287,17 +289,128 @@ Entity createFireballIconSelected(RenderSystem* renderer, vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
-	motion.scale = vec2({ FIREBALL_ICON_WIDTH, FIREBALL_ICON_HEIGHT });
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::FIREBALLICONSELECTED,
+		{ TEXTURE_ASSET_ID::FIREBALLICON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
 
+//melee icon
+
+Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MELEEICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//taunt icon
+
+Entity createTauntIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TAUNTICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//heal icon
+
+Entity createHealIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::HEALICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+//rock icon
+
+Entity createRockIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh o	bject (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ROCKICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
 
 Entity createSilenceIcon(RenderSystem* renderer, vec2 position)
 {
@@ -442,7 +555,7 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 	motion.acceleration = { 0.f, 0.f };
 	motion.position = position;
 
-	motion.scale = vec2({ ROCK_WIDTH, ROCK_HEIGHT });
+	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::GREENCROSS,
@@ -451,6 +564,34 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+
+Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto*statid =  &registry.statsindicators.emplace(entity);
+	statid->owner = owner;
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.acceleration = { 0.f, 0.f };
+	motion.position = {0.f,0.f};
+
+	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TAUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 // create rock
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 {
@@ -475,7 +616,7 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 10;
+	damage.minDamage = rock_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -511,7 +652,7 @@ Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = 10;
+	damage.minDamage = melee_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -576,6 +717,7 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+
 
 Entity createLine(vec2 position, vec2 scale)
 {
@@ -704,6 +846,74 @@ Entity createPebble(vec2 pos, vec2 size)
 		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
 			EFFECT_ASSET_ID::PEBBLE,
 			GEOMETRY_BUFFER_ID::PEBBLE });
+
+	return entity;
+}
+
+Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
+	auto entity = Entity();
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+
+	if (type == "FB") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::FIREBALLTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "IS") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::ICESHARDTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "RK") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::ROCKTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "HL") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::HEALTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "TT") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::TAUNTTOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (type == "ML") {
+		motion.scale = { 550.f, 150.f };
+		registry.toolTip.emplace(entity);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::MELEETOOLTIP,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+
 
 	return entity;
 }

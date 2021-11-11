@@ -12,7 +12,7 @@ const float SWORDSMAN_HEIGHT = 250.f;
 const float NECROMANCER_WIDTH = 150.f;
 const float NECROMANCER_HEIGHT = 180.f;
 const float HEALTHBAR_WIDTH = 130.f;
-const float HEALTHBAR_HEIGHT = 7.f;
+const float HEALTHBAR_HEIGHT = 15.f;
 const float SILENCEBUBBLE_WIDTH = 40.f;
 const float SILENCEBUBBLE_HEIGHT = 20.f;
 const float FIREBALL_WIDTH = 80.f;
@@ -23,6 +23,8 @@ const float FIREBALL_ICON_WIDTH = 80.f;
 const float FIREBALL_ICON_HEIGHT = 80.f;
 const float SILENCE_ICON_WIDTH = 80.f;
 const float SILENCE_ICON_HEIGHT = 80.f;
+const float ICON_WIDTH = 80.f;
+const float ICON_HEIGHT = 80.f;
 const float BARRIER_WIDTH = 50.f;
 const float BARRIER_HEIGHT = 200.f;
 const float PLAYERTURN_WIDTH = 300.f;
@@ -33,6 +35,10 @@ const float BACKGROUND_WIDTH = 1800.f;
 const float BACKGROUND_HEIGHT = 900.f;
 const float ROCK_WIDTH = 75.f;
 const float ROCK_HEIGHT = 75.f;
+const float ICESHARD_WIDTH = 80.f;
+const float ICESHARD_HEIGHT = 20.f;
+const float GREENCROSS_WIDTH = 30.f;
+const float GREENCROSS_HEIGHT = 30.f;
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -56,10 +62,12 @@ Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // create the silence bubble
 Entity createSilenceBubble(RenderSystem* renderer, vec2 position);
 // the fireball
-Entity createFireball(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
+Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 
-Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
-// the fireball icon
+Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
+// the icons
+Entity createMeleeIcon(RenderSystem* renderer, vec2 position);
+Entity createIceShardIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
 
@@ -67,6 +75,9 @@ Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
 Entity createSilenceIcon(RenderSystem* renderer, vec2 position);
 Entity createSilenceIconSelected(RenderSystem* renderer, vec2 position);
 
+Entity createTauntIcon(RenderSystem* renderer, vec2 position);
+Entity createHealIcon(RenderSystem* renderer, vec2 position);
+Entity createRockIcon(RenderSystem* renderer, vec2 position);
 // Turn indicators
 Entity createPlayerTurn(RenderSystem* renderer, vec2 position);
 Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
@@ -83,5 +94,23 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 position);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
 
+Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
+
+Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
+
+
+//Game Stats
+
+const int enemy_mage_hp = 100;
+const int enemy_swordsman_hp = 150;
+
+const int player_mage_hp = 50;
+const int player_swordsman_hp = 75;
+
+//skill dmg
+const int rock_dmg = 10;
+const int fireball_dmg = 30;
+const int iceshard_dmg = 20;
+const int melee_dmg = 15;
 
 

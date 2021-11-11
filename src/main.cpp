@@ -13,6 +13,7 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "json_loader.hpp"
+#include "skill_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 using namespace std;
@@ -28,6 +29,7 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AISystem ai;
+	SkillSystem sk;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
@@ -40,9 +42,10 @@ int main()
 
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
-	world.init(&renderer);
-	world.createRound();
-	world.checkRound();
+	world.init(&renderer, &ai, &sk);
+	//world.createRound();
+	//world.checkRound();
+	//world.displayPlayerTurn();	// display player turn when world renders
 
 	std::ifstream jsonFile("../src/small_example.json");
     if (jsonFile.is_open()){
@@ -65,7 +68,7 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 		world.step(elapsed_ms);
-		ai.step(elapsed_ms);
+		// ai.step(elapsed_ms);
 		physics.step(elapsed_ms, window_width_px, window_height_px);
 		world.handle_collisions();
 		world.handle_boundary_collision();

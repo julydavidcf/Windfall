@@ -2,6 +2,9 @@
 #include "render_system.hpp"
 #include <SDL.h>
 
+#include <string>
+#include <sstream>
+
 #include "tiny_ecs_registry.hpp"
 
 void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
@@ -82,8 +85,8 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 			gl_has_errors();
 		}
 	}
-	// glDisable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void RenderSystem::drawTexturedMesh(Entity entity,
@@ -233,7 +236,8 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 	// Enabling alpha channel for textures
 	glDisable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDisable(GL_DEPTH_TEST);
 
 	// Draw the screen texture on the quad geometry
@@ -247,9 +251,48 @@ void RenderSystem::drawToScreen()
 	// Set clock
 	GLuint time_uloc = glGetUniformLocation(water_program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(water_program, "darken_screen_factor");
-	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
+	glUniform1f(time_uloc, (float)(glfwGetTime()));
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
+
+	GLuint resoltion_x_loc = glGetUniformLocation(water_program, "resolutionX");
+	GLuint resoltion_y_loc = glGetUniformLocation(water_program, "resolutionY");
+	glUniform1f(resoltion_x_loc, (float)w);
+	glUniform1f(resoltion_y_loc, (float)h);
+
+	glUniform1i(glGetUniformLocation(water_program, "gameLevel"), gameLevel);
+
+	if (transitioningToNextLevel) {
+		glUniform1i(glGetUniformLocation(water_program, "nextLevelTransition"), true);
+		glUniform1f(glGetUniformLocation(water_program, "dimScreenFactor"), dimScreenFactor);
+		glUniform1f(glGetUniformLocation(water_program, "fogFactor"), fogFactor);
+		if (dimScreenFactor >= -0.1) {
+			dimScreenFactor -= 0.02;
+		}
+		if (dimScreenFactor <= 0) {
+			fogFactor += 0.01;
+		}
+	} else {
+		dimScreenFactor = 1.f;
+		fogFactor = 0.3;
+		glUniform1i(glGetUniformLocation(water_program, "nextLevelTransition"), false);
+	}
+
+	for (int i = 0; i < lightBallsXcoords.size(); i++) {
+		std::string s1("thingie.xCoordinates[");
+		std::string s2("thingie.yCoordinates[");
+		std::string iInS = std::to_string(i);
+		s1 += iInS + "]";
+		s2 += iInS + "]";
+
+		// printf("%f %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
+		GLuint locX = glGetUniformLocation(water_program, s1.c_str());
+		GLuint locY = glGetUniformLocation(water_program, s2.c_str());
+		glUniform1f(locX, lightBallsXcoords[i]);
+		glUniform1f(locY, lightBallsYcoords[i]);
+	}
+
+
 	gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)
@@ -260,7 +303,6 @@ void RenderSystem::drawToScreen()
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
 	// Draw
@@ -287,7 +329,7 @@ void RenderSystem::draw(float elapsed_ms)
 	glDepthRange(0.00001, 10);
 
 	// Background color
-	glClearColor(0.2, 0.2, 0.2, 0.65);
+	glClearColor(0.54509803921, 0.f, 0.54509803921, 1);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
@@ -305,15 +347,28 @@ void RenderSystem::draw(float elapsed_ms)
 		// Handle camera focus on projectiles and swordsman melee
 		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0) {
 			Motion& motion = registry.motions.get(entity);
-			hasTravellingProjectile = 1;
 			projectionMat = createCameraProjection(motion);
+
+			if (registry.damages.has(entity) && registry.damages.get(entity).isFriendly) {
+				hasTravellingProjectile = 1;
+			}
+			else if (registry.damages.has(entity) && !registry.damages.get(entity).isFriendly) {
+				hasTravellingProjectile = 2;
+			}
 		}
-		//else if (registry.runners.has(entity) 
-		//	|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
-		//	|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
-		//	Motion& motion = registry.motions.get(entity);
-		//	projectionMat = createCameraProjection(motion);
-		//}
+		else if (registry.runners.has(entity) 
+			|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
+			|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+			Motion& motion = registry.motions.get(entity);
+
+			if (registry.companions.has(entity)) {
+				projectionMat = createCameraProjection(motion);
+			}
+			else if (registry.enemies.has(entity)) {
+				projectionMat = createCameraProjection(motion);
+			}
+			
+		}
 	}
 
 	// Draw all textured meshes that have a position and size component
@@ -487,12 +542,22 @@ void RenderSystem::draw(float elapsed_ms)
 					frame_width = 0.01;
 				}
 				else if (registry.backgroundLayers.get(entity).isCameraScrollOne && hasTravellingProjectile) {
-					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_ONE;
+					if (hasTravellingProjectile == 1) {
+						registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_ONE;
+					}
+					else {
+						registry.backgroundLayers.get(entity).scrollX -= CAMERA_SCROLL_RATE_ONE;
+					}
 					curr_frame = registry.backgroundLayers.get(entity).scrollX;
 					frame_width = 0.001;
 				}
 				else if (registry.backgroundLayers.get(entity).isCameraScrollTwo && hasTravellingProjectile) {
-					registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_TWO;
+					if (hasTravellingProjectile == 1) {
+						registry.backgroundLayers.get(entity).scrollX += CAMERA_SCROLL_RATE_TWO;
+					}
+					else {
+						registry.backgroundLayers.get(entity).scrollX -= CAMERA_SCROLL_RATE_TWO;
+					}
 					curr_frame = registry.backgroundLayers.get(entity).scrollX;
 					frame_width = 0.001;
 				}
@@ -501,7 +566,16 @@ void RenderSystem::draw(float elapsed_ms)
 			// UI-related entities should remain in constant position on screen
 			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;
 
-			drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width);
+			if (registry.enemies.has(entity)) {
+				deferredRenderingEntities.emplace(registry.enemies.get(entity).healthbar, entity);
+			}
+			if (transitioningToNextLevel && registry.enemies.has(entity)) {
+				// delay rendering of enemies when transitioning to next level
+			} else if (transitioningToNextLevel && deferredRenderingEntities.count(entity) > 0) {
+				// delay rendering of enemy healthbar when transitioning to next level
+			} else {
+				drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width);
+			}
 		}
 
 	}
@@ -540,13 +614,13 @@ mat3 RenderSystem::createProjectionMatrix()
 
 mat3 RenderSystem::createCameraProjection(Motion& motion)
 {
-	float left = (motion.position.x - motion.scale.x / 2) - CAMERA_OFFSET_LEFT;
-	float top = (motion.position.y - motion.scale.y / 2) - CAMERA_OFFSET_TOP;
+	float left = (motion.position.x - abs(motion.scale.x / 2)) - CAMERA_OFFSET_LEFT;
+	float top = (motion.position.y - abs(motion.scale.y / 2)) - CAMERA_OFFSET_TOP;
 
-	float right = (motion.position.x + motion.scale.x / 2) + CAMERA_OFFSET_RIGHT;
-	float bottom = (motion.position.y + motion.scale.y / 2) + CAMERA_OFFSET_BOTTOM;
+	float right = (motion.position.x + abs(motion.scale.x / 2)) + CAMERA_OFFSET_RIGHT;
+	float bottom = (motion.position.y + abs(motion.scale.y / 2)) + CAMERA_OFFSET_BOTTOM;
 
-	float sx = 2.f / (right - left);
+	float sx = 2.f / abs(right - left);
 	float sy = 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
