@@ -139,7 +139,7 @@ class RenderSystem {
 	float NECRO_MINION_APPEAR_FRAME_TIME = 200;
 	float NECRO_MINION_IDLE_FRAME_TIME = 300;
 	float NECRO_MINION_WALK_FRAME_TIME = 100;
-	float NECRO_MINION_MELEE_FRAME_TIME = 90;
+	float NECRO_MINION_MELEE_FRAME_TIME = 100;
 	float NECRO_MINION_DEATH_FRAME_TIME = 200;
 
 	// pixel positions for the light balls in the background
@@ -226,8 +226,8 @@ class RenderSystem {
 	const GLfloat NECRO_MINION_DEATH_FRAME_WIDTH = 0.10;
 
 	// Camera/scrolling constants
-	float CAMERA_OFFSET_LEFT = 500;
-	float CAMERA_OFFSET_TOP = 500;
+	float CAMERA_OFFSET_LEFT = 400;
+	float CAMERA_OFFSET_TOP = 400;
 	float CAMERA_OFFSET_RIGHT = 400;
 	float CAMERA_OFFSET_BOTTOM = 200;
 

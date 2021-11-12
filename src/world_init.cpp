@@ -659,7 +659,8 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	motion.position = position;
 	motion.scale = vec2({ ROCK_WIDTH, ROCK_HEIGHT });
 
-	registry.projectiles.emplace(entity);
+	auto& proj = registry.projectiles.emplace(entity);
+	proj.enableCameraTracking = 0;
 
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);

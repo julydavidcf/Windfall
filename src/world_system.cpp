@@ -196,9 +196,16 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	this->ai = ai_arg;
 	this->sk = skill_arg;
 
-	// Playing background music indefinitely (Later)
-	//Mix_VolumeMusic(8);	// adjust volume from 0 to 128
-	//Mix_PlayMusic(background_music, -1);
+	Mix_VolumeMusic(MIX_MAX_VOLUME / 10);
+	Mix_PlayMusic(background_music, -1);
+	Mix_VolumeChunk(hit_enemy_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(fireball_explosion_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(death_enemy_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(fire_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(rock_spell_sound,MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(heal_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(taunt_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(melee_spell_sound, MIX_MAX_VOLUME / 10);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -343,10 +350,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		restart_game();
 	}
 
-	// Updating window title with points (MAYBE USE FOR LATER)
-	//std::stringstream title_ss;
-	//title_ss << "Points: " << points;
-	//glfwSetWindowTitle(window, title_ss.str().c_str());
+	// Updating window title with volume control
+	std::stringstream title_ss;
+	title_ss << "Music volume (z-key , x-key): " << Mix_VolumeMusic(-1) << " ,   Effects volume (c-key , v-key): " << Mix_VolumeChunk(death_enemy_sound, -1) << " ";
+	glfwSetWindowTitle(window, title_ss.str().c_str());
 
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
@@ -1062,6 +1069,34 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = false;
 		else
 			debugging.in_debug_mode = true;
+	}
+
+	// Volume control (z = Decrease BGM vol., x = Increase BGM vol., c = Decrease effects vol., v = Increase effects vol.)
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z) {
+		Mix_VolumeMusic(Mix_VolumeMusic(-1) - MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_X) {
+		Mix_VolumeMusic(Mix_VolumeMusic(-1) + MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_C) {
+		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fireball_explosion_sound, Mix_VolumeChunk(fireball_explosion_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(death_enemy_sound, Mix_VolumeChunk(death_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fire_spell_sound, Mix_VolumeChunk(fire_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(rock_spell_sound, Mix_VolumeChunk(rock_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
+		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fireball_explosion_sound, Mix_VolumeChunk(fireball_explosion_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(death_enemy_sound, Mix_VolumeChunk(death_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fire_spell_sound, Mix_VolumeChunk(fire_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(rock_spell_sound, Mix_VolumeChunk(rock_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 
