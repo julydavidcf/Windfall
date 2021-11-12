@@ -12,12 +12,12 @@
 #include "physics_system.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
-#include "skill_system.hpp""
+#include "skill_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
-const int window_width_px = 1680;
-const int window_height_px = 1050;
+const int window_width_px = 1200;
+const int window_height_px = 750;
 
 // Entry point
 int main()

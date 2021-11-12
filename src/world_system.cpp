@@ -326,7 +326,6 @@ void WorldSystem::checkRound() {
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-
 	// Get the screen dimensions
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
@@ -340,7 +339,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// restart game if enemies or companions are 0
-	if (registry.enemies.size() <= 0 || registry.companions.size() <= 0) {
+	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.deathParticles.size() <= 0)) {
 		restart_game();
 	}
 
@@ -437,6 +436,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		Attack& attack = registry.attackers.get(attacker);
 		// Updating animation time
 		attack.counter_ms -= elapsed_ms_since_last_update;
+		printf("Updating time : %f\n",attack.counter_ms);
 		if (!registry.deathTimers.has(attacker)) {
 			if (attack.counter_ms <= 0.f) {
 				// Attack
@@ -557,30 +557,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		//printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
 		//printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
 
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			displayEnemyTurn();
-			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected companion character has died so as to progress to an enemy's
-				if (registry.stats.get(prevPlayer).health <= 0 || playerUseMelee == 1) {	// Second case: (Brute force) playerUseMelee checks if the previous player used melee attack
-					prevPlayer = currPlayer;
-					ai->callTree(currPlayer);
-				}
-			}
-			if (registry.enemies.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if enemy is going right after another enemy's turn
-				enemy_turn_timer -= elapsed_ms_since_last_update;
-				if (enemy_turn_timer < 0) {
-					if (registry.companions.size() == 0) {
-						restart_game();
-					}
-					else {
-						prevPlayer = currPlayer;
+				if ((registry.checkRoundTimer.size()<=0)&&(registry.companions.size()>0)) {
+					displayEnemyTurn();
+					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+						printf("Calling tree 5\n");
 						ai->callTree(currPlayer);
 					}
+					else {
+						if (roundVec.empty()) {
+							printf("roundVec is empty at enemy turn, createRound now \n");
+							createRound();
+						}
+					}
 				}
-				if (registry.stats.get(prevPlayer).health <= 0) {	// Checks if selected enemy character has died so as to progress to an enemy's TO TEST REMOVED FOR NOW
-					ai->callTree(currPlayer);
-				}
-			}
-		}
 	}
 
 	// Processing the salmon state
@@ -623,6 +612,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// restart the game once the death timer expired
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
+			if(registry.companions.has(entity)){
+				registry.companions.remove(entity);
+			} else if(registry.enemies.has(entity)){
+				registry.enemies.remove(entity);
+			}
 			activate_deathParticles(entity);
 			screen.darken_screen_factor = 0;
 			// restart_game();
@@ -732,17 +726,17 @@ void WorldSystem::restart_game(bool force_restart) {
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
 	// Create a player mage
-	player_mage = createPlayerMage(renderer, { 200, 700 });
+	player_mage = createPlayerMage(renderer, { 200, 550 });
 	// Create a player swordsman
-	player_swordsman = createPlayerSwordsman(renderer, { 350, 600 });
+	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
 	//// Create an enemy mage
 	//enemy_mage = createEnemyMage(renderer, { 1050, 700 });
-	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+	//registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
-	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 700 });
+	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
 	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
-	necromancer_minion = createNecromancerMinion(renderer, { 750, 750 });
-	registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
+	necromancer_minion = createNecromancerMinion(renderer, { 750, 600 });
+	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 	
 	if (gameLevel > 1) {
 		// Create an enemy swordsman
@@ -751,12 +745,12 @@ void WorldSystem::restart_game(bool force_restart) {
 	}
 
 	// Create the icons here
-	taunt_icon = createTauntIcon(renderer, { 500, 900 });
-	heal_icon = createHealIcon(renderer, { 650, 900 });
-	melee_icon = createMeleeIcon(renderer, { 800, 900 });
-	iceShard_icon = createIceShardIcon(renderer, { 950, 900 });
-	fireBall_icon = createFireballIcon(renderer, { 1100, 900 });
-	rock_icon = createRockIcon(renderer, { 1250, 900 });
+	taunt_icon = createTauntIcon(renderer, { 400, 700 });
+	heal_icon = createHealIcon(renderer, { 550, 700 });
+	melee_icon = createMeleeIcon(renderer, { 700, 700 });
+	iceShard_icon = createIceShardIcon(renderer, { 850, 700 });
+	fireBall_icon = createFireballIcon(renderer, { 1000, 700 });
+	rock_icon = createRockIcon(renderer, { 1150, 700 });
 
 	//Create a tooltip
 	tooltip;
@@ -976,21 +970,7 @@ void WorldSystem::handle_collisions() {
 							}
 
 							//enemy turn start
-							if (player_turn == 0) {
-								if (!registry.checkRoundTimer.has(currPlayer)) {
-									displayEnemyTurn();
-									if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-										prevPlayer = currPlayer;
-										ai->callTree(currPlayer);
-									}
-									else {
-										if (roundVec.empty()) {
-											printf("roundVec is empty at enemy turn, createRound now \n");
-											createRound();
-										}
-									}
-								}
-							}
+						
 						}
 					}
 				}
@@ -1056,20 +1036,7 @@ void WorldSystem::handle_boundary_collision() {
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
 			//enemy turn start
-			if (player_turn == 0) {
-				if (!registry.checkRoundTimer.has(currPlayer)) {
-					displayEnemyTurn();
-					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-						ai->callTree(currPlayer);
-					}
-					else {
-						if (roundVec.empty()) {
-							printf("roundVec is empty at enemy turn, createRound now \n");
-							createRound();
-						}
-					}
-				}
-			}
+			
 		}
 	}
 }
