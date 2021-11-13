@@ -741,6 +741,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	//registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
 	// Create the first tutorial box
+	tutorial_enabled = 1;
 	curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
 
 	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
@@ -1291,12 +1292,13 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 
 		// Handle clicks on tutorial box
-		if (tutorial_ability_fired && tutorial_icon_selected 
+		if (tutorial_ability_fired && tutorial_icon_selected && tutorial_enabled
 			&& (curr_tutorial_box_num <= 4 || curr_tutorial_box_num == 7) && inButton(registry.motions.get(curr_tutorial_box).position, TUTORIAL_BOX_WIDTH, TUTORIAL_BOX_HEIGHT)) {
 
 			if (curr_tutorial_box_num == 7) {
 				registry.remove_all_components_of(curr_tutorial_box);
 				curr_tutorial_box_num += 1;
+				tutorial_enabled = 0;
 			}
 			else {
 				registry.remove_all_components_of(curr_tutorial_box);
