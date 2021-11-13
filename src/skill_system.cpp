@@ -45,6 +45,41 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 	}
 }
 
+void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
+	printf("Started the silence attack\n");
+	if (registry.enemies.has(origin)) {
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = SILENCE;
+		attack.target = target;
+		attack.counter_ms = 500.f;	// TODO animation too quick for the timer, repeats on loop
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+	else if (registry.companions.has(origin)) {
+		silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());
+		if (silence_spell_sound != nullptr) {
+			Mix_PlayChannel(-1, silence_spell_sound, 0);
+		}
+		else {
+			printf("soundEff failed loading");
+		}
+		Companion& companion = registry.companions.get(origin);
+		companion.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = SILENCE;
+		attack.target = target;
+		attack.counter_ms = 1500.f;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+}
+
 
 void SkillSystem::startHealAttack(Entity origin, Entity target) {
 	printf("Started the heal attack\n");
@@ -138,6 +173,32 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 		companion.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ROCK;
+		attack.target = target;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+}
+
+void SkillSystem::startLightningAttack(Entity origin, Entity target) {
+	printf("Started the rock attack\n");
+	if (registry.enemies.has(origin)) {
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = LIGHTNING;
+		attack.target = target;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+	else if (registry.companions.has(origin)) {
+		Companion& companion = registry.companions.get(origin);
+		companion.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = LIGHTNING;
 		attack.target = target;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
@@ -274,8 +335,6 @@ void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* rendere
 	//update_healthBars();
 }
 
-
-
 Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
 	float proj_x = startPos.x + 50;
@@ -312,17 +371,29 @@ Entity SkillSystem::launchRock(Entity target, RenderSystem* renderer) {
 	return  resultEntity;
 }
 
+Entity SkillSystem::launchLightning(Entity target, RenderSystem* renderer) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		isFriendly = 0;
+	}
+	Entity resultEntity = createLightning(renderer, { targetp.x, targetp.y - 350 }, isFriendly);
+	Projectile* proj = &registry.projectiles.get(resultEntity);
+	proj->flyingTimer = 2000.f;
+	return  resultEntity;
+}
+
 void SkillSystem::launchTaunt(Entity target, RenderSystem* renderer) {
 	if (!registry.taunts.has(target)) {
 		registry.taunts.emplace(target);
 		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
+		t->duration = 4;	// making it 4 so that it last one more turn when checkRound decrements it on the next turn
 		createTauntIndicator(renderer, target);
 		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
 	else {
 		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
+		t->duration = 4;	// making it 4 so that it last one more turn when checkRound decrements it on the next turn
 		printf("taunt extended!\n");
 	}
 }
@@ -347,5 +418,33 @@ void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
 	}
 	else {
 		Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 1);
+	}
+}
+
+void SkillSystem::launchSilence(Entity target, RenderSystem* renderer) {
+	if (!registry.silenced.has(target)) {
+		vec2 targetp = registry.motions.get(target).position;
+		createSilenceBubble(renderer, targetp);		
+		registry.silenced.emplace(target);
+		Silenced* s = &registry.silenced.get(target);
+		s->turns = 2;	// making it 2 so that it last one more turn when checkRound decrements it on the next turn
+		printf("silenced!!!!!!!!!!!!!!! \n");
+	}
+	else {
+		Silenced* s = &registry.silenced.get(target);
+		s->turns = 2;	// making it 2 so that it last one more turn when checkRound decrements it on the next turn
+		printf("silence extended!\n");
+	}
+}
+
+void SkillSystem::removeSilence(Entity target) {
+	if (registry.silenced.has(target)) {
+		registry.silenced.remove(target);
+		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
+			if (registry.statsindicators.components[j].owner == target) {
+				registry.remove_all_components_of(registry.statsindicators.entities[j]);
+			}
+		}
+		printf("silence removed!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
 }

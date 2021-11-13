@@ -79,6 +79,10 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(taunt_spell_sound);
 	if (melee_spell_sound != nullptr)
 		Mix_FreeChunk(melee_spell_sound);
+	if (silence_spell_sound != nullptr)
+		Mix_FreeChunk(silence_spell_sound);
+	if (lightning_spell_sound != nullptr)
+		Mix_FreeChunk(lightning_spell_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -162,6 +166,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	//https://freesound.org/people/Vicces1212/sounds/123757/
+	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
 
 	if (background_music == nullptr
 		|| salmon_dead_sound == nullptr
@@ -173,7 +179,9 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| rock_spell_sound == nullptr
 		|| heal_spell_sound == nullptr
 		|| taunt_spell_sound == nullptr
-		|| melee_spell_sound == nullptr) {
+		|| melee_spell_sound == nullptr
+		|| silence_spell_sound == nullptr
+		|| lightning_spell_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -185,7 +193,9 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("heal_spell.wav").c_str(),
 			audio_path("taunt_spell.wav").c_str(),
 			audio_path("melee_spell.wav").c_str(),
-			audio_path("death_enemy.wav").c_str());
+			audio_path("death_enemy.wav").c_str(),
+			audio_path("silence_spell.wav").c_str(),
+			audio_path("lightning_spell.wav").c_str());
 		return nullptr;
 	}
 	return window;
@@ -206,6 +216,8 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	Mix_VolumeChunk(heal_spell_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(taunt_spell_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(melee_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(silence_spell_sound, MIX_MAX_VOLUME / 8);
+	Mix_VolumeChunk(lightning_spell_sound, MIX_MAX_VOLUME);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -246,25 +258,47 @@ void WorldSystem::createRound() {
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// iterate through all enemies to get speed stats
 		Entity& entity = registry.enemies.entities[i];
-		Statistics& checkSpeed = registry.stats.get(entity);
-		speedVec.push_back(checkSpeed.speed);
 
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
 		}
+		// also decrement silence duration if present
+		if (registry.silenced.has(entity)) {
+			Silenced* s = &registry.silenced.get(entity);
+			s->turns--;
+			if (s->turns <= 0) {			// remove silence to add speed stat later if turns <= 0
+				sk->removeSilence(entity);
+			}
+		}
+
+		if (!registry.silenced.has(entity)) {
+			Statistics& checkSpeed = registry.stats.get(entity);
+			speedVec.push_back(checkSpeed.speed);
+		}
 	}
 
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// iterate through all companions to get speed stats
 		Entity& entity = registry.companions.entities[i];
-		Statistics& checkSpeed = registry.stats.get(entity);
-		speedVec.push_back(checkSpeed.speed);
 
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
+		}
+		// also decrement silence duration if present
+		if (registry.silenced.has(entity)) {
+			Silenced* s = &registry.silenced.get(entity);
+			s->turns--;
+			if (s->turns <= 0) {			// remove silence to add speed stat later if turns <= 0
+				sk->removeSilence(entity);
+			}
+		}
+
+		if (!registry.silenced.has(entity)) {
+			Statistics& checkSpeed = registry.stats.get(entity);
+			speedVec.push_back(checkSpeed.speed);
 		}
 	}
 
@@ -382,11 +416,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	//check taunt for enemy and companion
+	//check taunt and silence for enemy and companion
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.enemies.entities[i])) {
 			if (registry.taunts.get(registry.enemies.entities[i]).duration <= 0) {
 				sk->removeTaunt(registry.enemies.entities[i]);
+			}
+		}
+		if (registry.silenced.has(registry.enemies.entities[i])) {
+			if (registry.silenced.get(registry.enemies.entities[i]).turns <= 0) {
+				sk->removeSilence(registry.enemies.entities[i]);
 			}
 		}
 	}
@@ -394,6 +433,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (registry.taunts.has(registry.companions.entities[i])) {
 			if (registry.taunts.get(registry.companions.entities[i]).duration <= 0) {
 				sk->removeTaunt(registry.companions.entities[i]);
+			}
+		}
+		if (registry.silenced.has(registry.companions.entities[i])) {
+			if (registry.silenced.get(registry.companions.entities[i]).turns <= 0) {
+				sk->removeSilence(registry.companions.entities[i]);
 			}
 		}
 	}
@@ -511,9 +555,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					Enemy& enemy = registry.enemies.get(attacker);
 					switch (attack.attack_type) {
 					case TAUNT: {
-						Mix_PlayChannel(-1, taunt_spell_sound, 0);	// TODO
+						Mix_PlayChannel(-1, taunt_spell_sound, 0);	// TODO sound lagging
 						printf("taunt attack enemy\n");
 						sk->launchTaunt(attack.target,renderer);
+						break;
+					}
+					case SILENCE: {
+						Mix_PlayChannel(-1, silence_spell_sound, 0);	// TODO sound lagging
+						printf("taunt attack enemy\n");
+						sk->launchSilence(attack.target, renderer);
 						break;
 					}
 					case ROCK: {
@@ -521,6 +571,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						Mix_PlayChannel(5, rock_spell_sound, 0);
 						printf("Rock attack enemy\n");
 						currentProjectile = sk->launchRock(attack.target,renderer);
+						break;
+					}
+					case LIGHTNING: {
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, lightning_spell_sound, 0);	// TODO change sound
+						printf("Lightning attack enemy\n");
+						currentProjectile = sk->launchLightning(attack.target, renderer);
 						break;
 					}
 					case MELEE: {
@@ -733,7 +790,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
 	// Create a player mage
-	player_mage = createPlayerMage(renderer, { 200, 550 });
+	player_mage = createPlayerMage(renderer, { 150, 550 });
 	// Create a player swordsman
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
 	//// Create an enemy mage
@@ -742,7 +799,7 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
 	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
-	necromancer_minion = createNecromancerMinion(renderer, { 750, 600 });
+	necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 	
 	if (gameLevel > 1) {
@@ -965,6 +1022,7 @@ void WorldSystem::handle_collisions() {
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
 								// get rid of dead entity's stats indicators 
 								sk->removeTaunt(entity);
+								sk->removeSilence(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
 							else {
@@ -1087,6 +1145,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
 		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
@@ -1097,6 +1157,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);		
 	}
 }
 

@@ -557,7 +557,7 @@ private:
 	BTState process(Entity e) override;
 };
 
-class BTCastTaunt : public BTNode {
+class BTCastTauntOnMage : public BTNode {
 private:
 	void init(Entity e) override;
 	BTState process(Entity e) override;
@@ -569,7 +569,7 @@ private:
 	BTState process(Entity e) override;
 };
 
-class BTCastRock : public BTNode {
+class BTCastRockOnSwordsman : public BTNode {
 private:
 	void init(Entity e) override;
 	BTState process(Entity e) override;
@@ -605,7 +605,7 @@ private:
 	BTState process(Entity e) override;
 };
 
-class BTRandomTargetAttack : public BTNode {
+class BTRandomTargetLightningAttack : public BTNode {
 private:
 	void init(Entity e) override;
 	BTState process(Entity e) override;

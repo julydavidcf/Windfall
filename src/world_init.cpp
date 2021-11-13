@@ -678,7 +678,44 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	return entity;
 }
 
-// create rock
+//https://pngtree.com/freepng/lightning-design-lightning-effect-natural-phenomenon-lightning-source_3916935.html
+// create lightning
+Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 50 };
+	motion.acceleration = { 0.f, 200 };
+	motion.position = position;
+	motion.scale = vec2({ LIGHTNING_WIDTH, LIGHTNING_HEIGHT });
+
+	auto& proj = registry.projectiles.emplace(entity);
+	proj.enableCameraTracking = 0;
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = lightning_dmg;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::LIGHTNING,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 {
 	auto entity = Entity();
@@ -737,7 +774,7 @@ Entity createHealthBar(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
+Entity createSilenceBubble(RenderSystem* renderer, vec2 position)	//
 {
 	auto entity = Entity();
 
@@ -748,7 +785,7 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
+	motion.velocity = { 0.f, -250.f };
 	position[1] -= 30;
 	position[0] += 70;
 	motion.position = position;
@@ -756,7 +793,7 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::SILENCEBUBBLE,
+		{ TEXTURE_ASSET_ID::SILENCEBUBBLE,	//https://octopathtraveler.fandom.com/wiki/Silence?file=Status_Silence.png
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

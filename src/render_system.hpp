@@ -45,6 +45,7 @@ class RenderSystem {
 			textures_path("enemyTurn.png"),
 			textures_path("arrow.png"),
 			textures_path("rock.png"),
+			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
 			textures_path("iceShard.png"),
 			textures_path("iceShardIcon.png"),

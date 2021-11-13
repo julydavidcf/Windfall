@@ -43,6 +43,8 @@ const float ICESHARD_WIDTH = 80.f;
 const float ICESHARD_HEIGHT = 20.f;
 const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
+const float LIGHTNING_WIDTH = 300.f;
+const float LIGHTNING_HEIGHT = 450.f;
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -93,8 +95,9 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 Entity createBarrier(RenderSystem* renderer, vec2 position);
 
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
-//rock for magw
+
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
+Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);
 
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly);
 // a basic, textured enemy
@@ -120,5 +123,6 @@ const int rock_dmg = 10;
 const int fireball_dmg = 30;
 const int iceshard_dmg = 20;
 const int melee_dmg = 15;
+const int lightning_dmg = 15;
 
 
