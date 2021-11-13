@@ -43,6 +43,7 @@ public:
 	void startRockAttack(Entity origin, Entity target);
 	void startHealAttack(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target);
+	void startParticleBeamAttack(Entity origin);
 
 
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
@@ -51,6 +52,8 @@ public:
 	void launchTaunt(Entity target, RenderSystem* renderer);
 	void launchHeal(Entity target, float amount, RenderSystem* renderer);
 	void launchMelee(Entity target, RenderSystem* renderer);
+
+	std::pair<bool, bool> updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float width, float height);
 	
 	void removeTaunt(Entity target);
 	

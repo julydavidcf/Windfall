@@ -66,6 +66,7 @@ bool RenderSystem::init(int width, int height, GLFWwindow* window_arg)
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
 	createRandomLightBallPosForBackground(width, height);
+	initParticlesBuffer();
 
 	return true;
 }
@@ -456,7 +457,7 @@ bool loadEffectFromFile(
 	}
 	if (!gl_compile_shader(fragment))
 	{
-		fprintf(stderr, "Vertex compilation failed");
+		fprintf(stderr, "fragment compilation failed");
 		assert(false);
 		return false;
 	}
@@ -510,4 +511,12 @@ void RenderSystem::createRandomLightBallPosForBackground(int windowWidth, int wi
 	for (int i = 0; i < lightBallsXcoords.size(); i++) {
 		printf("%f, %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
 	}
+}
+
+void RenderSystem::initParticlesBuffer() {
+	GLuint particles_position_buffer;
+	glGenBuffers(1, &particles_position_buffer);
+	RenderSystem::particles_position_buffer = particles_position_buffer;
+	glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
+	glBufferData(GL_ARRAY_BUFFER, 4000 * 3 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 }

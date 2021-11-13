@@ -1,5 +1,6 @@
 #include "skill_system.hpp"
 
+#include <random>
 
 
 SkillSystem::SkillSystem() {
@@ -226,6 +227,53 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 	}
 }
 
+void SkillSystem::startParticleBeamAttack(Entity origin) {
+	if (!registry.Particles.has(origin)) {
+		Particle particleEffects;
+		particleEffects.Life = 2500.f;
+		particleEffects.areTypeDeath = false;
+		particleEffects.motion.scale = vec2(9.f, 9.f);
+		for (int p = 0; p < 4000; p++) {
+			auto& motion = registry.motions.get(origin);
+			Particle particle;
+			particle.Life = particleEffects.Life;
+			// float random1 = ((rand() % 100) - 50) / 10.0f;
+			// float random2 = ((rand() % 200) - 100) / 10.0f;
+			
+			std::random_device rdx; // obtain a random number from hardware
+			std::mt19937 genX(rdx()); // seed the generator
+			std::uniform_int_distribution<> distrX( (int)motion.position.x - 50, (int)motion.position.x - 40); // define the range
+
+			std::random_device rdy; // obtain a random number from hardware
+			std::mt19937 genY(rdy()); // seed the generator
+			std::uniform_int_distribution<> distrY((int)motion.position.y - 20, (int)motion.position.y + 20); // define the range
+
+
+			float rColor = 0.5f + ((rand() % 100) / 100.0f);
+			// particle.motion.position.x = motion.position.x + random1 + 20.f;
+			// particle.motion.position.y = motion.position.y  + random2 - 40.f;
+			particle.motion.position = vec2(distrX(genX), distrY(genY));
+
+			particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+			// particle.motion.velocity.x = -100.f;
+
+			std::uniform_int_distribution<> distrVelX(0, 1200); // define the range
+			std::uniform_int_distribution<> distrVelY(-60, 60); // define the range
+			particle.motion.velocity.x = (float) distrVelX(genX);
+			particle.motion.velocity.y = (float) distrVelY(genY);
+			// particle.motion.velocity.y = 0.f;
+			// particle.angle = distrVelY(genY);
+
+			// particle.motion.scale = vec2({ 10, 10 });
+			particleEffects.deathParticles.push_back(particle);
+			particleEffects.positions[p * 3 + 0] = particle.motion.position.x;
+			particleEffects.positions[p * 3 + 1] = particle.motion.position.y;
+			particleEffects.positions[p * 3 + 2] = particle.Life/ particleEffects.Life;
+		}
+		registry.Particles.insert(origin, particleEffects);
+	}
+}
+
 Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
 	float proj_x = startPos.x + 50;
@@ -348,4 +396,48 @@ void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
 	else {
 		Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 1);
 	}
+}
+
+std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float w, float h) {
+	std::pair<bool, bool> updateHealthSignals = {false, false};
+	if (registry.Particles.has(origin)) {
+		auto& originMotion = registry.motions.get(origin);
+		Particle& particles = registry.Particles.get(origin);
+		for (int i = 0; i < particles.deathParticles.size(); i++) {
+			auto& particle = particles.deathParticles[i];
+			particle.Life -= elapsed_ms_since_last_update * 0.5;
+
+			if (particle.Life <= 0.f) {
+				particles.fadedParticles++;
+			}
+			float step_seconds = 1.0f * (elapsed_ms_since_last_update / 1000.f);
+			particle.motion.position.x -= particle.motion.velocity.x * step_seconds;
+			if (particle.motion.position.x <= w / 1.25) {
+				particle.motion.position.y -= particle.motion.velocity.y * step_seconds * (float)0.8;
+			}
+			if (!updateHealthSignals.first) {
+				for (auto& companion : registry.companions.entities) {
+					auto& motion = registry.motions.get(companion);
+					if (abs(motion.position.x - particle.motion.position.x) <= 2) {
+						updateHealthSignals.first = true;
+						break;
+					}
+				}
+			}
+			if (particle.Life / particles.Life < 0.70) {
+				updateHealthSignals.second = true;
+			}
+
+			particles.positions[i * 3 + 0] = particle.motion.position.x;
+			particles.positions[i * 3 + 1] = particle.motion.position.y;
+			particles.positions[i * 3 + 2] = particle.Life/ particles.Life;
+		}
+
+		if (particles.fadedParticles >= 4000 - 5) {
+			delete[] particles.positions;
+			particles.faded = true;
+			registry.Particles.remove(origin);
+		}
+	}
+	return updateHealthSignals;
 }

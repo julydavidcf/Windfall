@@ -232,16 +232,22 @@ struct TurnIndicator
 };
 
 // Particles emitted during death
-struct DeathParticle
+struct Particle
 {
 	Motion motion;
 	glm::vec4 Color;
 	float     Life;
-	std::vector<DeathParticle> deathParticles;
+	std::vector<Particle> deathParticles;
 	int fadedParticles = 0;
+	// float positions[2000 * 3];
+	float* positions = new float[4000 * 3];
+	bool faded;
+	float angle;
+	// particles can death particles or aoe particles
+	bool areTypeDeath;
 
-	DeathParticle()
-		: Color(1.0f), Life(1500.f) {
+	Particle()
+		: Color(1.0f), Life(1500.f), faded(false), angle(0.), areTypeDeath(true) {
 		motion.velocity.x = (float)((rand() % 50 - 10) * 5);
 		motion.velocity.y = (float)((rand() % 50 - 10) * 5);
 	}
@@ -346,7 +352,8 @@ enum class TEXTURE_ASSET_ID {
 	TAUNTTOOLTIP = MELEETOOLTIP + 1,
 	HEALTOOLTIP = TAUNTTOOLTIP + 1,
 	// --------------------------
-	TEXTURE_COUNT = HEALTOOLTIP + 1
+	RED_PARTICLE = HEALTOOLTIP + 1,
+	TEXTURE_COUNT = RED_PARTICLE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

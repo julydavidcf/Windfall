@@ -83,7 +83,9 @@ class RenderSystem {
 			textures_path("rockToolTip.png"),
 			textures_path("meleeToolTip.png"),
 			textures_path("tauntToolTip.png"),
-			textures_path("healToolTip.png")
+			textures_path("healToolTip.png"),
+
+			textures_path("particlered.png")
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -205,6 +207,7 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection, GLint& frame, GLfloat& frameWidth);
 	void drawDeathParticles(Entity entity, const mat3& projection);
+	void initParticlesBuffer();
 	void drawToScreen();
 
 	// Window handle
@@ -218,6 +221,8 @@ private:
 	GLuint off_screen_render_buffer_depth;
 
 	Entity screen_state_entity;
+
+	GLuint particles_position_buffer;
 };
 
 bool loadEffectFromFile(
