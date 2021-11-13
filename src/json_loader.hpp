@@ -1,8 +1,12 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include "../ext/nlohmann/json.hpp"
 #include "common.hpp"
 
-class JSONLoader {
+class JSONLoader 
+{
+    public: 
+        JSONLoader();
+        void get_level();
 
 };
