@@ -1,7 +1,10 @@
 #include "json_loader.hpp"
 using json = nlohmann::json;
 
-#ifdef WINDOWS
+#ifdef _WIN64
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#elif _WIN32
 #include <direct.h>
 #define GetCurrentDir _getcwd
 #else
