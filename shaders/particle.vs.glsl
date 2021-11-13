@@ -17,18 +17,18 @@ uniform float angle;
 
 void main()
 {
-	// tranform
-	mat3 mat = { { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f} }; 
+	// transform
+	mat3 mat = mat3(vec3(1.f, 0.f, 0.f), vec3(0.f, 1.f, 0.f), vec3(0.f, 0.f, 1.f));
 	// translate
-	mat3 T = { { 1.f, 0.f, 0.f },{ 0.f, 1.f, 0.f },{ in_part_pos.x, in_part_pos.y, 1.f } };
+	mat3 T = mat3(vec3(1.f, 0.f, 0.f), vec3(0.f, 1.f, 0.f),vec3(in_part_pos.x, in_part_pos.y, 1.f));
 	mat = mat * T;
 	// rotate
 	float c = cos(angle);
 	float s = sin(angle);
-	mat3 R = { { c, s, 0. },{ -s, c, 0. },{ 0., 0., 1. } };
+	mat3 R = mat3(vec3(c, s, 0.f ),vec3(-s, c, 0.f),vec3(0.f, 0.f, 1.f));
 	mat = mat * R;
 	// scale
-	mat3 S = { { scale.x, 0., 0. },{ 0., scale.y, 0. },{ 0., 0., 1. } };
+	mat3 S = mat3(vec3(scale.x, 0.f, 0.f),vec3(0.f, scale.y, 0.f),vec3(0.f, 0.f, 1.f));
 	mat = mat * S;
 
 	life = in_part_pos.z;
