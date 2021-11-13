@@ -89,8 +89,6 @@ if (IS_OS_LINUX OR IS_OS_MAC)
     # Since we're on OSX or Linux, we can just use pkgconfig.
     find_package(PkgConfig REQUIRED)
 
-    find_package(nlohmann_json REQUIRED)
-
     pkg_search_module(GLFW REQUIRED glfw3)
 
     pkg_search_module(SDL2 REQUIRED sdl2)
@@ -112,9 +110,6 @@ elseif (IS_OS_WINDOWS)
 
     set(GLFW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw/include")
     set(SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/sdl/include/SDL")
-
-    set(JSON_BuildTests OFF CACHE INTERNAL "")
-    add_subdirectory(${nlohmann_json_source} ${CMAKE_CURRENT_BINARY_DIR}/nlohmann_json)
 
     if (${CMAKE_SIZEOF_VOID_P} MATCHES "8")
         set(GLFW_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw/lib/glfw3dll-x64.lib")
@@ -179,12 +174,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})
 
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm)
 
-if(NOT MSVC)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE JSON_NOEXCEPTION)
-    target_compile_options(${PROJECT_NAME} PRIVATE -fno-exceptions)
-endif()
 
 # Needed to add this
 if(IS_OS_LINUX)
