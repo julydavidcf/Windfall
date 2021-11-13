@@ -64,7 +64,7 @@ class RenderSystem {
 			textures_path("tauntIconSelected.png"),
 			textures_path("tauntIconDisable.png"),
 
-
+			// Animation sheets
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("swordsman_walk.png"),
@@ -86,10 +86,22 @@ class RenderSystem {
 			textures_path("necro_minion_walk.png"),
 			textures_path("necro_minion_melee.png"),
 			textures_path("necro_minion_death.png"),
+
+			// Background layers
 			textures_path("backgroundLayerOne.png"),
 			textures_path("backgroundLayerTwo.png"),
 			textures_path("backgroundLayerThree.png"),
 			textures_path("backgroundLayerFour.png"),
+
+			// Tutorial text boxes
+			textures_path("tutorial_one.png"),
+			textures_path("tutorial_two.png"),
+			textures_path("tutorial_three.png"),
+			textures_path("tutorial_four.png"),
+			textures_path("tutorial_five.png"),
+			textures_path("tutorial_six.png"),
+			textures_path("tutorial_seven.png"),
+			textures_path("tutorial_eight.png"),
 
 			//tootips
 			textures_path("fireBallToolTip.png"),

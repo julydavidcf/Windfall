@@ -145,6 +145,11 @@ private:
 	Entity rock_icon;
 	Entity tooltip;
 
+	Entity curr_tutorial_box;
+	int curr_tutorial_box_num = 0;
+	int tutorial_icon_selected = 1;
+	int tutorial_ability_fired = 1;
+
 	// Music References
 	Mix_Music* background_music;
 	Mix_Chunk* salmon_dead_sound;

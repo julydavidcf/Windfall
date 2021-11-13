@@ -15,6 +15,7 @@ const float NECRO_TWO_WIDTH = 400.f;
 const float NECRO_TWO_HEIGHT = 500.f;
 const float NECRO_MINION_WIDTH = 90.f;
 const float NECRO_MINION_HEIGHT = 110.f;
+
 const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 15.f;
 const float SILENCEBUBBLE_WIDTH = 40.f;
@@ -31,18 +32,25 @@ const float ICON_WIDTH = 80.f;
 const float ICON_HEIGHT = 80.f;
 const float BARRIER_WIDTH = 50.f;
 const float BARRIER_HEIGHT = 200.f;
+
 const float PLAYERTURN_WIDTH = 300.f;
 const float PLAYERTURN_HEIGHT = 100.f;
 const float ENEMYTURN_WIDTH = 300.f;
 const float ENEMYTURN_HEIGHT = 100.f;
+
 const float BACKGROUND_WIDTH = 1800.f;
 const float BACKGROUND_HEIGHT = 1080.f;
+
 const float ROCK_WIDTH = 75.f;
 const float ROCK_HEIGHT = 75.f;
 const float ICESHARD_WIDTH = 80.f;
 const float ICESHARD_HEIGHT = 20.f;
 const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
+
+const float TUTORIAL_BOX_WIDTH = 300.f;
+const float TUTORIAL_BOX_HEIGHT = 190.f;
+
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -104,6 +112,7 @@ Entity createLine(vec2 position, vec2 size);
 
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 
+Entity createTutorialBox(RenderSystem* renderer, vec2 position, int box_number);
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
 
 
