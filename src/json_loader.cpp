@@ -50,16 +50,17 @@ std::ifstream get_file(string file_name){
         #else
             try_file.append("/../src/").append(file_name);
         #endif
+        std::cout << try_file.c_str() << endl;
         std::ifstream jsonFile(try_file);
         if (jsonFile) {
             return jsonFile;
         }
         #ifdef _WIN64
-            iterate_path = iterate_path.append("\\..").append(file_name);
+            iterate_path.append("\\..");
         #elif _WIN32
-            iterate_path = iterate_path.append("\\..").append(file_name);
+            iterate_path.append("\\..");
         #else
-            iterate_path = iterate_path.append("/..").append(file_name);
+            iterate_path.append("/..");
         #endif
     }
 }
