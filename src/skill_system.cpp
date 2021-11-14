@@ -13,6 +13,14 @@ SkillSystem::~SkillSystem() {
 void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 	printf("Started the taunt attack\n");
 	if (registry.enemies.has(origin)) {
+		taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());
+		if (taunt_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(-1, taunt_spell_sound, 0);
+		}
+		else {
+			printf("soundEff failed loading");
+		}
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
@@ -27,6 +35,7 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 	else if (registry.companions.has(origin)) {
 		taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());
 		if (taunt_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
 			Mix_PlayChannel(-1, taunt_spell_sound, 0);
 		}
 		else {
@@ -48,6 +57,14 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 	printf("Started the silence attack\n");
 	if (registry.enemies.has(origin)) {
+		silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());
+		if (silence_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(-1, silence_spell_sound, 0);
+		}
+		else {
+			printf("soundEff failed loading");
+		}
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
@@ -61,6 +78,7 @@ void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 	else if (registry.companions.has(origin)) {
 		silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());
 		if (silence_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
 			Mix_PlayChannel(-1, silence_spell_sound, 0);
 		}
 		else {
