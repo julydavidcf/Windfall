@@ -47,6 +47,7 @@ public:
 	void startLightningAttack(Entity origin, Entity target);
 	void startHealAttack(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target);
+	void startSummonAttack(Entity origin);
 
 
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
@@ -57,6 +58,7 @@ public:
 	void launchHeal(Entity target, float amount, RenderSystem* renderer);
 	void launchMelee(Entity target, RenderSystem* renderer);
 	void launchSilence(Entity target, RenderSystem* renderer);
+	void launchSummon(RenderSystem* renderer);
 	
 	void removeTaunt(Entity target);
 	void removeSilence(Entity target);

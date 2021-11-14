@@ -158,7 +158,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 	// Give statistics to necromancer minion
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
-	stat.speed = 0;
+	stat.speed = 1;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -193,7 +193,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 	// Give statistics to necromancer phase one
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
-	stat.speed = 1;
+	stat.speed = 0;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -563,6 +563,30 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+Entity createCharIndicator(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.turnIndicators.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	position[1] -= 100;
+	motion.position = position;
+	motion.scale = vec2({ CHARARROW_WIDTH, CHARARROW_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CHARARROW,	//https://pixelartmaker-data-78746291193.nyc3.digitaloceanspaces.com/image/db113ed0e206163.png
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 // create barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position)
 {
@@ -774,7 +798,7 @@ Entity createHealthBar(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createSilenceBubble(RenderSystem* renderer, vec2 position)	//
+Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
@@ -785,7 +809,7 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)	//
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, -250.f };
+	motion.velocity = { 0.f, -500.f };
 	position[1] -= 30;
 	position[0] += 70;
 	motion.position = position;

@@ -1188,7 +1188,9 @@ BTState BTDoNothing::process(Entity e) {
 void BTSummonNecroMinion::init(Entity e) {
 }
 BTState BTSummonNecroMinion::process(Entity e) {
-	createNecromancerMinion(renderer, { 750, 600 });
+	// add skill for summoning
+	SkillSystem sk;
+	sk.startSummonAttack(e);
 	printf("Summon NecroMinion \n\n");
 
 	// return progress
@@ -1250,8 +1252,8 @@ BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castIceShard);	// done
 BTIfPlayerMageTaunted isTaunted(&meleeAttack);					// done
 BTIfPlayerMageNotTaunted notTaunted(&castTaunt);				// done
 
-BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// TODO, cast random target ROCK attack for now
-BTIfPlayerMageNotSilenced notSilenced(&castSilence);			// TODO
+BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
+BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
 
 // Level 3 Nodes
 BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);		// run pair do not need any further implementation? can merge all run pairs later and test
@@ -1266,8 +1268,8 @@ BTIfNoneLessThanHalf none(&checkSwordsman);							// done
 BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);				// done
 BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// done
 
-BTIfPlayerSideHasMageHardCoded haveMageTwo(&checkSilenced);							// done
-BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMageTwo(&randomTargetLightningAttack);	// TODO, cast random target ROCK attack for now
+BTIfPlayerSideHasMageHardCoded haveMageTwo(&checkSilenced);								// done
+BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMageTwo(&randomTargetLightningAttack);	// done
 
 // Level 2 Nodes
 BTRunCheckEnemyHP checkHP(&none, &atLeastOne);			// run pair

@@ -19,6 +19,7 @@ const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 120;
+vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
@@ -227,15 +228,27 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 
 void WorldSystem::displayPlayerTurn() {
 	if (registry.turnIndicators.components.size() != 0) {
-		registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+		// printf("TURNINDICATORS SIZE IS %g \n", float(registry.turnIndicators.components.size()));
+		for (int i = 0; i < registry.turnIndicators.components.size(); i++) {
+			registry.remove_all_components_of(registry.turnIndicators.entities[i]);
+		}
+		// registry.remove_all_components_of(registry.turnIndicators.entities[0]);
 	}
+	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
+	createCharIndicator(renderer, CURRPLAYER_LOCATION);
 	createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
 void WorldSystem::displayEnemyTurn() {
 	if (registry.turnIndicators.components.size() != 0) {
-		registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+		// printf("TURNINDICATORS SIZE IS %g \n", float(registry.turnIndicators.components.size()));
+		for (int i = 0; i < registry.turnIndicators.components.size(); i++) {
+			registry.remove_all_components_of(registry.turnIndicators.entities[i]);
+		}
+		// registry.remove_all_components_of(registry.turnIndicators.entities[0]);
 	}
+	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
+	createCharIndicator(renderer, CURRPLAYER_LOCATION);
 	createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
@@ -360,6 +373,8 @@ void WorldSystem::checkRound() {
 		//update skills display
 		showCorrectSkills();
 	}
+
+	CURRPLAYER_LOCATION = registry.motions.get(currPlayer).position;	// get currPlayer location
 
 	printf("finished check round \n");
 	printf("playerUseMelee is %g \n", float(playerUseMelee));
@@ -599,6 +614,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						printf("heal attack enemy\n");
 						sk->launchHeal(attack.target, 30,renderer);
 						update_healthBars();
+						break;
+					}
+					case SUMMONING: {
+						// add summon sound
+						printf("summon necrominion \n");
+						sk->launchSummon(renderer);
 						break;
 					}
 					default: break;

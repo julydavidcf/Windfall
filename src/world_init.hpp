@@ -17,8 +17,8 @@ const float NECRO_MINION_WIDTH = 90.f;
 const float NECRO_MINION_HEIGHT = 110.f;
 const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 15.f;
-const float SILENCEBUBBLE_WIDTH = 40.f;
-const float SILENCEBUBBLE_HEIGHT = 20.f;
+const float SILENCEBUBBLE_WIDTH = 60.f;
+const float SILENCEBUBBLE_HEIGHT = 40.f;
 const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
 const float ARROW_WIDTH = 80.f;
@@ -45,6 +45,8 @@ const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
 const float LIGHTNING_WIDTH = 300.f;
 const float LIGHTNING_HEIGHT = 450.f;
+const float CHARARROW_WIDTH = 60.f;
+const float CHARARROW_HEIGHT = 40.f;
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -108,6 +110,8 @@ Entity createLine(vec2 position, vec2 size);
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
+
+Entity createCharIndicator(RenderSystem* renderer, vec2 position);
 
 
 //Game Stats

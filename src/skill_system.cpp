@@ -53,7 +53,6 @@ void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = SILENCE;
 		attack.target = target;
-		attack.counter_ms = 500.f;	// TODO animation too quick for the timer, repeats on loop
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
@@ -287,6 +286,23 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 	}
 }
 
+void SkillSystem::startSummonAttack(Entity origin) {
+	printf("Started the summon attack\n");
+	if (registry.enemies.has(origin)) {
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = SUMMONING;
+		//attack.counter_ms += 250.f;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+	else if (registry.companions.has(origin)) {
+	}
+}
+
 Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
 	float proj_x = startPos.x + 50;
@@ -447,4 +463,8 @@ void SkillSystem::removeSilence(Entity target) {
 		}
 		printf("silence removed!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
+}
+
+void SkillSystem::launchSummon(RenderSystem* renderer) {
+	createNecromancerMinion(renderer, { 750, 600 });
 }
