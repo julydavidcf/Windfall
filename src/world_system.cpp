@@ -86,6 +86,8 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(lightning_spell_sound);
 	if (ice_spell_sound != nullptr)
 		Mix_FreeChunk(ice_spell_sound);
+	if (summon_spell_sound != nullptr)
+		Mix_FreeChunk(summon_spell_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -172,6 +174,7 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	//https://freesound.org/people/Vicces1212/sounds/123757/
 	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
 	ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
+	summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
 
 	if (background_music == nullptr
 		|| salmon_dead_sound == nullptr
@@ -186,7 +189,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| melee_spell_sound == nullptr
 		|| silence_spell_sound == nullptr
 		|| lightning_spell_sound == nullptr
-		|| ice_spell_sound == nullptr) {
+		|| ice_spell_sound == nullptr
+		|| summon_spell_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -201,7 +205,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("death_enemy.wav").c_str(),
 			audio_path("silence_spell.wav").c_str(),
 			audio_path("lightning_spell.wav").c_str(),
-			audio_path("ice_spell.wav").c_str());
+			audio_path("ice_spell.wav").c_str(),
+			audio_path("summon_spell.wav").c_str());
 		return nullptr;
 	}
 	return window;
@@ -225,6 +230,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	Mix_VolumeChunk(silence_spell_sound, MIX_MAX_VOLUME / 8);
 	Mix_VolumeChunk(lightning_spell_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(ice_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(summon_spell_sound, MIX_MAX_VOLUME);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -234,11 +240,14 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 
 void WorldSystem::displayPlayerTurn() {
 	if (registry.turnIndicators.components.size() != 0) {
-		// printf("TURNINDICATORS SIZE IS %g \n", float(registry.turnIndicators.components.size()));
+		//printf("TURNINDICATORS SIZE IS %g \n", float(registry.health.components.size()));
 		for (int i = 0; i < registry.turnIndicators.components.size(); i++) {
 			registry.remove_all_components_of(registry.turnIndicators.entities[i]);
 		}
 		// registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+	}
+	if (registry.charIndicator.components.size() != 0) {
+		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
 	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
 	createCharIndicator(renderer, CURRPLAYER_LOCATION);
@@ -247,11 +256,14 @@ void WorldSystem::displayPlayerTurn() {
 
 void WorldSystem::displayEnemyTurn() {
 	if (registry.turnIndicators.components.size() != 0) {
-		// printf("TURNINDICATORS SIZE IS %g \n", float(registry.turnIndicators.components.size()));
+		printf("TURNINDICATORS SIZE IS %g \n", float(registry.turnIndicators.components.size()));
 		for (int i = 0; i < registry.turnIndicators.components.size(); i++) {
 			registry.remove_all_components_of(registry.turnIndicators.entities[i]);
 		}
 		// registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+	}
+	if (registry.charIndicator.components.size() != 0) {
+		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
 	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
 	createCharIndicator(renderer, CURRPLAYER_LOCATION);
@@ -596,7 +608,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case LIGHTNING: {
 						Mix_Volume(5, 32);
-						Mix_PlayChannel(5, lightning_spell_sound, 0);	// TODO change sound
+						Mix_PlayChannel(5, lightning_spell_sound, 0);
 						printf("Lightning attack enemy\n");
 						currentProjectile = sk->launchLightning(attack.target, renderer);
 						break;
@@ -625,7 +637,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						break;
 					}
 					case SUMMONING: {
-						// add summon sound
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, summon_spell_sound, 0);
 						printf("summon necrominion \n");
 						sk->launchSummon(renderer);
 						break;
@@ -1177,6 +1190,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
 		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
@@ -1189,7 +1203,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);		
-		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 

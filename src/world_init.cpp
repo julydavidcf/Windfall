@@ -570,11 +570,11 @@ Entity createCharIndicator(RenderSystem* renderer, vec2 position)
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
-	registry.turnIndicators.emplace(entity);
+	registry.charIndicator.emplace(entity);
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
-	position[1] -= 100;
+	position[1] -= 150;
 	motion.position = position;
 	motion.scale = vec2({ CHARARROW_WIDTH, CHARARROW_HEIGHT });
 

@@ -30,6 +30,7 @@ public:
 	Mix_Chunk* silence_spell_sound;
 	Mix_Chunk* lightning_spell_sound;
 	Mix_Chunk* ice_spell_sound;
+	Mix_Chunk* summon_spell_sound;
 
 	//timers
 	const float animation_timer = 1200.f;

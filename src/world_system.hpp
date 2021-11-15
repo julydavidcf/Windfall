@@ -161,6 +161,7 @@ private:
 	Mix_Chunk* silence_spell_sound;
 	Mix_Chunk* lightning_spell_sound;
 	Mix_Chunk* ice_spell_sound;
+	Mix_Chunk* summon_spell_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;

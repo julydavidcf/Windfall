@@ -44,6 +44,11 @@ struct HealthBar
 
 };
 
+struct CharIndicator
+{
+
+};
+
 // Currently attacking
 struct Attack
 {
