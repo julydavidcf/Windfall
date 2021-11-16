@@ -120,7 +120,7 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 Entity createTutorialBox(RenderSystem* renderer, vec2 position, int box_number);
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
 
-Entity createCharIndicator(RenderSystem* renderer, vec2 position);
+Entity createCharIndicator(RenderSystem* renderer, vec2 position, Entity owner);
 
 
 //Game Stats

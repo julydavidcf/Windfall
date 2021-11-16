@@ -46,7 +46,7 @@ struct HealthBar
 
 struct CharIndicator
 {
-
+	Entity owner;
 };
 
 // Currently attacking

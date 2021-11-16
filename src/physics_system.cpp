@@ -170,6 +170,16 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 
 			Motion& motion_j = motion_container.components[j];
 			Entity entity_j = motion_container.entities[j];
+
+			// Handle charIndicator following the character here
+			if (registry.charIndicator.has(entity_i) && registry.charIndicator.get(entity_i).owner == entity_j) {
+				motion_i.position = vec2(motion_j.position.x, motion_i.position.y);
+			}
+			else if (registry.charIndicator.has(entity_j) && registry.charIndicator.get(entity_j).owner == entity_i) {
+				motion_j.position = vec2(motion_i.position.x, motion_j.position.y);
+			}
+
+
 			//if (collides(motion_i, motion_j))
 			if(collides(entity_i, entity_j))
 			{

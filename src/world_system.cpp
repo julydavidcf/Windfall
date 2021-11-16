@@ -250,7 +250,7 @@ void WorldSystem::displayPlayerTurn() {
 		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
 	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
-	createCharIndicator(renderer, CURRPLAYER_LOCATION);
+	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
 	createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
@@ -266,7 +266,7 @@ void WorldSystem::displayEnemyTurn() {
 		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
 	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
-	createCharIndicator(renderer, CURRPLAYER_LOCATION);
+	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
 	createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 

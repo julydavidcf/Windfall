@@ -528,20 +528,23 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createCharIndicator(RenderSystem* renderer, vec2 position)
+Entity createCharIndicator(RenderSystem* renderer, vec2 position, Entity owner)
 {
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
-	registry.charIndicator.emplace(entity);
+
+	auto& charInd = registry.charIndicator.emplace(entity);
+	charInd.owner = owner;
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	position[1] -= 150;
 	motion.position = position;
 	motion.scale = vec2({ CHARARROW_WIDTH, CHARARROW_HEIGHT });
+
 
 	registry.renderRequests.insert(
 		entity,
