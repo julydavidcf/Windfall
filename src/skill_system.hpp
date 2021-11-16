@@ -33,7 +33,7 @@ public:
 	Mix_Chunk* summon_spell_sound;
 
 	//timers
-	const float animation_timer = 1200.f;
+	const float animation_timer = 500.f;
 	const float hit_position = 20.f;
 
 

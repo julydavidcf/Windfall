@@ -495,6 +495,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			auto& anim_type = registry.companions.has(runner) ? registry.companions.get(runner).curr_anim_type
 				: registry.enemies.get(runner).curr_anim_type;
 
+			auto& runner_type = registry.companions.has(runner) ? registry.companions.get(runner).companionType
+				: registry.enemies.get(runner).enemyType;
+
 			Entity healthbar = registry.companions.has(runner) ? registry.companions.get(runner).healthbar
 				: registry.enemies.get(runner).healthbar;
 			Motion& healthbar_motion = registry.motions.get(healthbar);
@@ -507,7 +510,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			attack.attack_type = MELEE;
 			attack.old_pos = run.old_pos;
 			attack.target = run.target;
-			attack.counter_ms = 1250.f;
+
+			if (runner_type == SWORDSMAN) {
+				attack.counter_ms = 1250.f;
+			}
+			else if (runner_type == NECROMANCER_MINION) {
+				attack.counter_ms = 800.f;
+			}
+			
 			registry.runners.remove(runner);
 
 			// Replace with better melee sound effect
@@ -522,7 +532,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		attack.counter_ms -= elapsed_ms_since_last_update;
 		printf("Updating time : %f\n",attack.counter_ms);
 		if (!registry.deathTimers.has(attacker)) {
-			if (attack.counter_ms <= 0.f) {
+			if (attack.counter_ms <= 0.f || attack.attack_type == SUMMON) {
 				// Attack
 				if (registry.companions.has(attacker)) {
 					printf("Companion is attacking\n");
@@ -840,8 +850,8 @@ void WorldSystem::restart_game(bool force_restart) {
 	//registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
 	// Create the first tutorial box
-	tutorial_enabled = 1;
-	curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
+	//tutorial_enabled = 1;
+	//curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
 
 	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
 	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });

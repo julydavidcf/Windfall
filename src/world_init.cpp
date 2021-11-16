@@ -155,11 +155,14 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 	enemy.healthbar = createHealthBar(renderer, pos);
 	enemy.enemyType = NECROMANCER_MINION;
 
+	// Minion should use appearing anim initially
+	enemy.curr_anim_type = APPEARING;
+
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::NECRO_MINION_IDLE,
+		{ TEXTURE_ASSET_ID::NECRO_MINION_APPEAR,
 			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE });
+			GEOMETRY_BUFFER_ID::NECRO_MINION_APPEAR });
 
 	return entity;
 }
@@ -583,7 +586,7 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, -500.f };
+	motion.velocity = { 0.f, -150.f };
 	motion.acceleration = { 0.f, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
@@ -669,7 +672,7 @@ Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 50 };
+	motion.velocity = { 0.f, 100 };
 	motion.acceleration = { 0.f, 200 };
 	motion.position = position;
 	motion.scale = vec2({ LIGHTNING_WIDTH, LIGHTNING_HEIGHT });
@@ -761,7 +764,7 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, -500.f };
+	motion.velocity = { 0.f, -150.f };
 	position[1] -= 30;
 	position[0] += 70;
 	motion.position = position;
