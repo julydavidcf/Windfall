@@ -598,17 +598,17 @@ void RenderSystem::draw(float elapsed_ms)
 								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
 								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
 								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
-							}
-							case FIREBALL: {
-								if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
-									*currFrame = 0;
 								}
-								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
-								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
-								numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
-							}
-						// Todo: Add more spell cases later
-							default: break;
+								case ICESHARD: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
+									numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
+								}
+								// Todo: Add more spell cases later
+								default: break;
 							}
 							break;
 						}
