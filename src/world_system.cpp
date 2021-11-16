@@ -217,7 +217,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	this->ai = ai_arg;
 	this->sk = skill_arg;
 
-	Mix_VolumeMusic(MIX_MAX_VOLUME / 10);
+	Mix_VolumeMusic(0);
 	Mix_PlayMusic(background_music, -1);
 	Mix_VolumeChunk(hit_enemy_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(fireball_explosion_sound, MIX_MAX_VOLUME / 10);
@@ -250,7 +250,7 @@ void WorldSystem::displayPlayerTurn() {
 		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
 	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
-	createCharIndicator(renderer, CURRPLAYER_LOCATION);
+	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
 	createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
@@ -266,7 +266,7 @@ void WorldSystem::displayEnemyTurn() {
 		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
 	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
-	createCharIndicator(renderer, CURRPLAYER_LOCATION);
+	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
 	createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
@@ -495,6 +495,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			auto& anim_type = registry.companions.has(runner) ? registry.companions.get(runner).curr_anim_type
 				: registry.enemies.get(runner).curr_anim_type;
 
+			auto& runner_type = registry.companions.has(runner) ? registry.companions.get(runner).companionType
+				: registry.enemies.get(runner).enemyType;
+
 			Entity healthbar = registry.companions.has(runner) ? registry.companions.get(runner).healthbar
 				: registry.enemies.get(runner).healthbar;
 			Motion& healthbar_motion = registry.motions.get(healthbar);
@@ -507,7 +510,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			attack.attack_type = MELEE;
 			attack.old_pos = run.old_pos;
 			attack.target = run.target;
-			attack.counter_ms = 1250.f;
+
+			if (runner_type == SWORDSMAN) {
+				attack.counter_ms = 1250.f;
+			}
+			else if (runner_type == NECROMANCER_MINION) {
+				attack.counter_ms = 800.f;
+			}
+			
 			registry.runners.remove(runner);
 
 			// Replace with better melee sound effect
@@ -522,7 +532,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		attack.counter_ms -= elapsed_ms_since_last_update;
 		printf("Updating time : %f\n",attack.counter_ms);
 		if (!registry.deathTimers.has(attacker)) {
-			if (attack.counter_ms <= 0.f) {
+			if (attack.counter_ms <= 0.f || attack.attack_type == SUMMON) {
 				// Attack
 				if (registry.companions.has(attacker)) {
 					printf("Companion is attacking\n");
@@ -839,9 +849,13 @@ void WorldSystem::restart_game(bool force_restart) {
 	//enemy_mage = createEnemyMage(renderer, { 1050, 700 });
 	//registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
-	//necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
-	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 300 });
-	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	// Create the first tutorial box
+	//tutorial_enabled = 1;
+	//curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
+
+	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
+	necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 	
 	if (gameLevel > 1) {
@@ -1244,6 +1258,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					if (selected_skill == -1) {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
 						selected_skill = 0;
+						tutorial_icon_selected = 1;
 					}
 					else {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
@@ -1315,6 +1330,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					if (selected_skill == 0) {
 						sk->startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
+						tutorial_ability_fired = 1;
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
@@ -1392,6 +1408,46 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				}
 			}
 		}
+
+		// Handle clicks on tutorial box
+		if (tutorial_ability_fired && tutorial_icon_selected && tutorial_enabled
+			&& (curr_tutorial_box_num <= 4 || curr_tutorial_box_num == 7) && inButton(registry.motions.get(curr_tutorial_box).position, TUTORIAL_BOX_WIDTH, TUTORIAL_BOX_HEIGHT)) {
+
+			if (curr_tutorial_box_num == 7) {
+				registry.remove_all_components_of(curr_tutorial_box);
+				curr_tutorial_box_num += 1;
+				tutorial_enabled = 0;
+			}
+			else {
+				registry.remove_all_components_of(curr_tutorial_box);
+				vec2 next_box_pos = vec2(0, 0);
+				switch (curr_tutorial_box_num) {
+					case 0: next_box_pos = vec2(300, 300); break;
+					case 1: next_box_pos = vec2(900, 300); break;
+					case 2: next_box_pos = vec2(600, 100); break;
+					case 3: next_box_pos = vec2(500, 600); break;
+					case 4: next_box_pos = vec2(800, 600); tutorial_icon_selected = 0; break;
+					// case 5: next_box_pos = vec2(700, 300); tutorial_ability_fired = 0; break;
+					// case 6: next_box_pos = vec2(600, 300); break;
+					default: break;
+				}
+				curr_tutorial_box_num += 1;
+				curr_tutorial_box = createTutorialBox(renderer, next_box_pos, curr_tutorial_box_num);
+			}
+		}
+		if (tutorial_icon_selected && curr_tutorial_box_num == 5) {
+			registry.remove_all_components_of(curr_tutorial_box);
+			// Do case 5 from above here
+			tutorial_ability_fired = 0;
+			curr_tutorial_box_num += 1;
+			curr_tutorial_box = createTutorialBox(renderer, vec2(700, 300), curr_tutorial_box_num);
+		}
+		else if (tutorial_ability_fired && curr_tutorial_box_num == 6) {
+			// Do case 6 from above here
+			registry.remove_all_components_of(curr_tutorial_box);
+			curr_tutorial_box_num += 1;
+			curr_tutorial_box = createTutorialBox(renderer, vec2(600, 300), curr_tutorial_box_num);
+		}
 	}
 }
 vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float width, float height) {
@@ -1445,7 +1501,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 		}
 	}
 	else {
-		registry.renderRequests.remove(tooltip);
+		registry.remove_all_components_of(tooltip);
 		registry.toolTip.clear();
 	}
 }

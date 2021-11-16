@@ -298,9 +298,9 @@ void RenderSystem::initializeGlGeometryBuffers()
 	necro_one_summoning_vertices[1].position = { +1.f, +1.f, 0.f };
 	necro_one_summoning_vertices[2].position = { +1.f, -1.f, 0.f };
 	necro_one_summoning_vertices[3].position = { -1.f, -1.f, 0.f };
-	necro_one_summoning_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
-	necro_one_summoning_vertices[1].texcoord = { 0.20, 1.f };        // Bottom right
-	necro_one_summoning_vertices[2].texcoord = { 0.20, 0.f };        // Top right
+	necro_one_summoning_vertices[0].texcoord = { 0.f, 0.5 };           // Bottom left
+	necro_one_summoning_vertices[1].texcoord = { 0.25, 0.5 };        // Bottom right
+	necro_one_summoning_vertices[2].texcoord = { 0.25, 0.f };        // Top right
 	necro_one_summoning_vertices[3].texcoord = { 0.f, 0.f };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING, necro_one_summoning_vertices, textured_indices);
 

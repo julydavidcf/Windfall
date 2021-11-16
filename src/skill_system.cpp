@@ -70,6 +70,7 @@ void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = SILENCE;
 		attack.target = target;
+		attack.counter_ms = 1100.f;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
@@ -199,13 +200,14 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 }
 
 void SkillSystem::startLightningAttack(Entity origin, Entity target) {
-	printf("Started the rock attack\n");
+	printf("Started the lightning attack\n");
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = LIGHTNING;
 		attack.target = target;
+		attack.counter_ms = 1100.f;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
@@ -259,7 +261,15 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+
+			if (enemy.enemyType == SWORDSMAN) {
+				timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+			} 
+			else if (enemy.enemyType == NECROMANCER_MINION) {
+				timer.counter_ms = rt.counter_ms + 800.f + animation_timer;
+			}
+			 
+			
 		}
 
 		//playerUseMelee = 1;
@@ -311,7 +321,8 @@ void SkillSystem::startSummonAttack(Entity origin) {
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = SUMMONING;
-		//attack.counter_ms += 250.f;
+		attack.counter_ms = 1950.f;
+
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;

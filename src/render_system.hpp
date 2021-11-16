@@ -66,7 +66,7 @@ class RenderSystem {
 			textures_path("tauntIconSelected.png"),
 			textures_path("tauntIconDisable.png"),
 
-
+			// Animation sheets
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("swordsman_walk.png"),
@@ -88,10 +88,22 @@ class RenderSystem {
 			textures_path("necro_minion_walk.png"),
 			textures_path("necro_minion_melee.png"),
 			textures_path("necro_minion_death.png"),
+
+			// Background layers
 			textures_path("backgroundLayerOne.png"),
 			textures_path("backgroundLayerTwo.png"),
 			textures_path("backgroundLayerThree.png"),
 			textures_path("backgroundLayerFour.png"),
+
+			// Tutorial text boxes
+			textures_path("tutorial_one.png"),
+			textures_path("tutorial_two.png"),
+			textures_path("tutorial_three.png"),
+			textures_path("tutorial_four.png"),
+			textures_path("tutorial_five.png"),
+			textures_path("tutorial_six.png"),
+			textures_path("tutorial_seven.png"),
+			textures_path("tutorial_eight.png"),
 
 			//tootips
 			textures_path("fireBallToolTip.png"),
@@ -128,20 +140,20 @@ class RenderSystem {
 	float SWORDSMAN_DEATH_FRAME_TIME = 80;
 
 	float NECRO_ONE_IDLE_FRAME_TIME = 200;
-	float NECRO_ONE_CASTING_FRAME_TIME = 100;
-	float NECRO_ONE_SUMMONING_FRAME_TIME = 100;
+	float NECRO_ONE_CASTING_FRAME_TIME = 241.666666667;
+	float NECRO_ONE_SUMMONING_FRAME_TIME = 550;
 	float NECRO_ONE_DEATH_FRAME_TIME = 100;
 
-	float NECRO_TWO_APPEAR_FRAME_TIME = 300;
+	float NECRO_TWO_APPEAR_FRAME_TIME = 250;
 	float NECRO_TWO_IDLE_FRAME_TIME = 200;
 	float NECRO_TWO_MELEE_FRAME_TIME = 200;
 	float NECRO_TWO_CASTING_FRAME_TIME = 200;
 	float NECRO_TWO_DEATH_FRAME_TIME = 250;
 
-	float NECRO_MINION_APPEAR_FRAME_TIME = 200;
+	float NECRO_MINION_APPEAR_FRAME_TIME = 220;
 	float NECRO_MINION_IDLE_FRAME_TIME = 300;
 	float NECRO_MINION_WALK_FRAME_TIME = 100;
-	float NECRO_MINION_MELEE_FRAME_TIME = 100;
+	float NECRO_MINION_MELEE_FRAME_TIME = 75;
 	float NECRO_MINION_DEATH_FRAME_TIME = 200;
 
 	// pixel positions for the light balls in the background
@@ -183,11 +195,11 @@ class RenderSystem {
 	const int NECRO_ONE_IDLE_FRAMES = 4;
 	const GLfloat NECRO_ONE_IDLE_FRAME_WIDTH = 0.25;
 
-	const int NECRO_ONE_CASTING_FRAMES = 4;
-	const GLfloat NECRO_ONE_CASTING_FRAME_WIDTH = 0.25;
+	const int NECRO_ONE_CASTING_FRAMES = 6;
+	const GLfloat NECRO_ONE_CASTING_FRAME_WIDTH = 0.16666666666;
 
-	const int NECRO_ONE_SUMMONING_FRAMES = 6;
-	const GLfloat NECRO_ONE_SUMMONING_FRAME_WIDTH = 0.16666666666;
+	const int NECRO_ONE_SUMMONING_FRAMES = 4;
+	const GLfloat NECRO_ONE_SUMMONING_FRAME_WIDTH = 0.25;
 
 	const int NECRO_ONE_DEATH_ONE_FRAMES = 10;
 	const GLfloat NECRO_ONE_DEATH_ONE_FRAME_WIDTH = 0.10;

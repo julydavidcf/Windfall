@@ -358,8 +358,10 @@ void RenderSystem::draw(float elapsed_ms)
 			}
 		}
 		else if (registry.runners.has(entity) 
-			|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
-			|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+			|| (registry.companions.has(entity) && registry.companions.get(entity).companionType == SWORDSMAN && registry.companions.get(entity).curr_anim_type == ATTACKING)
+			|| (registry.enemies.has(entity) 
+				&& (registry.enemies.get(entity).enemyType == SWORDSMAN || registry.enemies.get(entity).enemyType == NECROMANCER_MINION)
+				&& registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
 			Motion& motion = registry.motions.get(entity);
 
 			if (registry.companions.has(entity)) {
@@ -596,17 +598,17 @@ void RenderSystem::draw(float elapsed_ms)
 								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
 								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
 								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
-							}
-							case FIREBALL: {
-								if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
-									*currFrame = 0;
 								}
-								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
-								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
-								numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
-							}
-						// Todo: Add more spell cases later
-							default: break;
+								case ICESHARD: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
+									numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
+								}
+								// Todo: Add more spell cases later
+								default: break;
 							}
 							break;
 						}
@@ -625,12 +627,22 @@ void RenderSystem::draw(float elapsed_ms)
 				case NECROMANCER_MINION: {
 					switch (animType) {
 						case APPEARING: {
-							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_APPEAR) {
+							// Finished appearing, switch to idle anim
+							if (*currFrame == NECRO_MINION_APPEAR_FRAMES - 1) {
 								*currFrame = 0;
+								// Change state here
+								registry.enemies.get(entity).curr_anim_type = IDLE;
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_IDLE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE;
+								numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME;
 							}
-							currTexture = TEXTURE_ASSET_ID::NECRO_MINION_APPEAR;
-							currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_APPEAR;
-							numFrames = NECRO_MINION_APPEAR_FRAMES; frame_width = NECRO_MINION_APPEAR_FRAME_WIDTH; timePerFrame = NECRO_MINION_APPEAR_FRAME_TIME; break;
+							else {
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_APPEAR;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_APPEAR;
+								numFrames = NECRO_MINION_APPEAR_FRAMES; frame_width = NECRO_MINION_APPEAR_FRAME_WIDTH; timePerFrame = NECRO_MINION_APPEAR_FRAME_TIME;
+							}
+							break;
+							
 						}
 						case IDLE: {
 							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE) {
