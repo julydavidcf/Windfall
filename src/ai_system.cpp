@@ -2,6 +2,9 @@
 #include "ai_system.hpp"
 #include "skill_system.hpp"
 
+
+RenderSystem* renderer; // to summon necrominion
+
 AISystem::AISystem() {
 
 }
@@ -1031,12 +1034,15 @@ void BTIfPlayerMageSilenced::init(Entity e) {
 
 BTState BTIfPlayerMageSilenced::process(Entity e) {
 	printf("Checking if player mage is silenced ... \n");	// print statement to visualize
-	int toggle = 0;
-	
-	// TODO
-
-	if (toggle == 1) {	// if player mage is silenced, execute child which is random target attack
-		printf("Enemy mage indeed silenced \n");
+	// check if player mage is silenced
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
+			target = toGet;
+		}
+	}
+	if (registry.silenced.has(target)) {
+		printf("Player mage is not silenced \n");
 		return m_child->process(e);
 	}
 	else {
@@ -1055,12 +1061,15 @@ void BTIfPlayerMageNotSilenced::init(Entity e) {
 
 BTState BTIfPlayerMageNotSilenced::process(Entity e) {
 	printf("Checking if player mage is silenced ... \n");	// print statement to visualize
-	int toggle = 0;
-
-	// TODO
-
-	if (toggle == 0) {	// if player mage is not silenced, execute child which is cast silence
-		printf("Enemy mage not silenced \n");
+	// check if player mage is silenced
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
+			target = toGet;
+		}
+	}
+	if (!registry.silenced.has(target)) {
+		printf("Player mage is not silenced \n");
 		return m_child->process(e);
 	}
 	else {
@@ -1078,10 +1087,11 @@ BTState BTCastIceShard::process(Entity e) {
 	return BTState::Success;
 }
 
-void BTCastTaunt::init(Entity e) {
+void BTCastTauntOnMage::init(Entity e) {
 }
-BTState BTCastTaunt::process(Entity e) {
+BTState BTCastTauntOnMage::process(Entity e) {
 	SkillSystem sk;
+	printf("Cast Taunt \n\n");	// print statement to visualize
 	for (int i = 0; i < registry.companions.components.size(); i++) {
 		Entity toGet = registry.companions.entities[i];
 		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
@@ -1089,7 +1099,6 @@ BTState BTCastTaunt::process(Entity e) {
 		}
 	}
 	sk.startTauntAttack(e, target);
-	printf("Cast Taunt \n\n");	// print statement to visualize
 
 	// return progress
 	return BTState::Success;
@@ -1098,12 +1107,12 @@ BTState BTCastTaunt::process(Entity e) {
 void BTMeleeAttack::init(Entity e) {
 }
 BTState BTMeleeAttack::process(Entity e) {
-	int i = 0;
+	int j = 0;
 	SkillSystem sk;
 	for (int i = 0; i < registry.companions.components.size(); i++) {
 		Entity toGet = registry.companions.entities[i];
-		if (registry.motions.get(toGet).position.x > i) {
-			i = registry.motions.get(toGet).position.x;
+		if (registry.motions.get(toGet).position.x > j) {
+			j = registry.motions.get(toGet).position.x;
 			target = toGet;	// get nearest player entity
 		}
 	}
@@ -1115,9 +1124,9 @@ BTState BTMeleeAttack::process(Entity e) {
 	return BTState::Success;
 }
 
-void BTCastRock::init(Entity e) {
+void BTCastRockOnSwordsman::init(Entity e) {
 }
-BTState BTCastRock::process(Entity e) {
+BTState BTCastRockOnSwordsman::process(Entity e) {
 	SkillSystem sk;
 	for (int i = 0; i < registry.companions.components.size(); i++) {
 		Entity toGet = registry.companions.entities[i];
@@ -1179,6 +1188,9 @@ BTState BTDoNothing::process(Entity e) {
 void BTSummonNecroMinion::init(Entity e) {
 }
 BTState BTSummonNecroMinion::process(Entity e) {
+	// add skill for summoning
+	SkillSystem sk;
+	sk.startSummonAttack(e);
 	printf("Summon NecroMinion \n\n");
 
 	// return progress
@@ -1188,16 +1200,29 @@ BTState BTSummonNecroMinion::process(Entity e) {
 void BTCastSilence::init(Entity e) {
 }
 BTState BTCastSilence::process(Entity e) {
+	SkillSystem sk;
 	printf("Cast Silence \n\n");
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
+			target = toGet;
+		}
+	}
+	sk.startSilenceAttack(e, target);
 
 	// return progress
 	return BTState::Success;
 }
 
-void BTRandomTargetAttack::init(Entity e) {
+void BTRandomTargetLightningAttack::init(Entity e) {
 }
-BTState BTRandomTargetAttack::process(Entity e) {
-	printf("Cast Random Target Attack \n\n");
+BTState BTRandomTargetLightningAttack::process(Entity e) {
+	int randTarget = rand() % registry.companions.size();
+	Entity toGet = registry.companions.entities[randTarget];
+	target = toGet;
+	SkillSystem sk;
+	sk.startLightningAttack(e, target);
+	printf("Cast Random Target Lightning Attack \n\n");
 
 	// return progress
 	return BTState::Success;
@@ -1207,17 +1232,17 @@ BTState BTRandomTargetAttack::process(Entity e) {
 // --------------------------------------------------------------------------------
 // Set up enemy behavior tree flow
 // Leaf Nodes
-BTCastIceShard castIceShard;
-BTCastTaunt castTaunt;				// done
+BTCastIceShard castIceShard;		// done
+BTCastTauntOnMage castTaunt;		// done
 BTMeleeAttack meleeAttack;			// done
-BTCastRock castRock;				// done
+BTCastRockOnSwordsman castRock;		// done
 BTCastHeal castHeal;				// done
 BTCastHealOnSelf castHealOnSelf;	// done
 BTDoNothing doNothing;
 
-BTSummonNecroMinion summonNecroMinion;		// TODO
-BTCastSilence castSilence;					// TODO
-BTRandomTargetAttack randomTargetAttack;	// TODO
+BTSummonNecroMinion summonNecroMinion;						// done
+BTCastSilence castSilence;									// done
+BTRandomTargetLightningAttack randomTargetLightningAttack;	// done
 
 // Conditional Sub-Tree for Level 3 Nodes
 BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);				// done
@@ -1227,15 +1252,15 @@ BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castIceShard);	// done
 BTIfPlayerMageTaunted isTaunted(&meleeAttack);					// done
 BTIfPlayerMageNotTaunted notTaunted(&castTaunt);				// done
 
-BTIfPlayerMageSilenced isSilenced(&castIceShard);		// TODO, cast ice shard for now
-BTIfPlayerMageNotSilenced notSilenced(&castIceShard);	// TODO, cast ice shard for now
+BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
+BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
 
 // Level 3 Nodes
 BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);		// run pair do not need any further implementation? can merge all run pairs later and test
 BTRunCheckSwordsman checkSwordsman(&haveSwordsman, &noSwordsman);	// run pair
 BTRunCheckPlayerMageTaunt checkTaunted(&isTaunted, &notTaunted);	// run pair
 
-BTRunCheckPlayerMageSilenced checkSilenced(&isSilenced, &notSilenced);	// run pair
+BTRunCheckPlayerMageSilenced checkSilenced(&notSilenced, &isSilenced);	// run pair
 
 // Conditional Sub-Tree for Level 2 Nodes
 BTIfOneLessThanHalf atLeastOne(&checkMageHP);						// done
@@ -1243,8 +1268,8 @@ BTIfNoneLessThanHalf none(&checkSwordsman);							// done
 BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);				// done
 BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// done
 
-BTIfPlayerSideHasMageHardCoded haveMageTwo(&checkSilenced);				// done
-BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMageTwo(&castIceShard);	// done NOTE: should do random target attack cast ice shard for now
+BTIfPlayerSideHasMageHardCoded haveMageTwo(&checkSilenced);								// done
+BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMageTwo(&randomTargetLightningAttack);	// done
 
 // Level 2 Nodes
 BTRunCheckEnemyHP checkHP(&none, &atLeastOne);			// run pair
@@ -1259,7 +1284,7 @@ BTIfEnemySwordsmanNotTaunted swordsmanNotTaunted(&checkMage);	// done
 BTIfEnemySwordsmanTaunted swordsmanTaunted(&meleeAttack);		// done
 
 BTIfHasNecroMinion hasNecroMinion(&checkMageTwo);	// done
-BTIfNoNecroMinion noNecroMinion(&castIceShard);		// done NOTE: should summon minion but cast ice shard for now
+BTIfNoNecroMinion noNecroMinion(&summonNecroMinion);		// done NOTE: should summon minion but cast ice shard for now
 
 // Level 1 Nodes
 BTRunCheckMageTaunt checkEnemyMageTaunt(&taunted, &nonTaunted);							// run pair

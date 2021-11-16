@@ -148,7 +148,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 	// Give statistics to necromancer minion
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
-	stat.speed = 0;
+	stat.speed = 1;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -181,7 +181,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 	// Give statistics to necromancer phase one
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = 100;
-	stat.speed = 1;
+	stat.speed = 0;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -525,6 +525,30 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+Entity createCharIndicator(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.charIndicator.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	position[1] -= 150;
+	motion.position = position;
+	motion.scale = vec2({ CHARARROW_WIDTH, CHARARROW_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CHARARROW,	//https://pixelartmaker-data-78746291193.nyc3.digitaloceanspaces.com/image/db113ed0e206163.png
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 // create barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position)
 {
@@ -632,7 +656,44 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	return entity;
 }
 
-// create rock
+//https://pngtree.com/freepng/lightning-design-lightning-effect-natural-phenomenon-lightning-source_3916935.html
+// create lightning
+Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 50 };
+	motion.acceleration = { 0.f, 200 };
+	motion.position = position;
+	motion.scale = vec2({ LIGHTNING_WIDTH, LIGHTNING_HEIGHT });
+
+	auto& proj = registry.projectiles.emplace(entity);
+	proj.enableCameraTracking = 0;
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = lightning_dmg;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::LIGHTNING,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 {
 	auto entity = Entity();
@@ -700,7 +761,7 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
+	motion.velocity = { 0.f, -500.f };
 	position[1] -= 30;
 	position[0] += 70;
 	motion.position = position;
@@ -708,7 +769,7 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::SILENCEBUBBLE,
+		{ TEXTURE_ASSET_ID::SILENCEBUBBLE,	//https://octopathtraveler.fandom.com/wiki/Silence?file=Status_Silence.png
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

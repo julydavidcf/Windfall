@@ -27,6 +27,10 @@ public:
 	Mix_Chunk* heal_spell_sound;
 	Mix_Chunk* taunt_spell_sound;
 	Mix_Chunk* melee_spell_sound;
+	Mix_Chunk* silence_spell_sound;
+	Mix_Chunk* lightning_spell_sound;
+	Mix_Chunk* ice_spell_sound;
+	Mix_Chunk* summon_spell_sound;
 
 	//timers
 	const float animation_timer = 1200.f;
@@ -38,21 +42,28 @@ public:
 	//WorldSystem ws;
 
 	void startTauntAttack(Entity origin, Entity target);
+	void startSilenceAttack(Entity origin, Entity target);
 	void startIceShardAttack(Entity origin, Entity target);
 	void startFireballAttack(Entity origin);
 	void startRockAttack(Entity origin, Entity target);
+	void startLightningAttack(Entity origin, Entity target);
 	void startHealAttack(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target);
+	void startSummonAttack(Entity origin);
 
 
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchRock(Entity target, RenderSystem* renderer);
+	Entity launchLightning(Entity target, RenderSystem* renderer);
 	void launchTaunt(Entity target, RenderSystem* renderer);
 	void launchHeal(Entity target, float amount, RenderSystem* renderer);
 	void launchMelee(Entity target, RenderSystem* renderer);
+	void launchSilence(Entity target, RenderSystem* renderer);
+	void launchSummon(RenderSystem* renderer);
 	
 	void removeTaunt(Entity target);
+	void removeSilence(Entity target);
 	
 
 	//skill constants

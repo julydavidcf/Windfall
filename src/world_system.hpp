@@ -113,6 +113,7 @@ private:
 
 	//Skills Function
 	void removeTaunt(Entity target);
+	void removeSilence(Entity target);
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
 
@@ -163,6 +164,10 @@ private:
 	Mix_Chunk* heal_spell_sound;
 	Mix_Chunk* taunt_spell_sound;
 	Mix_Chunk* melee_spell_sound;
+	Mix_Chunk* silence_spell_sound;
+	Mix_Chunk* lightning_spell_sound;
+	Mix_Chunk* ice_spell_sound;
+	Mix_Chunk* summon_spell_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
