@@ -12,9 +12,8 @@
 #include "physics_system.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
-#include "json_loader.hpp"
 #include "skill_system.hpp"
-#include "json_loader.hpp"
+
 
 using Clock = std::chrono::high_resolution_clock;
 using namespace std;
@@ -31,7 +30,6 @@ int main()
 	PhysicsSystem physics;
 	AISystem ai;
 	SkillSystem sk;
-	JSONLoader jsonloader;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
@@ -48,8 +46,6 @@ int main()
 	//world.createRound();
 	//world.checkRound();
 	//world.displayPlayerTurn();	// display player turn when world renders
-
-	jsonloader.get_level();
 	
 
 	// variable timestep loop

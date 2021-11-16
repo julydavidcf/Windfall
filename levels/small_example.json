@@ -14,8 +14,8 @@
             "skill": "Swordsman",
             "position": 
                 {
-                    "x": 100,
-                    "y": 575
+                    "x": 275,
+                    "y": 500
                 }
         },
         {
@@ -29,13 +29,12 @@
             "components": [
                 {
                     "type": "colors",
-                    "variables": [
+                    "vec": 
                         {
                             "x": 0,
                             "y": 1,
                             "z": 1
                         }
-                    ]
                 }
             ]
         }

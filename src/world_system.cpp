@@ -2,6 +2,7 @@
 #include "world_system.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "json_loader.hpp"
 
 // stlib
 #include <cassert>
@@ -22,6 +23,22 @@ const int NUM_DEATH_PARTICLES = 120;
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
+
+Entity player_mage;
+Entity enemy_mage;
+Entity player_swordsman;
+Entity enemy_swordsman;
+Entity necromancer;
+Entity silence_icon;
+
+//icons
+Entity melee_icon;
+Entity iceShard_icon;
+Entity fireBall_icon;
+Entity taunt_icon;
+Entity heal_icon;
+Entity rock_icon;
+
 
 Entity currPlayer;
 //Entity target;
@@ -733,21 +750,24 @@ void WorldSystem::restart_game(bool force_restart) {
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
 	// Create a player mage
-	player_mage = createPlayerMage(renderer, { 100, 575 });
+	// player_mage = createPlayerMage(renderer, { 100, 575 });
 	// Create a player swordsman
-	player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
+	// player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
 	// Create an enemy mage
-	enemy_mage = createEnemyMage(renderer, { 1050, 575 });
-	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
+	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+
+
+	JSONLoader jsonloader;
+	jsonloader.init(renderer);
+	jsonloader.get_level("small_example.json");
 
 	if (gameLevel > 1) {
 		// Create an enemy swordsman
 		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
 		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	}
-	// Create the fireball icon
-	fireball_icon = createFireballIcon(renderer, { 600, 700 });
-
+	
 	// Create the icons here
 	taunt_icon = createTauntIcon(renderer, { 300, 700 });
 	heal_icon = createHealIcon(renderer, { 400, 700 });
@@ -1107,7 +1127,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 		if (selected_skill != 1) {
-			registry.renderRequests.get(fireball_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 		if (selected_skill != 2) {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;

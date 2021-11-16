@@ -123,23 +123,8 @@ private:
 	SkillSystem* sk;
 
 	float current_speed;
-	Entity player_mage;
-	Entity enemy_mage;
-	Entity player_swordsman;
-	Entity enemy_swordsman;
-	Entity necromancer;
 	Entity fireball;
-	Entity fireball_icon;
-	Entity silence_icon;
 	Entity iceShard;
-
-	//icons
-	Entity melee_icon;
-	Entity iceShard_icon;
-	Entity fireBall_icon;
-	Entity taunt_icon;
-	Entity heal_icon;
-	Entity rock_icon;
 	Entity tooltip;
 
 	// Music References
