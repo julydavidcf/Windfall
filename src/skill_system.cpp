@@ -70,7 +70,7 @@ void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = SILENCE;
 		attack.target = target;
-		attack.counter_ms += 1500.f;
+		attack.counter_ms = 1100.f;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
@@ -207,7 +207,7 @@ void SkillSystem::startLightningAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = LIGHTNING;
 		attack.target = target;
-		attack.counter_ms += 1500.f;
+		attack.counter_ms = 1100.f;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 			timer.counter_ms = attack.counter_ms + animation_timer;
