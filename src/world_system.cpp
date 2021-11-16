@@ -303,9 +303,24 @@ void WorldSystem::createRound() {
 				sk->removeSilence(entity);
 			}
 		}
+		// also decrement ultimate duration if present
+		if (registry.ultimate.has(entity)) {	// need to emplace ultimate onto necro2 for countdown when David implements the skill
+			Ultimate* u = &registry.ultimate.get(entity);
+			u->ultiDuration--;
+			// need to remove the skill when duration <= 0
+		}
+		// also decrement shield duration if present
+		if (registry.shield.has(entity)) {	// need to emplace shield onto necro2 for countdown when David implements the skill
+			Shield* sh = &registry.shield.get(entity);
+			sh->shieldDuration--;
+			// need to remove the skill when duration <= 0
+		}
 
 		if (!registry.silenced.has(entity)) {
 			Statistics& checkSpeed = registry.stats.get(entity);
+			if (checkSpeed.speed == 2) {
+				speedVec.push_back(checkSpeed.speed);
+			}
 			speedVec.push_back(checkSpeed.speed);
 		}
 	}
@@ -352,7 +367,7 @@ void WorldSystem::createRound() {
 		}
 	}
 
-	// here I have the sorted array
+	// print the sorted array
 	for (int i = 0; i < roundVec.size(); i++) {
 		printf("%g \n", float(registry.stats.get(roundVec[i]).speed));
 	}
@@ -395,6 +410,10 @@ void WorldSystem::checkRound() {
 	CURRPLAYER_LOCATION = registry.motions.get(currPlayer).position;	// get currPlayer location
 
 	printf("finished check round \n");
+	// print the current round
+	for (int i = 0; i < roundVec.size(); i++) {
+		printf("CURRENT ROUND IS %g \n", float(registry.stats.get(roundVec[i]).speed));
+	}
 	printf("playerUseMelee is %g \n", float(playerUseMelee));
 }
 
@@ -676,8 +695,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				if ((registry.checkRoundTimer.size()<=0)&&(registry.companions.size()>0)) {
 					displayEnemyTurn();
 					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-						printf("Calling tree 5\n");
+						printf("Calling tree here\n");
 						ai->callTree(currPlayer);
+						prevPlayer = currPlayer;	// added this line to progress the necromancer phase 2 turn 2 after the first turn's tree is called, not sure if it will affect other things, need more testing
 					}
 					else {
 						if (roundVec.empty()) {
@@ -853,9 +873,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	//tutorial_enabled = 1;
 	//curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
 
-	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
-	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
-	necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	//necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
+	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 	
 	if (gameLevel > 1) {

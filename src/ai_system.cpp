@@ -1265,8 +1265,13 @@ void BTIfUltiTurn::init(Entity e) {
 
 BTState BTIfUltiTurn::process(Entity e) {
 	printf("Checking if it is ultimate's turn ... \n");	// print statement to visualize
-	int x = 0; // FOR TESTING, TO REMOVE
-	if (x == 1) {
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using ulti
+			target = toGet;
+		}
+	}
+	if (!registry.ultimate.has(target)) {
 		printf("It is indeed ultimate's turn \n");
 		return m_child->process(e);
 	}
@@ -1286,8 +1291,13 @@ void BTIfNotUltiTurn::init(Entity e) {
 
 BTState BTIfNotUltiTurn::process(Entity e) {
 	printf("Checking if it is ultimate's turn ... \n");	// print statement to visualize
-	int x = 0; // FOR TESTING, TO REMOVE
-	if (x == 0) {
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using ulti
+			target = toGet;
+		}
+	}
+	if (registry.ultimate.has(target)) {
 		printf("It is not ultimate's turn \n");
 		return m_child->process(e);
 	}
@@ -1307,8 +1317,9 @@ void BTIfTurnOne::init(Entity e) {
 
 BTState BTIfTurnOne::process(Entity e) {
 	printf("Checking if it is turn one ... \n");	// print statement to visualize
-	int x = 0; // FOR TESTING, TO REMOVE
-	if (x == 0) {
+	printf("CURRPLAYER SPEED IS %g \n", float(registry.stats.get(currPlayer).speed));
+	printf("PREVPLAYER SPEED IS %g \n", float(registry.stats.get(prevPlayer).speed));
+	if (currPlayer != prevPlayer) {
 		printf("It is indeed turn one \n");
 		return m_child->process(e);
 	}
@@ -1328,8 +1339,9 @@ void BTIfTurnTwo::init(Entity e) {
 
 BTState BTIfTurnTwo::process(Entity e) {
 	printf("Checking if it is turn two ... \n");	// print statement to visualize
-	int x = 0; // FOR TESTING, TO REMOVE
-	if (x == 1) {
+	printf("CURRPLAYER SPEED IS %g \n", float(registry.stats.get(currPlayer).speed));
+	printf("PREVPLAYER SPEED IS %g \n", float(registry.stats.get(prevPlayer).speed));
+	if (currPlayer == prevPlayer) {
 		printf("It is indeed turn two \n");
 		return m_child->process(e);
 	}
@@ -1349,8 +1361,13 @@ void BTIfShieldTurn::init(Entity e) {
 
 BTState BTIfShieldTurn::process(Entity e) {
 	printf("Checking if it is shield turn ... \n");	// print statement to visualize
-	int x = 0; // FOR TESTING, TO REMOVE
-	if (x == 1) {
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using shield
+			target = toGet;
+		}
+	}
+	if (!registry.shield.has(target)) {
 		printf("It is indeed shield turn \n");
 		return m_child->process(e);
 	}
@@ -1370,9 +1387,14 @@ void BTIfNotShieldTurn::init(Entity e) {
 
 BTState BTIfNotShieldTurn::process(Entity e) {
 	printf("Checking if it is not shield turn ... \n");	// print statement to visualize
-	int x = 0; // FOR TESTING, TO REMOVE
-	if (x == 0) {
-		printf("It is indeed not shield turn \n");
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using shield
+			target = toGet;
+		}
+	}
+	if (registry.shield.has(target)) {
+		printf("It is not shield turn \n");
 		return m_child->process(e);
 	}
 	else {
@@ -1637,12 +1659,12 @@ BTState BTCastSingleTargetAttack::process(Entity e) {
 // --------------------------------------------------------------------------------
 // Set up enemy behavior tree flow
 // Leaf Nodes
-BTCastIceShard castIceShard;		// done
-BTCastTauntOnMage castTaunt;		// done
-BTMeleeAttack meleeAttack;			// done
-BTCastRockOnSwordsman castRock;		// done
-BTCastHeal castHeal;				// done
-BTCastHealOnSelf castHealOnSelf;	// done
+BTCastIceShard castIceShard;								// done
+BTCastTauntOnMage castTaunt;								// done
+BTMeleeAttack meleeAttack;									// done
+BTCastRockOnSwordsman castRock;								// done
+BTCastHeal castHeal;										// done
+BTCastHealOnSelf castHealOnSelf;							// done
 BTDoNothing doNothing;
 BTSummonNecroMinion summonNecroMinion;						// done
 BTCastSilence castSilence;									// done
@@ -1660,15 +1682,15 @@ BTIfCrowsZero crowsZero(&castCrowsAttack);							// TODO
 BTIfCrowsMoreThanZero crowsMoreThanZero(&castSingleTargetAttack);	// TODO
 
 // Another level
-BTRunCheckCrows checkCrows(&crowsZero, &crowsMoreThanZero);	// TODO
+BTRunCheckCrows checkCrows(&crowsZero, &crowsMoreThanZero);	// run pair
 
 // Conditional Sub-Tree for Level 3 Nodes
-BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);				// done
-BTIfMageHPAboveHalf mageAboveHalf(&castHeal);					// done
-BTIfPlayerSideHasSwordsman haveSwordsman(&castRock);			// done
-BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castIceShard);	// done
-BTIfPlayerMageTaunted isTaunted(&meleeAttack);					// done
-BTIfPlayerMageNotTaunted notTaunted(&castTaunt);				// done
+BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);					// done
+BTIfMageHPAboveHalf mageAboveHalf(&castHeal);						// done
+BTIfPlayerSideHasSwordsman haveSwordsman(&castRock);				// done
+BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castIceShard);		// done
+BTIfPlayerMageTaunted isTaunted(&meleeAttack);						// done
+BTIfPlayerMageNotTaunted notTaunted(&castTaunt);					// done
 BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
 BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
 
@@ -1676,59 +1698,59 @@ BTIfShieldTurn isShieldTurn(&castShield);		// TODO
 BTIfNotShieldTurn notShieldTurn(&checkCrows);	// TODO
 
 // Level 3 Nodes
-BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);		// run pair do not need any further implementation? can merge all run pairs later and test
-BTRunCheckSwordsman checkSwordsman(&haveSwordsman, &noSwordsman);	// run pair
-BTRunCheckPlayerMageTaunt checkTaunted(&isTaunted, &notTaunted);	// run pair
+BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);			// run pair do not need any further implementation? can merge all run pairs later and test
+BTRunCheckSwordsman checkSwordsman(&haveSwordsman, &noSwordsman);		// run pair
+BTRunCheckPlayerMageTaunt checkTaunted(&isTaunted, &notTaunted);		// run pair
 BTRunCheckPlayerMageSilenced checkSilenced(&notSilenced, &isSilenced);	// run pair
 
-BTRunCheckShieldTurn checkShieldTurn(&isShieldTurn, &notShieldTurn);	// TODO
+BTRunCheckShieldTurn checkShieldTurn(&isShieldTurn, &notShieldTurn);	// run pair
 
 // Conditional Sub-Tree for Level 2 Nodes
-BTIfOneLessThanHalf atLeastOne(&checkMageHP);						// done
-BTIfNoneLessThanHalf none(&checkSwordsman);							// done
-BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);				// done
-BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// done
+BTIfOneLessThanHalf atLeastOne(&checkMageHP);											// done
+BTIfNoneLessThanHalf none(&checkSwordsman);												// done
+BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);									// done
+BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);						// done
 BTIfPlayerSideHasMageHardCoded haveMageTwo(&checkSilenced);								// done
 BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMageTwo(&randomTargetLightningAttack);	// done
 
-BTIfTurnOne turnOneA(&checkShieldTurn);			// TODO
-BTIfTurnTwo turnTwoA(&castAOEAttack);			// TODO
-BTIfTurnOne turnOneB(&castParticleBeamCharge);	// TODO
-BTIfTurnTwo turnTwoB(&castParticleBeamAttack);	// TODO
+BTIfTurnOne turnOneA(&checkShieldTurn);			// done
+BTIfTurnTwo turnTwoA(&castAOEAttack);			// done
+BTIfTurnOne turnOneB(&castParticleBeamCharge);	// done
+BTIfTurnTwo turnTwoB(&castParticleBeamAttack);	// done
 
 // Level 2 Nodes
-BTRunCheckEnemyHP checkHP(&none, &atLeastOne);			// run pair
-BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);	// run pair
+BTRunCheckEnemyHP checkHP(&none, &atLeastOne);					// run pair
+BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);			// run pair
 BTRunCheckMage checkMageTwo(&haveMageTwo, &doNotHaveMageTwo);	// run pair
 
-BTRunCheckTurn checkTurnA(&turnOneA, &turnTwoA);	// TODO
-BTRunCheckTurn checkTurnB(&turnOneB, &turnTwoB);	// TODO
+BTRunCheckTurn checkTurnA(&turnOneA, &turnTwoA);	// run pair
+BTRunCheckTurn checkTurnB(&turnOneB, &turnTwoB);	// run pair
 
 // Conditionl Sub-Tree for Level 1 Nodes
 BTIfEnemyMageNotTaunted nonTaunted(&checkHP);					// done
 BTIfEnemyMageTaunted taunted(&checkSwordsman);					// done
 BTIfEnemySwordsmanNotTaunted swordsmanNotTaunted(&checkMage);	// done
 BTIfEnemySwordsmanTaunted swordsmanTaunted(&meleeAttack);		// done
-BTIfHasNecroMinion hasNecroMinion(&checkMageTwo);	// done
-BTIfNoNecroMinion noNecroMinion(&summonNecroMinion);		// done
+BTIfHasNecroMinion hasNecroMinion(&checkMageTwo);				// done
+BTIfNoNecroMinion noNecroMinion(&summonNecroMinion);			// done
 
 BTIfNotUltiTurn notUltiTurn(&checkTurnA);	// TODO
-BTIfUltiTurn isUltiTurn(&checkTurnB);	// TODO
+BTIfUltiTurn isUltiTurn(&checkTurnB);		// TODO
 
 // Level 1 Nodes
 BTRunCheckMageTaunt checkEnemyMageTaunt(&taunted, &nonTaunted);							// run pair
 BTRunCheckSwordsmanTaunt checkSwordsmanTaunt(&swordsmanNotTaunted, &swordsmanTaunted);	// run pair
-BTRunCheckNecroMinion checkNecroMinion(&hasNecroMinion, &noNecroMinion);	// run pair
+BTRunCheckNecroMinion checkNecroMinion(&hasNecroMinion, &noNecroMinion);				// run pair
 
-BTRunCheckUltiTurn checkUltiTurn(&notUltiTurn, &isUltiTurn);	// TODO
+BTRunCheckUltiTurn checkUltiTurn(&notUltiTurn, &isUltiTurn);	// run pair
 
 // Conditional Sub-Trees for Level 0
-BTIfEnemyIsMagician isMagician(&checkEnemyMageTaunt);	// done
-BTIfEnemyIsSwordsman isSwordsman(&checkSwordsmanTaunt);	// done
+BTIfEnemyIsMagician isMagician(&checkEnemyMageTaunt);			// done
+BTIfEnemyIsSwordsman isSwordsman(&checkSwordsmanTaunt);			// done
 BTIfEnemyIsNecroMinion isNecroMinion(&meleeAttack);				// done
 BTIfEnemyIsNecroPhaseOne isNecroPhaseOne(&checkNecroMinion);	// done
 
-BTIfEnemyIsNecroPhaseTwo isNecroPhaseTwo(&checkUltiTurn);	// TODO
+BTIfEnemyIsNecroPhaseTwo isNecroPhaseTwo(&checkUltiTurn);	// done
 
 // Level 0 Root Node
 BTRunCheckCharacter checkChar(&isMagician, &isSwordsman, &isNecroMinion, &isNecroPhaseOne, &isNecroPhaseTwo);	// run pair

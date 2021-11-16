@@ -113,9 +113,20 @@ struct Taunt
 	int duration = 3;
 };
 
+struct Ultimate
+{
+	int ultiDuration = 4;	// 4 to account for -1 after enemy turn
+};
+
+struct Shield
+{
+	int shieldDuration = 3;	// 3 to account for -1 after enemy turn
+};
+
 // reflects projectile
 struct Reflect
 {
+
 };
 
 // Damage component for attacks
@@ -148,14 +159,12 @@ struct Silenced
 	Entity silenced_effect;
 };
 
-
 // The power to be able to silence
 // TODO: check if needed
 struct Silence
 {
 
 };
-
 
 struct StatIndicator
 {
