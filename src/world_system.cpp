@@ -839,9 +839,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	//enemy_mage = createEnemyMage(renderer, { 1050, 700 });
 	//registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
-	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
-	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
-	necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	//necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 300 });
+	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 	
 	if (gameLevel > 1) {

@@ -118,12 +118,13 @@ BTState BTRunCheckPlayerMageTaunt::process(Entity e) {
 }
 
 // A composite node that loops through all children and exits when one fails
-BTRunCheckCharacter::BTRunCheckCharacter(BTNode* c0, BTNode* c1, BTNode* c2, BTNode* c3)	// build tree bottom up, we need to know children before building this node for instance
+BTRunCheckCharacter::BTRunCheckCharacter(BTNode* c0, BTNode* c1, BTNode* c2, BTNode* c3, BTNode* c4)	// build tree bottom up, we need to know children before building this node for instance
 	: m_index(0) {
 	m_children[0] = c0;
 	m_children[1] = c1;
 	m_children[2] = c2;
 	m_children[3] = c3;
+	m_children[4] = c4;
 }
 
 void BTRunCheckCharacter::init(Entity e)
@@ -136,7 +137,7 @@ void BTRunCheckCharacter::init(Entity e)
 
 BTState BTRunCheckCharacter::process(Entity e) {
 	printf("Pair run check character ... child = %g \n", float(m_index));	// print statement to visualize
-	if (m_index >= 4)
+	if (m_index >= 5)
 		return BTState::Success;
 
 	// process current child
@@ -145,7 +146,7 @@ BTState BTRunCheckCharacter::process(Entity e) {
 	// select a new active child and initialize its internal state
 	if (state == BTState::Failure) {	// if child return success
 		++m_index;	// increment index
-		if (m_index >= 4) {	// check whether the second child is executed already
+		if (m_index >= 5) {	// check whether the second child is executed already
 			return BTState::Success;
 		}
 		else {
@@ -447,6 +448,162 @@ void BTRunCheckPlayerMageSilenced::init(Entity e)
 }
 
 BTState BTRunCheckPlayerMageSilenced::process(Entity e) {
+	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	if (m_index >= 2)
+		return BTState::Success;
+
+	// process current child
+	BTState state = m_children[m_index]->process(e);
+
+	// select a new active child and initialize its internal state
+	if (state == BTState::Failure) {	// if child return success
+		++m_index;	// increment index
+		if (m_index >= 2) {	// check whether the second child is executed already
+			return BTState::Success;
+		}
+		else {
+			m_children[m_index]->init(e);	// initialize next child to run 
+			return BTState::Running;
+		}
+	}
+	else {
+		return state;
+	}
+}
+
+// A composite node that loops through all children and exits when one fails
+BTRunCheckUltiTurn::BTRunCheckUltiTurn(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+	: m_index(0) {
+	m_children[0] = c0;
+	m_children[1] = c1;
+}
+
+void BTRunCheckUltiTurn::init(Entity e)
+{
+	m_index = 0;	// set index to 0 to execute first child
+	// initialize the first child
+	const auto& child = m_children[m_index];
+	child->init(e);
+}
+
+BTState BTRunCheckUltiTurn::process(Entity e) {
+	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	if (m_index >= 2)
+		return BTState::Success;
+
+	// process current child
+	BTState state = m_children[m_index]->process(e);
+
+	// select a new active child and initialize its internal state
+	if (state == BTState::Failure) {	// if child return success
+		++m_index;	// increment index
+		if (m_index >= 2) {	// check whether the second child is executed already
+			return BTState::Success;
+		}
+		else {
+			m_children[m_index]->init(e);	// initialize next child to run 
+			return BTState::Running;
+		}
+	}
+	else {
+		return state;
+	}
+}
+
+// A composite node that loops through all children and exits when one fails
+BTRunCheckTurn::BTRunCheckTurn(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+	: m_index(0) {
+	m_children[0] = c0;
+	m_children[1] = c1;
+}
+
+void BTRunCheckTurn::init(Entity e)
+{
+	m_index = 0;	// set index to 0 to execute first child
+	// initialize the first child
+	const auto& child = m_children[m_index];
+	child->init(e);
+}
+
+BTState BTRunCheckTurn::process(Entity e) {
+	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	if (m_index >= 2)
+		return BTState::Success;
+
+	// process current child
+	BTState state = m_children[m_index]->process(e);
+
+	// select a new active child and initialize its internal state
+	if (state == BTState::Failure) {	// if child return success
+		++m_index;	// increment index
+		if (m_index >= 2) {	// check whether the second child is executed already
+			return BTState::Success;
+		}
+		else {
+			m_children[m_index]->init(e);	// initialize next child to run 
+			return BTState::Running;
+		}
+	}
+	else {
+		return state;
+	}
+}
+
+// A composite node that loops through all children and exits when one fails
+BTRunCheckShieldTurn::BTRunCheckShieldTurn(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+	: m_index(0) {
+	m_children[0] = c0;
+	m_children[1] = c1;
+}
+
+void BTRunCheckShieldTurn::init(Entity e)
+{
+	m_index = 0;	// set index to 0 to execute first child
+	// initialize the first child
+	const auto& child = m_children[m_index];
+	child->init(e);
+}
+
+BTState BTRunCheckShieldTurn::process(Entity e) {
+	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	if (m_index >= 2)
+		return BTState::Success;
+
+	// process current child
+	BTState state = m_children[m_index]->process(e);
+
+	// select a new active child and initialize its internal state
+	if (state == BTState::Failure) {	// if child return success
+		++m_index;	// increment index
+		if (m_index >= 2) {	// check whether the second child is executed already
+			return BTState::Success;
+		}
+		else {
+			m_children[m_index]->init(e);	// initialize next child to run 
+			return BTState::Running;
+		}
+	}
+	else {
+		return state;
+	}
+}
+
+// A composite node that loops through all children and exits when one fails
+BTRunCheckCrows::BTRunCheckCrows(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+	: m_index(0) {
+	m_children[0] = c0;
+	m_children[1] = c1;
+}
+
+void BTRunCheckCrows::init(Entity e)
+{
+	m_index = 0;	// set index to 0 to execute first child
+	// initialize the first child
+	const auto& child = m_children[m_index];
+	child->init(e);
+}
+
+BTState BTRunCheckCrows::process(Entity e) {
 	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
@@ -1077,6 +1234,194 @@ BTState BTIfPlayerMageNotSilenced::process(Entity e) {
 	}
 }
 
+// A general decorator with lambda condition
+BTIfEnemyIsNecroPhaseTwo::BTIfEnemyIsNecroPhaseTwo(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfEnemyIsNecroPhaseTwo::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfEnemyIsNecroPhaseTwo::process(Entity e) {
+	printf("Checking if enemy is necro phase two ... \n");	// print statement to visualize
+	if (registry.enemies.get(currPlayer).enemyType == NECROMANCER_TWO) {	// WORKS, if enemy character is necromancer phase one, execute child which is checking necromancer minions
+		printf("Enemy is indeed necro phase two \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
+// A general decorator with lambda condition
+BTIfUltiTurn::BTIfUltiTurn(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfUltiTurn::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfUltiTurn::process(Entity e) {
+	printf("Checking if it is ultimate's turn ... \n");	// print statement to visualize
+	int x = 0; // FOR TESTING, TO REMOVE
+	if (x == 1) {
+		printf("It is indeed ultimate's turn \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
+// A general decorator with lambda condition
+BTIfNotUltiTurn::BTIfNotUltiTurn(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfNotUltiTurn::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfNotUltiTurn::process(Entity e) {
+	printf("Checking if it is ultimate's turn ... \n");	// print statement to visualize
+	int x = 0; // FOR TESTING, TO REMOVE
+	if (x == 0) {
+		printf("It is not ultimate's turn \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
+// A general decorator with lambda condition
+BTIfTurnOne::BTIfTurnOne(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfTurnOne::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfTurnOne::process(Entity e) {
+	printf("Checking if it is turn one ... \n");	// print statement to visualize
+	int x = 0; // FOR TESTING, TO REMOVE
+	if (x == 0) {
+		printf("It is indeed turn one \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
+// A general decorator with lambda condition
+BTIfTurnTwo::BTIfTurnTwo(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfTurnTwo::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfTurnTwo::process(Entity e) {
+	printf("Checking if it is turn two ... \n");	// print statement to visualize
+	int x = 0; // FOR TESTING, TO REMOVE
+	if (x == 1) {
+		printf("It is indeed turn two \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
+// A general decorator with lambda condition
+BTIfShieldTurn::BTIfShieldTurn(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfShieldTurn::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfShieldTurn::process(Entity e) {
+	printf("Checking if it is shield turn ... \n");	// print statement to visualize
+	int x = 0; // FOR TESTING, TO REMOVE
+	if (x == 1) {
+		printf("It is indeed shield turn \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
+// A general decorator with lambda condition
+BTIfNotShieldTurn::BTIfNotShieldTurn(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfNotShieldTurn::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfNotShieldTurn::process(Entity e) {
+	printf("Checking if it is not shield turn ... \n");	// print statement to visualize
+	int x = 0; // FOR TESTING, TO REMOVE
+	if (x == 0) {
+		printf("It is indeed not shield turn \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
+// A general decorator with lambda condition
+BTIfCrowsZero::BTIfCrowsZero(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfCrowsZero::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfCrowsZero::process(Entity e) {
+	printf("Checking if there are no more crows ... \n");	// print statement to visualize
+	int x = 0; // FOR TESTING, TO REMOVE
+	if (x == 0) {
+		printf("There are no more crows \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
+// A general decorator with lambda condition
+BTIfCrowsMoreThanZero::BTIfCrowsMoreThanZero(BTNode* child)	// Has one child
+	: m_child(child) {
+}
+
+void BTIfCrowsMoreThanZero::init(Entity e) {
+	m_child->init(e);
+}
+
+BTState BTIfCrowsMoreThanZero::process(Entity e) {
+	printf("Checking if there are crows ... \n");	// print statement to visualize
+	int x = 0; // FOR TESTING, TO REMOVE
+	if (x == 0) {
+		printf("There are indeed crows \n");
+		return m_child->process(e);
+	}
+	else {
+		return BTState::Failure;
+	}
+}
+
 void BTCastIceShard::init(Entity e) {
 }
 BTState BTCastIceShard::process(Entity e) {
@@ -1228,6 +1573,66 @@ BTState BTRandomTargetLightningAttack::process(Entity e) {
 	return BTState::Success;
 }
 
+void BTCastAOEAttack::init(Entity e) {
+}
+BTState BTCastAOEAttack::process(Entity e) {
+	printf("Cast AOE Attack \n\n");
+	SkillSystem sk;	// FOR TESTING TO REMOVE
+	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	// return progress
+	return BTState::Success;
+}
+
+void BTCastParticleBeamCharge::init(Entity e) {
+}
+BTState BTCastParticleBeamCharge::process(Entity e) {
+	printf("Cast Particle Beam Charge \n\n");
+	SkillSystem sk;	// FOR TESTING TO REMOVE
+	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	// return progress
+	return BTState::Success;
+}
+
+void BTCastParticleBeamAttack::init(Entity e) {
+}
+BTState BTCastParticleBeamAttack::process(Entity e) {
+	printf("Cast Particle Beam Attack \n\n");
+	SkillSystem sk;	// FOR TESTING TO REMOVE
+	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	// return progress
+	return BTState::Success;
+}
+
+void BTCastShield::init(Entity e) {
+}
+BTState BTCastShield::process(Entity e) {
+	printf("Cast Shield \n\n");
+	SkillSystem sk;	// FOR TESTING TO REMOVE
+	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	// return progress
+	return BTState::Success;
+}
+
+void BTCastCrowsAttack::init(Entity e) {
+}
+BTState BTCastCrowsAttack::process(Entity e) {
+	printf("Cast Crows Attack \n\n");
+	SkillSystem sk;	// FOR TESTING TO REMOVE
+	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	// return progress
+	return BTState::Success;
+}
+
+void BTCastSingleTargetAttack::init(Entity e) {
+}
+BTState BTCastSingleTargetAttack::process(Entity e) {
+	printf("Cast Single Target Attack \n\n");
+	SkillSystem sk;	// FOR TESTING TO REMOVE
+	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	// return progress
+	return BTState::Success;
+}
+
 // ---------------------------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // Set up enemy behavior tree flow
@@ -1239,10 +1644,23 @@ BTCastRockOnSwordsman castRock;		// done
 BTCastHeal castHeal;				// done
 BTCastHealOnSelf castHealOnSelf;	// done
 BTDoNothing doNothing;
-
 BTSummonNecroMinion summonNecroMinion;						// done
 BTCastSilence castSilence;									// done
 BTRandomTargetLightningAttack randomTargetLightningAttack;	// done
+
+BTCastAOEAttack castAOEAttack;						// TODO
+BTCastParticleBeamCharge castParticleBeamCharge;	// TODO
+BTCastParticleBeamAttack castParticleBeamAttack;	// TODO
+BTCastShield castShield;							// TODO
+BTCastCrowsAttack castCrowsAttack;					// TODO
+BTCastSingleTargetAttack castSingleTargetAttack;	// TODO
+
+//Another level
+BTIfCrowsZero crowsZero(&castCrowsAttack);							// TODO
+BTIfCrowsMoreThanZero crowsMoreThanZero(&castSingleTargetAttack);	// TODO
+
+// Another level
+BTRunCheckCrows checkCrows(&crowsZero, &crowsMoreThanZero);	// TODO
 
 // Conditional Sub-Tree for Level 3 Nodes
 BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);				// done
@@ -1251,56 +1669,69 @@ BTIfPlayerSideHasSwordsman haveSwordsman(&castRock);			// done
 BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castIceShard);	// done
 BTIfPlayerMageTaunted isTaunted(&meleeAttack);					// done
 BTIfPlayerMageNotTaunted notTaunted(&castTaunt);				// done
-
 BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
 BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
+
+BTIfShieldTurn isShieldTurn(&castShield);		// TODO
+BTIfNotShieldTurn notShieldTurn(&checkCrows);	// TODO
 
 // Level 3 Nodes
 BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);		// run pair do not need any further implementation? can merge all run pairs later and test
 BTRunCheckSwordsman checkSwordsman(&haveSwordsman, &noSwordsman);	// run pair
 BTRunCheckPlayerMageTaunt checkTaunted(&isTaunted, &notTaunted);	// run pair
-
 BTRunCheckPlayerMageSilenced checkSilenced(&notSilenced, &isSilenced);	// run pair
+
+BTRunCheckShieldTurn checkShieldTurn(&isShieldTurn, &notShieldTurn);	// TODO
 
 // Conditional Sub-Tree for Level 2 Nodes
 BTIfOneLessThanHalf atLeastOne(&checkMageHP);						// done
 BTIfNoneLessThanHalf none(&checkSwordsman);							// done
 BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);				// done
 BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// done
-
 BTIfPlayerSideHasMageHardCoded haveMageTwo(&checkSilenced);								// done
 BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMageTwo(&randomTargetLightningAttack);	// done
+
+BTIfTurnOne turnOneA(&checkShieldTurn);			// TODO
+BTIfTurnTwo turnTwoA(&castAOEAttack);			// TODO
+BTIfTurnOne turnOneB(&castParticleBeamCharge);	// TODO
+BTIfTurnTwo turnTwoB(&castParticleBeamAttack);	// TODO
 
 // Level 2 Nodes
 BTRunCheckEnemyHP checkHP(&none, &atLeastOne);			// run pair
 BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);	// run pair
-
 BTRunCheckMage checkMageTwo(&haveMageTwo, &doNotHaveMageTwo);	// run pair
+
+BTRunCheckTurn checkTurnA(&turnOneA, &turnTwoA);	// TODO
+BTRunCheckTurn checkTurnB(&turnOneB, &turnTwoB);	// TODO
 
 // Conditionl Sub-Tree for Level 1 Nodes
 BTIfEnemyMageNotTaunted nonTaunted(&checkHP);					// done
 BTIfEnemyMageTaunted taunted(&checkSwordsman);					// done
 BTIfEnemySwordsmanNotTaunted swordsmanNotTaunted(&checkMage);	// done
 BTIfEnemySwordsmanTaunted swordsmanTaunted(&meleeAttack);		// done
-
 BTIfHasNecroMinion hasNecroMinion(&checkMageTwo);	// done
-BTIfNoNecroMinion noNecroMinion(&summonNecroMinion);		// done NOTE: should summon minion but cast ice shard for now
+BTIfNoNecroMinion noNecroMinion(&summonNecroMinion);		// done
+
+BTIfNotUltiTurn notUltiTurn(&checkTurnA);	// TODO
+BTIfUltiTurn isUltiTurn(&checkTurnB);	// TODO
 
 // Level 1 Nodes
 BTRunCheckMageTaunt checkEnemyMageTaunt(&taunted, &nonTaunted);							// run pair
 BTRunCheckSwordsmanTaunt checkSwordsmanTaunt(&swordsmanNotTaunted, &swordsmanTaunted);	// run pair
-
 BTRunCheckNecroMinion checkNecroMinion(&hasNecroMinion, &noNecroMinion);	// run pair
+
+BTRunCheckUltiTurn checkUltiTurn(&notUltiTurn, &isUltiTurn);	// TODO
 
 // Conditional Sub-Trees for Level 0
 BTIfEnemyIsMagician isMagician(&checkEnemyMageTaunt);	// done
 BTIfEnemyIsSwordsman isSwordsman(&checkSwordsmanTaunt);	// done
-
 BTIfEnemyIsNecroMinion isNecroMinion(&meleeAttack);				// done
 BTIfEnemyIsNecroPhaseOne isNecroPhaseOne(&checkNecroMinion);	// done
 
+BTIfEnemyIsNecroPhaseTwo isNecroPhaseTwo(&checkUltiTurn);	// TODO
+
 // Level 0 Root Node
-BTRunCheckCharacter checkChar(&isMagician, &isSwordsman, &isNecroMinion, &isNecroPhaseOne);	// run pair
+BTRunCheckCharacter checkChar(&isMagician, &isSwordsman, &isNecroMinion, &isNecroPhaseOne, &isNecroPhaseTwo);	// run pair
 
 // check if players are dead, if so do nothing
 BTIfPlayersAlive isAlive(&checkChar);
