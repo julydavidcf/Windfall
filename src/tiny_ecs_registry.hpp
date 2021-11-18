@@ -39,6 +39,7 @@ public:
 	ComponentContainer<CheckRoundTimer> checkRoundTimer;
 	ComponentContainer<toolTip> toolTip;
 	ComponentContainer<CharIndicator> charIndicator;
+	ComponentContainer<UIButton> uiButtons;
 	ComponentContainer<Ultimate> ultimate;
 	ComponentContainer<Shield> shield;
 	// constructor that adds all containers for looping over them
@@ -71,6 +72,7 @@ public:
 		registry_list.push_back(&statsindicators);
 		registry_list.push_back(&toolTip);
 		registry_list.push_back(&charIndicator);
+		registry_list.push_back(&uiButtons);
 		registry_list.push_back(&ultimate);
 		registry_list.push_back(&shield);
 	}

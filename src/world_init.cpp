@@ -978,3 +978,36 @@ Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
 
 	return entity;
 }
+
+Entity createUIButton(RenderSystem* renderer, vec2 position, int buttonType) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT };
+
+	TEXTURE_ASSET_ID button_type = TEXTURE_ASSET_ID::GAME_TITLE;
+
+	UIButton& button = registry.uiButtons.emplace(entity);
+
+	switch (buttonType) {
+		case 1: button_type = TEXTURE_ASSET_ID::NEW_GAME; button.button_type = 1; break;
+		case 2: button_type = TEXTURE_ASSET_ID::LOAD_GAME; button.button_type = 2; break;
+		case 3: button_type = TEXTURE_ASSET_ID::SAVE_GAME; button.button_type = 3; break;
+		case 4: button_type = TEXTURE_ASSET_ID::EXIT_GAME; button.button_type = 4; break;
+		case 5: button_type = TEXTURE_ASSET_ID::GAME_TITLE; motion.scale = { TITLE_WIDTH, TITLE_HEIGHT }; button.button_type = 5; break;
+		case 6: button_type = TEXTURE_ASSET_ID::OPEN_MENU; motion.scale = { TITLE_HEIGHT, TITLE_HEIGHT }; button.button_type = 6; break;
+		case 7: button_type = TEXTURE_ASSET_ID::CLOSE_MENU; motion.scale = { TITLE_HEIGHT / 2, TITLE_HEIGHT / 2}; button.button_type = 7; break;
+		default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ button_type,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
