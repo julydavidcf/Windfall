@@ -105,6 +105,16 @@ class RenderSystem {
 			textures_path("tutorial_seven.png"),
 			textures_path("tutorial_eight.png"),
 
+			// Start screen & Pause menu buttons
+			textures_path("new_game.png"),
+			textures_path("load_game.png"),
+			textures_path("save_game.png"),
+			textures_path("exit_game.png"),
+			textures_path("game_title.png"),
+			textures_path("open_menu.png"),
+			textures_path("close_menu.png"),
+			textures_path("empty_image.png"),
+
 			//tootips
 			textures_path("fireBallToolTip.png"),
 			textures_path("iceShardToolTip.png"),

@@ -344,20 +344,8 @@ void RenderSystem::draw(float elapsed_ms)
 
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
-		// Handle camera focus on projectiles (only ones with tracking enabled) and swordsman melee
-		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0
-			&& registry.projectiles.get(entity).enableCameraTracking) {
-			Motion& motion = registry.motions.get(entity);
-			projectionMat = createCameraProjection(motion);
-
-			if (registry.damages.has(entity) && registry.damages.get(entity).isFriendly) {
-				hasTravellingProjectile = 1;
-			}
-			else if (registry.damages.has(entity) && !registry.damages.get(entity).isFriendly) {
-				hasTravellingProjectile = 2;
-			}
-		}
-		else if (registry.runners.has(entity) 
+		// Handle camera focus only on swordsman melee
+		if (registry.runners.has(entity) 
 			|| (registry.companions.has(entity) && registry.companions.get(entity).companionType == SWORDSMAN && registry.companions.get(entity).curr_anim_type == ATTACKING)
 			|| (registry.enemies.has(entity) 
 				&& (registry.enemies.get(entity).enemyType == SWORDSMAN || registry.enemies.get(entity).enemyType == NECROMANCER_MINION)
@@ -730,7 +718,7 @@ void RenderSystem::draw(float elapsed_ms)
 
 			}
 			// UI-related entities should remain in constant position on screen
-			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;
+			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity) || registry.uiButtons.has(entity)) projectionToUse = projection_2D;
 
 			if (registry.enemies.has(entity)) {
 				deferredRenderingEntities.emplace(registry.enemies.get(entity).healthbar, entity);

@@ -38,6 +38,20 @@ enum AttackType {
 	SUMMON = 10
 };
 
+enum ButtonType {
+	NEW_GAME = 1,
+	LOAD_GAME = 2,
+	SAVE_GAME = 3,
+	EXIT_GAME = 4,
+	GAME_TITLE = 5,
+	OPEN_MENU = 6,
+	CLOSE_MENU = 7,
+};
+
+struct UIButton {
+	int button_type = 0;
+};
+
 // Health bar entity
 struct HealthBar
 {
@@ -376,8 +390,18 @@ enum class TEXTURE_ASSET_ID {
 	TUTORIAL_SEVEN = TUTORIAL_SIX + 1,
 	TUTORIAL_EIGHT = TUTORIAL_SEVEN + 1,
 
+	// ------ Start screen & Pause menu buttons ------
+	NEW_GAME = TUTORIAL_EIGHT + 1,
+	LOAD_GAME = NEW_GAME + 1,
+	SAVE_GAME = LOAD_GAME + 1,
+	EXIT_GAME = SAVE_GAME + 1,
+	GAME_TITLE = EXIT_GAME + 1,
+	OPEN_MENU = GAME_TITLE + 1,
+	CLOSE_MENU = OPEN_MENU + 1,
+	EMPTY_IMAGE = CLOSE_MENU + 1,
+
 	//------- iconToolTips -------------
-	FIREBALLTOOLTIP = TUTORIAL_EIGHT + 1,
+	FIREBALLTOOLTIP = EMPTY_IMAGE + 1,
 	ICESHARDTOOLTIP = FIREBALLTOOLTIP + 1,
 	ROCKTOOLTIP = ICESHARDTOOLTIP + 1,
 	MELEETOOLTIP = ROCKTOOLTIP + 1,

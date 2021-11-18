@@ -28,6 +28,9 @@ public:
 	// starts the game
 	void init(RenderSystem* renderer, AISystem* ai_arg, SkillSystem* skill_arg);
 
+	// Displays the start screen and buttons
+	void render_startscreen();
+
 	// display player turn
 	void displayPlayerTurn();
 
@@ -68,11 +71,15 @@ public:
 
 	int player_turn;
 
+	// IMPORTANT: Determines if systems can call step()
+	int canStep = 0;
+	int closeWindow = 0;
+
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
-	// handel mouse click
+	// handle mouse click
 	void on_mouse_button( int button,int action, int mods);
 
 	// check if mouse in button
@@ -151,6 +158,14 @@ private:
 	int tutorial_icon_selected = 1;
 	int tutorial_ability_fired = 1;
 	int tutorial_enabled = 0;
+
+	// UI buttons
+	Entity new_game_button;
+	Entity load_game_button;
+	Entity save_game_button;
+	Entity exit_game_button;
+	Entity open_menu_button;
+	int pauseMenuOpened = 0;
 
 	// Music References
 	Mix_Music* background_music;

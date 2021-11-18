@@ -39,6 +39,7 @@ public:
 	ComponentContainer<CheckRoundTimer> checkRoundTimer;
 	ComponentContainer<toolTip> toolTip;
 	ComponentContainer<CharIndicator> charIndicator;
+	ComponentContainer<UIButton> uiButtons;
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -69,6 +70,7 @@ public:
 		registry_list.push_back(&statsindicators);
 		registry_list.push_back(&toolTip);
 		registry_list.push_back(&charIndicator);
+		registry_list.push_back(&uiButtons);
 	}
 
 	void clear_all_components() {

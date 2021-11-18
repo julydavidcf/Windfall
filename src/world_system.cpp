@@ -148,6 +148,7 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
+
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
 	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
@@ -234,8 +235,15 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 
 	fprintf(stderr, "Loaded music\n");
 
-	// Set all states to default
-	restart_game();
+	// Start game with a start screen
+	render_startscreen();
+}
+
+void WorldSystem::render_startscreen() {
+	createUIButton(renderer, { 600, 100 }, GAME_TITLE);
+	new_game_button = createUIButton(renderer, { 600, 300 }, NEW_GAME);
+	load_game_button = createUIButton(renderer, { 600, 400 }, LOAD_GAME);
+	exit_game_button = createUIButton(renderer, { 600, 500 }, EXIT_GAME);
 }
 
 void WorldSystem::displayPlayerTurn() {
@@ -841,6 +849,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
+	// Pause menu button
+	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
+
 	// Create a player mage
 	player_mage = createPlayerMage(renderer, { 150, 550 });
 	// Create a player swordsman
@@ -1164,7 +1175,7 @@ void WorldSystem::handle_boundary_collision() {
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
-	return bool(glfwWindowShouldClose(window));
+	return bool(glfwWindowShouldClose(window)) || closeWindow;
 }
 
 // On key callback
@@ -1224,7 +1235,64 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+
+	// For start menu and pause menu click detection
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep) {
+		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			// START A NEW GAME
+			restart_game();
+			canStep = 1;
+		}
+		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			// LOAD THE SAVED JSON FILE (IF ANY)
+			// Todo: implement
+		}
+		else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			// EXIT TO DESKTOP
+			closeWindow = 1;
+		}
+	}
+
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep) {
+
+
+		// Check menu clicks
+		if (!pauseMenuOpened && inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
+			Motion menu_motion = registry.motions.get(open_menu_button);
+			save_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 2 + UI_BUTTON_HEIGHT }, SAVE_GAME);
+			exit_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 2 + UI_BUTTON_HEIGHT * 2 }, EXIT_GAME);
+			pauseMenuOpened = 1;
+			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
+		}
+		else if (pauseMenuOpened) {
+			
+			if (inButton(registry.motions.get(save_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+				// SAVE THE CURRENT GAME STATE
+				pauseMenuOpened = 0;
+				// Todo: implement
+
+			}
+			
+			if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+				// GO BACK TO START MENU
+				pauseMenuOpened = 0;
+				canStep = 0;
+				while (registry.motions.entities.size() > 0)
+					registry.remove_all_components_of(registry.motions.entities.back());
+				render_startscreen();
+				return;
+			}
+			
+			if (inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
+				// HIDE MENU OPTIONS
+				registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::OPEN_MENU;
+				// Clear on-screen buttons
+				registry.remove_all_components_of(save_game_button);
+				registry.remove_all_components_of(exit_game_button);
+				pauseMenuOpened = 0;
+			}	
+		}
+
 
 		//show all skill
 		if (selected_skill != 0) {
@@ -1470,39 +1538,43 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
 	sk->mousePos = mouse_position;
-	if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
+
+	if (canStep) {
+
+		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
+			}
 		}
-	}
-	else if (mouseInArea(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT), "IS");
+		else if (mouseInArea(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT), "IS");
+			}
 		}
-	}
-	else if (mouseInArea(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT), "RK");
+		else if (mouseInArea(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT), "RK");
+			}
 		}
-	}
-	else if (mouseInArea(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT), "HL");
+		else if (mouseInArea(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT), "HL");
+			}
 		}
-	}
-	else if (mouseInArea(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "TT");
+		else if (mouseInArea(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "TT");
+			}
 		}
-	}
-	else if (mouseInArea(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
+		else if (mouseInArea(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
+			}
 		}
-	}
-	else {
-		registry.remove_all_components_of(tooltip);
-		registry.toolTip.clear();
+		else {
+			registry.remove_all_components_of(tooltip);
+			registry.toolTip.clear();
+		}
 	}
 }
 
@@ -1566,42 +1638,42 @@ void WorldSystem::showCorrectSkills() {
 	if (currPlayer != NULL && registry.companions.has(currPlayer)) {
 		Statistics pStat = registry.stats.get(currPlayer);
 		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0) {
-			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONDISABLED;
+			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 
 		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0) {
-			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONDISABLED;
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 
 		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0) {
-			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONDISABLED;
+			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 		}
 
 		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0) {
-			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONDISABLED;
+			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 		}
 
 		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0) {
-			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONDISABLED;
+			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 		}
 
 		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0) {
-			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICONDISABLED;
+			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
