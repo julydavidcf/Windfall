@@ -40,7 +40,7 @@ public:
 	vec2 mousePos = { 0,0 };
 
 	//WorldSystem ws;
-
+	// start skills
 	void startTauntAttack(Entity origin, Entity target);
 	void startSilenceAttack(Entity origin, Entity target);
 	void startIceShardAttack(Entity origin, Entity target);
@@ -51,7 +51,7 @@ public:
 	void startMeleeAttack(Entity origin, Entity target);
 	void startSummonAttack(Entity origin);
 
-
+	// launch skills
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchRock(Entity target, RenderSystem* renderer);
@@ -61,6 +61,8 @@ public:
 	void launchMelee(Entity target, RenderSystem* renderer);
 	void launchSilence(Entity target, RenderSystem* renderer);
 	void launchSummon(RenderSystem* renderer);
+	void luanchCompanionTeamHeal(float amount, RenderSystem* renderer);
+	void luanchEnemyTeamDamage(float amount, RenderSystem* renderer);
 	
 	void removeTaunt(Entity target);
 	void removeSilence(Entity target);
