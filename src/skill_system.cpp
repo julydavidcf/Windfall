@@ -380,6 +380,36 @@ void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* rendere
 	//update_healthBars();
 }
 
+void SkillSystem::luanchCompanionTeamHeal( float amount, RenderSystem* renderer) {
+	for (Entity cp : registry.companions.entities) {
+		vec2 targetp = registry.motions.get(cp).position;
+		createGreenCross(renderer, targetp);
+		if (registry.stats.has(cp)) {
+			Statistics* tStats = &registry.stats.get(cp);
+			if (tStats->health + amount > tStats->max_health) {
+				tStats->health = tStats->max_health;
+			}
+			else
+			{
+				tStats->health += amount;
+			}
+		}
+	}
+
+}
+
+void SkillSystem::luanchEnemyTeamDamage(float amount, RenderSystem* renderer) {
+	for (Entity cp : registry.enemies.entities) {
+		vec2 targetp = registry.motions.get(cp).position;
+		createGreenCross(renderer, targetp);
+		if (registry.stats.has(cp)) {
+			Statistics* tStats = &registry.stats.get(cp);
+				tStats->health -= amount;
+		}
+	}
+
+}
+
 Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
 	float proj_x = startPos.x + 50;

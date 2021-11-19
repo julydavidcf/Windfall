@@ -43,6 +43,11 @@ int SILENCESELECTED = 0;
 
 int selected_skill = -1;
 
+//mouse gesture skills related=============
+int startMousePosCollect = 0;
+std::vector<vec2> mouseGestures;
+int gestureSkillRemaining = 1;
+//===========================================
 int hover_skill = -1;
 //selected button
 Entity selectedButton;
@@ -474,6 +479,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				registry.remove_all_components_of(motions_registry.entities[i]);
 			}
 		}
+	}
+
+	//collect mouse gesture
+	if (startMousePosCollect == 1) {
+		mouseGestures.push_back(msPos);
 	}
 
 	//check taunt and silence for enemy and companion
@@ -1208,6 +1218,17 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		restart_game(true);
 	}
 
+	// david test
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+	//	sk->luanchCompanionTeamHeal(50,renderer);
+	//	update_healthBars();
+	//}
+
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+	//	sk->luanchEnemyTeamDamage(30, renderer);
+	//	update_healthBars();
+	//}
+
 	// Debugging
 	if (key == GLFW_KEY_D) {
 		if (action == GLFW_RELEASE)
@@ -1256,6 +1277,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
 
+
+
 	// For start menu and pause menu click detection
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
@@ -1272,7 +1295,95 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			closeWindow = 1;
 		}
 	}
+	//gesture skill
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && canStep) {
+		printf("gesture skill collecting active!\n");
+		startMousePosCollect = 1;
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE && canStep) {
+		startMousePosCollect = 0;
+		float maxX = -9999;
+		float minX = 9999;
+		float maxY = -9999;
+		float minY = 9999;
+		float aveX;
+		float aveY;
+		float totalX=0;
+		float totalY=0;
+		// Y increasing means going down! idk why
+		float Yincreasing_switch = 1;
+		float Xincreasing_switch = 1;
+		float Ydecreasing_switch = 1;
+		float Xdecreasing_switch = 1;
+		
+		for (int i = 0; i < mouseGestures.size(); i++) {
+			// print out conditions
+			printf("collected mousePos: X=%f Y=%f\n",mouseGestures[i].x, mouseGestures[i].y);
+			totalX += mouseGestures[i].x;
+			totalY += mouseGestures[i].y;
+			if (mouseGestures[i].x > maxX) {
+				if (maxX != -9999) {
+					Xdecreasing_switch = 0;
+				}
+				maxX = mouseGestures[i].x;
+			}
+			if (mouseGestures[i].x < minX) {
+				if (minX != 9999) {
+					Xincreasing_switch = 0;
+				}
+				minX = mouseGestures[i].x;
+			}
+			if (mouseGestures[i].y > maxY) {
+				if (maxY != -9999) {
+					Ydecreasing_switch = 0;
+				}
+				maxY = mouseGestures[i].y;
+			}
+			if (mouseGestures[i].y < minY) {
+				if (minY != 9999) {
+					Yincreasing_switch = 0;
+				}
+				minY = mouseGestures[i].y;
+			}
+		}
+		printf("gesture skill collecting deactive!\n");
+		aveX = totalX / mouseGestures.size();
+		aveY = totalY / mouseGestures.size();
+		printf("Ave X is %f, Ave Y is %f, MaxminX is %f %f, MixminY is %f %f\n",aveX, aveY, maxX, minX, maxY, minY );
+		printf("X inc:%f X dec:%f Yinc:%f Y dec:%f\n",Xincreasing_switch,Xdecreasing_switch,Yincreasing_switch,Ydecreasing_switch);
+		
+		// horisontal line - skill 1: heal
+		if (Xincreasing_switch == 1 && Xdecreasing_switch == 0 &&
+			maxX-aveX>=200 && aveX - minX >= 200 &&
+			maxY-aveY<=50 && aveY - minY <= 50) {
+			// launch heal skill
+			sk->luanchCompanionTeamHeal(50, renderer);
+			update_healthBars();
+			printf("heal Gesture skill activated!");
+		}
+		
+		// vertical line -skill 2: aoe damage
+		if (Yincreasing_switch == 1 && Ydecreasing_switch == 0 &&
+			maxX - aveX <= 50 && aveX - minX <= 50 &&
+			maxY - aveY >= 200 && aveY - minY >= 200) {
+			// launch heal skill
+			sk->luanchEnemyTeamDamage(30, renderer);
+			update_healthBars();
+			printf("damage Gesture skill activated!");
+		}
+		// circle - skill 3: one more turn
+		if (Xincreasing_switch == 0 && Xdecreasing_switch == 0 &&
+			Yincreasing_switch == 0 && Ydecreasing_switch == 0 &&
+			maxX - aveX <= 300 && aveX - minX <= 300 &&
+			maxY - aveY <= 300 && aveY - minY <= 300) {
+			// launch heal skill
+			printf("one more turn skill activated!");
+		}
 
+		mouseGestures.clear();
+
+	}
+	//other clicks
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep) {
 
 
