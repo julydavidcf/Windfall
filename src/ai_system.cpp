@@ -1694,8 +1694,8 @@ BTIfPlayerMageNotTaunted notTaunted(&castTaunt);					// done
 BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
 BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
 
-BTIfShieldTurn isShieldTurn(&castShield);		// TODO
-BTIfNotShieldTurn notShieldTurn(&checkCrows);	// TODO
+BTIfShieldTurn isShieldTurn(&castShield);		// done
+BTIfNotShieldTurn notShieldTurn(&checkCrows);	// done
 
 // Level 3 Nodes
 BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);			// run pair do not need any further implementation? can merge all run pairs later and test
@@ -1734,8 +1734,8 @@ BTIfEnemySwordsmanTaunted swordsmanTaunted(&meleeAttack);		// done
 BTIfHasNecroMinion hasNecroMinion(&checkMageTwo);				// done
 BTIfNoNecroMinion noNecroMinion(&summonNecroMinion);			// done
 
-BTIfNotUltiTurn notUltiTurn(&checkTurnA);	// TODO
-BTIfUltiTurn isUltiTurn(&checkTurnB);		// TODO
+BTIfNotUltiTurn notUltiTurn(&checkTurnA);	// done
+BTIfUltiTurn isUltiTurn(&checkTurnB);		// done
 
 // Level 1 Nodes
 BTRunCheckMageTaunt checkEnemyMageTaunt(&taunted, &nonTaunted);							// run pair
