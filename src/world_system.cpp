@@ -749,32 +749,15 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
-	// Create a player mage
-	// player_mage = createPlayerMage(renderer, { 100, 575 });
-	// Create a player swordsman
-	// player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
-	// Create an enemy mage
-	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
-	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
-
-
 	JSONLoader jsonloader;
 	jsonloader.init(renderer);
-	jsonloader.get_level("small_example.json");
+	if (gameLevel <= 1){
+		jsonloader.get_level("level_1.json");
+	}
 
 	if (gameLevel > 1) {
-		// Create an enemy swordsman
-		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
-		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+		jsonloader.get_level("level_2.json");
 	}
-	
-	// Create the icons here
-	taunt_icon = createTauntIcon(renderer, { 300, 700 });
-	heal_icon = createHealIcon(renderer, { 400, 700 });
-	melee_icon = createMeleeIcon(renderer, { 500, 700 });
-	iceShard_icon = createIceShardIcon(renderer, { 600, 700 });
-	fireBall_icon = createFireballIcon(renderer, { 700, 700 });
-	rock_icon = createRockIcon(renderer, { 800, 700 });
 
 	//Create a tooltip
 	tooltip;
