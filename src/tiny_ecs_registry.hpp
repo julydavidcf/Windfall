@@ -11,6 +11,7 @@ class ECSRegistry
 
 public:
 	// Manually created list of all components this game has
+	ComponentContainer<BackgroundObj> backgroundObjects;
 	ComponentContainer<Particle> Particles;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
@@ -42,7 +43,7 @@ public:
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
-		// TODO: A1 add a LightUp component
+		registry_list.push_back(&backgroundObjects);
 		registry_list.push_back(&Particles);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&motions);

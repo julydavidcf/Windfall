@@ -409,6 +409,7 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 
 			if (particle.Life <= 0.f) {
 				particles.fadedParticles++;
+				delete[] particle.positions;
 			}
 			float step_seconds = 1.0f * (elapsed_ms_since_last_update / 1000.f);
 			particle.motion.position.x -= particle.motion.velocity.x * step_seconds;
@@ -433,7 +434,7 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 			particles.positions[i * 3 + 2] = particle.Life/ particles.Life;
 		}
 
-		if (particles.fadedParticles >= 4000 - 5) {
+		if (particles.fadedParticles == 4000) {
 			delete[] particles.positions;
 			particles.faded = true;
 			registry.Particles.remove(origin);

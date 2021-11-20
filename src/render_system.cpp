@@ -122,7 +122,8 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 void RenderSystem::drawTexturedMesh(Entity entity,
 									const mat3 &projection,
 								    GLint& frame,
-									GLfloat& frameWidth)
+									GLfloat& frameWidth,
+									float elapsed_ms)
 {
 	Motion &motion = registry.motions.get(entity);
 	// Transformation code, see Rendering and Transformation in the template
@@ -198,12 +199,71 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glUniform1i(frame_uloc, frame);
 		glUniform1f(frame_width_uloc, frameWidth);
 	}
-	else if (render_request.used_effect == EFFECT_ASSET_ID::PEBBLE)
+	else if (render_request.used_effect == EFFECT_ASSET_ID::BACKGROUND_OBJ || render_request.used_effect == EFFECT_ASSET_ID::PEBBLE)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
-		gl_has_errors();
+		if (render_request.used_effect == EFFECT_ASSET_ID::BACKGROUND_OBJ) {
+			if (registry.backgroundObjects.has(entity)) {
+				auto& backgroundObj = registry.backgroundObjects.get(entity);
+				glUniform1f(glGetUniformLocation(program, "time"), deformTime);
+				if (backgroundObj.shouldDeform) {
+					if (!implode) {
+						deformTime += elapsed_ms;
+					}
+					if (deformTime >= 2200 && !implode) {
+						implode = true;
+						// shouldDeform = 0;
+						// deformTime = 0;
+					}
 
+					if (implode) {
+						deformTime -= elapsed_ms;
+					}
+
+					if (implode && deformTime <= 0) {
+						implode = false;
+						// keeping this variable since it can help for testing all deformations at once.
+						shouldDeform = 0.;
+						backgroundObj.shouldDeform = false;
+						deformTime = 0;
+					}
+				}
+				glUniform1i(glGetUniformLocation(program, "shouldDeform"), backgroundObj.shouldDeform);
+				glUniform1i(glGetUniformLocation(program, "deformType2"), backgroundObj.deformType2);
+				gl_has_errors();
+			}
+			else {
+				// reaching here implies that we've got a render request but 
+				// the entity is missing from the background objects container.
+				// Indicates asynchronous behavior. Not very serious, so just log warning.
+				printf("WARNING: recieved renderRequest for background object but object is missing from backgroundObject container\n");
+				glUniform1i(glGetUniformLocation(program, "shouldDeform"), false);
+				glUniform1f(glGetUniformLocation(program, "time"), 0.f);
+			}
+			//glUniform1f(glGetUniformLocation(program, "time"), deformTime);
+			//if (!implode) {
+			//	deformTime += elapsed_ms;
+			//}
+			//if (deformTime >= 2200 && !implode) {
+			//	implode = true;
+			//	// shouldDeform = 0;
+			//	// deformTime = 0;
+			//}
+
+			//if (implode) {
+			//	deformTime -= elapsed_ms;
+			//}
+
+			//if (implode && deformTime <= 0) {
+			//	implode = false;
+			//	shouldDeform = 0.;
+			//	deformTime = 0;
+			//}
+
+			//glUniform1i(glGetUniformLocation(program, "shouldDeform"), shouldDeform);
+			//gl_has_errors();
+		}
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
 			sizeof(ColoredVertex), (void*)0);
@@ -607,7 +667,7 @@ void RenderSystem::draw(float elapsed_ms)
 			} else if (transitioningToNextLevel && deferredRenderingEntities.count(entity) > 0) {
 				// delay rendering of enemy healthbar when transitioning to next level
 			} else {
-				drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width);
+				drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width, elapsed_ms);
 			}
 		}
 

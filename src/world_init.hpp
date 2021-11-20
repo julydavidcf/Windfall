@@ -39,6 +39,9 @@ const float ICESHARD_WIDTH = 80.f;
 const float ICESHARD_HEIGHT = 20.f;
 const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
+const float BACKGROUND_OBJ_WIDTH = 60;
+const float BACKGROUND_OBJ_HEIGHT = 60.f;
+
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -97,6 +100,8 @@ Entity createLine(vec2 position, vec2 size);
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
+
+Entity createBackgroundObject(RenderSystem* renderer, vec2 position);
 
 
 //Game Stats

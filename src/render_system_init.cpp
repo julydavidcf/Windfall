@@ -105,8 +105,13 @@ void RenderSystem::initializeGlEffects()
 	{
 		const std::string vertex_shader_name = effect_paths[i] + ".vs.glsl";
 		const std::string fragment_shader_name = effect_paths[i] + ".fs.glsl";
-
-		bool is_valid = loadEffectFromFile(vertex_shader_name, fragment_shader_name, effects[i]);
+		std::string geometry_shader_name;
+		if (effect_paths[i] == shader_path("basicEnemy")) {
+			geometry_shader_name = effect_paths[i] + ".gs.glsl";
+			
+		}
+		bool is_valid = loadEffectFromFile(vertex_shader_name, fragment_shader_name, geometry_shader_name, effects[i]);
+		// bool is_valid = loadEffectFromFile(vertex_shader_name, fragment_shader_name, effects[i]);
 		assert(is_valid && (GLuint)effects[i] != 0);
 	}
 }
@@ -419,11 +424,17 @@ bool gl_compile_shader(GLuint shader)
 }
 
 bool loadEffectFromFile(
-	const std::string& vs_path, const std::string& fs_path, GLuint& out_program)
+	const std::string& vs_path, const std::string& fs_path, std::string& gs_path, GLuint& out_program)
 {
 	// Opening files
 	std::ifstream vs_is(vs_path);
 	std::ifstream fs_is(fs_path);
+	std::ifstream gs_is(gs_path);
+	if (!gs_path.empty() && !gs_is.good()) {
+		fprintf(stderr, "Failed to load geometry shader file %s\n", gs_path.c_str());
+		assert(false);
+		return false;
+	}
 	if (!vs_is.good() || !fs_is.good())
 	{
 		fprintf(stderr, "Failed to load shader files %s, %s", vs_path.c_str(), fs_path.c_str());
@@ -432,7 +443,28 @@ bool loadEffectFromFile(
 	}
 
 	// Reading sources
-	std::stringstream vs_ss, fs_ss;
+	std::stringstream vs_ss, fs_ss, gs_ss;
+
+	bool link_gs = false;
+	GLuint geometry;
+	if (!gs_path.empty()) {
+		gs_ss << gs_is.rdbuf();
+		std::string gs_str = gs_ss.str();
+		const char* gs_src = gs_str.c_str();
+		GLsizei gs_len = (GLsizei)gs_str.size();
+		geometry = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geometry, 1, &gs_src, &gs_len);
+		gl_has_errors();
+
+		if (!gl_compile_shader(geometry))
+		{
+			fprintf(stderr, "geometry compilation failed");
+			assert(false);
+			return false;
+		}
+		link_gs = true;
+	}
+
 	vs_ss << vs_is.rdbuf();
 	fs_ss << fs_is.rdbuf();
 	std::string vs_str = vs_ss.str();
@@ -466,6 +498,9 @@ bool loadEffectFromFile(
 	out_program = glCreateProgram();
 	glAttachShader(out_program, vertex);
 	glAttachShader(out_program, fragment);
+	if (link_gs) {
+		glAttachShader(out_program, geometry);
+	}
 	glLinkProgram(out_program);
 	gl_has_errors();
 
@@ -493,6 +528,10 @@ bool loadEffectFromFile(
 	glDetachShader(out_program, fragment);
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+	if (link_gs) {
+		glDetachShader(out_program, geometry);
+		glDeleteShader(geometry);
+	}
 	gl_has_errors();
 
 	return true;

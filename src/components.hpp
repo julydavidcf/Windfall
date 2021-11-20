@@ -31,6 +31,12 @@ enum AttackType {
 	ICESHARD    = 6,
 };
 
+struct BackgroundObj
+{
+	bool shouldDeform;
+	bool deformType2;
+};
+
 // Health bar entity
 struct HealthBar
 {
@@ -363,7 +369,8 @@ enum class EFFECT_ASSET_ID {
 	TEXTURED = PEBBLE + 1,
 	WATER = TEXTURED + 1,
 	PARTICLE = WATER + 1,
-	EFFECT_COUNT = PARTICLE + 1
+	BACKGROUND_OBJ = PARTICLE + 1,
+	EFFECT_COUNT = BACKGROUND_OBJ + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
@@ -386,7 +393,8 @@ enum class GEOMETRY_BUFFER_ID {
 	// --------------------------
 	BACKGROUND = NECROMANCER_IDLE + 1,
 
-	GEOMETRY_COUNT = BACKGROUND + 1
+	BACKGROUND_OBJ = BACKGROUND + 1,
+	GEOMETRY_COUNT = BACKGROUND_OBJ + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
