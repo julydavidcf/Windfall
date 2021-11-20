@@ -555,6 +555,7 @@ Entity createCharIndicator(RenderSystem* renderer, vec2 position, Entity owner)
 	return entity;
 }
 
+
 // create barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position)
 {
@@ -803,6 +804,27 @@ Entity createLine(vec2 position, vec2 scale)
 	registry.debugComponents.emplace(entity);
 	return entity;
 }
+
+Entity createDot(RenderSystem* renderer, vec2 position)
+{
+	Entity entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::DOT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = {DOT_WIDTH,DOT_HEIGHT};
+	registry.dots.emplace(entity);
+	return entity;
+}
+
 
 Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos)
 {

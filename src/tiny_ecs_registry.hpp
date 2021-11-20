@@ -42,6 +42,7 @@ public:
 	ComponentContainer<UIButton> uiButtons;
 	ComponentContainer<Ultimate> ultimate;
 	ComponentContainer<Shield> shield;
+	ComponentContainer<Dot> dots;
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -75,6 +76,7 @@ public:
 		registry_list.push_back(&uiButtons);
 		registry_list.push_back(&ultimate);
 		registry_list.push_back(&shield);
+		registry_list.push_back(&dots);
 	}
 
 	void clear_all_components() {

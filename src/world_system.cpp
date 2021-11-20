@@ -484,6 +484,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	//collect mouse gesture
 	if (startMousePosCollect == 1) {
 		mouseGestures.push_back(msPos);
+		// creates dots
+		createDot(renderer, msPos);
+	}
+	else {
+		for (int j = 0; j < registry.dots.components.size(); j++) {
+			registry.remove_all_components_of(registry.dots.entities[j]);
+		}
 	}
 
 	//check taunt and silence for enemy and companion
@@ -1365,7 +1372,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		// vertical line -skill 2: aoe damage
 		if (Yincreasing_switch == 1 && Ydecreasing_switch == 0 &&
 			maxX - aveX <= 50 && aveX - minX <= 50 &&
-			maxY - aveY >= 200 && aveY - minY >= 200) {
+			maxY - aveY >= 150 && aveY - minY >= 150) {
 			// launch heal skill
 			sk->luanchEnemyTeamDamage(30, renderer);
 			update_healthBars();
