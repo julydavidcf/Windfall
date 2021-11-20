@@ -18,7 +18,7 @@ const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
-const int NUM_DEATH_PARTICLES = 2000;
+const int NUM_DEATH_PARTICLES = 4000;
 vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
@@ -742,7 +742,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				// if (particle.Life > 0.f) {
 				if (particle.Life <= 0) {
 					particles.fadedParticles++;
-					delete[] particle.positions;
+					// delete[] particle.positions;
 				}
 				particle.motion.position.x -= particle.motion.velocity.y * (rand() % 17) * 0.3f;
 				particle.motion.position.y -= particle.motion.velocity.x * (rand() % 17) * 0.3f;
@@ -759,6 +759,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			}
 			if (particles.fadedParticles == NUM_DEATH_PARTICLES) {
 				delete[] particles.positions;
+				for (auto& p : particles.deathParticles) {
+					delete[] p.positions;
+				}
 				particles.faded = true;
 				registry.Particles.remove(entity);
 				registry.remove_all_components_of(entity);	// added back in, kinda works
