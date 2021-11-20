@@ -1,14 +1,11 @@
 #include "skill_system.hpp"
 
+#include <random>
 
 
-SkillSystem::SkillSystem() {
-}
+SkillSystem::SkillSystem() { }
 
-SkillSystem::~SkillSystem() {
-}
-
-
+SkillSystem::~SkillSystem() { }
 
 void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 	printf("Started the taunt attack\n");
@@ -97,7 +94,6 @@ void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 		}
 	}
 }
-
 
 void SkillSystem::startHealAttack(Entity origin, Entity target) {
 	printf("Started the heal attack\n");
@@ -264,12 +260,12 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 
 			if (enemy.enemyType == SWORDSMAN) {
 				timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
-			} 
+			}
 			else if (enemy.enemyType == NECROMANCER_MINION) {
 				timer.counter_ms = rt.counter_ms + 800.f + animation_timer;
 			}
-			 
-			
+
+
 		}
 
 		//playerUseMelee = 1;
@@ -311,6 +307,54 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 		}
 
 		//playerUseMelee = 1;
+	}
+}
+
+void SkillSystem::startParticleBeamAttack(Entity origin) {
+	if (!registry.Particles.has(origin)) {
+		Particle particleEffects;
+		particleEffects.Life = 2500.f;
+		particleEffects.areTypeDeath = false;
+		particleEffects.motion.scale = vec2(9.f, 9.f);
+		for (int p = 0; p < 4000; p++) {
+			auto motion = registry.motions.get(origin);
+			motion.position.y += 150.f;
+			Particle particle;
+			particle.Life = particleEffects.Life;
+			// float random1 = ((rand() % 100) - 50) / 10.0f;
+			// float random2 = ((rand() % 200) - 100) / 10.0f;
+			
+			std::random_device rdx; // obtain a random number from hardware
+			std::mt19937 genX(rdx()); // seed the generator
+			std::uniform_int_distribution<> distrX( (int)motion.position.x - 50, (int)motion.position.x - 40); // define the range
+
+			std::random_device rdy; // obtain a random number from hardware
+			std::mt19937 genY(rdy()); // seed the generator
+			std::uniform_int_distribution<> distrY((int)motion.position.y - 20, (int)motion.position.y + 20); // define the range
+
+
+			float rColor = 0.5f + ((rand() % 100) / 100.0f);
+			// particle.motion.position.x = motion.position.x + random1 + 20.f;
+			// particle.motion.position.y = motion.position.y  + random2 - 40.f;
+			particle.motion.position = vec2(distrX(genX), distrY(genY));
+
+			particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+			// particle.motion.velocity.x = -100.f;
+
+			std::uniform_int_distribution<> distrVelX(0, 1200); // define the range
+			std::uniform_int_distribution<> distrVelY(-60, 60); // define the range
+			particle.motion.velocity.x = (float) distrVelX(genX);
+			particle.motion.velocity.y = (float) distrVelY(genY);
+			// particle.motion.velocity.y = 0.f;
+			// particle.angle = distrVelY(genY);
+
+			// particle.motion.scale = vec2({ 10, 10 });
+			particleEffects.deathParticles.push_back(particle);
+			particleEffects.positions[p * 3 + 0] = particle.motion.position.x;
+			particleEffects.positions[p * 3 + 1] = particle.motion.position.y;
+			particleEffects.positions[p * 3 + 2] = particle.Life/ particleEffects.Life;
+		}
+		registry.Particles.insert(origin, particleEffects);
 	}
 }
 
@@ -380,7 +424,7 @@ void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* rendere
 	//update_healthBars();
 }
 
-void SkillSystem::luanchCompanionTeamHeal( float amount, RenderSystem* renderer) {
+void SkillSystem::luanchCompanionTeamHeal(float amount, RenderSystem* renderer) {
 	for (Entity cp : registry.companions.entities) {
 		vec2 targetp = registry.motions.get(cp).position;
 		createGreenCross(renderer, targetp);
@@ -404,7 +448,7 @@ void SkillSystem::luanchEnemyTeamDamage(float amount, RenderSystem* renderer) {
 		createGreenCross(renderer, targetp);
 		if (registry.stats.has(cp)) {
 			Statistics* tStats = &registry.stats.get(cp);
-				tStats->health -= amount;
+			tStats->health -= amount;
 		}
 	}
 
@@ -462,13 +506,13 @@ void SkillSystem::launchTaunt(Entity target, RenderSystem* renderer) {
 	if (!registry.taunts.has(target)) {
 		registry.taunts.emplace(target);
 		Taunt* t = &registry.taunts.get(target);
-		t->duration = 4;	// making it 4 so that it last one more turn when checkRound decrements it on the next turn
+		t->duration = 4;
 		createTauntIndicator(renderer, target);
 		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
 	else {
 		Taunt* t = &registry.taunts.get(target);
-		t->duration = 4;	// making it 4 so that it last one more turn when checkRound decrements it on the next turn
+		t->duration = 4;
 		printf("taunt extended!\n");
 	}
 }
@@ -499,7 +543,7 @@ void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
 void SkillSystem::launchSilence(Entity target, RenderSystem* renderer) {
 	if (!registry.silenced.has(target)) {
 		vec2 targetp = registry.motions.get(target).position;
-		createSilenceBubble(renderer, targetp);		
+		createSilenceBubble(renderer, targetp);
 		registry.silenced.emplace(target);
 		Silenced* s = &registry.silenced.get(target);
 		s->turns = 2;	// making it 2 so that it last one more turn when checkRound decrements it on the next turn
@@ -526,4 +570,49 @@ void SkillSystem::removeSilence(Entity target) {
 
 void SkillSystem::launchSummon(RenderSystem* renderer) {
 	createNecromancerMinion(renderer, { 750, 600 });
+}
+
+std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float w, float h) {
+	std::pair<bool, bool> updateHealthSignals = {false, false};
+	if (registry.Particles.has(origin)) {
+		auto& originMotion = registry.motions.get(origin);
+		Particle& particles = registry.Particles.get(origin);
+		for (int i = 0; i < particles.deathParticles.size(); i++) {
+			auto& particle = particles.deathParticles[i];
+			particle.Life -= elapsed_ms_since_last_update * 0.5;
+
+			if (particle.Life <= 0.f) {
+				particles.fadedParticles++;
+				delete[] particle.positions;
+			}
+			float step_seconds = 1.0f * (elapsed_ms_since_last_update / 1000.f);
+			particle.motion.position.x -= particle.motion.velocity.x * step_seconds;
+			if (particle.motion.position.x <= w / 1.50) {
+				particle.motion.position.y -= particle.motion.velocity.y * step_seconds * (float)0.8;
+			}
+			if (!updateHealthSignals.first) {
+				for (auto& companion : registry.companions.entities) {
+					auto& motion = registry.motions.get(companion);
+					if (abs(motion.position.x - particle.motion.position.x) <= 2) {
+						updateHealthSignals.first = true;
+						break;
+					}
+				}
+			}
+			if (particle.Life / particles.Life < 0.70) {
+				updateHealthSignals.second = true;
+			}
+
+			particles.positions[i * 3 + 0] = particle.motion.position.x;
+			particles.positions[i * 3 + 1] = particle.motion.position.y;
+			particles.positions[i * 3 + 2] = particle.Life/ particles.Life;
+		}
+
+		if (particles.fadedParticles == 4000) {
+			delete[] particles.positions;
+			particles.faded = true;
+			registry.Particles.remove(origin);
+		}
+	}
+	return updateHealthSignals;
 }

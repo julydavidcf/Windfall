@@ -11,8 +11,8 @@ const float SWORDSMAN_WIDTH = 310.f;
 const float SWORDSMAN_HEIGHT = 350.f;
 const float NECRO_ONE_WIDTH = 220.f;
 const float NECRO_ONE_HEIGHT = 250.f;
-const float NECRO_TWO_WIDTH = 400.f;
-const float NECRO_TWO_HEIGHT = 500.f;
+const float NECRO_TWO_WIDTH = 300.f;
+const float NECRO_TWO_HEIGHT = 400.f;
 const float NECRO_MINION_WIDTH = 90.f;
 const float NECRO_MINION_HEIGHT = 110.f;
 
@@ -47,6 +47,10 @@ const float ICESHARD_WIDTH = 80.f;
 const float ICESHARD_HEIGHT = 20.f;
 const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
+
+const float BACKGROUND_OBJ_WIDTH = 60;
+const float BACKGROUND_OBJ_HEIGHT = 60.f;
+
 const float LIGHTNING_WIDTH = 300.f;
 const float LIGHTNING_HEIGHT = 450.f;
 const float CHARARROW_WIDTH = 60.f;
@@ -129,10 +133,11 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 Entity createTutorialBox(RenderSystem* renderer, vec2 position, int box_number);
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
 
+Entity createBackgroundObject(RenderSystem* renderer, vec2 position);
+
 Entity createCharIndicator(RenderSystem* renderer, vec2 position, Entity owner);
 
 Entity createUIButton(RenderSystem* renderer, vec2 position, int buttonType);
-
 
 //Game Stats
 

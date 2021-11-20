@@ -18,7 +18,7 @@ const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
-const int NUM_DEATH_PARTICLES = 120;
+const int NUM_DEATH_PARTICLES = 2000;
 vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
@@ -445,7 +445,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// restart game if enemies or companions are 0
-	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.deathParticles.size() <= 0)) {
+	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.Particles.size() <= 0)) {
 		restart_game();
 	}
 
@@ -658,6 +658,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						Mix_PlayChannel(5, rock_spell_sound, 0);
 						printf("Rock attack enemy\n");
 						currentProjectile = sk->launchRock(attack.target,renderer);
+						// sk->startParticleBeamAttack(attacker);
 						break;
 					}
 					case LIGHTNING: {
@@ -737,12 +738,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	assert(registry.screenStates.components.size() <= 1);
 	ScreenState& screen = registry.screenStates.components[0];
 
-	// update state of death particles
-	for (Entity entity : registry.deathParticles.entities) {
-		DeathParticle& deathParticles = registry.deathParticles.get(entity);
-		for (auto& particle : deathParticles.deathParticles) {
-			particle.Life -= elapsed_ms_since_last_update;
-			if (particle.Life > 0.f) {
+	// update state of particles
+	for (Entity entity : registry.Particles.entities) {
+		Particle& particles = registry.Particles.get(entity);
+		if (particles.areTypeDeath) {
+			for (int i = 0; i < particles.deathParticles.size(); i++) {
+				auto& particle = particles.deathParticles[i];
+				// for (auto& particle : deathParticles.deathParticles) {
+				particle.Life -= elapsed_ms_since_last_update;
+				// if (particle.Life > 0.f) {
+				if (particle.Life <= 0) {
+					particles.fadedParticles++;
+					delete[] particle.positions;
+				}
 				particle.motion.position.x -= particle.motion.velocity.y * (rand() % 17) * 0.3f;
 				particle.motion.position.y -= particle.motion.velocity.x * (rand() % 17) * 0.3f;
 				particle.Color.a -= 0.05f * 0.01f;
@@ -750,14 +758,43 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				if (particle.motion.angle >= (2 * M_PI)) {
 					particle.motion.angle = 0;
 				}
+				particles.positions[i * 3 + 0] = particle.motion.position.x;
+				particles.positions[i * 3 + 1] = particle.motion.position.y;
+				particles.positions[i * 3 + 2] = particle.Life / particles.Life;
+				// deathParticles.positions[i * 3 + 3] = particle.Life;
+				// }
 			}
-			else {
-				deathParticles.fadedParticles++;
+			if (particles.fadedParticles == NUM_DEATH_PARTICLES) {
+				delete[] particles.positions;
+				particles.faded = true;
+				registry.Particles.remove(entity);
+				registry.remove_all_components_of(entity);	// added back in, kinda works
 			}
 		}
-		if (deathParticles.fadedParticles >= NUM_DEATH_PARTICLES) {
-			registry.deathParticles.remove(entity);
-			registry.remove_all_components_of(entity);	// added back in, kinda works
+		else {
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			auto maybeUpdateHealth = sk->updateParticleBeam(entity, elapsed_ms_since_last_update, (float)w, (float)h);
+			if (maybeUpdateHealth.second == true) {
+				// printf("life reached below 50%\n");
+			}
+			if (maybeUpdateHealth.first && !maybeUpdateHealth.second) {
+				for (Entity entity : registry.companions.entities) {
+					Statistics& stat = registry.stats.get(entity);
+					stat.health -= 0.0001;
+					// printf("inside\n");
+					if (stat.health > 0) {
+						// update_healthBars();
+						Companion& companion = registry.companions.get(entity);
+						Entity healthbar = companion.healthbar;
+						Motion& motion = registry.motions.get(healthbar);
+						motion.scale = vec2({ (HEALTHBAR_WIDTH * (stat.health / 100.f)), HEALTHBAR_HEIGHT });
+					}
+				}
+			}
+			//else {
+			//	printf("outside\n");
+			//}
 		}
 	}
 
@@ -879,10 +916,10 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	// Layer 1 (Last layer in background)
 	createBackgroundLayerOne(renderer, { w / 2, h / 2 });
-	// Layer 2
-	createBackgroundLayerTwo(renderer, { w / 2, h / 2 });
 	// Layer 3
 	createBackgroundLayerThree(renderer, { w / 2, h / 2 });
+	// Layer 2
+	createBackgroundLayerTwo(renderer, { w / 2, h / 2 });
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
@@ -892,10 +929,19 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Create a player mage
 	player_mage = createPlayerMage(renderer, { 150, 550 });
 	// Create a player swordsman
+	// player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
+	// Create an enemy mage
+	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
+	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+
+	createBackgroundObject(renderer, { 1160, 315 });
+	auto ent = createBackgroundObject(renderer, { 420, 225 });
+	registry.backgroundObjects.get(ent).deformType2 = true;
+
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
 	//// Create an enemy mage
-	//enemy_mage = createEnemyMage(renderer, { 1050, 700 });
-	//registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
+	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
 	// Create the first tutorial box
 	//tutorial_enabled = 1;
@@ -905,7 +951,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
 	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
-	
+
 	if (gameLevel > 1) {
 		// Create an enemy swordsman
 		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
@@ -1026,10 +1072,12 @@ void WorldSystem::update_healthBars() {
 
 void WorldSystem::activate_deathParticles(Entity entity)
 {
-	DeathParticle particleEffects;
-	for (int p = 0; p <= NUM_DEATH_PARTICLES; p++) {
+	Particle particleEffects;
+	particleEffects.motion.scale = vec2(10.f, 10.f);
+	
+	for (int p = 0; p < NUM_DEATH_PARTICLES; p++) {
 		auto& motion = registry.motions.get(entity);
-		DeathParticle particle;
+		Particle particle;
 		float random1 = ((rand() % 100) - 50) / 10.0f;
 		float random2 = ((rand() % 200) - 100) / 10.0f;
 		float rColor = 0.5f + ((rand() % 100) / 100.0f);
@@ -1040,9 +1088,13 @@ void WorldSystem::activate_deathParticles(Entity entity)
 		particle.motion.velocity *= 0.1f;
 		particle.motion.scale = vec2({ 10, 10 });
 		particleEffects.deathParticles.push_back(particle);
+		particleEffects.positions[p * 3 + 0] = particle.motion.position.x;
+		particleEffects.positions[p * 3 + 1] = particle.motion.position.y;
+		particleEffects.positions[p * 3 + 2] = particle.Life/ particleEffects.Life;
+		// particleEffects.positions[p * 4 + 3] = particle.Life;
 	}
-	if (!registry.deathParticles.has(entity)) {
-		registry.deathParticles.insert(entity, particleEffects);
+	if (!registry.Particles.has(entity)) {
+		registry.Particles.insert(entity, particleEffects);
 	}
 }
 
@@ -1089,8 +1141,6 @@ void WorldSystem::handle_collisions() {
 					}
 				}
 			}
-			// create death particles. Register for rendering.
-
 			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
 			{
 				// get rid of dead entity's healthbar.
@@ -1113,7 +1163,6 @@ void WorldSystem::handle_collisions() {
 		if (registry.enemies.has(entity)) {
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
-
 				Damage& projDamage = registry.damages.get(entity_other);
 				if (projDamage.isFriendly == 1) {	// check if isFriendly = 1 which hits enemy
 					// initiate death unless already dying
@@ -1144,8 +1193,6 @@ void WorldSystem::handle_collisions() {
 					}
 				}
 			}
-
-			// create death particles. Register for rendering.
 			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
 			{
 				// get rid of dead entity's healthbar.
@@ -1161,6 +1208,28 @@ void WorldSystem::handle_collisions() {
 					printf("Enemy is dead\n");
 					Enemy& enemy = registry.enemies.get(entity);
 					enemy.curr_anim_type = DEAD;
+				}
+			}
+		}
+		// handle collisions with background objects
+		if (registry.backgroundObjects.has(entity) && registry.projectiles.has(entity_other)) {
+			auto& backgroundObj = registry.backgroundObjects.get(entity);
+			backgroundObj.shouldDeform = true;
+			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
+			registry.remove_all_components_of(entity_other);
+			//enemy turn start
+			if (player_turn == 0) {
+				if (!registry.checkRoundTimer.has(currPlayer)) {
+					displayEnemyTurn();
+					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+						ai->callTree(currPlayer);
+					}
+					else {
+						if (roundVec.empty()) {
+							printf("roundVec is empty at enemy turn, createRound now \n");
+							createRound();
+						}
+					}
 				}
 			}
 		}
@@ -1244,6 +1313,19 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = true;
 	}
 
+	// testing particle beam
+	if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
+		if (!registry.Particles.has(necromancer_phase_two)) {
+			sk->startParticleBeamAttack(necromancer_phase_two);
+		}
+	}
+
+	// testing deformation of mesh. NOTE: render_system also needs to be updated
+	// to use this
+	/*if (key == GLFW_KEY_Q && action == GLFW_RELEASE) {
+		renderer->shouldDeform = 1;
+	}*/
+
 	// Volume control (z = Decrease BGM vol., x = Increase BGM vol., c = Decrease effects vol., v = Increase effects vol.)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_Z) {
 		Mix_VolumeMusic(Mix_VolumeMusic(-1) - MIX_MAX_VOLUME / 10);
@@ -1275,7 +1357,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);		
+		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
@@ -1283,9 +1365,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
-
-
-
 	// For start menu and pause menu click detection
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {

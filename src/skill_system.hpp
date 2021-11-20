@@ -49,6 +49,7 @@ public:
 	void startLightningAttack(Entity origin, Entity target);
 	void startHealAttack(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target);
+	void startParticleBeamAttack(Entity origin);
 	void startSummonAttack(Entity origin);
 
 	// launch skills
@@ -59,11 +60,14 @@ public:
 	void launchTaunt(Entity target, RenderSystem* renderer);
 	void launchHeal(Entity target, float amount, RenderSystem* renderer);
 	void launchMelee(Entity target, RenderSystem* renderer);
+
 	void launchSilence(Entity target, RenderSystem* renderer);
 	void launchSummon(RenderSystem* renderer);
 	void luanchCompanionTeamHeal(float amount, RenderSystem* renderer);
 	void luanchEnemyTeamDamage(float amount, RenderSystem* renderer);
-	
+
+	std::pair<bool, bool> updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float width, float height);
+
 	void removeTaunt(Entity target);
 	void removeSilence(Entity target);
 	

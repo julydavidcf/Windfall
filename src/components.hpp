@@ -52,6 +52,12 @@ struct UIButton {
 	int button_type = 0;
 };
 
+struct BackgroundObj
+{
+	bool shouldDeform;
+	bool deformType2;
+};
+
 // Health bar entity
 struct HealthBar
 {
@@ -273,16 +279,22 @@ struct TurnIndicator
 };
 
 // Particles emitted during death
-struct DeathParticle
+struct Particle
 {
 	Motion motion;
 	glm::vec4 Color;
 	float     Life;
-	std::vector<DeathParticle> deathParticles;
+	std::vector<Particle> deathParticles;
 	int fadedParticles = 0;
+	// float positions[2000 * 3];
+	float* positions = new float[4000 * 3];
+	bool faded;
+	float angle;
+	// particles can death particles or aoe particles
+	bool areTypeDeath;
 
-	DeathParticle()
-		: Color(1.0f), Life(1500.f) {
+	Particle()
+		: Color(1.0f), Life(1500.f), faded(false), angle(0.), areTypeDeath(true) {
 		motion.velocity.x = (float)((rand() % 50 - 10) * 5);
 		motion.velocity.y = (float)((rand() % 50 - 10) * 5);
 	}
@@ -423,7 +435,8 @@ enum class TEXTURE_ASSET_ID {
 	TAUNTTOOLTIP = MELEETOOLTIP + 1,
 	HEALTOOLTIP = TAUNTTOOLTIP + 1,
 	// --------------------------
-	TEXTURE_COUNT = HEALTOOLTIP + 1
+	RED_PARTICLE = HEALTOOLTIP + 1,
+	TEXTURE_COUNT = RED_PARTICLE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -433,7 +446,8 @@ enum class EFFECT_ASSET_ID {
 	TEXTURED = PEBBLE + 1,
 	WATER = TEXTURED + 1,
 	PARTICLE = WATER + 1,
-	EFFECT_COUNT = PARTICLE + 1
+	BACKGROUND_OBJ = PARTICLE + 1,
+	EFFECT_COUNT = BACKGROUND_OBJ + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
@@ -470,7 +484,8 @@ enum class GEOMETRY_BUFFER_ID {
 	// --------------------------
 	BACKGROUND = NECRO_MINION_DEATH + 1,
 
-	GEOMETRY_COUNT = BACKGROUND + 1
+	BACKGROUND_OBJ = BACKGROUND + 1,
+	GEOMETRY_COUNT = BACKGROUND_OBJ + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

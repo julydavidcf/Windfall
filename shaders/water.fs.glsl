@@ -88,7 +88,7 @@ void main()
     vec3 col2 = col + vec3(fbm(uv, 3., 2.4));
     vec3 col3 = col2 + vec3(fbm(uv, 1., 3.4));
     if (gameLevel == 1) {
-        outPut = vec3(col*0);
+        outPut = vec3(col*0.1);
     }
     if (gameLevel == 2){
         outPut = vec3(col*0.25 * vec3(0.2, 0.4, 1.5));

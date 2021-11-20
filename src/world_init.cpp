@@ -44,7 +44,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
-	motion.angle = 0.f;
+	motion.angle = 0;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { -MAGE_WIDTH, MAGE_HEIGHT };
 
@@ -64,6 +64,33 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::MAGE_IDLE });
 
+	return entity;
+}
+
+Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { -BACKGROUND_OBJ_WIDTH, -BACKGROUND_OBJ_WIDTH };
+
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::BACKGROUND_OBJ,
+			GEOMETRY_BUFFER_ID::BACKGROUND_OBJ });
+
+	registry.backgroundObjects.insert(entity, {});
+	// renderer->enemyMage = entity;
 	return entity;
 }
 
