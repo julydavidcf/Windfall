@@ -302,7 +302,7 @@ void WorldSystem::createRound() {
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// iterate through all enemies to get speed stats
 		Entity& entity = registry.enemies.entities[i];
-
+		printf("here?\n");
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
@@ -320,7 +320,11 @@ void WorldSystem::createRound() {
 		if (registry.ultimate.has(entity)) {	// need to emplace ultimate onto necro2 for countdown when David implements the skill
 			Ultimate* u = &registry.ultimate.get(entity);
 			u->ultiDuration--;
+			printf("MY ULTIDURATION IS %g \n", float(u->ultiDuration));
 			// need to remove the skill when duration <= 0
+			if (u->ultiDuration <= 0) {			// remove silence to add speed stat later if turns <= 0
+				sk->removeUltimate(entity);
+			}
 		}
 		// also decrement shield duration if present
 		if (registry.shield.has(entity)) {	// need to emplace shield onto necro2 for countdown when David implements the skill
@@ -696,6 +700,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						Mix_PlayChannel(5, summon_spell_sound, 0);
 						printf("summon necrominion \n");
 						sk->launchSummon(renderer);
+						break;
+					}
+					case ULTI: {
+						printf("ultimate attack enemy \n");
+						sk->launchParticleBeam(attack.target);
+						break;
+					}
+					case CHARGING: {
+						printf("ultimate charge enemy \n");
+						currentProjectile = sk->launchParticleBeamCharge(attack.target, renderer);
 						break;
 					}
 					default: break;

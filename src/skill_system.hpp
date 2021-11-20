@@ -49,17 +49,20 @@ public:
 	void startLightningAttack(Entity origin, Entity target);
 	void startHealAttack(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target);
-	void startParticleBeamAttack(Entity origin);
 	void startSummonAttack(Entity origin);
+	void startParticleBeamAttack(Entity origin);
+	void startParticleBeamCharge(Entity origin, Entity target);
 
 	// launch skills
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchRock(Entity target, RenderSystem* renderer);
 	Entity launchLightning(Entity target, RenderSystem* renderer);
+	Entity launchParticleBeamCharge(Entity target, RenderSystem* render);
 	void launchTaunt(Entity target, RenderSystem* renderer);
 	void launchHeal(Entity target, float amount, RenderSystem* renderer);
 	void launchMelee(Entity target, RenderSystem* renderer);
+	void launchParticleBeam(Entity target);
 
 	void launchSilence(Entity target, RenderSystem* renderer);
 	void launchSummon(RenderSystem* renderer);
@@ -70,6 +73,7 @@ public:
 
 	void removeTaunt(Entity target);
 	void removeSilence(Entity target);
+	void removeUltimate(Entity target);
 	
 
 	//skill constants

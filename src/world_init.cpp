@@ -727,7 +727,6 @@ Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly)
 	return entity;
 }
 
-
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 {
 	auto entity = Entity();
@@ -810,6 +809,28 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+Entity createParticleBeamCharge(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion, probably can make it rotate/increase scale
+	auto& motion = registry.motions.emplace(entity);
+	position[1] += 100;
+	motion.position = position;
+	motion.scale = vec2({ PARTICLEBEAMCHARGE_WIDTH, PARTICLEBEAMCHARGE_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::PARTICLEBEAMCHARGE,	//https://pngtree.com/freepng/abstract-ring-purple-light-effect_5102994.html
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
 
 Entity createLine(vec2 position, vec2 scale)
 {

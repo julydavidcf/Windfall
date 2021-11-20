@@ -20,6 +20,8 @@ const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 15.f;
 const float SILENCEBUBBLE_WIDTH = 60.f;
 const float SILENCEBUBBLE_HEIGHT = 40.f;
+const float PARTICLEBEAMCHARGE_WIDTH = 700.f;
+const float PARTICLEBEAMCHARGE_HEIGHT = 700.f;
 const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
 const float ARROW_WIDTH = 80.f;
@@ -92,6 +94,8 @@ Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos);
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // create the silence bubble
 Entity createSilenceBubble(RenderSystem* renderer, vec2 position);
+// create the particle beam charge
+Entity createParticleBeamCharge(RenderSystem* renderer, vec2 position);
 // the fireball
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 

@@ -310,54 +310,6 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 	}
 }
 
-void SkillSystem::startParticleBeamAttack(Entity origin) {
-	if (!registry.Particles.has(origin)) {
-		Particle particleEffects;
-		particleEffects.Life = 2500.f;
-		particleEffects.areTypeDeath = false;
-		particleEffects.motion.scale = vec2(9.f, 9.f);
-		for (int p = 0; p < 4000; p++) {
-			auto motion = registry.motions.get(origin);
-			motion.position.y += 150.f;
-			Particle particle;
-			particle.Life = particleEffects.Life;
-			// float random1 = ((rand() % 100) - 50) / 10.0f;
-			// float random2 = ((rand() % 200) - 100) / 10.0f;
-			
-			std::random_device rdx; // obtain a random number from hardware
-			std::mt19937 genX(rdx()); // seed the generator
-			std::uniform_int_distribution<> distrX( (int)motion.position.x - 50, (int)motion.position.x - 40); // define the range
-
-			std::random_device rdy; // obtain a random number from hardware
-			std::mt19937 genY(rdy()); // seed the generator
-			std::uniform_int_distribution<> distrY((int)motion.position.y - 20, (int)motion.position.y + 20); // define the range
-
-
-			float rColor = 0.5f + ((rand() % 100) / 100.0f);
-			// particle.motion.position.x = motion.position.x + random1 + 20.f;
-			// particle.motion.position.y = motion.position.y  + random2 - 40.f;
-			particle.motion.position = vec2(distrX(genX), distrY(genY));
-
-			particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
-			// particle.motion.velocity.x = -100.f;
-
-			std::uniform_int_distribution<> distrVelX(0, 1200); // define the range
-			std::uniform_int_distribution<> distrVelY(-60, 60); // define the range
-			particle.motion.velocity.x = (float) distrVelX(genX);
-			particle.motion.velocity.y = (float) distrVelY(genY);
-			// particle.motion.velocity.y = 0.f;
-			// particle.angle = distrVelY(genY);
-
-			// particle.motion.scale = vec2({ 10, 10 });
-			particleEffects.deathParticles.push_back(particle);
-			particleEffects.positions[p * 3 + 0] = particle.motion.position.x;
-			particleEffects.positions[p * 3 + 1] = particle.motion.position.y;
-			particleEffects.positions[p * 3 + 2] = particle.Life/ particleEffects.Life;
-		}
-		registry.Particles.insert(origin, particleEffects);
-	}
-}
-
 void SkillSystem::startSummonAttack(Entity origin) {
 	printf("Started the summon attack\n");
 	if (registry.enemies.has(origin)) {
@@ -366,6 +318,90 @@ void SkillSystem::startSummonAttack(Entity origin) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = SUMMONING;
 		attack.counter_ms = 1950.f;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+	else if (registry.companions.has(origin)) {
+	}
+}
+
+void SkillSystem::startParticleBeamAttack(Entity origin) {
+	printf("Started the ultimate particle beam attack\n");
+	if (registry.enemies.has(origin)) {
+		Motion motion = registry.motions.get(origin);
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = ULTI;
+		attack.counter_ms = 1000.f;
+
+		if (!registry.Particles.has(origin)) {
+			Particle particleEffects;
+			particleEffects.Life = 2500.f;
+			particleEffects.areTypeDeath = false;
+			particleEffects.motion.scale = vec2(9.f, 9.f);
+			for (int p = 0; p < 4000; p++) {
+				auto motion = registry.motions.get(origin);
+				motion.position.y += 150.f;
+				Particle particle;
+				particle.Life = particleEffects.Life;
+				// float random1 = ((rand() % 100) - 50) / 10.0f;
+				// float random2 = ((rand() % 200) - 100) / 10.0f;
+
+				std::random_device rdx; // obtain a random number from hardware
+				std::mt19937 genX(rdx()); // seed the generator
+				std::uniform_int_distribution<> distrX((int)motion.position.x - 50, (int)motion.position.x - 40); // define the range
+
+				std::random_device rdy; // obtain a random number from hardware
+				std::mt19937 genY(rdy()); // seed the generator
+				std::uniform_int_distribution<> distrY((int)motion.position.y - 20, (int)motion.position.y + 20); // define the range
+
+
+				float rColor = 0.5f + ((rand() % 100) / 100.0f);
+				// particle.motion.position.x = motion.position.x + random1 + 20.f;
+				// particle.motion.position.y = motion.position.y  + random2 - 40.f;
+				particle.motion.position = vec2(distrX(genX), distrY(genY));
+
+				particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+				// particle.motion.velocity.x = -100.f;
+
+				std::uniform_int_distribution<> distrVelX(0, 1200); // define the range
+				std::uniform_int_distribution<> distrVelY(-60, 60); // define the range
+				particle.motion.velocity.x = (float)distrVelX(genX);
+				particle.motion.velocity.y = (float)distrVelY(genY);
+				// particle.motion.velocity.y = 0.f;
+				// particle.angle = distrVelY(genY);
+
+				// particle.motion.scale = vec2({ 10, 10 });
+				particleEffects.deathParticles.push_back(particle);
+				particleEffects.positions[p * 3 + 0] = particle.motion.position.x;
+				particleEffects.positions[p * 3 + 1] = particle.motion.position.y;
+				particleEffects.positions[p * 3 + 2] = particle.Life / particleEffects.Life;
+			}
+			registry.Particles.insert(origin, particleEffects);
+		}
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+	else if (registry.companions.has(origin)) {
+	}
+}
+
+void SkillSystem::startParticleBeamCharge(Entity origin, Entity target) {
+	printf("Started the particle beam charge\n");
+	if (registry.enemies.has(origin)) {
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = CHARGING;
+		attack.target = target;
+		attack.counter_ms = 1000.f;
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
@@ -572,6 +608,20 @@ void SkillSystem::launchSummon(RenderSystem* renderer) {
 	createNecromancerMinion(renderer, { 750, 600 });
 }
 
+void SkillSystem::launchParticleBeam(Entity target) {
+	if (!registry.ultimate.has(target)) {
+		//printf("target is %g \n", float(registry.stats.get(target).speed)); <- this print statement does not work
+		printf("hereeeeeeeeeeee?\n");
+		registry.ultimate.emplace(target);
+		Ultimate* u = &registry.ultimate.get(target);
+		u->ultiDuration = 4;
+	}
+	else {
+		Ultimate* u = &registry.ultimate.get(target);
+		u->ultiDuration = 4;
+	}
+}
+
 std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float w, float h) {
 	std::pair<bool, bool> updateHealthSignals = {false, false};
 	if (registry.Particles.has(origin)) {
@@ -599,7 +649,7 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 					}
 				}
 			}
-			if (particle.Life / particles.Life < 0.70) {
+			if (particle.Life / particles.Life < 0.85) {	// adjust 0.85 to change damage, up the value for lower damage
 				updateHealthSignals.second = true;
 			}
 
@@ -615,4 +665,22 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 		}
 	}
 	return updateHealthSignals;
+}
+
+void SkillSystem::removeUltimate(Entity target) {
+	if (registry.ultimate.has(target)) {
+		registry.ultimate.remove(target);
+		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
+			if (registry.statsindicators.components[j].owner == target) {
+				registry.remove_all_components_of(registry.statsindicators.entities[j]);
+			}
+		}
+	}
+}
+
+Entity SkillSystem::launchParticleBeamCharge(Entity target, RenderSystem* renderer) {
+	printf("target is %g \n", float(registry.stats.get(target).speed));
+	vec2 targetp = registry.motions.get(target).position;
+	Entity resultEntity = createParticleBeamCharge(renderer, { targetp.x, targetp.y});
+	return  resultEntity;
 }
