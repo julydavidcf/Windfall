@@ -1621,7 +1621,7 @@ BTState BTCastParticleBeamAttack::process(Entity e) {
 	printf("Cast Particle Beam Attack \n\n");
 	SkillSystem sk;	// FOR TESTING TO REMOVE
 	// sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
-	sk.startParticleBeamAttack(e);
+	sk.startParticleBeamAttack(e, currPlayer);
 	// registry.ultimate.emplace(e);
 	// return progress
 	return BTState::Success;

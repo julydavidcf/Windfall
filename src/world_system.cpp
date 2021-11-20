@@ -93,6 +93,12 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(ice_spell_sound);
 	if (summon_spell_sound != nullptr)
 		Mix_FreeChunk(summon_spell_sound);
+	if (charge_spell_sound != nullptr)
+		Mix_FreeChunk(charge_spell_sound);
+	if (beam_spell_sound != nullptr)
+		Mix_FreeChunk(beam_spell_sound);
+	if (minion_spawn_sound != nullptr)
+		Mix_FreeChunk(minion_spawn_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -181,6 +187,9 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
 	ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
 	summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
+	charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str()); //https://freesound.org/people/18hiltc/sounds/186048/
+	beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str()); //https://freesound.org/people/MATRIXXX_/sounds/403297/
+	minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str()); //https://freesound.org/people/Breviceps/sounds/453391/
 
 	if (background_music == nullptr
 		|| salmon_dead_sound == nullptr
@@ -196,7 +205,10 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| silence_spell_sound == nullptr
 		|| lightning_spell_sound == nullptr
 		|| ice_spell_sound == nullptr
-		|| summon_spell_sound == nullptr) {
+		|| summon_spell_sound == nullptr
+		|| charge_spell_sound == nullptr
+		|| beam_spell_sound == nullptr
+		|| minion_spawn_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -212,7 +224,11 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("silence_spell.wav").c_str(),
 			audio_path("lightning_spell.wav").c_str(),
 			audio_path("ice_spell.wav").c_str(),
-			audio_path("summon_spell.wav").c_str());
+			audio_path("summon_spell.wav").c_str(),
+			audio_path("charge_spell.wav").c_str(),
+			audio_path("beam_spell.wav").c_str(),
+			audio_path("minion_spawn.wav").c_str()
+			);
 		return nullptr;
 	}
 	return window;
@@ -237,6 +253,9 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	Mix_VolumeChunk(lightning_spell_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(ice_spell_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(summon_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(charge_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(beam_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(minion_spawn_sound, MIX_MAX_VOLUME);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -961,9 +980,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	//tutorial_enabled = 1;
 	//curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
 
-	//necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
-	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
+	necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 
 	if (gameLevel > 1) {
@@ -1328,11 +1347,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// testing particle beam
-	if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
-		if (!registry.Particles.has(necromancer_phase_two)) {
-			sk->startParticleBeamAttack(necromancer_phase_two);
-		}
-	}
+	//if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
+	//	if (!registry.Particles.has(necromancer_phase_two)) {
+	//		sk->startParticleBeamAttack(necromancer_phase_two);
+	//	}
+	//}
 
 	// testing deformation of mesh. NOTE: render_system also needs to be updated
 	// to use this
@@ -1360,6 +1379,9 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(charge_spell_sound, Mix_VolumeChunk(charge_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(beam_spell_sound, Mix_VolumeChunk(beam_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(minion_spawn_sound, Mix_VolumeChunk(minion_spawn_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
 		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
@@ -1374,6 +1396,9 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(charge_spell_sound, Mix_VolumeChunk(charge_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(beam_spell_sound, Mix_VolumeChunk(beam_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(minion_spawn_sound, Mix_VolumeChunk(minion_spawn_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 

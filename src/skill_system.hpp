@@ -31,6 +31,9 @@ public:
 	Mix_Chunk* lightning_spell_sound;
 	Mix_Chunk* ice_spell_sound;
 	Mix_Chunk* summon_spell_sound;
+	Mix_Chunk* charge_spell_sound;
+	Mix_Chunk* beam_spell_sound;
+	Mix_Chunk* minion_spawn_sound;
 
 	//timers
 	const float animation_timer = 500.f;
@@ -50,7 +53,7 @@ public:
 	void startHealAttack(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target);
 	void startSummonAttack(Entity origin);
-	void startParticleBeamAttack(Entity origin);
+	void startParticleBeamAttack(Entity origin, Entity target);
 	void startParticleBeamCharge(Entity origin, Entity target);
 
 	// launch skills

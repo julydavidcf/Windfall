@@ -328,15 +328,25 @@ void SkillSystem::startSummonAttack(Entity origin) {
 	}
 }
 
-void SkillSystem::startParticleBeamAttack(Entity origin) {
+void SkillSystem::startParticleBeamAttack(Entity origin, Entity target) {
 	printf("Started the ultimate particle beam attack\n");
 	if (registry.enemies.has(origin)) {
+		beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str());
+		if (beam_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(-1, beam_spell_sound, 0);
+		}
+		else {
+			printf("soundEff failed loading");
+		}
+
 		Motion motion = registry.motions.get(origin);
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ULTI;
-		attack.counter_ms = 1000.f;
+		attack.target = target;
+		attack.counter_ms = 2000.f;
 
 		if (!registry.Particles.has(origin)) {
 			Particle particleEffects;
@@ -396,12 +406,21 @@ void SkillSystem::startParticleBeamAttack(Entity origin) {
 void SkillSystem::startParticleBeamCharge(Entity origin, Entity target) {
 	printf("Started the particle beam charge\n");
 	if (registry.enemies.has(origin)) {
+		charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str());
+		if (charge_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(-1, charge_spell_sound, 0);
+		}
+		else {
+			printf("soundEff failed loading");
+		}
+
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = CHARGING;
 		attack.target = target;
-		attack.counter_ms = 1000.f;
+		attack.counter_ms = 3000.f;
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
@@ -605,18 +624,31 @@ void SkillSystem::removeSilence(Entity target) {
 }
 
 void SkillSystem::launchSummon(RenderSystem* renderer) {
+	minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str());
+	if (minion_spawn_sound != nullptr) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(-1, minion_spawn_sound, 0);
+	}
+	else {
+		printf("soundEff failed loading");
+	}
+
 	createNecromancerMinion(renderer, { 750, 600 });
 }
 
 void SkillSystem::launchParticleBeam(Entity target) {
+	for (int i = 0; i < registry.ultimate.components.size(); i++) {
+		Entity e = registry.ultimate.entities[i];
+		if (registry.motions.get(e).scale.x == PARTICLEBEAMCHARGE_WIDTH) {
+			registry.remove_all_components_of(e);
+		}
+	}
 	if (!registry.ultimate.has(target)) {
-		//printf("target is %g \n", float(registry.stats.get(target).speed)); <- this print statement does not work
-		printf("hereeeeeeeeeeee?\n");
 		registry.ultimate.emplace(target);
 		Ultimate* u = &registry.ultimate.get(target);
 		u->ultiDuration = 4;
 	}
-	else {
+	else {		
 		Ultimate* u = &registry.ultimate.get(target);
 		u->ultiDuration = 4;
 	}
@@ -681,6 +713,7 @@ void SkillSystem::removeUltimate(Entity target) {
 Entity SkillSystem::launchParticleBeamCharge(Entity target, RenderSystem* renderer) {
 	printf("target is %g \n", float(registry.stats.get(target).speed));
 	vec2 targetp = registry.motions.get(target).position;
-	Entity resultEntity = createParticleBeamCharge(renderer, { targetp.x, targetp.y});
+	Entity resultEntity = createParticleBeamCharge(renderer, { targetp.x, targetp.y });
+	registry.ultimate.emplace(resultEntity);
 	return  resultEntity;
 }
