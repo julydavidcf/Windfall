@@ -51,6 +51,8 @@ const float LIGHTNING_WIDTH = 300.f;
 const float LIGHTNING_HEIGHT = 450.f;
 const float CHARARROW_WIDTH = 60.f;
 const float CHARARROW_HEIGHT = 40.f;
+const float DOT_WIDTH = 30.f;
+const float DOT_HEIGHT = 30.f;
 
 const float TUTORIAL_BOX_WIDTH = 300.f;
 const float TUTORIAL_BOX_HEIGHT = 190.f;
@@ -110,6 +112,8 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 Entity createBarrier(RenderSystem* renderer, vec2 position);
 
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
+
+Entity createDot(RenderSystem* renderer, vec2 position);
 
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);
