@@ -3,20 +3,21 @@
 #include <random>
 
 
-SkillSystem::SkillSystem() {
+SkillSystem::SkillSystem() { }
 
-
-
-}
-
-SkillSystem::~SkillSystem() {
-
-}
-
-
+SkillSystem::~SkillSystem() { }
 
 void SkillSystem::startTauntAttack(Entity origin, Entity target) {
+	printf("Started the taunt attack\n");
 	if (registry.enemies.has(origin)) {
+		taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());
+		if (taunt_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(-1, taunt_spell_sound, 0);
+		}
+		else {
+			printf("soundEff failed loading");
+		}
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
@@ -31,6 +32,7 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 	else if (registry.companions.has(origin)) {
 		taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());
 		if (taunt_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
 			Mix_PlayChannel(-1, taunt_spell_sound, 0);
 		}
 		else {
@@ -49,8 +51,52 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 	}
 }
 
+void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
+	printf("Started the silence attack\n");
+	if (registry.enemies.has(origin)) {
+		silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());
+		if (silence_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(-1, silence_spell_sound, 0);
+		}
+		else {
+			printf("soundEff failed loading");
+		}
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = SILENCE;
+		attack.target = target;
+		attack.counter_ms = 1100.f;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+	else if (registry.companions.has(origin)) {
+		silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());
+		if (silence_spell_sound != nullptr) {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(-1, silence_spell_sound, 0);
+		}
+		else {
+			printf("soundEff failed loading");
+		}
+		Companion& companion = registry.companions.get(origin);
+		companion.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = SILENCE;
+		attack.target = target;
+		attack.counter_ms = 1500.f;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+}
 
 void SkillSystem::startHealAttack(Entity origin, Entity target) {
+	printf("Started the heal attack\n");
 	//prevPlayer = currPlayer;
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
@@ -105,6 +151,7 @@ void SkillSystem::startIceShardAttack(Entity origin, Entity target) {
 }
 
 void SkillSystem::startFireballAttack(Entity origin) {
+	printf("Started the fireball attack\n");
 	if (registry.enemies.has(origin)) {
 		//TODO
 	}
@@ -123,6 +170,7 @@ void SkillSystem::startFireballAttack(Entity origin) {
 }
 
 void SkillSystem::startRockAttack(Entity origin, Entity target) {
+	printf("Started the rock attack\n");
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -147,8 +195,35 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 	}
 }
 
+void SkillSystem::startLightningAttack(Entity origin, Entity target) {
+	printf("Started the lightning attack\n");
+	if (registry.enemies.has(origin)) {
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = LIGHTNING;
+		attack.target = target;
+		attack.counter_ms = 1100.f;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+	else if (registry.companions.has(origin)) {
+		Companion& companion = registry.companions.get(origin);
+		companion.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = LIGHTNING;
+		attack.target = target;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+}
 
 void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
+	printf("Started the melee attack\n");
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = WALKING;
@@ -182,7 +257,15 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+
+			if (enemy.enemyType == SWORDSMAN) {
+				timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+			}
+			else if (enemy.enemyType == NECROMANCER_MINION) {
+				timer.counter_ms = rt.counter_ms + 800.f + animation_timer;
+			}
+
+
 		}
 
 		//playerUseMelee = 1;
@@ -234,7 +317,8 @@ void SkillSystem::startParticleBeamAttack(Entity origin) {
 		particleEffects.areTypeDeath = false;
 		particleEffects.motion.scale = vec2(9.f, 9.f);
 		for (int p = 0; p < 4000; p++) {
-			auto& motion = registry.motions.get(origin);
+			auto motion = registry.motions.get(origin);
+			motion.position.y += 150.f;
 			Particle particle;
 			particle.Life = particleEffects.Life;
 			// float random1 = ((rand() % 100) - 50) / 10.0f;
@@ -271,6 +355,24 @@ void SkillSystem::startParticleBeamAttack(Entity origin) {
 			particleEffects.positions[p * 3 + 2] = particle.Life/ particleEffects.Life;
 		}
 		registry.Particles.insert(origin, particleEffects);
+	}
+}
+
+void SkillSystem::startSummonAttack(Entity origin) {
+	printf("Started the summon attack\n");
+	if (registry.enemies.has(origin)) {
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = SUMMONING;
+		attack.counter_ms = 1950.f;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+	else if (registry.companions.has(origin)) {
 	}
 }
 
@@ -322,7 +424,35 @@ void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* rendere
 	//update_healthBars();
 }
 
+void SkillSystem::luanchCompanionTeamHeal(float amount, RenderSystem* renderer) {
+	for (Entity cp : registry.companions.entities) {
+		vec2 targetp = registry.motions.get(cp).position;
+		createGreenCross(renderer, targetp);
+		if (registry.stats.has(cp)) {
+			Statistics* tStats = &registry.stats.get(cp);
+			if (tStats->health + amount > tStats->max_health) {
+				tStats->health = tStats->max_health;
+			}
+			else
+			{
+				tStats->health += amount;
+			}
+		}
+	}
 
+}
+
+void SkillSystem::luanchEnemyTeamDamage(float amount, RenderSystem* renderer) {
+	for (Entity cp : registry.enemies.entities) {
+		vec2 targetp = registry.motions.get(cp).position;
+		createGreenCross(renderer, targetp);
+		if (registry.stats.has(cp)) {
+			Statistics* tStats = &registry.stats.get(cp);
+			tStats->health -= amount;
+		}
+	}
+
+}
 
 Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
@@ -360,17 +490,29 @@ Entity SkillSystem::launchRock(Entity target, RenderSystem* renderer) {
 	return  resultEntity;
 }
 
+Entity SkillSystem::launchLightning(Entity target, RenderSystem* renderer) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		isFriendly = 0;
+	}
+	Entity resultEntity = createLightning(renderer, { targetp.x, targetp.y - 350 }, isFriendly);
+	Projectile* proj = &registry.projectiles.get(resultEntity);
+	proj->flyingTimer = 2000.f;
+	return  resultEntity;
+}
+
 void SkillSystem::launchTaunt(Entity target, RenderSystem* renderer) {
 	if (!registry.taunts.has(target)) {
 		registry.taunts.emplace(target);
 		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
+		t->duration = 4;
 		createTauntIndicator(renderer, target);
 		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
 	else {
 		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
+		t->duration = 4;
 		printf("taunt extended!\n");
 	}
 }
@@ -398,6 +540,38 @@ void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
 	}
 }
 
+void SkillSystem::launchSilence(Entity target, RenderSystem* renderer) {
+	if (!registry.silenced.has(target)) {
+		vec2 targetp = registry.motions.get(target).position;
+		createSilenceBubble(renderer, targetp);
+		registry.silenced.emplace(target);
+		Silenced* s = &registry.silenced.get(target);
+		s->turns = 2;	// making it 2 so that it last one more turn when checkRound decrements it on the next turn
+		printf("silenced!!!!!!!!!!!!!!! \n");
+	}
+	else {
+		Silenced* s = &registry.silenced.get(target);
+		s->turns = 2;	// making it 2 so that it last one more turn when checkRound decrements it on the next turn
+		printf("silence extended!\n");
+	}
+}
+
+void SkillSystem::removeSilence(Entity target) {
+	if (registry.silenced.has(target)) {
+		registry.silenced.remove(target);
+		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
+			if (registry.statsindicators.components[j].owner == target) {
+				registry.remove_all_components_of(registry.statsindicators.entities[j]);
+			}
+		}
+		printf("silence removed!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
+}
+
+void SkillSystem::launchSummon(RenderSystem* renderer) {
+	createNecromancerMinion(renderer, { 750, 600 });
+}
+
 std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float w, float h) {
 	std::pair<bool, bool> updateHealthSignals = {false, false};
 	if (registry.Particles.has(origin)) {
@@ -413,7 +587,7 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 			}
 			float step_seconds = 1.0f * (elapsed_ms_since_last_update / 1000.f);
 			particle.motion.position.x -= particle.motion.velocity.x * step_seconds;
-			if (particle.motion.position.x <= w / 1.25) {
+			if (particle.motion.position.x <= w / 1.50) {
 				particle.motion.position.y -= particle.motion.velocity.y * step_seconds * (float)0.8;
 			}
 			if (!updateHealthSignals.first) {
