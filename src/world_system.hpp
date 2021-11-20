@@ -187,6 +187,8 @@ private:
 	Mix_Chunk* beam_spell_sound;
 	Mix_Chunk* minion_spawn_sound;
 	Mix_Chunk* error_sound;
+	Mix_Chunk* gesture_heal_sound;
+	Mix_Chunk* gesture_aoe_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
