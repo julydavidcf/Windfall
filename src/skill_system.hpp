@@ -34,6 +34,7 @@ public:
 	Mix_Chunk* charge_spell_sound;
 	Mix_Chunk* beam_spell_sound;
 	Mix_Chunk* minion_spawn_sound;
+	Mix_Chunk* error_sound;
 
 	//timers
 	const float animation_timer = 500.f;
