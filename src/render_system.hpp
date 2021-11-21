@@ -45,7 +45,9 @@ class RenderSystem {
 			textures_path("enemyTurn.png"),
 			textures_path("arrow.png"),
 			textures_path("rock.png"),
+			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
+			textures_path("charArrow.png"),
 			textures_path("iceShard.png"),
 			textures_path("iceShardIcon.png"),
 			textures_path("iceShardIconSelected.png"),
@@ -64,21 +66,35 @@ class RenderSystem {
 			textures_path("tauntIconSelected.png"),
 			textures_path("tauntIconDisable.png"),
 
-
+			// Animation sheets
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("swordsman_walk.png"),
 			textures_path("swordsman_melee.png"),
 			textures_path("swordsman_taunt.png"),
 			textures_path("swordsman_death.png"),
-			textures_path("necromancer_idle.png"),
+			textures_path("necro_one_idle.png"),
+			textures_path("necro_one_casting.png"),
+			textures_path("necro_one_summoning.png"),
+			textures_path("necro_one_death_one.png"),
+			textures_path("necro_one_death_two.png"),
+			textures_path("necro_two_appear.png"),
+			textures_path("necro_two_idle.png"),
+			textures_path("necro_two_melee.png"),
+			textures_path("necro_two_casting.png"),
+			textures_path("necro_two_death.png"),
+			textures_path("necro_minion_appear.png"),
+			textures_path("necro_minion_idle.png"),
+			textures_path("necro_minion_walk.png"),
+			textures_path("necro_minion_melee.png"),
+			textures_path("necro_minion_death.png"),
+
+			// Background layers
 			textures_path("backgroundLayerOne.png"),
 			textures_path("backgroundLayerTwo.png"),
 			textures_path("backgroundLayerThree.png"),
 			textures_path("backgroundLayerFour.png"),
 
-<<<<<<< remotes/origin/alice
-=======
 			// Tutorial text boxes
 			textures_path("tutorial_one.png"),
 			textures_path("tutorial_two.png"),
@@ -102,7 +118,6 @@ class RenderSystem {
 			textures_path("close_menu.png"),
 			textures_path("empty_image.png"),
 
->>>>>>> local
 			//tootips
 			textures_path("fireBallToolTip.png"),
 			textures_path("iceShardToolTip.png"),
@@ -111,15 +126,6 @@ class RenderSystem {
 			textures_path("tauntToolTip.png"),
 			textures_path("healToolTip.png"),
 
-<<<<<<< remotes/origin/alice
-			// restart
-			textures_path("restartIndicator.png"),
-
-			// indicators
-			textures_path("Victory.png"),
-			textures_path("Defeated.png"),
-			textures_path("loadingToLevelTwo.png")
-=======
 			//storytelling background
 			textures_path("battle.jpg"),
 			textures_path("battleSub.jpg"),
@@ -138,7 +144,6 @@ class RenderSystem {
 			textures_path("levelOneDialogueTwo.png"),
 			textures_path("levelOneDialogueThree.png")
 			
->>>>>>> local
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -165,6 +170,23 @@ class RenderSystem {
 	float SWORDSMAN_WALK_FRAME_TIME = 100;
 	float SWORDSMAN_TAUNT_FRAME_TIME = 90;
 	float SWORDSMAN_DEATH_FRAME_TIME = 80;
+
+	float NECRO_ONE_IDLE_FRAME_TIME = 200;
+	float NECRO_ONE_CASTING_FRAME_TIME = 241.666666667;
+	float NECRO_ONE_SUMMONING_FRAME_TIME = 550;
+	float NECRO_ONE_DEATH_FRAME_TIME = 100;
+
+	float NECRO_TWO_APPEAR_FRAME_TIME = 250;
+	float NECRO_TWO_IDLE_FRAME_TIME = 200;
+	float NECRO_TWO_MELEE_FRAME_TIME = 200;
+	float NECRO_TWO_CASTING_FRAME_TIME = 200;
+	float NECRO_TWO_DEATH_FRAME_TIME = 250;
+
+	float NECRO_MINION_APPEAR_FRAME_TIME = 220;
+	float NECRO_MINION_IDLE_FRAME_TIME = 300;
+	float NECRO_MINION_WALK_FRAME_TIME = 100;
+	float NECRO_MINION_MELEE_FRAME_TIME = 75;
+	float NECRO_MINION_DEATH_FRAME_TIME = 200;
 
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
@@ -201,13 +223,57 @@ class RenderSystem {
 	const int SWORDSMAN_DEATH_FRAMES = 40;
 	const GLfloat SWORDSMAN_DEATH_FRAME_WIDTH = 0.025;
 
-	// Necromancer frame stats
-	const int NECROMANCER_IDLE_FRAMES = 4;
-	const GLfloat NECROMANCER_IDLE_FRAME_WIDTH = 0.25;
+	// Necromancer phase 1 frame stats
+	const int NECRO_ONE_IDLE_FRAMES = 4;
+	const GLfloat NECRO_ONE_IDLE_FRAME_WIDTH = 0.25;
+
+	const int NECRO_ONE_CASTING_FRAMES = 6;
+	const GLfloat NECRO_ONE_CASTING_FRAME_WIDTH = 0.16666666666;
+
+	const int NECRO_ONE_SUMMONING_FRAMES = 4;
+	const GLfloat NECRO_ONE_SUMMONING_FRAME_WIDTH = 0.25;
+
+	const int NECRO_ONE_DEATH_ONE_FRAMES = 10;
+	const GLfloat NECRO_ONE_DEATH_ONE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_ONE_DEATH_TWO_FRAMES = 10;
+	const GLfloat NECRO_ONE_DEATH_TWO_FRAME_WIDTH = 0.10;
+
+	// Necromancer phase 2 frame stats
+	const int NECRO_TWO_APPEAR_FRAMES = 6;
+	const GLfloat NECRO_TWO_APPEAR_FRAME_WIDTH = 0.16666666666;
+
+	const int NECRO_TWO_IDLE_FRAMES = 8;
+	const GLfloat NECRO_TWO_IDLE_FRAME_WIDTH = 0.125;
+
+	const int NECRO_TWO_MELEE_FRAMES = 10;
+	const GLfloat NECRO_TWO_MELEE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_TWO_CASTING_FRAMES = 8;
+	const GLfloat NECRO_TWO_CASTING_FRAME_WIDTH = 0.125;
+
+	const int NECRO_TWO_DEATH_FRAMES = 7;
+	const GLfloat NECRO_TWO_DEATH_FRAME_WIDTH = 0.14285714285;
+
+	// Necromancer minion frame stats
+	const int NECRO_MINION_APPEAR_FRAMES = 10;
+	const GLfloat NECRO_MINION_APPEAR_FRAME_WIDTH = 0.10;
+
+	const int NECRO_MINION_IDLE_FRAMES = 5;
+	const GLfloat NECRO_MINION_IDLE_FRAME_WIDTH = 0.2;
+
+	const int NECRO_MINION_WALK_FRAMES = 8;
+	const GLfloat NECRO_MINION_WALK_FRAME_WIDTH = 0.125;
+
+	const int NECRO_MINION_MELEE_FRAMES = 10;
+	const GLfloat NECRO_MINION_MELEE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_MINION_DEATH_FRAMES = 10;
+	const GLfloat NECRO_MINION_DEATH_FRAME_WIDTH = 0.10;
 
 	// Camera/scrolling constants
-	float CAMERA_OFFSET_LEFT = 500;
-	float CAMERA_OFFSET_TOP = 500;
+	float CAMERA_OFFSET_LEFT = 400;
+	float CAMERA_OFFSET_TOP = 400;
 	float CAMERA_OFFSET_RIGHT = 400;
 	float CAMERA_OFFSET_BOTTOM = 200;
 

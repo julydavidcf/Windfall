@@ -11,7 +11,9 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+#include "ai_system.hpp"
 #include "render_system.hpp"
+#include "skill_system.hpp"
 
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
@@ -24,7 +26,10 @@ public:
 	GLFWwindow* create_window(int width, int height);
 
 	// starts the game
-	void init(RenderSystem* renderer);
+	void init(RenderSystem* renderer, AISystem* ai_arg, SkillSystem* skill_arg);
+
+	// Displays the start screen and buttons
+	void render_startscreen();
 
 	// display player turn
 	void displayPlayerTurn();
@@ -32,23 +37,16 @@ public:
 	// display enemy turn
 	void displayEnemyTurn();
 
-	// display indicator
-	void displayIndicator(std::string type);
-
 	// create attacks
 	void iceShardAttack(Entity currPlayer);
-	void rockAttack(Entity target);
-	void healSkill(Entity target, float amount);
-	void meleeSkill(Entity target);
-	void tauntSkill(Entity target);
 
 	//Prep skill Function
-	void startTauntAttack(Entity origin, Entity target);
-	void startIceShardAttack(Entity origin, Entity target);
-	void startFireballAttack(Entity origin);
-	void startRockAttack(Entity origin, Entity target);
-	void startHealAttack(Entity origin, Entity target);
-	void startMeleeAttack(Entity origin, Entity target);
+	//void startTauntAttack(Entity origin, Entity target);
+	//void startIceShardAttack(Entity origin, Entity target);
+	//void startFireballAttack(Entity origin);
+	//void startRockAttack(Entity origin, Entity target);
+	//void startHealAttack(Entity origin, Entity target);
+	//void startMeleeAttack(Entity origin, Entity target);
 
 	// creates a round
 	void createRound();
@@ -70,21 +68,19 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
+
 	int player_turn;
 
-<<<<<<< remotes/origin/alice
-=======
 	// IMPORTANT: Determines if systems can call step()
 	int canStep = 0;
 	int closeWindow = 0;
 	int story = 0;
 
->>>>>>> local
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
-	// handel mouse click
+	// handle mouse click
 	void on_mouse_button( int button,int action, int mods);
 
 	// check if mouse in button
@@ -124,15 +120,8 @@ private:
 	void activate_deathParticles(Entity entity);
 
 	//Skills Function
-	Entity launchIceShard(vec2 startPos, vec2 ms_pos);
-	Entity launchFireball(vec2 startPos, vec2 ms_pos);
-	Entity launchRock(Entity target);
-	void launchMelee(Entity origin, Entity target);
-	void launchTaunt(Entity target);
 	void removeTaunt(Entity target);
-	void healTarget(Entity target, float amount);
-	void damageTarget(Entity target, float amount);
-
+	void removeSilence(Entity target);
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
 
@@ -141,17 +130,22 @@ private:
 
 	// Game state
 	RenderSystem* renderer;
+	AISystem* ai;
+	SkillSystem* sk;
+
 	float current_speed;
 	Entity player_mage;
 	Entity enemy_mage;
 	Entity player_swordsman;
 	Entity enemy_swordsman;
-	Entity necromancer;
+
+	Entity necromancer_phase_one;
+	Entity necromancer_phase_two;
+	Entity necromancer_minion;
 
 	Entity fireball;
-	Entity fireball_icon;
+	//Entity fireball_icon;
 	Entity silence_icon;
-
 	Entity iceShard;
 
 	//icons
@@ -162,12 +156,7 @@ private:
 	Entity heal_icon;
 	Entity rock_icon;
 	Entity tooltip;
-	Entity restartIC;
-	Entity indicator;
 
-<<<<<<< remotes/origin/alice
-	// music references
-=======
 	Entity curr_tutorial_box;
 	int curr_tutorial_box_num = 0;
 	int tutorial_icon_selected = 1;
@@ -187,7 +176,6 @@ private:
 	Entity dialogue;
 
 	// Music References
->>>>>>> local
 	Mix_Music* background_music;
 	Mix_Chunk* salmon_dead_sound;
 	Mix_Chunk* salmon_eat_sound;
@@ -199,15 +187,12 @@ private:
 	Mix_Chunk* heal_spell_sound;
 	Mix_Chunk* taunt_spell_sound;
 	Mix_Chunk* melee_spell_sound;
-<<<<<<< remotes/origin/alice
-=======
 	Mix_Chunk* silence_spell_sound;
 	Mix_Chunk* lightning_spell_sound;
 	Mix_Chunk* ice_spell_sound;
 	Mix_Chunk* summon_spell_sound;
 	Mix_Chunk* button_hover_sound;
 	Mix_Chunk* turning_sound;
->>>>>>> local
 
 	// C++ random number generator
 	std::default_random_engine rng;
@@ -218,7 +203,7 @@ private:
 	float CAM_OFFSET_YMAX = 0.2;
 
 	//skill constants
-	float FIREBALLSPEED = 700.f;
+	float FIREBALLSPEED = 900.f;
 	float ARROWSPEED = 700.f;
 	float ICESHARDSPEED = 100.f;
 
@@ -232,8 +217,6 @@ private:
 //swordsman
 		{ false, false, false, false, true, true}
 	};
-
-
 };
 // Can't use diretly somehow so just for reference
 enum class SKILL_ID {
@@ -243,8 +226,5 @@ enum class SKILL_ID {
 	SK_HEAL = SK_ROCK + 1, //3
 	SK_TAUNT = SK_HEAL+1,//4
 	SK_MELEE = SK_TAUNT +1,//5
-
-
-
 	SKILL_COUNT = SK_MELEE + 1,
 };

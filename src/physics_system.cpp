@@ -27,7 +27,7 @@ vec2 PhysicsSystem::get_custom_bounding_box(Entity entity)
 			return { abs(motion.scale.x), abs(motion.scale.y)/1.5 };
 		} else if(type==SWORDSMAN){
 			return { abs(motion.scale.x)/2, 4*(abs(motion.scale.y)/5) };
-		} else if(type==NECROMANCER){
+		} else if(type== NECROMANCER_ONE){
 			return { 12*(abs(motion.scale.x)/10), 13*(abs(motion.scale.y)/10) };
 		} else{
 			return { abs(motion.scale.x), abs(motion.scale.y) };
@@ -59,7 +59,7 @@ vec2 PhysicsSystem::get_custom_position(Entity entity)
 			float offset_y = motion.scale.y/5;
 			float offset_x = motion.scale.x/12;
 			return {motion.position.x-offset_x, motion.position.y+offset_y};
-		} else if(type==NECROMANCER){
+		} else if(type==NECROMANCER_ONE){
 			return motion.position;
 		} else{
 			return motion.position;
@@ -94,6 +94,8 @@ bool collides(const Entity entity_i, const Entity entity_j)
 
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
 {
+
+
 	auto& motion_registry = registry.motions;
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{
@@ -144,6 +146,14 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 			Motion motion_o = registry.motions.get(statsid_container.components[i].owner);
 			motion_i->position.x = motion_o.position.x + 20;
 			motion_i->position.y = motion_o.position.y - 50;
+
+			//lower it for mage 
+			if (registry.enemies.has(statsid_container.components[i].owner) && registry.enemies.get(statsid_container.components[i].owner).enemyType == MAGE) {
+				motion_i->position.y += 30;
+			}
+			if (registry.companions.has(statsid_container.components[i].owner) && registry.companions.get(statsid_container.components[i].owner).companionType == MAGE) {
+				motion_i->position.y += 30;
+			}
 		}
 	}
 
@@ -160,6 +170,16 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 
 			Motion& motion_j = motion_container.components[j];
 			Entity entity_j = motion_container.entities[j];
+
+			// Handle charIndicator following the character here
+			if (registry.charIndicator.has(entity_i) && registry.charIndicator.get(entity_i).owner == entity_j) {
+				motion_i.position = vec2(motion_j.position.x, motion_i.position.y);
+			}
+			else if (registry.charIndicator.has(entity_j) && registry.charIndicator.get(entity_j).owner == entity_i) {
+				motion_j.position = vec2(motion_i.position.x, motion_j.position.y);
+			}
+
+
 			//if (collides(motion_i, motion_j))
 			if(collides(entity_i, entity_j))
 			{
@@ -227,7 +247,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				}
 			}
 
-			float line_thickness = 1.5f;
+			float line_thickness = 3.f;
 
 			vec2 line1_pos = {(max_x+min_x)/2, min_y};
 			vec2 line2_pos = {(max_x+min_x)/2, max_y};

@@ -344,21 +344,12 @@ void RenderSystem::draw(float elapsed_ms)
 
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
-		// Handle camera focus on projectiles and swordsman melee
-		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0) {
-			Motion& motion = registry.motions.get(entity);
-			projectionMat = createCameraProjection(motion);
-
-			if (registry.damages.has(entity) && registry.damages.get(entity).isFriendly) {
-				hasTravellingProjectile = 1;
-			}
-			else if (registry.damages.has(entity) && !registry.damages.get(entity).isFriendly) {
-				hasTravellingProjectile = 2;
-			}
-		}
-		else if (registry.runners.has(entity) 
-			|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
-			|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+		// Handle camera focus only on swordsman melee
+		if (registry.runners.has(entity) 
+			|| (registry.companions.has(entity) && registry.companions.get(entity).companionType == SWORDSMAN && registry.companions.get(entity).curr_anim_type == ATTACKING)
+			|| (registry.enemies.has(entity) 
+				&& (registry.enemies.get(entity).enemyType == SWORDSMAN || registry.enemies.get(entity).enemyType == NECROMANCER_MINION)
+				&& registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
 			Motion& motion = registry.motions.get(entity);
 
 			if (registry.companions.has(entity)) {
@@ -505,16 +496,179 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						break;
 				}
-				case NECROMANCER: {
+				case NECROMANCER_ONE: {
 					switch (animType) {
-						case IDLE: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAME_WIDTH; break;
-						case ATTACKING: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
-						case DEAD: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
+						case IDLE: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_ONE_IDLE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE;
+							numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAME_WIDTH; timePerFrame = NECRO_ONE_IDLE_FRAME_TIME; break;
+						}
+						case ATTACKING: {
+							switch (registry.attackers.get(entity).attack_type) {
+								case SUMMONING: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
+										*currFrame = 0;
+									}	
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
+									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME; break;
+								}
+								default: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING;
+									numFrames = NECRO_ONE_CASTING_FRAMES; frame_width = NECRO_ONE_CASTING_FRAME_WIDTH; timePerFrame = NECRO_ONE_CASTING_FRAME_TIME; break;
+								}
+							}
+							break;
+						}
+						case DEAD: {
+							// Starting to die
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE && currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO) {
+								*currFrame = 0;
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_ONE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE;
+								numFrames = NECRO_ONE_DEATH_ONE_FRAMES; frame_width = NECRO_ONE_DEATH_ONE_FRAME_WIDTH;
+							}
+							else if (currGeometry == GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_ONE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE;
+								numFrames = NECRO_ONE_DEATH_ONE_FRAMES; frame_width = NECRO_ONE_DEATH_ONE_FRAME_WIDTH;
+
+								// Half-dead, switch to second death anim
+								if (*currFrame == NECRO_ONE_DEATH_ONE_FRAMES - 1) {
+									*currFrame = 0;
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_TWO;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO;
+									numFrames = NECRO_ONE_DEATH_TWO_FRAMES; frame_width = NECRO_ONE_DEATH_TWO_FRAME_WIDTH;
+								}
+							}
+							else if (currGeometry == GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_TWO;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO;
+								numFrames = NECRO_ONE_DEATH_TWO_FRAMES; frame_width = NECRO_ONE_DEATH_TWO_FRAME_WIDTH;
+							}
+							timePerFrame = NECRO_ONE_DEATH_FRAME_TIME; break;
+						}
 						default: break;
 					}
 					break;
 				}
-					// TODO: Implement healer, archer, necromancer cases later
+				case NECROMANCER_TWO: {
+					switch (animType) {
+						case APPEARING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_APPEAR) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_TWO_APPEAR;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_APPEAR;
+							numFrames = NECRO_TWO_APPEAR_FRAMES; frame_width = NECRO_TWO_APPEAR_FRAME_WIDTH; timePerFrame = NECRO_TWO_APPEAR_FRAME_TIME; break;
+						}
+						case IDLE: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_TWO_IDLE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE;
+							numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAME_WIDTH; timePerFrame = NECRO_TWO_IDLE_FRAME_TIME; break;
+						}
+						case ATTACKING: {
+							switch (registry.attackers.get(entity).attack_type) {
+								case MELEE: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+									*currFrame = 0;
+								}
+								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
+								}
+								case ICESHARD: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
+									numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
+								}
+								// Todo: Add more spell cases later
+								default: break;
+							}
+							break;
+						}
+						case DEAD: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_TWO_DEATH;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH;
+							numFrames = NECRO_TWO_DEATH_FRAMES; frame_width = NECRO_TWO_DEATH_FRAME_WIDTH; timePerFrame = NECRO_TWO_DEATH_FRAME_TIME; break;
+						}
+						default: break;
+						}
+					break;
+				}
+				case NECROMANCER_MINION: {
+					switch (animType) {
+						case APPEARING: {
+							// Finished appearing, switch to idle anim
+							if (*currFrame == NECRO_MINION_APPEAR_FRAMES - 1) {
+								*currFrame = 0;
+								// Change state here
+								registry.enemies.get(entity).curr_anim_type = IDLE;
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_IDLE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE;
+								numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME;
+							}
+							else {
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_APPEAR;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_APPEAR;
+								numFrames = NECRO_MINION_APPEAR_FRAMES; frame_width = NECRO_MINION_APPEAR_FRAME_WIDTH; timePerFrame = NECRO_MINION_APPEAR_FRAME_TIME;
+							}
+							break;
+							
+						}
+						case IDLE: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_MINION_IDLE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE;
+							numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME; break;
+						}
+						case ATTACKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_MELEE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_MINION_MELEE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_MELEE;
+							numFrames = NECRO_MINION_MELEE_FRAMES; frame_width = NECRO_MINION_MELEE_FRAME_WIDTH; timePerFrame = NECRO_MINION_MELEE_FRAME_TIME; break;
+						}
+						case WALKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_WALK) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_WALK;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_WALK;
+								*currFrame = 0;
+							}
+							numFrames = NECRO_MINION_WALK_FRAMES; frame_width = NECRO_MINION_WALK_FRAME_WIDTH; timePerFrame = NECRO_MINION_WALK_FRAME_TIME; break;
+						}
+						case DEAD: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_DEATH) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_DEATH;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_DEATH;
+								*currFrame = 0;
+							}
+							numFrames = NECRO_MINION_DEATH_FRAMES; frame_width = NECRO_MINION_DEATH_FRAME_WIDTH; timePerFrame = NECRO_MINION_DEATH_FRAME_TIME; break;
+						}
+						default: break;
+					}
+					break;
+				}
+					// TODO: Implement healer, archer later
 				default: break;
 			}
 
@@ -564,7 +718,7 @@ void RenderSystem::draw(float elapsed_ms)
 
 			}
 			// UI-related entities should remain in constant position on screen
-			/*if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;*/
+			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity) || registry.uiButtons.has(entity)) projectionToUse = projection_2D;
 
 			if (registry.enemies.has(entity)) {
 				deferredRenderingEntities.emplace(registry.enemies.get(entity).healthbar, entity);

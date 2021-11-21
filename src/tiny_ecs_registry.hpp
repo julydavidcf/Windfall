@@ -38,14 +38,9 @@ public:
 	ComponentContainer<StatIndicator> statsindicators;
 	ComponentContainer<CheckRoundTimer> checkRoundTimer;
 	ComponentContainer<toolTip> toolTip;
-<<<<<<< remotes/origin/alice
-	ComponentContainer<RestartIndicator> restartIndicator;
-	ComponentContainer<Indicators> indicators;
-=======
 	ComponentContainer<CharIndicator> charIndicator;
 	ComponentContainer<UIButton> uiButtons;
 	ComponentContainer<storyTellingBackground> storyTellingBackgrounds;
->>>>>>> local
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -75,14 +70,9 @@ public:
 		registry_list.push_back(&checkRoundTimer);
 		registry_list.push_back(&statsindicators);
 		registry_list.push_back(&toolTip);
-<<<<<<< remotes/origin/alice
-		registry_list.push_back(&restartIndicator);
-		registry_list.push_back(&indicators);
-=======
 		registry_list.push_back(&charIndicator);
 		registry_list.push_back(&uiButtons);
 		registry_list.push_back(&storyTellingBackgrounds);
->>>>>>> local
 	}
 
 	void clear_all_components() {

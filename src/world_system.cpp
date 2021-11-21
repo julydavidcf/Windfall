@@ -7,7 +7,8 @@
 #include <cassert>
 #include <sstream>
 
-#include "physics_system.hpp"
+#include "ai_system.hpp"
+#include "skill_system.hpp"
 
 // Game configuration
 const size_t MAX_TURTLES = 15;
@@ -18,20 +19,20 @@ const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 120;
+vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
 
 Entity currPlayer;
-Entity target;
+//Entity target;
 Entity prevPlayer;
 
-int playersDead = 0;
+//int playersDead = 0;
 int playerUseMelee = 0;
 
 vec2 msPos = vec2(0, 0);
 bool is_ms_clicked = false;
-bool ifRestart = false;
 
 float next_barrier_spawn = 1000;
 
@@ -79,8 +80,6 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(taunt_spell_sound);
 	if (melee_spell_sound != nullptr)
 		Mix_FreeChunk(melee_spell_sound);
-<<<<<<< remotes/origin/alice
-=======
 	if (silence_spell_sound != nullptr)
 		Mix_FreeChunk(silence_spell_sound);
 	if (lightning_spell_sound != nullptr)
@@ -93,7 +92,6 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(button_hover_sound);
 	if (turning_sound != nullptr)
 		Mix_FreeChunk(turning_sound);
->>>>>>> local
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -105,7 +103,7 @@ WorldSystem::~WorldSystem() {
 
 // Debugging
 namespace {
-	void glfw_err_cb(int error, const char *desc) {
+	void glfw_err_cb(int error, const char* desc) {
 		fprintf(stderr, "%d: %s", error, desc);
 	}
 }
@@ -148,11 +146,12 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
 
-	// handel mosue click
+	// handle mosue click
 	auto mouse_button_callback = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_button(_0, _1, _2); };
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
+
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -177,29 +176,23 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
-<<<<<<< remotes/origin/alice
-=======
 	silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	//https://freesound.org/people/Vicces1212/sounds/123757/
 	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
 	ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
 	summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
 	button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str()); //https://freesound.org/people/wobesound/sounds/488382/
 	turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());//https://freesound.org/people/InspectorJ/sounds/416179/
->>>>>>> local
 
-	if (background_music == nullptr 
-		|| salmon_dead_sound == nullptr 
+	if (background_music == nullptr
+		|| salmon_dead_sound == nullptr
 		|| salmon_eat_sound == nullptr
-		|| hit_enemy_sound == nullptr 
-		|| fireball_explosion_sound == nullptr 
+		|| hit_enemy_sound == nullptr
+		|| fireball_explosion_sound == nullptr
 		|| death_enemy_sound == nullptr
-		|| fire_spell_sound == nullptr 
+		|| fire_spell_sound == nullptr
 		|| rock_spell_sound == nullptr
 		|| heal_spell_sound == nullptr
 		|| taunt_spell_sound == nullptr
-<<<<<<< remotes/origin/alice
-		|| melee_spell_sound == nullptr) {
-=======
 		|| melee_spell_sound == nullptr
 		|| silence_spell_sound == nullptr
 		|| lightning_spell_sound == nullptr
@@ -208,7 +201,6 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| button_hover_sound == nullptr
 		|| turning_sound == nullptr
 		) {
->>>>>>> local
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -220,9 +212,6 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("heal_spell.wav").c_str(),
 			audio_path("taunt_spell.wav").c_str(),
 			audio_path("melee_spell.wav").c_str(),
-<<<<<<< remotes/origin/alice
-			audio_path("death_enemy.wav").c_str());
-=======
 			audio_path("death_enemy.wav").c_str(),
 			audio_path("silence_spell.wav").c_str(),
 			audio_path("lightning_spell.wav").c_str(),
@@ -230,25 +219,18 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("summon_spell.wav").c_str(),
 			audio_path("button_hover.wav").c_str(),
 			audio_path("turning.wav").c_str());
->>>>>>> local
 		return nullptr;
 	}
 	return window;
 }
 
-void WorldSystem::init(RenderSystem* renderer_arg) {
+void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem* skill_arg) {
 	this->renderer = renderer_arg;
-	
-	// Playing background music indefinitely (Later)
-	Mix_VolumeMusic(8);	// adjust volume from 0 to 128
+	this->ai = ai_arg;
+	this->sk = skill_arg;
+
+	Mix_VolumeMusic(0);
 	Mix_PlayMusic(background_music, -1);
-<<<<<<< remotes/origin/alice
-
-	fprintf(stderr, "Loaded music\n");
-
-	// Set all states to default
-    restart_game();
-=======
 	Mix_VolumeChunk(hit_enemy_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(fireball_explosion_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(death_enemy_sound, MIX_MAX_VOLUME / 10);
@@ -276,32 +258,42 @@ void WorldSystem::render_startscreen() {
 	load_game_button = createUIButton(renderer, { 600, 500 }, LOAD_GAME);
 	exit_game_button = createUIButton(renderer, { 600, 600 }, EXIT_GAME);
 	registry.motions.get(exit_game_button).scale = { 150, 70 };
->>>>>>> local
 }
 
 void WorldSystem::displayPlayerTurn() {
 	if (registry.turnIndicators.components.size() != 0) {
-		registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+		//printf("TURNINDICATORS SIZE IS %g \n", float(registry.health.components.size()));
+		for (int i = 0; i < registry.turnIndicators.components.size(); i++) {
+			registry.remove_all_components_of(registry.turnIndicators.entities[i]);
+		}
+		// registry.remove_all_components_of(registry.turnIndicators.entities[0]);
 	}
+	if (registry.charIndicator.components.size() != 0) {
+		registry.remove_all_components_of(registry.charIndicator.entities[0]);
+	}
+	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
+	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
 	createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
 void WorldSystem::displayEnemyTurn() {
 	if (registry.turnIndicators.components.size() != 0) {
-		registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+		printf("TURNINDICATORS SIZE IS %g \n", float(registry.turnIndicators.components.size()));
+		for (int i = 0; i < registry.turnIndicators.components.size(); i++) {
+			registry.remove_all_components_of(registry.turnIndicators.entities[i]);
+		}
+		// registry.remove_all_components_of(registry.turnIndicators.entities[0]);
 	}
+	if (registry.charIndicator.components.size() != 0) {
+		registry.remove_all_components_of(registry.charIndicator.entities[0]);
+	}
+	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
+	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
 	createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
-void WorldSystem::displayIndicator(std::string type) {
-	if (registry.indicators.size() != 0) {
-		registry.indicators.clear();
-	}
-	createIndicators(renderer, TURN_INDICATOR_LOCATION, type);
-}
-
 void WorldSystem::iceShardAttack(Entity currPlayer) {
-	Mix_PlayChannel(-1, fire_spell_sound, 0); // added fire spell sound but doesnt work
+	// Mix_PlayChannel(-1, fire_spell_sound, 0); // added fire spell sound but doesnt work
 	Motion enemy = registry.motions.get(currPlayer);
 	if (!registry.deathTimers.has(currPlayer)) {
 		Motion enemy = registry.motions.get(currPlayer);
@@ -313,295 +305,58 @@ void WorldSystem::iceShardAttack(Entity currPlayer) {
 	}
 }
 
-void WorldSystem::rockAttack(Entity target) {
-	if (!registry.deathTimers.has(target)) {
-		Motion enemy = registry.motions.get(target);
-		// fireball action temporary until able to call behavior tree
-		Entity resultEntity = createRock(renderer, { enemy.position.x, enemy.position.y - 300 }, 0);
-		Projectile* proj = &registry.projectiles.get(resultEntity);
-		proj->flyingTimer = 2000.f;
-	}
-}
-
-void WorldSystem::healSkill(Entity target, float amount) {
-	if (registry.stats.has(target)) {
-		if(!registry.deathTimers.has(target)){
-			vec2 targetp = registry.motions.get(target).position;
-			createGreenCross(renderer, targetp);
-			Statistics* tStats = &registry.stats.get(target);
-			if (tStats->health + amount > tStats->max_health) {
-				tStats->health = tStats->max_health;
-			}
-			else
-			{
-				tStats->health += amount;
-			}
-		}
-	}
-	update_healthBars();
-}
-
-void WorldSystem::meleeSkill(Entity target) {
-	if(!registry.deathTimers.has(target)){
-		printf("creating a melee skill\n");
-		Motion enemy = registry.motions.get(target);
-		if(registry.companions.has(target)){
-			Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 0);
-		} else {
-			Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 1);
-		}
-		
-	}
-}
-
-void WorldSystem::tauntSkill(Entity target) {
-	if (!registry.taunts.has(target)) {
-		registry.taunts.emplace(target);
-		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
-		createTauntIndicator(renderer, target);
-		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
-	}
-	else {
-		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
-		printf("taunt extended!\n");
-	}
-}
-
-void WorldSystem::startTauntAttack(Entity origin, Entity target){
-	if(registry.enemies.has(origin)){
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = TAUNT;
-		attack.target = target;
-		attack.counter_ms = 1500.f;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-
-	} else if(registry.companions.has(origin)){
-		Mix_PlayChannel(-1, taunt_spell_sound, 0);
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = TAUNT;
-		attack.target = target;
-		attack.counter_ms = 1500.f;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-
-	}
-}
-
-void WorldSystem::startHealAttack(Entity origin, Entity target){
-	if(registry.enemies.has(origin)){
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = HEAL;
-		attack.target = target;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-
-	} else if(registry.companions.has(origin)){
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = HEAL;
-		attack.target = target;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-}
-
-void WorldSystem::startIceShardAttack(Entity origin, Entity target){
-	printf("Started the ice shard attack\n");
-	if(registry.enemies.has(origin)){
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = ICESHARD;
-		attack.target = target;
-		attack.counter_ms += 50.f;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-
-	} else if(registry.companions.has(origin)){
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = ICESHARD;
-		attack.old_pos = msPos;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-}
-
-void WorldSystem::startFireballAttack(Entity origin){
-	if(registry.enemies.has(origin)){
-		//TODO
-
-	} else if(registry.companions.has(origin)){
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = FIREBALL;
-		attack.counter_ms += 30.f;
-		attack.old_pos = msPos;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-	}
-}
-
-void WorldSystem::startRockAttack(Entity origin, Entity target){
-	if(registry.enemies.has(origin)){
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = ROCK;
-		attack.target = target;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-
-	} else if(registry.companions.has(origin)){
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(origin);
-		attack.attack_type = ROCK;
-		attack.target = target;
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-
-	}
-}
-
-void WorldSystem::startMeleeAttack(Entity origin, Entity target){
-	if(registry.enemies.has(origin)){
-		Enemy& enemy = registry.enemies.get(origin);
-		enemy.curr_anim_type = WALKING;
-		
-		Motion& enemy_motion = registry.motions.get(origin);
-		Motion target_motion = registry.motions.get(target);
-
-		// Add enemy to the running component
-		RunTowards& rt = registry.runners.emplace(origin);
-		if(registry.hit_timer.has(origin)){
-			rt.old_pos = {enemy_motion.position.x-hit_position, enemy_motion.position.y};
-		} else {
-			rt.old_pos = enemy_motion.position; 
-		}
-		
-		rt.target = target;
-		// Have some offset
-		rt.target_position = {target_motion.position.x + 125, target_motion.position.y};
-
-		// Change enemy's velocity
-		float speed = 550.f;
-
-		enemy_motion.velocity = {-speed,0.f};
-		Motion& healthBar = registry.motions.get(enemy.healthbar);
-		healthBar.velocity = enemy_motion.velocity;
-
-		// Calculate the timer
-		float time = (enemy_motion.position.x - rt.target_position.x)/speed;
-		rt.counter_ms = time*1000;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
-		}
-
-		playerUseMelee = 1;
-
-	} else if(registry.companions.has(origin)){
-		Companion& companion = registry.companions.get(origin);
-		companion.curr_anim_type = WALKING;
-		
-		Motion& companion_motion = registry.motions.get(origin);
-		Motion target_motion = registry.motions.get(target);
-
-		// Add enemy to the running component
-		RunTowards& rt = registry.runners.emplace(origin);
-		if(registry.hit_timer.has(origin)){
-			rt.old_pos = {companion_motion.position.x+hit_position, companion_motion.position.y};
-		} else {
-			rt.old_pos = companion_motion.position; 
-		}
-		
-		rt.target = target;
-		// Have some offset
-		rt.target_position = {target_motion.position.x - 125, target_motion.position.y};
-
-		// Change companion's velocity
-		float speed = 550.f;
-
-		companion_motion.velocity = {speed,0.f};
-		Motion& healthBar = registry.motions.get(companion.healthbar);
-		healthBar.velocity = companion_motion.velocity;
-
-		// Calculate the timer
-		float time = (rt.target_position.x - companion_motion.position.x)/speed;
-		rt.counter_ms = time*1000;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
-		}
-
-		playerUseMelee = 1;
-	}
-}
-
 std::vector<Entity> roundVec;
 void WorldSystem::createRound() {
 
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// iterate through all enemies to get speed stats
 		Entity& entity = registry.enemies.entities[i];
-		Statistics& checkSpeed = registry.stats.get(entity);
-		speedVec.push_back(checkSpeed.speed);
 
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
 		}
+		// also decrement silence duration if present
+		if (registry.silenced.has(entity)) {
+			Silenced* s = &registry.silenced.get(entity);
+			s->turns--;
+			if (s->turns <= 0) {			// remove silence to add speed stat later if turns <= 0
+				sk->removeSilence(entity);
+			}
+		}
+
+		if (!registry.silenced.has(entity)) {
+			Statistics& checkSpeed = registry.stats.get(entity);
+			speedVec.push_back(checkSpeed.speed);
+		}
 	}
-	
+
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// iterate through all companions to get speed stats
 		Entity& entity = registry.companions.entities[i];
-		Statistics& checkSpeed = registry.stats.get(entity);
-		speedVec.push_back(checkSpeed.speed);
 
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
 		}
+		// also decrement silence duration if present
+		if (registry.silenced.has(entity)) {
+			Silenced* s = &registry.silenced.get(entity);
+			s->turns--;
+			if (s->turns <= 0) {			// remove silence to add speed stat later if turns <= 0
+				sk->removeSilence(entity);
+			}
+		}
+
+		if (!registry.silenced.has(entity)) {
+			Statistics& checkSpeed = registry.stats.get(entity);
+			speedVec.push_back(checkSpeed.speed);
+		}
 	}
-	
+
 	std::sort(speedVec.begin(), speedVec.end(), std::greater<int>());	// sorts in descending order
-	
+
 	for (int i = 0; i < speedVec.size(); i++) {
 		for (int j = 0; j < registry.companions.components.size(); j++) {
 			Entity& entity = registry.companions.entities[j]; // check companions stats
@@ -627,7 +382,7 @@ void WorldSystem::createRound() {
 
 void WorldSystem::checkRound() {
 	printf("am here at checkRound \n");
-	
+
 	if (roundVec.empty()) {	// if empty, create new round
 		printf("roundVec is empty, creating a new round \n");
 		createRound();
@@ -659,1260 +414,11 @@ void WorldSystem::checkRound() {
 		showCorrectSkills();
 	}
 
+	CURRPLAYER_LOCATION = registry.motions.get(currPlayer).position;	// get currPlayer location
+
 	printf("finished check round \n");
 	printf("playerUseMelee is %g \n", float(playerUseMelee));
 }
-
-// -----------------------------------------------------------------------------------------------------------------------
-// Define enemy behavior tree nodes
-// The return type of behaviour tree processing
-enum class BTState {
-	Running,
-	Success,
-	Failure
-};
-
-std::string toString(BTState s)
-{
-	switch (s)
-	{
-	case BTState::Running:   return "Running";
-	case BTState::Success:   return "Success";
-	case BTState::Failure: return "Failure";
-	default:      return "[Unknown BTState]";
-	}
-}
-
-// The base class representing any node in our behaviour tree
-// Does not have any pointers
-class BTNode {
-public:
-	virtual void init(Entity e) {};
-
-	virtual BTState process(Entity e) = 0;
-	WorldSystem worldSystem;
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckMage : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckMage(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check mage ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckPlayerMageTaunt : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckPlayerMageTaunt(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check taunt ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckCharacter : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckCharacter(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check character ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckMageTaunt : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckMageTaunt(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check taunt for me ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckEnemyHP : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckEnemyHP(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check enemy HP for me ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckMageHP : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckMageHP(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check mage HP for me ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckSwordsman : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckSwordsman(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckSwordsmanTaunt : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckSwordsmanTaunt(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A composite node that loops through all children and exits when one fails
-class BTRunCheckPlayersDead : public BTNode {
-private:
-	int m_index;
-	BTNode* m_children[2];	// Run pair has two children, using an array
-
-public:
-	BTRunCheckPlayersDead(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
-		: m_index(0) {
-		m_children[0] = c0;
-		m_children[1] = c1;
-	}
-
-	void init(Entity e) override
-	{
-		m_index = 0;	// set index to 0 to execute first child
-		// initialize the first child
-		const auto& child = m_children[m_index];
-		child->init(e);
-	}
-
-	BTState process(Entity e) override {
-		printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
-		if (m_index >= 2)
-			return BTState::Success;
-
-		// process current child
-		BTState state = m_children[m_index]->process(e);
-
-		// select a new active child and initialize its internal state
-		if (state == BTState::Failure) {	// if child return success
-			++m_index;	// increment index
-			if (m_index >= 2) {	// check whether the second child is executed already
-				return BTState::Success;
-			}
-			else {
-				m_children[m_index]->init(e);	// initialize next child to run 
-				return BTState::Running;
-			}
-		}
-		else {
-			return state;
-		}
-	}
-};
-
-// A general decorator with lambda condition
-class BTIfPlayerSideDoNotHaveMageHardCoded : public BTNode
-{
-public:
-	BTIfPlayerSideDoNotHaveMageHardCoded(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if player side has no mage ... \n");	// print statement to visualize
-		int toggle = 0;
-		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
-			Entity E = registry.companions.entities[i];
-			if (registry.companions.get(E).companionType == MAGE) {
-				toggle = 1;
-			}
-		}
-		if (toggle == 0) {	// if player side has no mage, execute child which is fireball
-			printf("Player side do not have mage \n");
-			return m_child->process(e);
-		}
-		else
-			return BTState::Failure;
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfPlayerSideHasMageHardCoded : public BTNode
-{
-public:
-	BTIfPlayerSideHasMageHardCoded(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if player side has mage ... \n");	// print statement to visualize
-		int toggle = 0;
-		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
-			Entity toCheck = registry.companions.entities[i];
-			if (registry.companions.get(toCheck).companionType == MAGE) {
-				toggle = 1;
-			}
-		}
-		if (toggle == 1) {	// if player side has mage, execute child which is check taunt (fireball for now)
-			printf("Player side indeed has mage \n");
-			return m_child->process(e);
-		}
-		else
-			return BTState::Failure;
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfPlayerMageTaunted : public BTNode
-{
-public:
-	BTIfPlayerMageTaunted(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("If magician is taunted ... \n");	// print statement to visualize
-		// check if player mage is taunted
-		for (int i = 0; i < registry.companions.components.size(); i++) {
-			Entity toGet = registry.companions.entities[i];
-			if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
-				target = toGet;
-			}
-		}
-		if (registry.taunts.has(target)) {
-			printf("Player mage is indeed taunted \n");
-			return m_child->process(e);
-		}
-		else
-			return BTState::Failure;
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfPlayerMageNotTaunted : public BTNode
-{
-public:
-	BTIfPlayerMageNotTaunted(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("If player mage is not taunted ... \n");	// print statement to visualize
-		// check if player mage is taunted
-		for (int i = 0; i < registry.companions.components.size(); i++) {
-			Entity toGet = registry.companions.entities[i];
-			if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
-				target = toGet;
-			}
-		}
-		if (!registry.taunts.has(target)) {
-			printf("Player mage is not taunted \n");
-			return m_child->process(e);
-		}
-		else
-			return BTState::Failure;
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfEnemyIsSwordsman : public BTNode
-{
-public:
-	BTIfEnemyIsSwordsman(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if enemy is swordsman ... \n");	// print statement to visualize
-		if (registry.enemies.get(currPlayer).enemyType == SWORDSMAN) {	// WORKS, if enemy character is swordsman, execute child which is checking player mage
-			printf("Enemy is indeed swordsman \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfEnemyIsMagician : public BTNode
-{
-public:
-	BTIfEnemyIsMagician(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if enemy is magician ... \n");	// print statement to visualize
-		if (registry.enemies.get(currPlayer).enemyType == MAGE) {	// WORKS, if enemy character is magician, execute child which is temporarily fireball
-			printf("Enemy is indeed magician \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfEnemyMageTaunted : public BTNode
-{
-public:
-	BTIfEnemyMageTaunted(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if enemy mage is taunted ... \n");	// print statement to visualize
-		for (int i = 0; i < registry.enemies.components.size(); i++) {
-			Entity toGet = registry.enemies.entities[i];
-			if (registry.enemies.get(toGet).enemyType == MAGE) {
-				target = toGet;
-			}
-		}
-		if (registry.taunts.has(target)) {
-			printf("Enemy mage is indeed taunted \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfEnemyMageNotTaunted : public BTNode
-{
-public:
-	BTIfEnemyMageNotTaunted(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if enemy mage is taunted ... \n");	// print statement to visualize
-		for (int i = 0; i < registry.enemies.components.size(); i++) {
-			Entity toGet = registry.enemies.entities[i];
-			if (registry.enemies.get(toGet).enemyType == MAGE) {
-				target = toGet;
-			}
-		}
-		if (!registry.taunts.has(target)) {
-			printf("Enemy mage is not taunted \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfOneLessThanHalf : public BTNode
-{
-public:
-	BTIfOneLessThanHalf(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		int lowestHealth = 50;	// set HP to half
-		int toggle = 0;
-		for (int i = 0; i < registry.enemies.components.size(); i++) {
-			Entity currEntity = registry.enemies.entities[i];
-			int currHealth = registry.stats.get(currEntity).health;
-			if (currHealth < lowestHealth) {
-				lowestHealth = currHealth;
-				toggle = 1;
-			}
-		}
-		printf("Checking if at least one is less than half HP ... \n");	// print statement to visualize
-		printf("Check health toggle = %g \n", float(toggle));
-		if (toggle == 1) {
-			printf("There is at least one with less than half HP \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfNoneLessThanHalf : public BTNode
-{
-public:
-	BTIfNoneLessThanHalf(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		int lowestHealth = 50;	// set HP to half
-		int toggle = 0;
-		for (int i = 0; i < registry.enemies.components.size(); i++) {
-			Entity currEntity = registry.enemies.entities[i];
-			int currHealth = registry.stats.get(currEntity).health;
-			if (currHealth < lowestHealth) {
-				lowestHealth = currHealth;
-				toggle = 1;
-			}
-		}
-		printf("Checking if no characters have less than half HP ... \n");	// print statement to visualize
-		if (toggle == 0) {
-			printf("There is no characters with less than half HP \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfMageHPBelowHalf : public BTNode
-{
-public:
-	BTIfMageHPBelowHalf(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		int toggle = 0;
-		if (registry.stats.get(currPlayer).health < 50) {
-			toggle = 1;
-		}
-		printf("Checking if mage HP is below half ... \n");	// print statement to visualize
-		if (toggle == 1) {
-			printf("Mage HP is indeed below half \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfMageHPAboveHalf : public BTNode
-{
-public:
-	BTIfMageHPAboveHalf(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		int toggle = 0;
-		printf("Accessing currPlayer \n");
-		printf("currPlayer HP is %g \n", float(registry.stats.get(currPlayer).health));
-		if (registry.stats.get(currPlayer).health < 50) {
-			toggle = 1;
-		}
-		printf("Checking if mage HP is above half ... \n");	// print statement to visualize
-		if (toggle == 0) {
-			printf("Mage HP is indeed above half \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfPlayerSideHasSwordsman : public BTNode
-{
-public:
-	BTIfPlayerSideHasSwordsman(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if player side has swordsman ... \n");	// print statement to visualize
-		int toggle = 0;
-		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage
-			Entity toCheck = registry.companions.entities[i];
-			if (registry.companions.get(toCheck).companionType == SWORDSMAN) {
-				toggle = 1;
-			}
-		}
-		if (toggle == 1) {	// if player side has mage, execute child which is check taunt (fireball for now)
-			printf("Player side indeed has swordsman \n");
-			return m_child->process(e);
-		}
-		else
-			return BTState::Failure;
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfPlayerSideDoNotHaveSwordsman : public BTNode
-{
-public:
-	BTIfPlayerSideDoNotHaveSwordsman(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if player side has swordsman ... \n");	// print statement to visualize
-		int toggle = 0;
-		for (int i = 0; i < registry.companions.components.size(); i++) {
-			Entity toCheck = registry.companions.entities[i];
-			if (registry.companions.get(toCheck).companionType == SWORDSMAN) {
-				toggle = 1;
-			}
-		}
-		if (toggle == 0) {	// if player side has mage, execute child which is check taunt (fireball for now)
-			printf("Player side do not have swordsman \n");
-			return m_child->process(e);
-		}
-		else
-			return BTState::Failure;
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfEnemySwordsmanNotTaunted : public BTNode
-{
-public:
-	BTIfEnemySwordsmanNotTaunted(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if enemy swordsman is taunted ... \n");	// print statement to visualize
-		for (int i = 0; i < registry.enemies.components.size(); i++) {
-			Entity toGet = registry.enemies.entities[i];
-			if (registry.enemies.get(toGet).enemyType == SWORDSMAN) {
-				target = toGet;
-			}
-		}
-		if (!registry.taunts.has(target)) {
-			printf("Enemy swordsman is not taunted \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfEnemySwordsmanTaunted : public BTNode
-{
-public:
-	BTIfEnemySwordsmanTaunted(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if enemy swordsman is taunted ... \n");	// print statement to visualize
-		for (int i = 0; i < registry.enemies.components.size(); i++) {
-			Entity toGet = registry.enemies.entities[i];
-			if (registry.enemies.get(toGet).enemyType == SWORDSMAN) {
-				target = toGet;
-			}
-		}
-		if (registry.taunts.has(target)) {
-			printf("Enemy swordsman is indeed taunted \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfPlayersDead : public BTNode
-{
-public:
-	BTIfPlayersDead(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if player characters are dead ... \n");	// print statement to visualize
-		//if (registry.enemies.components.size() == 0) {
-		//	printf("Player characters are indeed dead \n");
-		//	return m_child->process(e);
-		//}
-		if (playersDead == 1) {
-			printf("Player characters are indeed dead \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-// A general decorator with lambda condition
-class BTIfPlayersAlive : public BTNode
-{
-public:
-	BTIfPlayersAlive(BTNode* child)	// Has one child
-		: m_child(child) {
-	}
-
-	virtual void init(Entity e) override {
-		m_child->init(e);
-	}
-
-	virtual BTState process(Entity e) override {
-		printf("Checking if player characters are alive ... \n");	// print statement to visualize
-		//if (registry.enemies.components.size() > 0) {
-		//	printf("Player characters are indeed alive \n");
-		//	return m_child->process(e);
-		//}
-		if (playersDead == 0) {
-			printf("Player characters are indeed alive \n");
-			return m_child->process(e);
-		}
-		else {
-			return BTState::Failure;
-		}
-	}
-private:
-	BTNode* m_child;	// one child stored in BTNode as a pointer
-};
-
-class BTCastIceShard : public BTNode {
-private:
-	void init(Entity e) override {
-	}
-	BTState process(Entity e) override {
-		printf("Shoot Ice Shard \n\n");	// print statement to visualize
-		worldSystem.startIceShardAttack(e, currPlayer);
-		// return progress
-		return BTState::Success;
-	}
-};
-
-class BTCastTaunt : public BTNode {
-private:
-	void init(Entity e) override {
-	}
-	BTState process(Entity e) override {
-		for (int i = 0; i < registry.companions.components.size(); i++) {
-			Entity toGet = registry.companions.entities[i];
-			if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
-				target = toGet;
-			}
-		}
-		worldSystem.startTauntAttack(e, target);
-		printf("Cast Taunt \n\n");	// print statement to visualize
-
-		// return progress
-		return BTState::Success;
-	}
-};
-
-class BTMeleeAttack : public BTNode {
-private:
-	void init(Entity e) override {
-	}
-	BTState process(Entity e) override {
-		int i = 0;
-		for (int i = 0; i < registry.companions.components.size(); i++) {	// checks player side for mage NOT WORKING
-			Entity toGet = registry.companions.entities[i];
-			if (registry.motions.get(toGet).position.x > i) {
-				i = registry.motions.get(toGet).position.x;
-				target = toGet;	// get nearest player entity
-			}
-		}
-
-		/*
-		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = WALKING;
-		
-		Motion& enemy_motion = registry.motions.get(e);
-		Motion target_motion = registry.motions.get(target);
-
-		// Add enemy to the running component
-		RunTowards& rt = registry.runners.emplace(e);
-		if(registry.hit_timer.has(e)){
-			rt.old_pos = {enemy_motion.position.x-hit_position, enemy_motion.position.y};
-		} else {
-			rt.old_pos = enemy_motion.position; 
-		}
-		
-		rt.target = target;
-		// Have some offset
-		rt.target_position = {target_motion.position.x + 125, target_motion.position.y};
-
-		// Change enemy's velocity
-		float speed = 250.f;
-		enemy_motion.velocity = {-speed,0.f};
-		Motion& healthBar = registry.motions.get(enemy.healthbar);
-		healthBar.velocity = enemy_motion.velocity;
-
-		// Calculate the timer
-		float time = (enemy_motion.position.x - rt.target_position.x)/speed;
-		rt.counter_ms = time*1000;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
-		}
-		*/
-		worldSystem.startMeleeAttack(e, target);
-		
-		printf("Melee Attack \n\n");	// print statement to visualize
-
-		// return progress
-		return BTState::Success;
-	}
-};
-
-class BTCastRock : public BTNode {
-private:
-	void init(Entity e) override {
-	}
-	BTState process(Entity e) override {
-		for (int i = 0; i < registry.companions.components.size(); i++) {
-			Entity toGet = registry.companions.entities[i];
-			if (registry.companions.get(toGet).companionType == SWORDSMAN) {
-				target = toGet;
-			}
-		}
-		worldSystem.startRockAttack(e, target);
-		printf("Cast Rock \n\n");	// print statement to visualize
-
-		// return progress
-		return BTState::Success;
-	}
-};
-
-class BTCastHeal : public BTNode {
-private:
-	void init(Entity e) override {
-	}
-	BTState process(Entity e) override {
-		for (int i = 0; i < registry.enemies.components.size(); i++) {
-			Entity toGet = registry.enemies.entities[i];
-			if (registry.enemies.get(toGet).enemyType == SWORDSMAN) {
-				target = toGet;
-			}
-		}
-		worldSystem.startHealAttack(e, target);
-		/*
-		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(e);
-		attack.attack_type = HEAL;
-		attack.target = target;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}
-		*/
-		printf("Cast Heal \n\n");	// print statement to visualize
-
-		// return progress
-		return BTState::Success;
-	}
-};
-
-class BTCastHealOnSelf : public BTNode {
-private:
-	void init(Entity e) override {
-	}
-	BTState process(Entity e) override {
-		for (int i = 0; i < registry.enemies.components.size(); i++) {	// checks player side for mage NOT WORKING
-			Entity toGet = registry.enemies.entities[i];
-			if (registry.enemies.get(toGet).enemyType == MAGE) {
-				target = toGet;
-			}
-		}
-		/*
-		Enemy& enemy = registry.enemies.get(e);
-		enemy.curr_anim_type = ATTACKING;
-		Attack& attack = registry.attackers.emplace(e);
-		attack.attack_type = HEAL;
-		attack.target = target;
-
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
-		}*/
-		worldSystem.startHealAttack(e, target);
-		printf("Cast Heal On Self \n\n");	// print statement to visualize
-
-		// return progress
-		return BTState::Success;
-	}
-};
-
-class BTDoNothing : public BTNode {
-private:
-	void init(Entity e) override {
-	}
-	BTState process(Entity e) override {
-		printf("Do Nothing \n\n");	// print statement to visualize
-
-		// return progress
-		return BTState::Success;
-	}
-};
-
-// ---------------------------------------------------------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------------
-// Set up enemy behavior tree flow
-// Leaf Nodes
-BTCastIceShard castIceShard;
-BTCastTaunt castTaunt;				// done
-BTMeleeAttack meleeAttack;			// done
-BTCastRock castRock;				// done
-BTCastHeal castHeal;				// done
-BTCastHealOnSelf castHealOnSelf;	// done
-BTDoNothing doNothing;
-
-// Conditional Sub-Tree for Level 3 Nodes
-BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);				// done
-BTIfMageHPAboveHalf mageAboveHalf(&castHeal);					// done
-BTIfPlayerSideHasSwordsman haveSwordsman(&castRock);			// done
-BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castIceShard);	// done
-BTIfPlayerMageTaunted isTaunted(&meleeAttack);					// done
-BTIfPlayerMageNotTaunted notTaunted(&castTaunt);				// done
-
-// Level 3 Nodes
-BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);		// run pair do not need any further implementation? can merge all run pairs later and test
-BTRunCheckSwordsman checkSwordsman(&haveSwordsman, &noSwordsman);	// run pair
-BTRunCheckPlayerMageTaunt checkTaunted(&isTaunted, &notTaunted);	// run pair
-
-// Conditional Sub-Tree for Level 2 Nodes
-BTIfOneLessThanHalf atLeastOne(&checkMageHP);						// done
-BTIfNoneLessThanHalf none(&checkSwordsman);							// done
-BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);				// done
-BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);	// done
-
-// Level 2 Nodes
-BTRunCheckEnemyHP checkHP(&none, &atLeastOne);			// run pair
-BTRunCheckMage checkMage(&haveMage, &doNotHaveMage);	// run pair
-
-// Conditionl Sub-Tree for Level 1 Nodes
-BTIfEnemyMageNotTaunted nonTaunted(&checkHP);					// done
-BTIfEnemyMageTaunted taunted(&checkSwordsman);					// done
-BTIfEnemySwordsmanNotTaunted swordsmanNotTaunted(&checkMage);	// done
-BTIfEnemySwordsmanTaunted swordsmanTaunted(&meleeAttack);		// done
-
-// Level 1 Nodes
-BTRunCheckMageTaunt checkEnemyMageTaunt(&taunted, &nonTaunted);							// run pair
-BTRunCheckSwordsmanTaunt checkSwordsmanTaunt(&swordsmanNotTaunted, &swordsmanTaunted);	// run pair
-
-// Conditional Sub-Trees for Level 0
-BTIfEnemyIsMagician isMagician(&checkEnemyMageTaunt);	// done
-BTIfEnemyIsSwordsman isSwordsman(&checkSwordsmanTaunt);	// done
-
-// Level 0 Root Node
-BTRunCheckCharacter checkChar(&isMagician, &isSwordsman);	// run pair
-
-// check if players are dead, if so do nothing
-BTIfPlayersAlive isAlive(&checkChar);
-BTIfPlayersDead isDead(&doNothing);
-BTRunCheckPlayersDead checkPlayersDead(&isAlive, &isDead);	// DOESN'T WORK
-
-// --------------------------------------------------------------------------------
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
@@ -1928,21 +434,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-
-
 	// restart game if enemies or companions are 0
-	if (registry.enemies.size() <= 0 || registry.companions.size() <= 0) {
+	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.deathParticles.size() <= 0)) {
 		restart_game();
 	}
 
-	// Updating window title with points (MAYBE USE FOR LATER)
-	//std::stringstream title_ss;
-	//title_ss << "Points: " << points;
-	//glfwSetWindowTitle(window, title_ss.str().c_str());
+	// Updating window title with volume control
+	std::stringstream title_ss;
+	title_ss << "Music volume (z-key , x-key): " << Mix_VolumeMusic(-1) << " ,   Effects volume (c-key , v-key): " << Mix_VolumeChunk(death_enemy_sound, -1) << " ";
+	glfwSetWindowTitle(window, title_ss.str().c_str());
 
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
-	    registry.remove_all_components_of(registry.debugComponents.entities.back());
+		registry.remove_all_components_of(registry.debugComponents.entities.back());
 
 	// Removing out of screen entities
 	auto& motions_registry = registry.motions;
@@ -1953,48 +457,68 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Remove entities that leave the screen on the left side
 	// Iterate backwards to be able to remove without unterfering with the next object to visit
 	// (the containers exchange the last element with the current)
-	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
-	    Motion& motion = motions_registry.components[i];
+	for (int i = (int)motions_registry.components.size() - 1; i >= 0; --i) {
+		Motion& motion = motions_registry.components[i];
 		if (motion.position.x + abs(motion.scale.x) < 0.f) {
-		    registry.remove_all_components_of(motions_registry.entities[i]);
+			registry.remove_all_components_of(motions_registry.entities[i]);
 		}
 		// remove barrier
 		if (registry.reflects.has(motions_registry.entities[i])) {
-			if (motion.velocity.x>50.f) {
+			if (motion.velocity.x > 50.f) {
 				printf("in2");
 				registry.remove_all_components_of(motions_registry.entities[i]);
 			}
 		}
 	}
 
-
-	//check taunt for enemy and companion
+	//check taunt and silence for enemy and companion
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.enemies.entities[i])) {
-			if (registry.taunts.get(registry.enemies.entities[i]).duration<=0) {
-				removeTaunt(registry.enemies.entities[i]);
+			if (registry.taunts.get(registry.enemies.entities[i]).duration <= 0) {
+				sk->removeTaunt(registry.enemies.entities[i]);
+			}
+		}
+		if (registry.silenced.has(registry.enemies.entities[i])) {
+			if (registry.silenced.get(registry.enemies.entities[i]).turns <= 0) {
+				sk->removeSilence(registry.enemies.entities[i]);
 			}
 		}
 	}
 	for (int i = (int)registry.companions.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.companions.entities[i])) {
 			if (registry.taunts.get(registry.companions.entities[i]).duration <= 0) {
-				removeTaunt(registry.companions.entities[i]);
+				sk->removeTaunt(registry.companions.entities[i]);
 			}
+		}
+		if (registry.silenced.has(registry.companions.entities[i])) {
+			if (registry.silenced.get(registry.companions.entities[i]).turns <= 0) {
+				sk->removeSilence(registry.companions.entities[i]);
+			}
+		}
+	}
+	// maintain correct health
+	for (int i = (int)registry.stats.components.size() - 1; i >= 0; --i) {
+		if (registry.stats.components[i].health > registry.stats.components[i].max_health) {
+			Statistics* stat = &registry.stats.components[i];
+			stat->health = stat->max_health;
+			update_healthBars();
 		}
 	}
 
 	// Walk
-	for(Entity runner: registry.runners.entities){
+	for (Entity runner : registry.runners.entities) {
 		RunTowards& run = registry.runners.get(runner);
 		Motion& runner_motion = registry.motions.get(runner);
 		run.counter_ms -= elapsed_ms_since_last_update;
-		if(run.counter_ms <= 0.f){
+		if (run.counter_ms <= 0.f) {
 			printf("Reached destination\n");
-			runner_motion.velocity = {0.f, 0.f};
+			runner_motion.velocity = { 0.f, 0.f };
 
 			auto& anim_type = registry.companions.has(runner) ? registry.companions.get(runner).curr_anim_type
 				: registry.enemies.get(runner).curr_anim_type;
+
+			auto& runner_type = registry.companions.has(runner) ? registry.companions.get(runner).companionType
+				: registry.enemies.get(runner).enemyType;
 
 			Entity healthbar = registry.companions.has(runner) ? registry.companions.get(runner).healthbar
 				: registry.enemies.get(runner).healthbar;
@@ -2008,7 +532,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			attack.attack_type = MELEE;
 			attack.old_pos = run.old_pos;
 			attack.target = run.target;
-			attack.counter_ms = 1250.f;
+
+			if (runner_type == SWORDSMAN) {
+				attack.counter_ms = 1250.f;
+			}
+			else if (runner_type == NECROMANCER_MINION) {
+				attack.counter_ms = 800.f;
+			}
+			
 			registry.runners.remove(runner);
 
 			// Replace with better melee sound effect
@@ -2017,108 +548,134 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// Attack
-	for(Entity attacker: registry.attackers.entities){
+	for (Entity attacker : registry.attackers.entities) {
 		Attack& attack = registry.attackers.get(attacker);
 		// Updating animation time
 		attack.counter_ms -= elapsed_ms_since_last_update;
-		if(!registry.deathTimers.has(attacker)){
-			if(attack.counter_ms<=0.f){
+		printf("Updating time : %f\n",attack.counter_ms);
+		if (!registry.deathTimers.has(attacker)) {
+			if (attack.counter_ms <= 0.f || attack.attack_type == SUMMON) {
 				// Attack
-				if(registry.companions.has(attacker)){
+				if (registry.companions.has(attacker)) {
 					printf("Companion is attacking\n");
 					Companion& companion = registry.companions.get(attacker);
 					Motion& companion_motion = registry.motions.get(attacker);
-					switch(attack.attack_type){
-						case FIREBALL: {
-							            Mix_PlayChannel(-1, fire_spell_sound, 0);
-										printf("Fireball attack companion\n");
-										currentProjectile = launchFireball(companion_motion.position, attack.old_pos); 
-										Projectile* proj = &registry.projectiles.get(currentProjectile);
-										proj->flyingTimer = 2000.f;
-										break;
-										}
-						case TAUNT: {
-									printf("Taunt attack companion\n");
-									launchTaunt(attack.target);
-									//basiclly to have something hitting the boundary
-									currentProjectile = launchFireball({ -20,-20 }, {0,0});
-									Motion* projm = &registry.motions.get(currentProjectile);
-									projm->velocity = { -100,0 };
-									projm->acceleration = { -100,0 };
-									break;
-									}
-						case ROCK: {
-							        Mix_Volume(5, 32);
-								    Mix_PlayChannel(5, rock_spell_sound, 0);
-									currentProjectile = launchRock(attack.target);
-									break;
-									}
-						case MELEE: {
-									companion_motion.position = attack.old_pos;
-									Motion& healthbar_motion = registry.motions.get(companion.healthbar);
-									healthbar_motion.position.x = attack.old_pos.x;
-									meleeSkill(attack.target); 
-									break;
-									}
-						case ICESHARD: {
-							        Mix_Volume(5, 32);
-									Mix_PlayChannel(5, rock_spell_sound, 0);
-									currentProjectile = launchIceShard(companion_motion.position, attack.old_pos);
-									break;
-									}
-						case HEAL: {
-							        Mix_PlayChannel(-1, heal_spell_sound, 0);
-									healTarget(attack.target, 30);
-									//basiclly to have something hitting the boundary
-									currentProjectile = launchFireball({-20,-20}, {0,0});
-									Motion* projm = &registry.motions.get(currentProjectile);
-									projm->velocity = { -100,0 };
-									projm->acceleration = { -100,0 };
-									break;
-									}
-						default: break;
+					switch (attack.attack_type) {
+					case FIREBALL: {
+						Mix_PlayChannel(-1, fire_spell_sound, 0);
+						printf("Fireball attack companion\n");
+						currentProjectile = sk->launchFireball(companion_motion.position, attack.old_pos,renderer);
+						Projectile* proj = &registry.projectiles.get(currentProjectile);
+						proj->flyingTimer = 2000.f;
+						break;
+					}
+					case TAUNT: {
+						printf("Taunt attack companion\n");
+						sk->launchTaunt(attack.target,renderer);
+						//basiclly to have something hitting the boundary
+						currentProjectile = sk->launchFireball({ -20,-20 }, { 0,0 },renderer); // TODO: change to new launch dummy projectile without sound
+						Motion* projm = &registry.motions.get(currentProjectile);
+						projm->velocity = { -100,0 };
+						projm->acceleration = { -100,0 };
+						break;
+					}
+					case ROCK: {
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, rock_spell_sound, 0);
+						currentProjectile = sk->launchRock(attack.target,renderer);
+						break;
+					}
+					case MELEE: {
+						companion_motion.position = attack.old_pos;
+						Motion& healthbar_motion = registry.motions.get(companion.healthbar);
+						healthbar_motion.position.x = attack.old_pos.x;
+						sk->launchMelee(attack.target,renderer);
+						break;
+					}
+					case ICESHARD: {
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, ice_spell_sound, 0);
+						currentProjectile = sk->launchIceShard(companion_motion.position, attack.old_pos,renderer);
+						break;
+					}
+					case HEAL: {
+						Mix_PlayChannel(-1, heal_spell_sound, 0);
+						sk->launchHeal(attack.target, 50,renderer);
+						update_healthBars();
+						//basiclly to have something hitting the boundary
+						currentProjectile = sk->launchFireball({ -20,-20 }, { 0,0 },renderer);
+						Motion* projm = &registry.motions.get(currentProjectile);
+						projm->velocity = { -100,0 };
+						projm->acceleration = { -100,0 };
+						break;
+					}
+					default: break;
 					}
 					companion.curr_anim_type = IDLE;
 					printf("Not attacking anymore in idle\n");
 					registry.attackers.remove(attacker);
-				} else if(registry.enemies.has(attacker)){
+				}
+				else if (registry.enemies.has(attacker)) {
 					printf("Enemy is attacking\n");
 					Enemy& enemy = registry.enemies.get(attacker);
-					switch(attack.attack_type){
-						case ROCK: {
-									Mix_Volume(5, 32);
-							        Mix_PlayChannel(5, rock_spell_sound, 0);
-									printf("Rock attack enemy\n");
-									rockAttack(attack.target); 
-									break;
-									}
-						case HEAL: {
-							        Mix_PlayChannel(-1, heal_spell_sound, 0);
-									printf("heal attack enemy\n");
-									healSkill(attack.target, 100); 
-									break;
-									}
-						case MELEE: {
-									printf("melee attack enemy\n");
-									Motion& motion = registry.motions.get(attacker);
-									motion.position = attack.old_pos;
-									Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
-									healthbar_motion.position.x = attack.old_pos.x;
-									meleeSkill(attack.target);
-									break;
-									}
-						case TAUNT: {
-									Mix_PlayChannel(-1, taunt_spell_sound, 0);
-									printf("taunt attack enemy\n");
-									tauntSkill(target);
-									break;
-									}
-						case ICESHARD: {
-									printf("ice shard attack enemy\n");
-									iceShardAttack(attack.target);
-									break;
-									}
-						default: break;
+					switch (attack.attack_type) {
+					case TAUNT: {
+						//Mix_PlayChannel(-1, taunt_spell_sound, 0);	// sound moved to skill_system
+						printf("taunt attack enemy\n");
+						sk->launchTaunt(attack.target,renderer);
+						break;
+					}
+					case SILENCE: {
+						//Mix_PlayChannel(-1, silence_spell_sound, 0);	// sound moved to skill_system
+						printf("taunt attack enemy\n");
+						sk->launchSilence(attack.target, renderer);
+						break;
+					}
+					case ROCK: {
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, rock_spell_sound, 0);
+						printf("Rock attack enemy\n");
+						currentProjectile = sk->launchRock(attack.target,renderer);
+						break;
+					}
+					case LIGHTNING: {
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, lightning_spell_sound, 0);
+						printf("Lightning attack enemy\n");
+						currentProjectile = sk->launchLightning(attack.target, renderer);
+						break;
+					}
+					case MELEE: {
+						printf("melee attack enemy\n");
+						Motion& motion = registry.motions.get(attacker);
+						motion.position = attack.old_pos;
+						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
+						healthbar_motion.position.x = attack.old_pos.x;
+						sk->launchMelee(attack.target,renderer);
+						break;
+					}
+					case ICESHARD: {
+						printf("ice shard attack enemy\n");
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, ice_spell_sound, 0);
+						iceShardAttack(attack.target); // TODO
+						break;
+					}
+					case HEAL: {
+						Mix_PlayChannel(-1, heal_spell_sound, 0);
+						printf("heal attack enemy\n");
+						sk->launchHeal(attack.target, 30,renderer);
+						update_healthBars();
+						break;
+					}
+					case SUMMONING: {
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, summon_spell_sound, 0);
+						printf("summon necrominion \n");
+						sk->launchSummon(renderer);
+						break;
+					}
+					default: break;
 					}
 					enemy.curr_anim_type = IDLE;
 					printf("Not attacking anymore in idle\n");
@@ -2129,61 +686,33 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	if (player_turn == 1) {
+		displayPlayerTurn();
 		prevPlayer = currPlayer;
-
 	}
 
 	// this area is to check for edge cases for enemy to attack during their turn
 	if (player_turn == 0) {
-		printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
-		printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
+		//printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
+		//printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
 
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			displayEnemyTurn();
-			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected companion character has died so as to progress to an enemy's
-				if (registry.stats.get(prevPlayer).health <= 0 || playerUseMelee == 1) {	// Second case: (Brute force) playerUseMelee checks if the previous player used melee attack
-					checkPlayersDead.init(currPlayer);
-					for (int i = 0; i < 100; i++) {
-						BTState state = checkPlayersDead.process(currPlayer);
-						if (state == BTState::Success) {	// break out of for loop when all branches checked
-							break;
-						}
-					}
-				}
-			}
-			if (registry.enemies.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if enemy is going right after another enemy's turn
-				enemy_turn_timer -= elapsed_ms_since_last_update;
-				if (enemy_turn_timer < 0) {
-					if (registry.companions.size() == 0) {
-						restart_game();
+				if ((registry.checkRoundTimer.size()<=0)&&(registry.companions.size()>0)) {
+					displayEnemyTurn();
+					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+						printf("Calling tree 5\n");
+						ai->callTree(currPlayer);
 					}
 					else {
-						prevPlayer = currPlayer;
-						checkPlayersDead.init(currPlayer);
-						for (int i = 0; i < 100; i++) {
-							BTState state = checkPlayersDead.process(currPlayer);
-							if (state == BTState::Success) {	// break out of for loop when all branches checked
-								break;
-							}
+						if (roundVec.empty()) {
+							printf("roundVec is empty at enemy turn, createRound now \n");
+							createRound();
 						}
 					}
 				}
-				if (registry.stats.get(prevPlayer).health <= 0) {	// Checks if selected enemy character has died so as to progress to an enemy's TO TEST
-					checkPlayersDead.init(currPlayer);
-					for (int i = 0; i < 100; i++) {
-						BTState state = checkPlayersDead.process(currPlayer);
-						if (state == BTState::Success) {	// break out of for loop when all branches checked
-							break;
-						}
-					}
-				}
-			}
-		}
 	}
 
 	// Processing the salmon state
 	assert(registry.screenStates.components.size() <= 1);
-    ScreenState &screen = registry.screenStates.components[0];
+	ScreenState& screen = registry.screenStates.components[0];
 
 	// update state of death particles
 	for (Entity entity : registry.deathParticles.entities) {
@@ -2209,21 +738,26 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-    float min_counter_ms = 3000.f;
+	float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities) {
 		// progress timer
 		DeathTimer& counter = registry.deathTimers.get(entity);
 		counter.counter_ms -= elapsed_ms_since_last_update;
-		if(counter.counter_ms < min_counter_ms){
-		    min_counter_ms = counter.counter_ms;
+		if (counter.counter_ms < min_counter_ms) {
+			min_counter_ms = counter.counter_ms;
 		}
 
 		// restart the game once the death timer expired
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
+			if(registry.companions.has(entity)){
+				registry.companions.remove(entity);
+			} else if(registry.enemies.has(entity)){
+				registry.enemies.remove(entity);
+			}
 			activate_deathParticles(entity);
 			screen.darken_screen_factor = 0;
-            // restart_game();
+			// restart_game();
 			return true;
 		}
 	}
@@ -2253,7 +787,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				else {
 					registry.motions.get(entity).position.x -= hit_position;
 				}
-			}				
+			}
 			return true;
 		}
 	}
@@ -2276,7 +810,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			return true;
 		}
 	}
-
 	return true;
 }
 
@@ -2285,7 +818,6 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
 		gameLevel++;
-		displayIndicator("VICTORY");
 		renderer->transitioningToNextLevel = true;
 		renderer->gameLevel = gameLevel;
 	}
@@ -2310,14 +842,10 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Reset the game speed
 	current_speed = 1.f;
 
-	player_turn = 1;	// player turn indicator
-	roundVec.clear();	// empty vector roundVec to create a new round
-	createRound();
-
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
-	    registry.remove_all_components_of(registry.motions.entities.back());
+		registry.remove_all_components_of(registry.motions.entities.back());
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
@@ -2325,7 +853,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
 	// Render background before all else
-	
+
 	// Layer 1 (Last layer in background)
 	createBackgroundLayerOne(renderer, { w / 2, h / 2 });
 	// Layer 2
@@ -2335,15 +863,12 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
+	// Pause menu button
+	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
+
 	// Create a player mage
-	player_mage = createPlayerMage(renderer, { 100, 575 });
+	player_mage = createPlayerMage(renderer, { 150, 550 });
 	// Create a player swordsman
-<<<<<<< remotes/origin/alice
-	player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
-	// Create an enemy mage
-	enemy_mage = createEnemyMage(renderer, { 1050, 575 });
-	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
-=======
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
 	//// Create an enemy mage
 	//enemy_mage = createEnemyMage(renderer, { 1050, 700 });
@@ -2357,56 +882,51 @@ void WorldSystem::restart_game(bool force_restart) {
 	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
 	necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
->>>>>>> local
 	
 	if (gameLevel > 1) {
 		// Create an enemy swordsman
 		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
 		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	}
-	// Create the fireball icon
-	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 
 	// Create the icons here
-	taunt_icon = createTauntIcon(renderer, { 300, 700 });
-	heal_icon = createHealIcon(renderer, { 400, 700 });
-	melee_icon = createMeleeIcon(renderer, { 500, 700 });
-	iceShard_icon = createIceShardIcon(renderer, { 600, 700 });
-	fireBall_icon = createFireballIcon(renderer, { 700, 700 });
-	rock_icon = createRockIcon(renderer, { 800, 700 });
+	taunt_icon = createTauntIcon(renderer, { 400, 700 });
+	heal_icon = createHealIcon(renderer, { 550, 700 });
+	melee_icon = createMeleeIcon(renderer, { 700, 700 });
+	iceShard_icon = createIceShardIcon(renderer, { 850, 700 });
+	fireBall_icon = createFireballIcon(renderer, { 1000, 700 });
+	rock_icon = createRockIcon(renderer, { 1150, 700 });
 
 	//Create a tooltip
 	tooltip;
-	// Create restart indicator
-	restartIC = createRestartIndicator(renderer, { 600,50 });
-	// Create a indicator
-	indicator;
-
+	player_turn = 1;	// player turn indicator
+	roundVec.clear();	// empty vector roundVec to create a new round
+	createRound();
+	checkRound();
+	showCorrectSkills();
 	displayPlayerTurn();	// display player turn when restart game
 }
 
-
-
-
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
-	if(registry.projectiles.has(entity)){
+	if (registry.projectiles.has(entity)) {
 		Damage& damage = registry.damages.get(entity);
 		Statistics* hp = nullptr;
 		Entity healthbar;
-		if(damage.isFriendly){
-			if(registry.enemies.has(other_entity)){
+		if (damage.isFriendly) {
+			if (registry.enemies.has(other_entity)) {
 				Enemy& enemy = registry.enemies.get(other_entity);
 				healthbar = enemy.healthbar;
 				hp = &registry.stats.get(other_entity);
 			}
-		} else {
-			if(registry.companions.has(other_entity)){
+		}
+		else {
+			if (registry.companions.has(other_entity)) {
 				Companion& companion = registry.companions.get(other_entity);
 				healthbar = companion.healthbar;
 				hp = &registry.stats.get(other_entity);
 			}
 		}
-		if(hp){
+		if (hp) {
 			hp->health = hp->health - (rand() % damage.range + damage.minDamage);
 			Motion& motion = registry.motions.get(healthbar);
 			if (registry.stats.get(currPlayer).health <= 0) {	// check if HP of currPlayer is 0, checkRound to skip this player
@@ -2419,12 +939,12 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 						auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 						timer.counter_ms = deathTimer.counter_ms + animation_timer;
 					}
-
-					if(registry.companions.has(other_entity)){
+					if (registry.companions.has(other_entity)) {
 						printf("Companion is dead\n");
 						Companion& companion = registry.companions.get(other_entity);
 						companion.curr_anim_type = DEAD;
-					} else if(registry.enemies.has(other_entity)){
+					}
+					else if (registry.enemies.has(other_entity)) {
 						printf("Enemy is dead\n");
 						Enemy& enemy = registry.enemies.get(other_entity);
 						enemy.curr_anim_type = DEAD;
@@ -2443,12 +963,12 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 							auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 							timer.counter_ms = deathTimer.counter_ms + animation_timer;
 						}
-
-						if(registry.companions.has(other_entity)){
+						if (registry.companions.has(other_entity)) {
 							printf("Companion is dead\n");
 							Companion& companion = registry.companions.get(other_entity);
 							companion.curr_anim_type = DEAD;
-						} else if(registry.enemies.has(other_entity)){
+						}
+						else if (registry.enemies.has(other_entity)) {
 							printf("Enemy is dead\n");
 							Enemy& enemy = registry.enemies.get(other_entity);
 							enemy.curr_anim_type = DEAD;
@@ -2465,19 +985,19 @@ void WorldSystem::update_health(Entity entity, Entity other_entity) {
 }
 
 void WorldSystem::update_healthBars() {
-	for(Entity entity: registry.enemies.entities){
+	for (Entity entity : registry.enemies.entities) {
 		Enemy& enemy = registry.enemies.get(entity);
 		Statistics& stat = registry.stats.get(entity);
 		Entity healthbar = enemy.healthbar;
 		Motion& motion = registry.motions.get(healthbar);
-		motion.scale = vec2({ (HEALTHBAR_WIDTH*(stat.health/100.f)), HEALTHBAR_HEIGHT });	
+		motion.scale = vec2({ (HEALTHBAR_WIDTH * (stat.health / 100.f)), HEALTHBAR_HEIGHT });
 	}
-	for(Entity entity: registry.companions.entities){
+	for (Entity entity : registry.companions.entities) {
 		Companion& enemy = registry.companions.get(entity);
 		Statistics& stat = registry.stats.get(entity);
 		Entity healthbar = enemy.healthbar;
 		Motion& motion = registry.motions.get(healthbar);
-		motion.scale = vec2({ (HEALTHBAR_WIDTH*(stat.health/100.f)), HEALTHBAR_HEIGHT });	
+		motion.scale = vec2({ (HEALTHBAR_WIDTH * (stat.health / 100.f)), HEALTHBAR_HEIGHT });
 	}
 }
 
@@ -2503,11 +1023,9 @@ void WorldSystem::activate_deathParticles(Entity entity)
 	}
 }
 
-
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
-	// reduce turne
-
+	// reduce turn
 	// Loop over all collisions detected by the physics system
 
 	auto& collisionsRegistry = registry.collisions;
@@ -2531,6 +1049,7 @@ void WorldSystem::handle_collisions() {
 							update_health(entity_other, entity);
 							registry.remove_all_components_of(entity_other);
 							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							showCorrectSkills();
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
@@ -2542,32 +1061,31 @@ void WorldSystem::handle_collisions() {
 								registry.motions.get(entity).position.x -= 20; // character shifts backwards
 								registry.hit_timer.emplace(entity); // to move character back to original position
 							}
-							displayPlayerTurn();	// displays player turn when enemy hits collide
+							// displayPlayerTurn();	// displays player turn when enemy hits collide
 						}
 					}
 				}
 			}
 			// create death particles. Register for rendering.
-			
+
 			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
 			{
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.companions.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
 				registry.deathTimers.emplace(entity);
-				if(registry.companions.has(entity)){
+				if (registry.companions.has(entity)) {
 					printf("Companion is dead\n");
 					Companion& companion = registry.companions.get(entity);
 					companion.curr_anim_type = DEAD;
-				} else if(registry.enemies.has(entity)){
+				}
+				else if (registry.enemies.has(entity)) {
 					printf("Enemy is dead\n");
 					Enemy& enemy = registry.enemies.get(entity);
 					enemy.curr_anim_type = DEAD;
 				}
 			}
-			
 		}
-    
 		// Deal with fireball - Enemy collisions
 		if (registry.enemies.has(entity)) {
 			// Checking Projectile - Enemy collisions
@@ -2580,11 +1098,12 @@ void WorldSystem::handle_collisions() {
 						if (!registry.buttons.has(entity)) {
 
 							update_health(entity_other, entity);
-							registry.remove_all_components_of(entity_other); 
+							registry.remove_all_components_of(entity_other);
 							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
 								// get rid of dead entity's stats indicators 
-								removeTaunt(entity);
+								sk->removeTaunt(entity);
+								sk->removeSilence(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
 							else {
@@ -2597,47 +1116,25 @@ void WorldSystem::handle_collisions() {
 							}
 
 							//enemy turn start
-							if (player_turn == 0) {
-								if (!registry.checkRoundTimer.has(currPlayer)) {
-									displayEnemyTurn();
-									if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-										prevPlayer = currPlayer;
-										checkPlayersDead.init(currPlayer);
-										for (int i = 0; i < 100; i++) {
-											BTState state = checkPlayersDead.process(currPlayer);
-											if (state == BTState::Success) {	// break out of for loop when all branches checked
-												break;
-											}
-										}
-										// temporaryFireball(currPlayer);
-										// printf("enemy has attacked, checkRound now \n");
-										// checkRound();
-									}
-									else {
-										if (roundVec.empty()) {
-											printf("roundVec is empty at enemy turn, createRound now \n");
-											createRound();
-										}
-									}
-								}
-							}
+						
 						}
 					}
-				}								
+				}
 			}
 
 			// create death particles. Register for rendering.
 			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
-			{				
+			{
 				// get rid of dead entity's healthbar.
 				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
 				registry.motions.remove(entityHealthbar);
 				registry.deathTimers.emplace(entity);
-				if(registry.companions.has(entity)){
+				if (registry.companions.has(entity)) {
 					printf("Companion is dead\n");
 					Companion& companion = registry.companions.get(entity);
 					companion.curr_anim_type = DEAD;
-				} else if(registry.enemies.has(entity)){
+				}
+				else if (registry.enemies.has(entity)) {
 					printf("Enemy is dead\n");
 					Enemy& enemy = registry.enemies.get(entity);
 					enemy.curr_anim_type = DEAD;
@@ -2652,7 +1149,7 @@ void WorldSystem::handle_collisions() {
 				if (registry.motions.get(entity).velocity.x > 0.f) {
 					//printf("colleds1");
 					Motion* reflectEM = &registry.motions.get(entity);
-					
+
 					reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
 					reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
 					printf("before %f\n", reflectEM->angle);
@@ -2677,55 +1174,32 @@ void WorldSystem::handle_boundary_collision() {
 	auto& projectilesRegistry = registry.projectiles;
 	for (uint i = 0; i < projectilesRegistry.components.size(); i++) {
 		Entity entity = projectilesRegistry.entities[i];
-		if (registry.motions.get(entity).position.x <= 0-20 ||
+		if (registry.motions.get(entity).position.x <= 0 - 20 ||
 			registry.motions.get(entity).position.x >= screen_width + 20 ||
-			registry.motions.get(entity).position.y <= 0-20 ||
+			registry.motions.get(entity).position.y <= 0 - 20 ||
 			registry.motions.get(entity).position.y >= screen_height + 20) {
 			registry.remove_all_components_of(entity);
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
 			//enemy turn start
-			if (player_turn == 0) {
-				if (!registry.checkRoundTimer.has(currPlayer)) {
-					displayEnemyTurn();
-					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-						checkPlayersDead.init(currPlayer);
-						for (int i = 0; i < 100; i++) {
-							BTState state = checkPlayersDead.process(currPlayer);
-							if (state == BTState::Success) {	// break out of for loop when all branches checked
-								break;
-							}
-						}
-						// temporaryFireball(currPlayer);
-						printf("enemy has attacked, checkRound now \n");
-						// checkRound();
-					}
-					else {
-						if (roundVec.empty()) {
-							printf("roundVec is empty at enemy turn, createRound now \n");
-							createRound();
-						}
-					}
-				}
-			}
+			
 		}
 	}
 }
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
-	return bool(glfwWindowShouldClose(window));
+	return bool(glfwWindowShouldClose(window)) || closeWindow;
 }
 
 // On key callback
-
-void WorldSystem::on_key(int key, int, int action, int mod) {	
+void WorldSystem::on_key(int key, int, int action, int mod) {
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-        restart_game(true);
+		restart_game(true);
 	}
 
 	// Debugging
@@ -2735,14 +1209,46 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		else
 			debugging.in_debug_mode = true;
 	}
+
+	// Volume control (z = Decrease BGM vol., x = Increase BGM vol., c = Decrease effects vol., v = Increase effects vol.)
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z) {
+		Mix_VolumeMusic(Mix_VolumeMusic(-1) - MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_X) {
+		Mix_VolumeMusic(Mix_VolumeMusic(-1) + MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_C) {
+		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fireball_explosion_sound, Mix_VolumeChunk(fireball_explosion_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(death_enemy_sound, Mix_VolumeChunk(death_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fire_spell_sound, Mix_VolumeChunk(fire_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(rock_spell_sound, Mix_VolumeChunk(rock_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
+		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fireball_explosion_sound, Mix_VolumeChunk(fireball_explosion_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(death_enemy_sound, Mix_VolumeChunk(death_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fire_spell_sound, Mix_VolumeChunk(fire_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(rock_spell_sound, Mix_VolumeChunk(rock_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);		
+		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+	}
 }
 
-void WorldSystem::on_mouse_button( int button , int action, int mods)
+void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
-<<<<<<< remotes/origin/alice
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-		
-=======
 
 	// For start menu and pause menu click detection
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story) {
@@ -2897,21 +1403,19 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 		//disable some skill
 		showCorrectSkills();
 
->>>>>>> local
 		if (player_turn == 1) {
-			displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
+
 				//iceshard
 				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)
 					&& canUseSkill(currPlayer, 0)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
-						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 						selected_skill = 0;
+						tutorial_icon_selected = 1;
 					}
 					else {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
-						//deselectButton();
 						selected_skill = -1;
 					}
 				}
@@ -2920,12 +1424,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					&& canUseSkill(currPlayer, 1)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONSELECTED;
-						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 						selected_skill = 1;
 					}
 					else {
 						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
-						//deselectButton();
 						selected_skill = -1;
 					}
 				}
@@ -2934,12 +1436,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					&& canUseSkill(currPlayer, 2)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONSELECTED;
-						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 						selected_skill = 2;
 					}
 					else {
 						registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
-						//deselectButton();
 						selected_skill = -1;
 					}
 				}
@@ -2948,12 +1448,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					&& canUseSkill(currPlayer, 3)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONSELECTED;
-						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 						selected_skill = 3;
 					}
 					else {
 						registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
-						//deselectButton();
 						selected_skill = -1;
 					}
 				}
@@ -2962,12 +1460,10 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					&& canUseSkill(currPlayer, 4)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONSELECTED;
-						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 						selected_skill = 4;
 					}
 					else {
 						registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
-						//deselectButton();
 						selected_skill = -1;
 					}
 				}
@@ -2976,69 +1472,38 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					&& canUseSkill(currPlayer, 5)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICONSELECTED;
-						//selectedButton = createFireballIconSelected(renderer, { icon.position.x,icon.position.y });
 						selected_skill = 5;
 					}
 					else {
 						registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
-						//deselectButton();
 						selected_skill = -1;
 					}
 				}
 				else {
 					//iceshard
 					if (selected_skill == 0) {
-						/*
-						Motion player = registry.motions.get(currPlayer);	// need to change to based on turn system
-						Companion& player_companion = registry.companions.get(currPlayer);
-						Attack& attacker = registry.attackers.emplace(currPlayer);
-						printf("Companion is casting\n");
-						player_companion.curr_anim_type = ATTACKING;
-						attacker.attack_type = ICESHARD;
-						attacker.old_pos = msPos;
-						//attacker.attack_type = CASTING;
-						//currentProjectile = launchFireball(player.position);
-						FIREBALLSELECTED = 0;
-						currentProjectile = launchIceShard(player.position);
-						*/
-						startIceShardAttack(currPlayer, currPlayer);
+						sk->startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
-
-						//active this when ai is done
-						//deselectButton();
+						tutorial_ability_fired = 1;
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
-
-						//printf("player has attacked, checkRound now \n"); // REMOVE FIRST
-						//checkRound();
 						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
 					//fireball
 					if (selected_skill == 1) {
-						startFireballAttack(currPlayer);
+						sk->startFireballAttack(currPlayer);
 						selected_skill = -1;
-
 						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
-						
-						//printf("player has attacked, checkRound now \n"); // REMOVE FIRST
-						//checkRound();
 						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
 					//rock
 					if (selected_skill == 2) {
 						for (int j = 0; j < registry.enemies.components.size(); j++) {
-							//printf("inhere");
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
-							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
-								b_box.x,
-								b_box.y)) {
-								startRockAttack(currPlayer, registry.enemies.entities[j]);
+							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
+								sk->startRockAttack(currPlayer, registry.enemies.entities[j]);
 								selected_skill = -1;
-
 								registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
-								
-								//printf("player has attacked, checkRound now \n");	// REMOVE FIRST
-								//checkRound();
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 							}
 						}
@@ -3046,28 +1511,14 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					// heal
 					if (selected_skill == 3) {
 						for (int j = 0; j < registry.companions.components.size(); j++) {
-							//printf("inhere");
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.companions.entities[j]);
-							if (inButton(registry.motions.get(registry.companions.entities[j]).position,
-								b_box.x,
-								b_box.y)) {
-									startHealAttack(currPlayer, registry.companions.entities[j]);
-									/*
-								healTarget(registry.companions.entities[j], 30);
-
-								//basiclly to have something hitting the boundary
-								currentProjectile = launchFireball({-20,-20}, {0,0});
-								Motion* projm = &registry.motions.get(currentProjectile);
-								projm->velocity = { -100,0 };
-								projm->acceleration = { -100,0 };
-								*/
+							if (inButton(registry.motions.get(registry.companions.entities[j]).position, b_box.x, b_box.y)) {
+								sk->startHealAttack(currPlayer, registry.companions.entities[j]);
+								prevPlayer = currPlayer;
+								update_healthBars();
 								selected_skill = -1;
-
 								registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
-
-								//printf("player has attacked, checkRound now \n");	// REMOVE FIRST
-								//checkRound();
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 							}
 						}
@@ -3075,19 +1526,12 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					//taunt
 					if (selected_skill == 4) {
 						for (int j = 0; j < registry.enemies.components.size(); j++) {
-							//printf("inhere");
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
-							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
-								b_box.x,
-								b_box.y)) {
-								startTauntAttack(currPlayer, registry.enemies.entities[j]);
+							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
+								sk->startTauntAttack(currPlayer, registry.enemies.entities[j]);
 								selected_skill = -1;
-
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
-								
-								//printf("player has attacked, checkRound now \n");	// REMOVE FIRST
-								//checkRound();
 								playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 							}
 						}
@@ -3095,36 +1539,22 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 					//melee
 					if (selected_skill == 5) {
 						for (int j = 0; j < registry.enemies.components.size(); j++) {
-							//printf("inhere");
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
-							if (inButton(registry.motions.get(registry.enemies.entities[j]).position,
-								b_box.x,
-								b_box.y)) {
-									startMeleeAttack(currPlayer, registry.enemies.entities[j]);
-								/*
-								launchMelee(currPlayer,registry.enemies.entities[j]);
-
-								//basiclly to have something hitting the boundary
-								currentProjectile = launchFireball({ -20,-20 });
-								Motion* projm = &registry.motions.get(currentProjectile);
-								projm->velocity = { -100,0 };
-								projm->acceleration = { -100,0 };
-								*/
+							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
+								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j]);
+								playerUseMelee = 1;
 								selected_skill = -1;
-
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
-
-								//printf("player has attacked, checkRound now \n");	// REMOVE FIRST
-								//checkRound();
 							}
 						}
 					}
 				}
-			} else {
+			}
+			else {
 				if (roundVec.empty()) {
 					printf("roundVec is empty at player turn, createRound now \n");
-					createRound();						
+					createRound();
 				}
 				else {
 					printf("no player at player turn \n");
@@ -3132,7 +1562,47 @@ void WorldSystem::on_mouse_button( int button , int action, int mods)
 				}
 			}
 		}
-	}		
+
+		// Handle clicks on tutorial box
+		if (tutorial_ability_fired && tutorial_icon_selected && tutorial_enabled
+			&& (curr_tutorial_box_num <= 4 || curr_tutorial_box_num == 7) && inButton(registry.motions.get(curr_tutorial_box).position, TUTORIAL_BOX_WIDTH, TUTORIAL_BOX_HEIGHT)) {
+
+			if (curr_tutorial_box_num == 7) {
+				registry.remove_all_components_of(curr_tutorial_box);
+				curr_tutorial_box_num += 1;
+				tutorial_enabled = 0;
+			}
+			else {
+				registry.remove_all_components_of(curr_tutorial_box);
+				vec2 next_box_pos = vec2(0, 0);
+				switch (curr_tutorial_box_num) {
+					case 0: next_box_pos = vec2(300, 300); break;
+					case 1: next_box_pos = vec2(900, 300); break;
+					case 2: next_box_pos = vec2(600, 100); break;
+					case 3: next_box_pos = vec2(500, 600); break;
+					case 4: next_box_pos = vec2(800, 600); tutorial_icon_selected = 0; break;
+					// case 5: next_box_pos = vec2(700, 300); tutorial_ability_fired = 0; break;
+					// case 6: next_box_pos = vec2(600, 300); break;
+					default: break;
+				}
+				curr_tutorial_box_num += 1;
+				curr_tutorial_box = createTutorialBox(renderer, next_box_pos, curr_tutorial_box_num);
+			}
+		}
+		if (tutorial_icon_selected && curr_tutorial_box_num == 5) {
+			registry.remove_all_components_of(curr_tutorial_box);
+			// Do case 5 from above here
+			tutorial_ability_fired = 0;
+			curr_tutorial_box_num += 1;
+			curr_tutorial_box = createTutorialBox(renderer, vec2(700, 300), curr_tutorial_box_num);
+		}
+		else if (tutorial_ability_fired && curr_tutorial_box_num == 6) {
+			// Do case 6 from above here
+			registry.remove_all_components_of(curr_tutorial_box);
+			curr_tutorial_box_num += 1;
+			curr_tutorial_box = createTutorialBox(renderer, vec2(600, 300), curr_tutorial_box_num);
+		}
+	}
 }
 vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float width, float height) {
 	vec2 placePos;
@@ -3148,14 +1618,11 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 	else if (mouse_position.x >= icon_position.x && mouse_position.y <= icon_position.y) {
 		placePos = vec2(mouse_position.x + 275.f, mouse_position.y - 75.f);
 	}
-
 	return placePos;
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
-<<<<<<< remotes/origin/alice
-=======
 	sk->mousePos = mouse_position;
 	if (!canStep && !story) {
 		if (mouseInArea(registry.motions.get(new_game_button).position,UI_BUTTON_WIDTH , UI_BUTTON_HEIGHT)) {
@@ -3184,7 +1651,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 		}
 	} else if (canStep) {
 
->>>>>>> local
 		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
 			if (registry.toolTip.size() == 0) {
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
@@ -3216,9 +1682,10 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 			}
 		}
 		else {
-			registry.renderRequests.remove(tooltip);
+			registry.remove_all_components_of(tooltip);
 			registry.toolTip.clear();
 		}
+	}
 }
 
 bool WorldSystem::mouseInArea(vec2 buttonPos, float buttonX, float buttonY) {
@@ -3235,8 +1702,8 @@ bool WorldSystem::mouseInArea(vec2 buttonPos, float buttonX, float buttonY) {
 }
 
 bool WorldSystem::inButton(vec2 buttonPos, float buttonX, float buttonY) {
-	if (msPos.x <= buttonPos.x + buttonX/2 && msPos.x >= buttonPos.x - buttonX/2) {
-		if (msPos.y <= buttonPos.y + buttonY/2 && msPos.y >= buttonPos.y - buttonY/2) {
+	if (msPos.x <= buttonPos.x + buttonX / 2 && msPos.x >= buttonPos.x - buttonX / 2) {
+		if (msPos.y <= buttonPos.y + buttonY / 2 && msPos.y >= buttonPos.y - buttonY / 2) {
 			return true;
 		}
 	}
@@ -3247,15 +1714,15 @@ bool WorldSystem::inEntity(const Entity entity) {
 	PhysicsSystem physicsSystem;
 	vec2 custom_pos = physicsSystem.get_custom_position(entity);
 	vec2 custom_scale = physicsSystem.get_custom_bounding_box(entity);
-	float left_bound = custom_pos.x - (custom_scale.x/2);
-	float right_bound = custom_pos.x + (custom_scale.x/2);
-	float upper_bound = custom_pos.y - (custom_scale.y/2);
-	float lower_bound = custom_pos.y + (custom_scale.y/2);
-	if((left_bound <= msPos.x)&&(msPos.x <= right_bound)){
-		if((upper_bound <= msPos.y)&&(msPos.y <= lower_bound)){
+	float left_bound = custom_pos.x - (custom_scale.x / 2);
+	float right_bound = custom_pos.x + (custom_scale.x / 2);
+	float upper_bound = custom_pos.y - (custom_scale.y / 2);
+	float lower_bound = custom_pos.y + (custom_scale.y / 2);
+	if ((left_bound <= msPos.x) && (msPos.x <= right_bound)) {
+		if ((upper_bound <= msPos.y) && (msPos.y <= lower_bound)) {
 			return true;
 		}
-	} 
+	}
 	return false;
 }
 
@@ -3264,169 +1731,10 @@ void WorldSystem::deselectButton() {
 }
 
 void WorldSystem::deselectButtons() {
-	if(selectedButton){
+	if (selectedButton) {
 		FIREBALLSELECTED = 0;
 		SILENCESELECTED = 0;
 		registry.remove_all_components_of(selectedButton);
-	}
-}
-
-//skills
-void WorldSystem::healTarget(Entity target, float amount) {
-
-	vec2 targetp = registry.motions.get(target).position;
-	createGreenCross(renderer, targetp);
-	if (registry.stats.has(target)) {
-		Statistics* tStats = &registry.stats.get(target);
-		if (tStats->health + amount > tStats->max_health) {
-			tStats->health = tStats->max_health;
-		}
-		else
-		{
-			tStats->health += amount;
-		}		
-	}
-	update_healthBars();
-}
-
-void WorldSystem::damageTarget(Entity target, float amount) {
-	if (registry.stats.has(target)) {
-		Statistics* tStats = &registry.stats.get(target);
-			tStats->health -= amount;
-	}
-	update_healthBars();
-}
-
-Entity WorldSystem::launchFireball(vec2 startPos, vec2 ms_pos) {
-
-	float proj_x = startPos.x + 50;
-	float proj_y = startPos.y;
-	float mouse_x = ms_pos.x;
-	float mouse_y = ms_pos.y;
-
-	float dx = mouse_x - proj_x;
-	float dy = mouse_y - proj_y;
-	float dxdy = sqrt((dx * dx) + (dy * dy));
-	float vx = FIREBALLSPEED * dx / dxdy;
-	float vy = FIREBALLSPEED * dy / dxdy;
-
-	float angle = atan(dy / dx);
-	if (dx < 0) {
-		angle += M_PI;
-	}
-	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
-	Motion* arrowacc = &registry.motions.get(resultEntity);
-	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
-
-	return  resultEntity;
-}
-
-Entity WorldSystem::launchIceShard(vec2 startPos, vec2 ms_pos) {
-
-	float proj_x = startPos.x + 50;
-	float proj_y = startPos.y;
-	float mouse_x = ms_pos.x;
-	float mouse_y = ms_pos.y;
-
-	float dx = mouse_x - proj_x;
-	float dy = mouse_y - proj_y;
-	float dxdy = sqrt((dx*dx) + (dy*dy));
-	float vx = ICESHARDSPEED * dx / dxdy;
-	float vy = ICESHARDSPEED * dy / dxdy;
-
-	float angle = atan(dy / dx);
-	if (dx < 0) {
-		angle += M_PI;
-	}
-	//printf(" % f", angle);
-	Entity resultEntity = createIceShard(renderer, { startPos.x + 50, startPos.y }, angle, {vx,vy}, 1);
-	Motion* ballacc = &registry.motions.get(resultEntity);
-	ballacc->acceleration = vec2(1000 * vx/ ICESHARDSPEED, 1000 * vy/ ICESHARDSPEED);
-	Projectile* proj = &registry.projectiles.get(resultEntity);
-	proj->flyingTimer = 2000.f;
-	
-	// ****temp**** enemy randomly spawn barrier REMOVED FOR NOW
-	//int rng = rand() % 10;
-	//if (rng >= 4) {
-	//	createBarrier(renderer, registry.motions.get(enemy_mage).position);
-	//}
-	return  resultEntity;
-}
-
-Entity WorldSystem::launchRock(Entity target) {
-	int isFriendly = 1;
-	vec2 targetp = registry.motions.get(target).position;
-	if (registry.companions.has(target)) {
-		int isFriendly = 0;
-	}
-	Entity resultEntity = createRock(renderer, {targetp.x, targetp.y - 300}, isFriendly);
-	Projectile* proj = &registry.projectiles.get(resultEntity);
-	proj->flyingTimer = 2000.f;
-	return  resultEntity;
-}
-
-void WorldSystem::launchMelee(Entity origin, Entity target) {
-	Companion comp = registry.companions.get(origin);
-	comp.curr_anim_type = WALKING;
-
-	Motion enemy_motion = registry.motions.get(origin);
-	Motion target_motion = registry.motions.get(target);
-
-	// Add enemy to the running component
-	RunTowards& rt = registry.runners.emplace(origin);
-	if (registry.hit_timer.has(origin)) {
-		rt.old_pos = { enemy_motion.position.x - hit_position, enemy_motion.position.y };
-	}
-	else {
-		rt.old_pos = enemy_motion.position;
-	}
-
-	rt.target = target;
-	// Have some offset
-	rt.target_position = { target_motion.position.x - 125, target_motion.position.y };
-
-	// Change enemy's velocity
-	float speed = 250.f;
-	enemy_motion.velocity = { -speed,0.f };
-	Motion& healthBar = registry.motions.get(comp.healthbar);
-	healthBar.velocity = enemy_motion.velocity;
-
-	// Calculate the timer
-	float time = (enemy_motion.position.x - rt.target_position.x) / speed;
-	rt.counter_ms = time * 1000;
-
-	if (!registry.checkRoundTimer.has(currPlayer)) {
-		auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-		timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
-	}
-
-}
-
-void WorldSystem::launchTaunt(Entity target) {
-	if (!registry.taunts.has(target)) {
-		registry.taunts.emplace(target);
-		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
-		createTauntIndicator(renderer, target);
-		printf("taunted!!!!!!!!!!!!!!!!!!!!!!!\n");
-	}
-	else {
-		Taunt* t = &registry.taunts.get(target);
-		t->duration = 3;
-		printf("taunt extended!\n");
-	}
-
-}
-
-void WorldSystem::removeTaunt(Entity target) {
-	if (registry.taunts.has(target)) {
-		registry.taunts.remove(target);
-		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
-			if (registry.statsindicators.components[j].owner == target) {
-				registry.remove_all_components_of(registry.statsindicators.entities[j]);
-			}
-		}
-		printf("taunt removed!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
 }
 
@@ -3435,56 +1743,53 @@ bool WorldSystem::canUseSkill(Entity user, int skill) {
 	return skill_character_aviability[pStat.classID][skill];
 }
 
-
 // helper that shows the correct skills based on current player
 void WorldSystem::showCorrectSkills() {
 	if (currPlayer != NULL && registry.companions.has(currPlayer)) {
 		Statistics pStat = registry.stats.get(currPlayer);
-		if (!skill_character_aviability[pStat.classID][0] ) {
-			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0) {
+			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][1]) {
-			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0) {
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][2]) {
-			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0) {
+			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][3]) {
-			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0) {
+			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][4]) {
-			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0) {
+			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][5]) {
-			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0) {
+			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
 	}
 }
-<<<<<<< remotes/origin/alice
-=======
 
 
 
@@ -3493,4 +1798,3 @@ void WorldSystem::backgroundTelling() {
 
 
 }
->>>>>>> local
