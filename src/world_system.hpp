@@ -189,6 +189,7 @@ private:
 	Mix_Chunk* error_sound;
 	Mix_Chunk* gesture_heal_sound;
 	Mix_Chunk* gesture_aoe_sound;
+	Mix_Chunk* gesture_turn_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;

@@ -47,6 +47,7 @@ int selected_skill = -1;
 int startMousePosCollect = 0;
 std::vector<vec2> mouseGestures;
 int gestureSkillRemaining = 1;
+int extraCompanionTurn = 1;
 //===========================================
 int hover_skill = -1;
 //selected button
@@ -105,6 +106,8 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(gesture_heal_sound);
 	if (gesture_aoe_sound != nullptr)
 		Mix_FreeChunk(gesture_aoe_sound);
+	if (gesture_turn_sound != nullptr)
+		Mix_FreeChunk(gesture_turn_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -198,8 +201,9 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str()); //https://freesound.org/people/Breviceps/sounds/453391/
 	error_sound = Mix_LoadWAV(audio_path("error.wav").c_str()); //https://freesound.org/people/plasterbrain/sounds/423169/
 	gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str()); //https://freesound.org/people/SilverIllusionist/sounds/580814/
-	gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str()); //https://freesound.org/people/Aleks41/sounds/406063/
-	
+	gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str()); //https://freesound.org/people/humanoide9000/sounds/329029/
+	gesture_turn_sound = Mix_LoadWAV(audio_path("gesture_turn.wav").c_str()); //https://freesound.org/people/Aleks41/sounds/406063/
+
 	if (background_music == nullptr
 		|| salmon_dead_sound == nullptr
 		|| salmon_eat_sound == nullptr
@@ -220,7 +224,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| minion_spawn_sound == nullptr
 		|| error_sound == nullptr
 		|| gesture_heal_sound == nullptr
-		|| gesture_aoe_sound == nullptr) {
+		|| gesture_aoe_sound == nullptr
+		|| gesture_turn_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -242,7 +247,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("minion_spawn.wav").c_str(),
 			audio_path("error.wav").c_str(),
 			audio_path("gesture_heal.wav").c_str(),
-			audio_path("gesture_aoe.wav").c_str()
+			audio_path("gesture_aoe.wav").c_str(),
+			audio_path("gesture_turn.wav").c_str()
 			);
 		return nullptr;
 	}
@@ -274,6 +280,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	Mix_VolumeChunk(error_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(gesture_heal_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(gesture_aoe_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(gesture_turn_sound, MIX_MAX_VOLUME);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -339,7 +346,7 @@ void WorldSystem::createRound() {
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// iterate through all enemies to get speed stats
 		Entity& entity = registry.enemies.entities[i];
-		printf("here?\n");
+
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
@@ -359,7 +366,7 @@ void WorldSystem::createRound() {
 			u->ultiDuration--;
 			printf("MY ULTIDURATION IS %g \n", float(u->ultiDuration));
 			// need to remove the skill when duration <= 0
-			if (u->ultiDuration <= 0) {			// remove silence to add speed stat later if turns <= 0
+			if (u->ultiDuration <= 0) {
 				sk->removeUltimate(entity);
 			}
 		}
@@ -372,7 +379,7 @@ void WorldSystem::createRound() {
 
 		if (!registry.silenced.has(entity)) {
 			Statistics& checkSpeed = registry.stats.get(entity);
-			if (checkSpeed.speed == 2) {
+			if (checkSpeed.speed == 2) {	// add extra turn for necromancer, change this if necromancer speed changes
 				speedVec.push_back(checkSpeed.speed);
 			}
 			speedVec.push_back(checkSpeed.speed);
@@ -398,6 +405,9 @@ void WorldSystem::createRound() {
 
 		if (!registry.silenced.has(entity)) {
 			Statistics& checkSpeed = registry.stats.get(entity);
+			if (extraCompanionTurn <= 0) {	// if extraCompanionTurn <= 0, add extra turn for all companions on screen
+				speedVec.push_back(checkSpeed.speed);
+			}
 			speedVec.push_back(checkSpeed.speed);
 		}
 	}
@@ -419,6 +429,10 @@ void WorldSystem::createRound() {
 				roundVec.push_back(entity);	// push to roundVec for use in checkRound
 			}
 		}
+	}
+
+	if (extraCompanionTurn <= 0) {
+		extraCompanionTurn = 1;
 	}
 
 	// print the sorted array
@@ -1404,6 +1418,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(error_sound, Mix_VolumeChunk(error_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(gesture_heal_sound, Mix_VolumeChunk(gesture_heal_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(gesture_aoe_sound, Mix_VolumeChunk(gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_turn_sound, Mix_VolumeChunk(gesture_turn_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
 		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
@@ -1424,6 +1439,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(error_sound, Mix_VolumeChunk(error_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(gesture_heal_sound, Mix_VolumeChunk(gesture_heal_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(gesture_aoe_sound, Mix_VolumeChunk(gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_turn_sound, Mix_VolumeChunk(gesture_turn_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 
@@ -1519,7 +1535,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if (Yincreasing_switch == 1 && Ydecreasing_switch == 0 &&
 				maxX - aveX <= 50 && aveX - minX <= 50 &&
 				maxY - aveY >= 150 && aveY - minY >= 150) {
-				// launch heal skill
+				// launch aoe damage skill
 				Mix_Volume(5, 32);
 				Mix_PlayChannel(5, gesture_aoe_sound, 0);
 				sk->luanchEnemyTeamDamage(30, renderer);
@@ -1533,6 +1549,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				maxX - aveX <= 300 && aveX - minX <= 300 &&
 				maxY - aveY <= 300 && aveY - minY <= 300) {
 				// launch extra one turn
+				Mix_Volume(5, 32);
+				Mix_PlayChannel(5, gesture_turn_sound, 0);
+				extraCompanionTurn--;
 				gestureSkillRemaining--;	// decrement gestureSkillRemaining
 				printf("one more turn skill activated!");
 			}

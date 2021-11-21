@@ -631,6 +631,35 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly)
+{	
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.velocity = { -50.f, 50.f };
+	motion.position = position;
+	motion.scale = vec2({ METEOR_WIDTH, METEOR_HEIGHT });
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = 0;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::METEOR, //https://www.cleanpng.com/png-designer-tencent-tmall-golden-meteor-shower-99329/download-png.html
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+
+}
+
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
 {
 	auto entity = Entity();

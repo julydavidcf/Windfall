@@ -49,6 +49,8 @@ const float ICESHARD_WIDTH = 80.f;
 const float ICESHARD_HEIGHT = 20.f;
 const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
+const float METEOR_WIDTH = 500.f;
+const float METEOR_HEIGHT = 500.f;
 
 const float BACKGROUND_OBJ_WIDTH = 60;
 const float BACKGROUND_OBJ_HEIGHT = 60.f;
@@ -120,6 +122,7 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 Entity createBarrier(RenderSystem* renderer, vec2 position);
 
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
+Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly);
 
 Entity createDot(RenderSystem* renderer, vec2 position);
 

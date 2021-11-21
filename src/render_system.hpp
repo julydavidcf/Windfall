@@ -47,6 +47,7 @@ class RenderSystem {
 			textures_path("rock.png"),
 			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
+			textures_path("meteor.png"),
 			textures_path("charArrow.png"),
 			textures_path("dot.png"),
 			textures_path("particleBeamCharge.png"),
