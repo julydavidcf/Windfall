@@ -79,6 +79,21 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(taunt_spell_sound);
 	if (melee_spell_sound != nullptr)
 		Mix_FreeChunk(melee_spell_sound);
+<<<<<<< remotes/origin/alice
+=======
+	if (silence_spell_sound != nullptr)
+		Mix_FreeChunk(silence_spell_sound);
+	if (lightning_spell_sound != nullptr)
+		Mix_FreeChunk(lightning_spell_sound);
+	if (ice_spell_sound != nullptr)
+		Mix_FreeChunk(ice_spell_sound);
+	if (summon_spell_sound != nullptr)
+		Mix_FreeChunk(summon_spell_sound);
+	if (button_hover_sound != nullptr)
+		Mix_FreeChunk(button_hover_sound);
+	if (turning_sound != nullptr)
+		Mix_FreeChunk(turning_sound);
+>>>>>>> local
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -162,6 +177,15 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+<<<<<<< remotes/origin/alice
+=======
+	silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	//https://freesound.org/people/Vicces1212/sounds/123757/
+	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
+	ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
+	summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
+	button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str()); //https://freesound.org/people/wobesound/sounds/488382/
+	turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());//https://freesound.org/people/InspectorJ/sounds/416179/
+>>>>>>> local
 
 	if (background_music == nullptr 
 		|| salmon_dead_sound == nullptr 
@@ -173,7 +197,18 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| rock_spell_sound == nullptr
 		|| heal_spell_sound == nullptr
 		|| taunt_spell_sound == nullptr
+<<<<<<< remotes/origin/alice
 		|| melee_spell_sound == nullptr) {
+=======
+		|| melee_spell_sound == nullptr
+		|| silence_spell_sound == nullptr
+		|| lightning_spell_sound == nullptr
+		|| ice_spell_sound == nullptr
+		|| summon_spell_sound == nullptr
+		|| button_hover_sound == nullptr
+		|| turning_sound == nullptr
+		) {
+>>>>>>> local
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -185,7 +220,17 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("heal_spell.wav").c_str(),
 			audio_path("taunt_spell.wav").c_str(),
 			audio_path("melee_spell.wav").c_str(),
+<<<<<<< remotes/origin/alice
 			audio_path("death_enemy.wav").c_str());
+=======
+			audio_path("death_enemy.wav").c_str(),
+			audio_path("silence_spell.wav").c_str(),
+			audio_path("lightning_spell.wav").c_str(),
+			audio_path("ice_spell.wav").c_str(),
+			audio_path("summon_spell.wav").c_str(),
+			audio_path("button_hover.wav").c_str(),
+			audio_path("turning.wav").c_str());
+>>>>>>> local
 		return nullptr;
 	}
 	return window;
@@ -197,11 +242,41 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	// Playing background music indefinitely (Later)
 	Mix_VolumeMusic(8);	// adjust volume from 0 to 128
 	Mix_PlayMusic(background_music, -1);
+<<<<<<< remotes/origin/alice
 
 	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
     restart_game();
+=======
+	Mix_VolumeChunk(hit_enemy_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(fireball_explosion_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(death_enemy_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(fire_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(rock_spell_sound,MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(heal_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(taunt_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(melee_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(silence_spell_sound, MIX_MAX_VOLUME / 8);
+	Mix_VolumeChunk(lightning_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(ice_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(summon_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(button_hover_sound, MIX_MAX_VOLUME);
+	fprintf(stderr, "Loaded music\n");
+
+	// Start game with a start screen
+	render_startscreen();
+}
+
+void WorldSystem::render_startscreen() {
+	int w, h;
+	glfwGetWindowSize(window, &w, &h);
+	createStoryBackground(renderer, {w/2, h/2}, 6);
+	new_game_button = createUIButton(renderer, { 600, 400 }, NEW_GAME);
+	load_game_button = createUIButton(renderer, { 600, 500 }, LOAD_GAME);
+	exit_game_button = createUIButton(renderer, { 600, 600 }, EXIT_GAME);
+	registry.motions.get(exit_game_button).scale = { 150, 70 };
+>>>>>>> local
 }
 
 void WorldSystem::displayPlayerTurn() {
@@ -2263,10 +2338,26 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Create a player mage
 	player_mage = createPlayerMage(renderer, { 100, 575 });
 	// Create a player swordsman
+<<<<<<< remotes/origin/alice
 	player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
 	// Create an enemy mage
 	enemy_mage = createEnemyMage(renderer, { 1050, 575 });
 	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+=======
+	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
+	//// Create an enemy mage
+	//enemy_mage = createEnemyMage(renderer, { 1050, 700 });
+	//registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+
+	// Create the first tutorial box
+	tutorial_enabled = 1;
+	curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
+
+	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
+	necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
+>>>>>>> local
 	
 	if (gameLevel > 1) {
 		// Create an enemy swordsman
@@ -2648,8 +2739,165 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 void WorldSystem::on_mouse_button( int button , int action, int mods)
 {
+<<<<<<< remotes/origin/alice
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
 		
+=======
+
+	// For start menu and pause menu click detection
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story) {
+		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+
+			// Direct to background story telling first
+			int w, h;
+			glfwGetWindowSize(window, &w, &h);
+
+			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
+			dialogue = createDiaogue(renderer, { w / 2, 650}, 1);
+
+			story = 1;
+		}
+		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			// LOAD THE SAVED JSON FILE (IF ANY)
+			// Todo: implement
+		}
+		else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			// EXIT TO DESKTOP
+			closeWindow = 1;
+		}
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 1) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2 ,h / 2 }, 2);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 2);
+		story = 2;
+
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 2) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 3);
+		story = 3;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 3);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 4);
+		story = 4;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 4);
+		registry.remove_all_components_of(dialogue);
+		story = 5;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 5) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 5);
+		story = 6;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 5);
+		story = 7;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
+		// START A NEW GAME			
+		restart_game();
+		canStep = 1;
+	}
+
+
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep) {
+
+
+		// Check menu clicks
+		if (!pauseMenuOpened && inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
+			Motion menu_motion = registry.motions.get(open_menu_button);
+			save_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT }, SAVE_GAME);
+			exit_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2 }, EXIT_GAME);
+			registry.motions.get(exit_game_button).scale = { 200,80 };
+			pauseMenuOpened = 1;
+			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
+		}
+		else if (pauseMenuOpened) {
+			
+			if (inButton(registry.motions.get(save_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+				// SAVE THE CURRENT GAME STATE
+				pauseMenuOpened = 0;
+				// Todo: implement
+
+			}
+			
+			if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+				// GO BACK TO START MENU
+				pauseMenuOpened = 0;
+				canStep = 0;
+				story = 0;
+				while (registry.motions.entities.size() > 0)
+					registry.remove_all_components_of(registry.motions.entities.back());
+				render_startscreen();
+				return;
+			}
+			
+			if (inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
+				// HIDE MENU OPTIONS
+				registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::OPEN_MENU;
+				// Clear on-screen buttons
+				registry.remove_all_components_of(save_game_button);
+				registry.remove_all_components_of(exit_game_button);
+				pauseMenuOpened = 0;
+			}	
+		}
+
+
+		//show all skill
+		if (selected_skill != 0) {
+			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
+		}
+		if (selected_skill != 1) {
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+		}
+		if (selected_skill != 2) {
+			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
+		}
+		if (selected_skill != 3) {
+			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
+		}
+		if (selected_skill != 4) {
+			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+		}
+		if (selected_skill != 5) {
+			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
+		}
+
+		//disable some skill
+		showCorrectSkills();
+
+>>>>>>> local
 		if (player_turn == 1) {
 			displayPlayerTurn();
 			if (registry.companions.has(currPlayer)) {
@@ -2906,6 +3154,37 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
+<<<<<<< remotes/origin/alice
+=======
+	sk->mousePos = mouse_position;
+	if (!canStep && !story) {
+		if (mouseInArea(registry.motions.get(new_game_button).position,UI_BUTTON_WIDTH , UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(new_game_button).used_texture = TEXTURE_ASSET_ID::NEW_GAME_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
+		}
+		else {
+			registry.renderRequests.get(new_game_button).used_texture = TEXTURE_ASSET_ID::NEW_GAME;
+		}
+		if (mouseInArea(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
+		}
+		else {
+			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME;
+		}
+		if (mouseInArea(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
+		}
+		else {
+			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_GAME;
+		}
+	} else if (canStep) {
+
+>>>>>>> local
 		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
 			if (registry.toolTip.size() == 0) {
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
@@ -3204,3 +3483,14 @@ void WorldSystem::showCorrectSkills() {
 		}
 	}
 }
+<<<<<<< remotes/origin/alice
+=======
+
+
+
+void WorldSystem::backgroundTelling() {
+
+
+
+}
+>>>>>>> local

@@ -72,6 +72,14 @@ public:
 
 	int player_turn;
 
+<<<<<<< remotes/origin/alice
+=======
+	// IMPORTANT: Determines if systems can call step()
+	int canStep = 0;
+	int closeWindow = 0;
+	int story = 0;
+
+>>>>>>> local
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -128,6 +136,9 @@ private:
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
 
+	// Story telling
+	void backgroundTelling();
+
 	// Game state
 	RenderSystem* renderer;
 	float current_speed;
@@ -154,7 +165,29 @@ private:
 	Entity restartIC;
 	Entity indicator;
 
+<<<<<<< remotes/origin/alice
 	// music references
+=======
+	Entity curr_tutorial_box;
+	int curr_tutorial_box_num = 0;
+	int tutorial_icon_selected = 1;
+	int tutorial_ability_fired = 1;
+	int tutorial_enabled = 0;
+
+	// UI buttons
+	Entity new_game_button;
+	Entity load_game_button;
+	Entity save_game_button;
+	Entity exit_game_button;
+	Entity open_menu_button;
+	int pauseMenuOpened = 0;
+
+	// story telling system
+	Entity backgroundImage;
+	Entity dialogue;
+
+	// Music References
+>>>>>>> local
 	Mix_Music* background_music;
 	Mix_Chunk* salmon_dead_sound;
 	Mix_Chunk* salmon_eat_sound;
@@ -166,6 +199,15 @@ private:
 	Mix_Chunk* heal_spell_sound;
 	Mix_Chunk* taunt_spell_sound;
 	Mix_Chunk* melee_spell_sound;
+<<<<<<< remotes/origin/alice
+=======
+	Mix_Chunk* silence_spell_sound;
+	Mix_Chunk* lightning_spell_sound;
+	Mix_Chunk* ice_spell_sound;
+	Mix_Chunk* summon_spell_sound;
+	Mix_Chunk* button_hover_sound;
+	Mix_Chunk* turning_sound;
+>>>>>>> local
 
 	// C++ random number generator
 	std::default_random_engine rng;

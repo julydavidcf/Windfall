@@ -917,6 +917,7 @@ Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 
+<<<<<<< remotes/origin/alice
 	if (type == "FB") {
 		motion.scale = { 550.f, 150.f };
 		registry.toolTip.emplace(entity);
@@ -970,8 +971,86 @@ Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
 			{ TEXTURE_ASSET_ID::MELEETOOLTIP,
 			 EFFECT_ASSET_ID::TEXTURED,
 			 GEOMETRY_BUFFER_ID::SPRITE });
+=======
+	UIButton& button = registry.uiButtons.emplace(entity);
+
+	switch (buttonType) {
+		case 1: button_type = TEXTURE_ASSET_ID::NEW_GAME; button.button_type = 1; break;
+		case 2: button_type = TEXTURE_ASSET_ID::LOAD_GAME; button.button_type = 2; break;
+		case 3: button_type = TEXTURE_ASSET_ID::SAVE_GAME; motion.scale = { 200, 80 }; button.button_type = 3; break;
+		case 4: button_type = TEXTURE_ASSET_ID::EXIT_GAME; button.button_type = 4; break;
+		case 5: button_type = TEXTURE_ASSET_ID::GAME_TITLE; motion.scale = { TITLE_WIDTH, TITLE_HEIGHT }; button.button_type = 5; break;
+		case 6: button_type = TEXTURE_ASSET_ID::OPEN_MENU; motion.scale = { 100, 100 }; button.button_type = 6; break;
+		case 7: button_type = TEXTURE_ASSET_ID::CLOSE_MENU; motion.scale = { 100,100}; button.button_type = 7; break;
+		default: break;
+>>>>>>> local
 	}
 
+
+	return entity;
+}
+
+Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { 1200, 800 };
+
+	TEXTURE_ASSET_ID storyBackground = TEXTURE_ASSET_ID::GAME_TITLE;
+
+	registry.storyTellingBackgrounds.emplace(entity);
+
+	switch (number) {
+	case 1: storyBackground = TEXTURE_ASSET_ID::BATTLE; break;
+	case 2: storyBackground = TEXTURE_ASSET_ID::BATTLESUB; break;
+	case 3: storyBackground = TEXTURE_ASSET_ID::ROOM; break;
+	case 4: storyBackground = TEXTURE_ASSET_ID::WHISPER; break;
+	case 5: storyBackground = TEXTURE_ASSET_ID::STORYBEGIN; break;
+	case 6: storyBackground = TEXTURE_ASSET_ID::STARTSCREEN; break;
+	default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ storyBackground,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { DIALOGUE_WIDTH, DIALOGUE_HEIGHT };
+
+	TEXTURE_ASSET_ID dialogue = TEXTURE_ASSET_ID::GAME_TITLE;
+
+	registry.uiButtons.emplace(entity);
+
+	switch (number) {
+	case 1: dialogue = TEXTURE_ASSET_ID::BACKGROUNDONE; break;
+	case 2: dialogue = TEXTURE_ASSET_ID::BACKGROUNDTWO; break;
+	case 3: dialogue = TEXTURE_ASSET_ID::BACKGROUNDTHREE; break;
+	case 4: dialogue = TEXTURE_ASSET_ID::BACKGROUNDFOUR; break;
+	case 5: dialogue = TEXTURE_ASSET_ID::BACKGROUNDFIVE; break;
+	default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ dialogue,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }

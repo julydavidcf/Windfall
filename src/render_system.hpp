@@ -77,6 +77,32 @@ class RenderSystem {
 			textures_path("backgroundLayerThree.png"),
 			textures_path("backgroundLayerFour.png"),
 
+<<<<<<< remotes/origin/alice
+=======
+			// Tutorial text boxes
+			textures_path("tutorial_one.png"),
+			textures_path("tutorial_two.png"),
+			textures_path("tutorial_three.png"),
+			textures_path("tutorial_four.png"),
+			textures_path("tutorial_five.png"),
+			textures_path("tutorial_six.png"),
+			textures_path("tutorial_seven.png"),
+			textures_path("tutorial_eight.png"),
+
+			// Start screen & Pause menu buttons
+			textures_path("new_game.png"),
+			textures_path("new_game_hover.png"),
+			textures_path("load_game.png"),
+			textures_path("load_game_hover.png"),
+			textures_path("save_game.png"),
+			textures_path("exit_game.png"),
+			textures_path("exit_hover.png"),
+			textures_path("game_title.png"),
+			textures_path("open_menu.png"),
+			textures_path("close_menu.png"),
+			textures_path("empty_image.png"),
+
+>>>>>>> local
 			//tootips
 			textures_path("fireBallToolTip.png"),
 			textures_path("iceShardToolTip.png"),
@@ -85,6 +111,7 @@ class RenderSystem {
 			textures_path("tauntToolTip.png"),
 			textures_path("healToolTip.png"),
 
+<<<<<<< remotes/origin/alice
 			// restart
 			textures_path("restartIndicator.png"),
 
@@ -92,6 +119,26 @@ class RenderSystem {
 			textures_path("Victory.png"),
 			textures_path("Defeated.png"),
 			textures_path("loadingToLevelTwo.png")
+=======
+			//storytelling background
+			textures_path("battle.jpg"),
+			textures_path("battleSub.jpg"),
+			textures_path("room.jpg"),
+			textures_path("whisper.png"),
+			textures_path("storyBegin.png"),
+			textures_path("startScreen.png"),
+
+			//dialogue
+			textures_path("backgroundOne.png"),
+			textures_path("backgroundTwo.png"),
+			textures_path("backgroundThree.png"),
+			textures_path("backgroundFour.png"),
+			textures_path("backgroundFive.png"),
+			textures_path("levelOneDialogueOne.png"),
+			textures_path("levelOneDialogueTwo.png"),
+			textures_path("levelOneDialogueThree.png")
+			
+>>>>>>> local
   };
   
 	std::array<GLuint, effect_count> effects;
