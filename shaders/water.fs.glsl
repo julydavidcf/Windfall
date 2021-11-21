@@ -91,7 +91,7 @@ void main()
         outPut = vec3(col*0.1);
     }
     if (gameLevel == 2){
-        outPut = vec3(col*0.25 * vec3(0.2, 0.4, 1.5));
+        outPut = vec3(col*0.1 * vec3(0.2, 0.4, 1.5));
         // outPut = vec3(col*0.5 * vec3(0.5, 0.1, 0.7));
     }
     if (nextLevelTransition) {

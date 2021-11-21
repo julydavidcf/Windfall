@@ -8,7 +8,7 @@ namespace {
 		glGenBuffers(1, &particles_position_buffer);
 		pool.particles_position_buffer = particles_position_buffer;
 		glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-		glBufferData(GL_ARRAY_BUFFER, (1000 * 3 * sizeof(GLfloat)), NULL, GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, (pool.size * 3 * sizeof(GLfloat)), NULL, GL_STREAM_DRAW);
 		// pool.positions = new float[1000 * 3];
 		// int a = 5;
 	}
@@ -686,7 +686,7 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 					}
 				}
 			}
-			if (particle.Life / pool.poolLife < 0.85) {	// adjust 0.85 to change damage, up the value for lower damage
+			if (particle.Life / pool.poolLife < 0.75) {	// adjust 0.85 to change damage, up the value for lower damage
 				updateHealthSignals.second = true;
 			}
 
