@@ -680,7 +680,7 @@ void RenderSystem::draw(float elapsed_ms)
 								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
 								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
 								}
-								case ICESHARD: {
+								default: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
 										*currFrame = 0;
 									}
@@ -689,7 +689,6 @@ void RenderSystem::draw(float elapsed_ms)
 									numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
 								}
 								// Todo: Add more spell cases later
-								default: break;
 							}
 							break;
 						}

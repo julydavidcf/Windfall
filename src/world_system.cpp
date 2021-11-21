@@ -93,6 +93,18 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(ice_spell_sound);
 	if (summon_spell_sound != nullptr)
 		Mix_FreeChunk(summon_spell_sound);
+	if (charge_spell_sound != nullptr)
+		Mix_FreeChunk(charge_spell_sound);
+	if (beam_spell_sound != nullptr)
+		Mix_FreeChunk(beam_spell_sound);
+	if (minion_spawn_sound != nullptr)
+		Mix_FreeChunk(minion_spawn_sound);
+	if (error_sound != nullptr)
+		Mix_FreeChunk(error_sound);
+	if (gesture_heal_sound != nullptr)
+		Mix_FreeChunk(gesture_heal_sound);
+	if (gesture_aoe_sound != nullptr)
+		Mix_FreeChunk(gesture_aoe_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -181,7 +193,13 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
 	ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
 	summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
-
+	charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str()); //https://freesound.org/people/18hiltc/sounds/186048/
+	beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str()); //https://freesound.org/people/MATRIXXX_/sounds/403297/
+	minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str()); //https://freesound.org/people/Breviceps/sounds/453391/
+	error_sound = Mix_LoadWAV(audio_path("error.wav").c_str()); //https://freesound.org/people/plasterbrain/sounds/423169/
+	gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str()); //https://freesound.org/people/SilverIllusionist/sounds/580814/
+	gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str()); //https://freesound.org/people/Aleks41/sounds/406063/
+	
 	if (background_music == nullptr
 		|| salmon_dead_sound == nullptr
 		|| salmon_eat_sound == nullptr
@@ -196,7 +214,13 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| silence_spell_sound == nullptr
 		|| lightning_spell_sound == nullptr
 		|| ice_spell_sound == nullptr
-		|| summon_spell_sound == nullptr) {
+		|| summon_spell_sound == nullptr
+		|| charge_spell_sound == nullptr
+		|| beam_spell_sound == nullptr
+		|| minion_spawn_sound == nullptr
+		|| error_sound == nullptr
+		|| gesture_heal_sound == nullptr
+		|| gesture_aoe_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -212,7 +236,14 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("silence_spell.wav").c_str(),
 			audio_path("lightning_spell.wav").c_str(),
 			audio_path("ice_spell.wav").c_str(),
-			audio_path("summon_spell.wav").c_str());
+			audio_path("summon_spell.wav").c_str(),
+			audio_path("charge_spell.wav").c_str(),
+			audio_path("beam_spell.wav").c_str(),
+			audio_path("minion_spawn.wav").c_str(),
+			audio_path("error.wav").c_str(),
+			audio_path("gesture_heal.wav").c_str(),
+			audio_path("gesture_aoe.wav").c_str()
+			);
 		return nullptr;
 	}
 	return window;
@@ -237,6 +268,12 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	Mix_VolumeChunk(lightning_spell_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(ice_spell_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(summon_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(charge_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(beam_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(minion_spawn_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(error_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(gesture_heal_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(gesture_aoe_sound, MIX_MAX_VOLUME);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -302,7 +339,7 @@ void WorldSystem::createRound() {
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// iterate through all enemies to get speed stats
 		Entity& entity = registry.enemies.entities[i];
-
+		printf("here?\n");
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
@@ -320,7 +357,11 @@ void WorldSystem::createRound() {
 		if (registry.ultimate.has(entity)) {	// need to emplace ultimate onto necro2 for countdown when David implements the skill
 			Ultimate* u = &registry.ultimate.get(entity);
 			u->ultiDuration--;
+			printf("MY ULTIDURATION IS %g \n", float(u->ultiDuration));
 			// need to remove the skill when duration <= 0
+			if (u->ultiDuration <= 0) {			// remove silence to add speed stat later if turns <= 0
+				sk->removeUltimate(entity);
+			}
 		}
 		// also decrement shield duration if present
 		if (registry.shield.has(entity)) {	// need to emplace shield onto necro2 for countdown when David implements the skill
@@ -484,6 +525,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	//collect mouse gesture
 	if (startMousePosCollect == 1) {
 		mouseGestures.push_back(msPos);
+		// creates dots
+		createDot(renderer, msPos);
+	}
+	else {
+		for (int j = 0; j < registry.dots.components.size(); j++) {
+			registry.remove_all_components_of(registry.dots.entities[j]);
+		}
 	}
 
 	//check taunt and silence for enemy and companion
@@ -689,6 +737,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						Mix_PlayChannel(5, summon_spell_sound, 0);
 						printf("summon necrominion \n");
 						sk->launchSummon(renderer);
+						break;
+					}
+					case ULTI: {
+						printf("ultimate attack enemy \n");
+						sk->launchParticleBeam(attack.target);
+						break;
+					}
+					case CHARGING: {
+						printf("ultimate charge enemy \n");
+						currentProjectile = sk->launchParticleBeamCharge(attack.target, renderer);
 						break;
 					}
 					default: break;
@@ -943,9 +1001,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	//tutorial_enabled = 1;
 	//curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
 
-	//necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	// necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
 	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	// necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 
 	if (gameLevel > 1) {
@@ -965,6 +1023,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	//Create a tooltip
 	tooltip;
 	player_turn = 1;	// player turn indicator
+	gestureSkillRemaining = 1; // reset gesture skill remaining
 	roundVec.clear();	// empty vector roundVec to create a new round
 	createRound();
 	checkRound();
@@ -1310,11 +1369,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// testing particle beam
-	if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
-		if (!registry.Particles.has(necromancer_phase_two)) {
-			sk->startParticleBeamAttack(necromancer_phase_two);
-		}
-	}
+	//if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
+	//	if (!registry.Particles.has(necromancer_phase_two)) {
+	//		sk->startParticleBeamAttack(necromancer_phase_two);
+	//	}
+	//}
 
 	// testing deformation of mesh. NOTE: render_system also needs to be updated
 	// to use this
@@ -1342,6 +1401,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(charge_spell_sound, Mix_VolumeChunk(charge_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(beam_spell_sound, Mix_VolumeChunk(beam_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(minion_spawn_sound, Mix_VolumeChunk(minion_spawn_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(error_sound, Mix_VolumeChunk(error_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_heal_sound, Mix_VolumeChunk(gesture_heal_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_aoe_sound, Mix_VolumeChunk(gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
 		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
@@ -1356,6 +1421,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(charge_spell_sound, Mix_VolumeChunk(charge_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(beam_spell_sound, Mix_VolumeChunk(beam_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(minion_spawn_sound, Mix_VolumeChunk(minion_spawn_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(error_sound, Mix_VolumeChunk(error_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_heal_sound, Mix_VolumeChunk(gesture_heal_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_aoe_sound, Mix_VolumeChunk(gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 
@@ -1435,31 +1506,43 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		printf("X inc:%f X dec:%f Yinc:%f Y dec:%f\n",Xincreasing_switch,Xdecreasing_switch,Yincreasing_switch,Ydecreasing_switch);
 		
 		// horisontal line - skill 1: heal
-		if (Xincreasing_switch == 1 && Xdecreasing_switch == 0 &&
-			maxX-aveX>=200 && aveX - minX >= 200 &&
-			maxY-aveY<=50 && aveY - minY <= 50) {
-			// launch heal skill
-			sk->luanchCompanionTeamHeal(50, renderer);
-			update_healthBars();
-			printf("heal Gesture skill activated!");
+		if (gestureSkillRemaining > 0) {
+			if (Xincreasing_switch == 1 && Xdecreasing_switch == 0 &&
+				maxX - aveX >= 200 && aveX - minX >= 200 &&
+				maxY - aveY <= 50 && aveY - minY <= 50) {
+				// launch heal skill
+				Mix_Volume(5, 32);
+				Mix_PlayChannel(5, gesture_heal_sound, 0);
+				sk->luanchCompanionTeamHeal(50, renderer);
+				update_healthBars();
+				gestureSkillRemaining--;	// decrement gestureSkillRemaining
+				printf("heal Gesture skill activated!");
+			}
+			// vertical line -skill 2: aoe damage
+			if (Yincreasing_switch == 1 && Ydecreasing_switch == 0 &&
+				maxX - aveX <= 50 && aveX - minX <= 50 &&
+				maxY - aveY >= 150 && aveY - minY >= 150) {
+				// launch heal skill
+				Mix_Volume(5, 32);
+				Mix_PlayChannel(5, gesture_aoe_sound, 0);
+				sk->luanchEnemyTeamDamage(30, renderer);
+				update_healthBars();
+				gestureSkillRemaining--;	// decrement gestureSkillRemaining
+				printf("damage Gesture skill activated!");
+			}
+			// circle - skill 3: one more turn
+			if (Xincreasing_switch == 0 && Xdecreasing_switch == 0 &&
+				Yincreasing_switch == 0 && Ydecreasing_switch == 0 &&
+				maxX - aveX <= 300 && aveX - minX <= 300 &&
+				maxY - aveY <= 300 && aveY - minY <= 300) {
+				// launch extra one turn
+				gestureSkillRemaining--;	// decrement gestureSkillRemaining
+				printf("one more turn skill activated!");
+			}
 		}
-		
-		// vertical line -skill 2: aoe damage
-		if (Yincreasing_switch == 1 && Ydecreasing_switch == 0 &&
-			maxX - aveX <= 50 && aveX - minX <= 50 &&
-			maxY - aveY >= 200 && aveY - minY >= 200) {
-			// launch heal skill
-			sk->luanchEnemyTeamDamage(30, renderer);
-			update_healthBars();
-			printf("damage Gesture skill activated!");
-		}
-		// circle - skill 3: one more turn
-		if (Xincreasing_switch == 0 && Xdecreasing_switch == 0 &&
-			Yincreasing_switch == 0 && Ydecreasing_switch == 0 &&
-			maxX - aveX <= 300 && aveX - minX <= 300 &&
-			maxY - aveY <= 300 && aveY - minY <= 300) {
-			// launch heal skill
-			printf("one more turn skill activated!");
+		else {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, error_sound, 0);
 		}
 
 		mouseGestures.clear();

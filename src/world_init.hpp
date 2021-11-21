@@ -20,6 +20,8 @@ const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 15.f;
 const float SILENCEBUBBLE_WIDTH = 60.f;
 const float SILENCEBUBBLE_HEIGHT = 40.f;
+const float PARTICLEBEAMCHARGE_WIDTH = 750.f;
+const float PARTICLEBEAMCHARGE_HEIGHT = 750.f;
 const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
 const float ARROW_WIDTH = 80.f;
@@ -55,6 +57,8 @@ const float LIGHTNING_WIDTH = 300.f;
 const float LIGHTNING_HEIGHT = 450.f;
 const float CHARARROW_WIDTH = 60.f;
 const float CHARARROW_HEIGHT = 40.f;
+const float DOT_WIDTH = 30.f;
+const float DOT_HEIGHT = 30.f;
 
 const float TUTORIAL_BOX_WIDTH = 300.f;
 const float TUTORIAL_BOX_HEIGHT = 190.f;
@@ -90,6 +94,8 @@ Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos);
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // create the silence bubble
 Entity createSilenceBubble(RenderSystem* renderer, vec2 position);
+// create the particle beam charge
+Entity createParticleBeamCharge(RenderSystem* renderer, vec2 position);
 // the fireball
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 
@@ -114,6 +120,8 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 Entity createBarrier(RenderSystem* renderer, vec2 position);
 
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
+
+Entity createDot(RenderSystem* renderer, vec2 position);
 
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);

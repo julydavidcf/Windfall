@@ -1610,7 +1610,7 @@ void BTCastParticleBeamCharge::init(Entity e) {
 BTState BTCastParticleBeamCharge::process(Entity e) {
 	printf("Cast Particle Beam Charge \n\n");
 	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	sk.startParticleBeamCharge(e, currPlayer); // FOR TESTING TO REMOVE
 	// return progress
 	return BTState::Success;
 }
@@ -1621,7 +1621,7 @@ BTState BTCastParticleBeamAttack::process(Entity e) {
 	printf("Cast Particle Beam Attack \n\n");
 	SkillSystem sk;	// FOR TESTING TO REMOVE
 	// sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
-	sk.startParticleBeamAttack(e);
+	sk.startParticleBeamAttack(e, currPlayer);
 	// registry.ultimate.emplace(e);
 	// return progress
 	return BTState::Success;
@@ -1674,7 +1674,7 @@ BTRandomTargetLightningAttack randomTargetLightningAttack;	// done
 
 BTCastAOEAttack castAOEAttack;						// TODO
 BTCastParticleBeamCharge castParticleBeamCharge;	// TODO
-BTCastParticleBeamAttack castParticleBeamAttack;	// TODO
+BTCastParticleBeamAttack castParticleBeamAttack;	// done
 BTCastShield castShield;							// TODO
 BTCastCrowsAttack castCrowsAttack;					// TODO
 BTCastSingleTargetAttack castSingleTargetAttack;	// TODO
