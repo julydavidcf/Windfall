@@ -4,6 +4,8 @@
 
 using json = nlohmann::json;
 
+// Determines the file to be included
+// depending on the OS
 #ifdef _WIN64
 #include <direct.h>
 #define GetCurrentDir _getcwd
@@ -51,6 +53,7 @@ std::ifstream get_file(string file_name){
     string iterate_path = curr_path;
     while(true){
         string try_file = iterate_path;
+        // Add the path depending on the OS
         #ifdef _WIN64
             try_file.append("\\..\\levels\\").append(file_name);
         #elif _WIN32
