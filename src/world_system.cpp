@@ -1012,7 +1012,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
 	createBackgroundObject(renderer, { 1160, 315 });
-	auto ent = createBackgroundObject(renderer, { 420, 225 });
+	auto ent = createBackgroundObject(renderer, { 550, 325 });
 	registry.backgroundObjects.get(ent).deformType2 = true;
 
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
