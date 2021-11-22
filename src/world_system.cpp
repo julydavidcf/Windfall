@@ -803,6 +803,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				else if (registry.enemies.has(attacker)) {
 					printf("Enemy is attacking\n");
 					Enemy& enemy = registry.enemies.get(attacker);
+					bool create_minion = false;
 					switch (attack.attack_type) {
 					case TAUNT: {
 						//Mix_PlayChannel(-1, taunt_spell_sound, 0);	// sound moved to skill_system
@@ -859,6 +860,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						Mix_PlayChannel(5, summon_spell_sound, 0);
 						printf("summon necrominion \n");
 						sk->launchSummon(renderer);
+						create_minion = true;
 						break;
 					}
 					case ULTI: {
@@ -902,6 +904,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					enemy.curr_anim_type = IDLE;
 					printf("Not attacking anymore in idle\n");
 					registry.attackers.remove(attacker);
+					if(create_minion){
+						necromancer_minion = createNecromancerMinion(renderer, { 750, 600 });
+					}
 				}
 			}
 		}

@@ -732,7 +732,6 @@ void SkillSystem::launchSummon(RenderSystem* renderer) {
 	else {
 		printf("soundEff failed loading");
 	}
-	createNecromancerMinion(renderer, { 750, 600 });
 	printf("summoned\n");
 }
 
