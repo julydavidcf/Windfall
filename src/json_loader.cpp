@@ -136,6 +136,13 @@ void load_level(json j){
                                                                         entity["position"]["y"]));
                 create_entity = necromancer_phase_one;
                 }
+            // Necromancer2
+            else if(entity["skill"] == "Necromancer2"){
+                printf("Loading the phase 2 necromancer\n");
+                necromancer_phase_two = createNecromancerPhaseTwo(renderer_load, vec2(entity["position"]["x"], 
+                                                                        entity["position"]["y"]));
+                create_entity = necromancer_phase_two;
+                }
 
             else {
                 printf("Given enemy does not exist\n");
@@ -276,7 +283,7 @@ json get_entity(Entity entity){
         comp_num++;
 
     } else if(entity == enemy_swordsman){
-        printf("Saving enemt swordsman");
+        printf("Saving enemy swordsman");
         j["type"] = "Enemy";
         j["skill"] = "Swordsman";
         j["components"][comp_num]["type"] = "colors";
@@ -284,6 +291,14 @@ json get_entity(Entity entity){
         j["components"][comp_num]["vec"]["y"] = 1;
         j["components"][comp_num]["vec"]["z"] = 1;
         comp_num++;
+    } else if(entity == necromancer_phase_one){
+        printf("Saving enemy necromancer phase 1");
+        j["type"] = "Enemy";
+        j["skill"] = "Necromancer1";
+    } else if(entity == necromancer_phase_two){
+        printf("Saving enemy necromancer phase 2");
+        j["type"] = "Enemy";
+        j["skill"] = "Necromancer2";
     } 
     if(registry.motions.has(entity)){
         Motion motion = registry.motions.get(entity);
