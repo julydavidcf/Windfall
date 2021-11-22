@@ -88,7 +88,7 @@ void main()
     vec3 col2 = col + vec3(fbm(uv, 3., 2.4));
     vec3 col3 = col2 + vec3(fbm(uv, 1., 3.4));
     if (gameLevel == 1) {
-        outPut = vec3(col*0.1);
+        outPut = vec3(col*0.0);
     }
     if (gameLevel == 2){
         outPut = vec3(col*0.1 * vec3(0.2, 0.4, 1.5));
@@ -113,10 +113,10 @@ void main()
             vec2 lightBall = uv2 - starCentre;
             float lightBallLuminance = max( 0.0, 1.0 - dot( lightBall, lightBall ) );
             vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 9000.0 );
+            if (gameLevel > 1) {
             color += vec4(col * 1.2, 1.0);
             color += vec4(vec3(0.9, 0.8, 0.4) * 0.5 * pow( lightBallLuminance, 3000.0 ), 1.0);
-
-        // } 
+            }
     }
 
     for(int i = 25; i < 50; i++) {
@@ -143,8 +143,10 @@ void main()
             vec2 vUvMoonDiff = uv2 - starCentre;
             float fMoonDot = max( 0.0, 1.0 - dot( vUvMoonDiff, vUvMoonDiff ) );
             vec3 col = vec3(0.1, 0.2, 0.5) * 0.7 * pow( fMoonDot, 8000.0 );
+            if (gameLevel > 1) {
             color += vec4(col, 1.0);
             color += vec4(vec3(0.1, 0.2, 0.5) * pow( fMoonDot, 3000.0 ), 1.0);
+            }
 
        //  } 
     }
@@ -170,7 +172,5 @@ void main()
             vec3 col = vec3(0.9, 0.8, 0.4) * 0.3 * pow( fMoonDot, 8000.0 );
             // color += vec4(col, 1.0);
             // color += vec4(vec3(0.9, 0.8, 0.4) * 0.5 *pow( fMoonDot, 3000.0 ), 1.0);
-
-        // } 
     }        
 }
