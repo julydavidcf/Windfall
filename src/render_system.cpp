@@ -717,6 +717,14 @@ void RenderSystem::draw(float elapsed_ms)
 							}
 							break;
 						}
+						case WALKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
+								*currFrame = 0;
+							}
+							numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
+						}
 						case DEAD: {
 							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH) {
 								*currFrame = 0;

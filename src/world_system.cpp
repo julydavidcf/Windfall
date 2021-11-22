@@ -657,13 +657,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				attack.counter_ms = 800.f;
 			}
 			else if (runner_type == NECROMANCER_TWO) {
+				runner_motion.position = vec2(run.target_position.x - 25, runner_motion.position.y);
 				if (run.bleedOrAOE == 0) {
 					attack.attack_type = BLEEDMELEE;
 				}
 				else {
 					attack.attack_type = AOEMELEE;
 				}
-				attack.counter_ms = 800.f;
+				attack.counter_ms = 4000.f;
 			}
 			
 			registry.runners.remove(runner);
@@ -813,11 +814,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						break;
 					}
 					case BLEEDMELEE: {
+						Motion& motion = registry.motions.get(attacker);
+						motion.position = attack.old_pos;
+						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
+						healthbar_motion.position.x = attack.old_pos.x;
 						sk->launchMelee(attack.target, renderer);
 						sk->launchBleed(attack.target, renderer);
 						break;
 					}
 					case AOEMELEE: {
+						Motion& motion = registry.motions.get(attacker);
+						motion.position = attack.old_pos;
+						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
+						healthbar_motion.position.x = attack.old_pos.x;
 						if (registry.motions.has(player_mage)) {
 							sk->launchMelee(player_mage, renderer);
 						}

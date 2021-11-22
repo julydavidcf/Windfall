@@ -257,6 +257,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 
 		if (enemy.enemyType == NECROMANCER_TWO) {
 			rt.bleedOrAOE = bleedOrAOE;
+			rt.counter_ms = 0.f;
 		}
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
@@ -268,7 +269,9 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 			else if (enemy.enemyType == NECROMANCER_MINION) {
 				timer.counter_ms = rt.counter_ms + 800.f + animation_timer;
 			}
-
+			else if (enemy.enemyType == NECROMANCER_TWO) {
+				timer.counter_ms = rt.counter_ms + 4000.f + animation_timer;
+			}
 
 		}
 

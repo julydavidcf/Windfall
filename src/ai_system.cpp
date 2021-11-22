@@ -1599,8 +1599,16 @@ void BTCastAOEAttack::init(Entity e) {
 }
 BTState BTCastAOEAttack::process(Entity e) {
 	printf("Cast AOE Attack \n\n");
+	int j = 0;
 	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startMeleeAttack(e, currPlayer, 1); // FOR TESTING TO REMOVE
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.motions.get(toGet).position.x > j) {
+			j = registry.motions.get(toGet).position.x;
+			target = toGet;	// get nearest player entity
+		}
+	}
+	sk.startMeleeAttack(e, target, 1); // FOR TESTING TO REMOVE
 	// return progress
 	return BTState::Success;
 }
