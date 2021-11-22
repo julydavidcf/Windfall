@@ -514,11 +514,11 @@ void SkillSystem::launchNecroBarrier(Entity target, RenderSystem* renderer) {
 	if (!registry.shield.has(target)) {
 		registry.shield.emplace(target);
 		Shield* sh = &registry.shield.get(target);
-		sh->shieldDuration = 2;
+		sh->shieldDuration = 3;
 	}
 	else {
 		Shield* sh = &registry.shield.get(target);
-		sh->shieldDuration = 2;
+		sh->shieldDuration = 3;
 	}
 }
 
