@@ -732,7 +732,7 @@ void SkillSystem::launchSummon(RenderSystem* renderer) {
 	else {
 		printf("soundEff failed loading");
 	}
-	//createNecromancerMinion(renderer, { 750, 600 });
+	createNecromancerMinion(renderer, { 750, 600 });
 	printf("summoned\n");
 }
 
@@ -781,7 +781,7 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 					}
 				}
 			}
-			if (particle.Life / pool.poolLife < 0.75) {	// adjust 0.85 to change damage, up the value for lower damage
+			if (particle.Life / pool.poolLife < 0.8) {	// adjust 0.8 to change damage, up the value for lower damage
 				updateHealthSignals.second = true;
 			}
 

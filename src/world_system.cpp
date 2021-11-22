@@ -579,7 +579,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
 		roundVec.clear();	// empty vector roundVec to create a new round
 		createBackgroundObject(renderer, { 1160, 315 });
-		auto ent = createBackgroundObject(renderer, { 420, 225 });
+		auto ent = createBackgroundObject(renderer, { 550, 325 });
 		registry.deformableEntities.get(ent).deformType2 = true;
 		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
 		createRound();
@@ -1671,7 +1671,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
 		// START A NEW GAME	
-		loadedLevel = 1;
+		loadedLevel = 3;
 		loaded_game = false;
 		restart_game(false);
 		canStep = 1;

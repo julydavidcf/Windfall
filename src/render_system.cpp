@@ -599,13 +599,29 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						case ATTACKING: {
 							switch (registry.attackers.get(entity).attack_type) {
-								case SUMMONING: {
+								/*case SUMMONING: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
 										*currFrame = 0;
 									}	
 									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
 									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
 									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME; break;
+								}*/
+								case SUMMONING: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
+									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME;
+
+									if (*currFrame == NECRO_ONE_SUMMONING_FRAMES - 1) {
+										registry.enemies.get(entity).curr_anim_type = IDLE;
+										currTexture = TEXTURE_ASSET_ID::NECRO_ONE_IDLE;
+										currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE;
+										numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAME_WIDTH; timePerFrame = NECRO_ONE_IDLE_FRAME_TIME; break;
+									}
+									break;
 								}
 								default: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING) {
