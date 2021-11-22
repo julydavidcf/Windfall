@@ -204,8 +204,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
 		if (render_request.used_effect == EFFECT_ASSET_ID::BACKGROUND_OBJ) {
-			if (registry.backgroundObjects.has(entity)) {
-				auto& backgroundObj = registry.backgroundObjects.get(entity);
+			if (registry.deformableEntities.has(entity)) {
+				auto& backgroundObj = registry.deformableEntities.get(entity);
 				glUniform1f(glGetUniformLocation(program, "time"), deformTime);
 				if (backgroundObj.shouldDeform) {
 					if (!implode) {
@@ -488,11 +488,9 @@ void RenderSystem::draw(float elapsed_ms)
 				// Get the type of character (MAGE, SWORDSMAN, ARCHER, HEALER, NECROMANCER)
 				int charType = registry.companions.has(entity) ? registry.companions.get(entity).companionType
 					: registry.enemies.get(entity).enemyType;
-
 				// Get the type of animation (IDLE, ATTACKING, DEAD)
 				int animType = registry.companions.has(entity) ? registry.companions.get(entity).curr_anim_type
 					: registry.enemies.get(entity).curr_anim_type;
-
 				// Get the current texture to alter
 				TEXTURE_ASSET_ID& currTexture = registry.renderRequests.get(entity).used_texture;
 				// Get the current geometry to alter
@@ -601,13 +599,29 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						case ATTACKING: {
 							switch (registry.attackers.get(entity).attack_type) {
-								case SUMMONING: {
+								/*case SUMMONING: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
 										*currFrame = 0;
 									}	
 									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
 									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
 									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME; break;
+								}*/
+								case SUMMONING: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
+									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME;
+
+									if (*currFrame == NECRO_ONE_SUMMONING_FRAMES - 1) {
+										registry.enemies.get(entity).curr_anim_type = IDLE;
+										currTexture = TEXTURE_ASSET_ID::NECRO_ONE_IDLE;
+										currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE;
+										numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAME_WIDTH; timePerFrame = NECRO_ONE_IDLE_FRAME_TIME; break;
+									}
+									break;
 								}
 								default: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING) {

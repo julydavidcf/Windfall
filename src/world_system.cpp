@@ -2,6 +2,7 @@
 #include "world_system.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "json_loader.hpp"
 
 // stlib
 #include <cassert>
@@ -17,12 +18,34 @@ const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
-const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
+const vec2 TURN_INDICATOR_LOCATION = { 600, 120 };
 const int NUM_DEATH_PARTICLES = 4000;
 vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
+
+Entity player_mage;
+Entity enemy_mage;
+Entity player_swordsman;
+Entity enemy_swordsman;
+Entity necromancer;
+Entity necromancer_phase_one;
+Entity necromancer_phase_two;
+Entity necromancer_minion;
+Entity silence_icon;
+
+//icons
+Entity melee_icon;
+Entity iceShard_icon;
+Entity fireBall_icon;
+Entity taunt_icon;
+Entity heal_icon;
+Entity rock_icon;
+
+int16 gameLevel;
+int16 loadedLevel;
+
 
 Entity currPlayer;
 //Entity target;
@@ -41,6 +64,8 @@ float enemy_turn_timer = 1000;
 int FIREBALLSELECTED = 0;
 int SILENCESELECTED = 0;
 
+bool loaded_game = false;
+
 int selected_skill = -1;
 
 //mouse gesture skills related=============
@@ -57,7 +82,7 @@ Entity selectedButton;
 Entity currentProjectile;
 
 WorldSystem::WorldSystem()
-	: points(0), gameLevel(1) {
+	: points(0) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -404,9 +429,12 @@ void WorldSystem::createRound() {
 			Shield* sh = &registry.shield.get(entity);
 			if (sh->shieldDuration > 0) {
 				sh->shieldDuration--;
+				printf("ENTITY IS %g \n", float(registry.stats.get(entity).speed));
+				printf("MY SHIELD IS %g \n", float(sh->shieldDuration));
 			}
 			else {
-				registry.remove_all_components_of(entity);
+				//registry.remove_all_components_of(entity);
+				sk->removeShield(entity);
 			}
 			
 		}
@@ -420,8 +448,8 @@ void WorldSystem::createRound() {
 		}
 	}
 
-	for (int i = 0; i < registry.shield.components.size(); i++) {
-		Shield& sh = registry.shield.components[i];
+	for (int i = 0; i < registry.shieldIcons.components.size(); i++) {
+		ShieldIcon& sh = registry.shieldIcons.components[i];
 		sh.shieldDuration -= 1;
 	}
 
@@ -546,7 +574,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// restart game if enemies or companions are 0
-	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0)) {
+	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0)) {
+		restart_game();
+	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
+		roundVec.clear();	// empty vector roundVec to create a new round
+		createBackgroundObject(renderer, { 1160, 315 });
+		auto ent = createBackgroundObject(renderer, { 550, 325 });
+		registry.deformableEntities.get(ent).deformType2 = true;
+		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
+		createRound();
+		checkRound();
+	} else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0))){
 		restart_game();
 	}
 
@@ -624,15 +662,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	for (int i = (int)registry.shield.components.size() - 1; i >= 0; --i) {
-		if (registry.shield.has(registry.shield.entities[i])) {	// need to emplace shield onto necro2 for countdown when David implements the skill
-			Shield* sh = &registry.shield.get(registry.shield.entities[i]);
-			if (sh->shieldDuration < 0) {
-				registry.remove_all_components_of(registry.shield.entities[i]);
-			}
-			
+	for (int i = (int)registry.shieldIcons.components.size() - 1; i >= 0; --i) {
 
-		}
+			ShieldIcon* sh = &registry.shieldIcons.get(registry.shieldIcons.entities[i]);
+			if (sh->shieldDuration <= 0) {
+				registry.remove_all_components_of(registry.shieldIcons.entities[i]);
+			}
+		
 	}
 
 	// maintain correct health
@@ -1028,23 +1064,28 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 // Reset the world state to its initial state
 void WorldSystem::restart_game(bool force_restart) {
+	JSONLoader json_loader;
+	json_loader.init(renderer);
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
-		gameLevel++;
-		renderer->transitioningToNextLevel = true;
-		renderer->gameLevel = gameLevel;
+		if(gameLevel < 3){
+			renderer->transitioningToNextLevel = true;
+			renderer->gameLevel = gameLevel;
+			gameLevel++;
+			printf("Updated gamel level %d\n", gameLevel);
+		}
 	}
 	if (gameLevel > MAX_GAME_LEVELS) {
-		gameLevel = 1;
+		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
 	}
 	if (registry.companions.size() == 0) {
-		gameLevel = 1;
+		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
 		// renderer->transitioningToNextLevel = true;
 	}
 	if (force_restart) {
-		gameLevel = 1;
+		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
 	}
 
@@ -1078,57 +1119,53 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	// Pause menu button
 	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
-
-	// Create a player mage
-	player_mage = createPlayerMage(renderer, { 150, 550 });
-	// Create a player swordsman
-	// player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
-	// Create an enemy mage
-	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
-	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
-
-	createBackgroundObject(renderer, { 1160, 315 });
-	auto ent = createBackgroundObject(renderer, { 550, 325 });
-	registry.backgroundObjects.get(ent).deformType2 = true;
-
-	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
-	//// Create an enemy mage
-	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
-	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
-
-	// necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
-	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-	// necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
-	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
-
-	if (gameLevel > 1) {
-		// Create an enemy swordsman
-		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
-		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+	bool hasSaveFile = false;
+	if(loaded_game){
+		hasSaveFile = json_loader.get_save_file();
+		if(hasSaveFile){
+			gameLevel = loadedLevel;
+			renderer->gameLevel = gameLevel;
+		} else {
+			loadedLevel = 1;
+			gameLevel = loadedLevel;
+			renderer->gameLevel = gameLevel;
+		}
+		loaded_game = false;
+		printf("Loaded game is now false\n");
 	}
+	if(!hasSaveFile){
+		printf("Loading a file\n");
+		if(gameLevel == 1){
+			printf("Loading level 1\n");
+			json_loader.get_level("level_1.json");
 
-	// Create the icons here
-	taunt_icon = createTauntIcon(renderer, { 400, 700 });
-	heal_icon = createHealIcon(renderer, { 550, 700 });
-	melee_icon = createMeleeIcon(renderer, { 700, 700 });
-	iceShard_icon = createIceShardIcon(renderer, { 850, 700 });
-	fireBall_icon = createFireballIcon(renderer, { 1000, 700 });
-	rock_icon = createRockIcon(renderer, { 1150, 700 });
+			tutorial_enabled = 1;
+			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
+			curr_tutorial_box_num = 0;
+
+		} else if(gameLevel == 2){
+			printf("Loading level 2\n");
+			json_loader.get_level("level_2.json");
+		} else if(gameLevel == 3){
+			printf("Loading level 3 phase 1\n");
+			json_loader.get_level("level_3.json");
+		} else{
+			printf("Incorrect level\n");
+		}
+		roundVec.clear();	// empty vector roundVec to create a new round
+		createRound();
+		checkRound();
+	} else {
+		loaded_game = false;
+	}
 
 	//Create a tooltip
 	tooltip;
 	player_turn = 1;	// player turn indicator
 	gestureSkillRemaining = 1; // reset gesture skill remaining
-	roundVec.clear();	// empty vector roundVec to create a new round
-	createRound();
-	checkRound();
 	showCorrectSkills();
 	displayPlayerTurn();	// display player turn when restart game
-
-	// Create the first tutorial box
-	tutorial_enabled = 1;
-	curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
-	curr_tutorial_box_num = 0;
+	update_healthBars();
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -1284,6 +1321,9 @@ void WorldSystem::handle_collisions() {
 							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
 							showCorrectSkills();
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
+								sk->removeTaunt(entity);
+								sk->removeSilence(entity);
+								sk->removeBleed(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
 							else {
@@ -1310,6 +1350,7 @@ void WorldSystem::handle_collisions() {
 					Companion& companion = registry.companions.get(entity);
 					companion.curr_anim_type = DEAD;
 				}
+
 				else if (registry.enemies.has(entity)) {
 					printf("Enemy is dead\n");
 					Enemy& enemy = registry.enemies.get(entity);
@@ -1372,11 +1413,18 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// handle collisions with background objects
-		if (registry.backgroundObjects.has(entity) && registry.projectiles.has(entity_other)) {
-			auto& backgroundObj = registry.backgroundObjects.get(entity);
-			backgroundObj.shouldDeform = true;
+		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other)) {
+			auto& backgroundObj = registry.deformableEntities.get(entity);
+			if (!registry.reflects.has(entity)) {
+				backgroundObj.shouldDeform = true;
+			}
+			/*if (registry.reflects.has(entity)) {
+				backgroundObj.deformType2 = true;
+			}*/
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
-			registry.remove_all_components_of(entity_other);
+			if (!registry.reflects.has(entity)) {
+				registry.remove_all_components_of(entity_other);
+			}
 			//enemy turn start
 			if (player_turn == 0) {
 				if (!registry.checkRoundTimer.has(currPlayer)) {
@@ -1412,6 +1460,10 @@ void WorldSystem::handle_collisions() {
 					reflectEM->angle = reflectE;
 					printf("calculated %f\n", reflectE);
 					printf("actual %f\n", reflectEM->angle);
+
+					 auto& shieldMesh = registry.deformableEntities.get(entity_other);
+					shieldMesh.shouldDeform = true;
+					shieldMesh.deformType2 = true;
 				}
 			}
 		}
@@ -1455,13 +1507,20 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// david test
-	if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-		sk->luanchNecroCompanionTeamBleed(renderer);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+	//	Entity target;
+	//	for (int i = 0; i < registry.companions.components.size(); i++) {
+	//		Entity toGet = registry.companions.entities[i];
+	//		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
+	//			target = toGet;
+	//		}
+	//	}
+	//	sk->launchLightning(target, renderer);
+	//}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-		sk->launchSpike(player_mage, renderer);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+	//	sk->launchSpike(player_mage, renderer);
+	//}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
 		sk->launchNecroBarrier(necromancer_phase_two, renderer);
@@ -1546,19 +1605,19 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	// For start menu and pause menu click detection
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
-
+			// START A NEW GAME
 			// Direct to background story telling first
 			int w, h;
 			glfwGetWindowSize(window, &w, &h);
-
 			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
-			dialogue = createDiaogue(renderer, { w / 2, 650}, 1);
-
+			dialogue = createDiaogue(renderer, { w / 2, 650 }, 1);
 			story = 1;
 		}
 		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
-			// LOAD THE SAVED JSON FILE (IF ANY)
-			// Todo: implement
+			loaded_game = true;
+			loadedLevel = -1;
+			restart_game(false);
+			canStep = 1;
 		}
 		else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// EXIT TO DESKTOP
@@ -1625,8 +1684,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		story = 7;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
-		// START A NEW GAME			
-		restart_game();
+		// START A NEW GAME	
+		loadedLevel = 3;
+		loaded_game = false;
+		restart_game(false);
 		canStep = 1;
 	}
 
@@ -1748,15 +1809,15 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
 		}
 		else if (pauseMenuOpened) {
-			
 			if (inButton(registry.motions.get(save_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 				// SAVE THE CURRENT GAME STATE
-				pauseMenuOpened = 0;
+				JSONLoader jl;
+				jl.save_game();
 				// Todo: implement
 
 			}
 			
-			if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 				// GO BACK TO START MENU
 				pauseMenuOpened = 0;
 				canStep = 0;
@@ -1767,7 +1828,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				return;
 			}
 			
-			if (inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
+			else if (inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
 				// HIDE MENU OPTIONS
 				registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::OPEN_MENU;
 				// Clear on-screen buttons

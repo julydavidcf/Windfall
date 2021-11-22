@@ -55,7 +55,6 @@ public:
 	void startRockAttack(Entity origin, Entity target);
 	void startLightningAttack(Entity origin, Entity target);
 	void startHealAttack(Entity origin, Entity target);
-	void startMeleeAttack(Entity origin, Entity target);
 	void startSummonAttack(Entity origin);
 	void startParticleBeamAttack(Entity origin, Entity target);
 	void startParticleBeamCharge(Entity origin, Entity target);

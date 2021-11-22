@@ -1,0 +1,85 @@
+{
+    "entities": [
+        {
+            "type": "Companion",
+            "skill": "Mage",
+            "position": 
+                {
+                    "x": 100,
+                    "y": 575
+                }
+        },
+        {
+            "type": "Companion",
+            "skill": "Swordsman",
+            "position": 
+                {
+                    "x": 275,
+                    "y": 500
+                }
+        },
+        {
+            "type": "Enemy",
+            "skill": "Necromancer1",
+            "position": 
+                {
+                    "x": 1000,
+                    "y": 550
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Taunt",
+            "position": 
+                {
+                    "x": 300,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Heal",
+            "position": 
+                {
+                    "x": 400,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Melee",
+            "position": 
+                {
+                    "x": 500,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Iceshard",
+            "position": 
+                {
+                    "x": 600,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Fireball",
+            "position": 
+                {
+                    "x": 700,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Rock",
+            "position": 
+                {
+                    "x": 800,
+                    "y": 700
+                }
+        }
+    ]
+}

@@ -137,27 +137,10 @@ private:
 	SkillSystem* sk;
 
 	float current_speed;
-	Entity player_mage;
-	Entity enemy_mage;
-	Entity player_swordsman;
-	Entity enemy_swordsman;
-
-	Entity necromancer_phase_one;
-	Entity necromancer_phase_two;
-	Entity necromancer_minion;
 
 	Entity fireball;
-	//Entity fireball_icon;
 	Entity silence_icon;
 	Entity iceShard;
-
-	//icons
-	Entity melee_icon;
-	Entity iceShard_icon;
-	Entity fireBall_icon;
-	Entity taunt_icon;
-	Entity heal_icon;
-	Entity rock_icon;
 	Entity tooltip;
 
 
@@ -219,8 +202,7 @@ private:
 	float ARROWSPEED = 700.f;
 	float ICESHARDSPEED = 100.f;
 
-	int16 gameLevel;
-	const int16 MAX_GAME_LEVELS = 2;
+	const int16 MAX_GAME_LEVELS = 3;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee

@@ -16,7 +16,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to companion mage
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = player_swordsman_hp;
+	stat.health = player_mage_hp;
 	stat.speed = 14;
 	stat.classID = 0;
 	
@@ -89,8 +89,7 @@ Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
 			EFFECT_ASSET_ID::BACKGROUND_OBJ,
 			GEOMETRY_BUFFER_ID::BACKGROUND_OBJ });
 
-	registry.backgroundObjects.insert(entity, {});
-	// renderer->enemyMage = entity;
+	registry.deformableEntities.insert(entity, {});
 	return entity;
 }
 
@@ -102,7 +101,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = { pos.x + 65, pos.y - 10 };
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
@@ -179,7 +178,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, {pos.x, pos.y - motion.scale.y/2});
 	enemy.enemyType = NECROMANCER_MINION;
 
 	// Minion should use appearing anim initially
@@ -215,7 +214,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, { pos.x, pos.y - motion.scale.y / 2 });
 	enemy.enemyType = NECROMANCER_ONE;
 
 	registry.renderRequests.insert(
@@ -247,8 +246,12 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, { pos.x, pos.y - motion.scale.y / 4 });
 	enemy.enemyType = NECROMANCER_TWO;
+
+	// Emplace ultimate component to delay ultimate attack
+	Ultimate& u = registry.ultimate.emplace(entity);
+	u.ultiDuration = 2;	// allows necro2 to use ultimate after one round
 
 	registry.renderRequests.insert(
 		entity,
@@ -591,7 +594,8 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.reflects.emplace(entity);
-	registry.shield.emplace(entity);
+
+	registry.shieldIcons.emplace(entity);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -600,11 +604,19 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	motion.position = position;
 	motion.scale = vec2({ BARRIER_WIDTH, BARRIER_HEIGHT });
 
-	registry.renderRequests.insert(
+	/*registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BARRIER,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 GEOMETRY_BUFFER_ID::SPRITE });*/
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::BACKGROUND_OBJ,
+			GEOMETRY_BUFFER_ID::SHIELD_MESH });
+
+	registry.deformableEntities.insert(entity, {});
 
 	return entity;
 }

@@ -167,6 +167,12 @@ struct Shield
 	int shieldDuration = 3;	// 3 to account for -1 after enemy turn
 };
 
+
+struct ShieldIcon
+{
+	int shieldDuration = 2;	// 3 to account for -1 after enemy turn
+};
+
 // reflects projectile
 struct Reflect
 {
@@ -553,7 +559,8 @@ enum class GEOMETRY_BUFFER_ID {
 	BACKGROUND = NECRO_MINION_DEATH + 1,
 
 	BACKGROUND_OBJ = BACKGROUND + 1,
-	GEOMETRY_COUNT = BACKGROUND_OBJ + 1
+	SHIELD_MESH = BACKGROUND_OBJ + 1,
+	GEOMETRY_COUNT = SHIELD_MESH + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
