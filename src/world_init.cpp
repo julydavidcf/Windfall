@@ -16,7 +16,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to companion mage
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = player_swordsman_hp;
+	stat.health = player_mage_hp;
 	stat.speed = 14;
 	stat.classID = 0;
 	
