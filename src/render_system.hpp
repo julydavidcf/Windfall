@@ -25,7 +25,8 @@ class RenderSystem {
 	// Associated id with .obj path
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ, mesh_path("basicEnemy.obj"))
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ, mesh_path("basicEnemy.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SHIELD_MESH, mesh_path("necroBarrier.obj")),
 		  // specify meshes of other assets here
 	};
 
@@ -187,7 +188,7 @@ class RenderSystem {
 
 	float NECRO_TWO_APPEAR_FRAME_TIME = 250;
 	float NECRO_TWO_IDLE_FRAME_TIME = 200;
-	float NECRO_TWO_MELEE_FRAME_TIME = 100;
+	float NECRO_TWO_MELEE_FRAME_TIME = 150;
 	float NECRO_TWO_CASTING_FRAME_TIME = 150;
 	float NECRO_TWO_DEATH_FRAME_TIME = 250;
 
@@ -337,7 +338,7 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection, GLint& frame, GLfloat& frameWidth, float elapsed_ms);
 	void drawDeathParticles(Entity entity, const mat3& projection);
-	void initParticlesBuffer();
+	// void initParticlesBuffer();
 	void drawToScreen();
 
 	// Window handle
@@ -352,7 +353,7 @@ private:
 
 	Entity screen_state_entity;
 
-	GLuint particles_position_buffer;
+	// GLuint particles_position_buffer;
 	float deformTime = 0.f;
 };
 

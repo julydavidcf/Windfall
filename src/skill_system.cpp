@@ -2,6 +2,17 @@
 
 #include <random>
 
+namespace {
+	void initParticlesBuffer(ParticlePool& pool) {
+		GLuint particles_position_buffer;
+		glGenBuffers(1, &particles_position_buffer);
+		pool.particles_position_buffer = particles_position_buffer;
+		glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
+		glBufferData(GL_ARRAY_BUFFER, (pool.size * 3 * sizeof(GLfloat)), NULL, GL_STREAM_DRAW);
+		// pool.positions = new float[1000 * 3];
+		// int a = 5;
+	}
+}
 
 SkillSystem::SkillSystem() { }
 
@@ -355,50 +366,44 @@ void SkillSystem::startParticleBeamAttack(Entity origin, Entity target) {
 		attack.target = target;
 		attack.counter_ms = 2000.f;
 
-		if (!registry.Particles.has(origin)) {
-			Particle particleEffects;
-			particleEffects.Life = 2500.f;
-			particleEffects.areTypeDeath = false;
-			particleEffects.motion.scale = vec2(9.f, 9.f);
-			for (int p = 0; p < 4000; p++) {
-				auto motion = registry.motions.get(origin);
-				motion.position.y += 150.f;
+		if (!registry.particlePools.has(origin)) {
+			ParticlePool particlePool(1000);
+			// particlePool.size = 1000;
+			initParticlesBuffer(particlePool);
+			particlePool.poolLife = 2500.f;
+			particlePool.areTypeDeath = false;
+			particlePool.motion.scale = vec2(9.f, 9.f);
+
+			for (int p = 0; p < particlePool.size; p++) {
+				auto originMotion = registry.motions.get(origin);
+				originMotion.position.y += 150.f;
 				Particle particle;
-				particle.Life = particleEffects.Life;
-				// float random1 = ((rand() % 100) - 50) / 10.0f;
-				// float random2 = ((rand() % 200) - 100) / 10.0f;
+				particle.Life = particlePool.poolLife;
 
 				std::random_device rdx; // obtain a random number from hardware
 				std::mt19937 genX(rdx()); // seed the generator
-				std::uniform_int_distribution<> distrX((int)motion.position.x - 50, (int)motion.position.x - 40); // define the range
+				std::uniform_int_distribution<> distrX((int)originMotion.position.x - 50, (int)originMotion.position.x - 40); // define the range
 
-				std::random_device rdy; // obtain a random number from hardware
-				std::mt19937 genY(rdy()); // seed the generator
-				std::uniform_int_distribution<> distrY((int)motion.position.y - 20, (int)motion.position.y + 20); // define the range
-
+				std::random_device rdy;
+				std::mt19937 genY(rdy());
+				std::uniform_int_distribution<> distrY((int)originMotion.position.y - 20, (int)originMotion.position.y + 20);
 
 				float rColor = 0.5f + ((rand() % 100) / 100.0f);
-				// particle.motion.position.x = motion.position.x + random1 + 20.f;
-				// particle.motion.position.y = motion.position.y  + random2 - 40.f;
+				particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+
 				particle.motion.position = vec2(distrX(genX), distrY(genY));
 
-				particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
-				// particle.motion.velocity.x = -100.f;
-
-				std::uniform_int_distribution<> distrVelX(0, 1200); // define the range
-				std::uniform_int_distribution<> distrVelY(-60, 60); // define the range
+				std::uniform_int_distribution<> distrVelX(0, 1200);
+				std::uniform_int_distribution<> distrVelY(-60, 60);
 				particle.motion.velocity.x = (float)distrVelX(genX);
 				particle.motion.velocity.y = (float)distrVelY(genY);
-				// particle.motion.velocity.y = 0.f;
-				// particle.angle = distrVelY(genY);
 
-				// particle.motion.scale = vec2({ 10, 10 });
-				particleEffects.deathParticles.push_back(particle);
-				particleEffects.positions[p * 3 + 0] = particle.motion.position.x;
-				particleEffects.positions[p * 3 + 1] = particle.motion.position.y;
-				particleEffects.positions[p * 3 + 2] = particle.Life / particleEffects.Life;
+				particlePool.particles.push_back(particle);
+				particlePool.positions[p * 3 + 0] = particle.motion.position.x;
+				particlePool.positions[p * 3 + 1] = particle.motion.position.y;
+				particlePool.positions[p * 3 + 2] = particle.Life / particlePool.poolLife;
 			}
-			registry.Particles.insert(origin, particleEffects);
+			registry.particlePools.insert(origin, particlePool);
 		}
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
@@ -727,7 +732,7 @@ void SkillSystem::launchSummon(RenderSystem* renderer) {
 	else {
 		printf("soundEff failed loading");
 	}
-	//createNecromancerMinion(renderer, { 750, 600 });
+	createNecromancerMinion(renderer, { 750, 600 });
 	printf("summoned\n");
 }
 
@@ -751,17 +756,17 @@ void SkillSystem::launchParticleBeam(Entity target) {
 
 std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float w, float h) {
 	std::pair<bool, bool> updateHealthSignals = {false, false};
-	if (registry.Particles.has(origin)) {
-		auto& originMotion = registry.motions.get(origin);
-		Particle& particles = registry.Particles.get(origin);
-		for (int i = 0; i < particles.deathParticles.size(); i++) {
-			auto& particle = particles.deathParticles[i];
+	if (registry.particlePools.has(origin)) {
+		// auto& originMotion = registry.motions.get(origin);
+		ParticlePool& pool = registry.particlePools.get(origin);
+		for (int i = 0; i < pool.particles.size(); i++) {
+			auto& particle = pool.particles[i];
 			particle.Life -= elapsed_ms_since_last_update * 0.5;
 
 			if (particle.Life <= 0.f) {
-				particles.fadedParticles++;
-				delete[] particle.positions;
+				pool.fadedParticles++;
 			}
+
 			float step_seconds = 1.0f * (elapsed_ms_since_last_update / 1000.f);
 			particle.motion.position.x -= particle.motion.velocity.x * step_seconds;
 			if (particle.motion.position.x <= w / 1.50) {
@@ -769,26 +774,26 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 			}
 			if (!updateHealthSignals.first) {
 				for (auto& companion : registry.companions.entities) {
-					auto& motion = registry.motions.get(companion);
-					if (abs(motion.position.x - particle.motion.position.x) <= 2) {
+					auto& companionMotion = registry.motions.get(companion);
+					if (abs(companionMotion.position.x - particle.motion.position.x) <= 2) {
 						updateHealthSignals.first = true;
 						break;
 					}
 				}
 			}
-			if (particle.Life / particles.Life < 0.85) {	// adjust 0.85 to change damage, up the value for lower damage
+			if (particle.Life / pool.poolLife < 0.8) {	// adjust 0.8 to change damage, up the value for lower damage
 				updateHealthSignals.second = true;
 			}
 
-			particles.positions[i * 3 + 0] = particle.motion.position.x;
-			particles.positions[i * 3 + 1] = particle.motion.position.y;
-			particles.positions[i * 3 + 2] = particle.Life/ particles.Life;
+			pool.positions[i * 3 + 0] = particle.motion.position.x;
+			pool.positions[i * 3 + 1] = particle.motion.position.y;
+			pool.positions[i * 3 + 2] = particle.Life/ pool.poolLife;
 		}
 
-		if (particles.fadedParticles == 4000) {
-			delete[] particles.positions;
-			particles.faded = true;
-			registry.Particles.remove(origin);
+		if (pool.fadedParticles == pool.size) {
+			delete[] pool.positions;
+			pool.faded = true;
+			registry.particlePools.remove(origin);
 		}
 	}
 	return updateHealthSignals;

@@ -1710,6 +1710,7 @@ BTIfPlayerMageNotTaunted notTaunted(&castTaunt);					// done
 BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
 BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
 
+
 BTIfShieldTurn isShieldTurn(&castShield);					// done
 BTIfNotShieldTurn notShieldTurn(&castSingleTargetAttack);	// done
 

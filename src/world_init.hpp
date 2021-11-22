@@ -33,7 +33,7 @@ const float SILENCE_ICON_HEIGHT = 80.f;
 const float ICON_WIDTH = 80.f;
 const float ICON_HEIGHT = 80.f;
 const float BARRIER_WIDTH = 50.f;
-const float BARRIER_HEIGHT = 700.f;
+const float BARRIER_HEIGHT = 500.f;
 
 const float PLAYERTURN_WIDTH = 300.f;
 const float PLAYERTURN_HEIGHT = 100.f;
