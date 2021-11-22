@@ -80,7 +80,7 @@ Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = { -BACKGROUND_OBJ_WIDTH, -BACKGROUND_OBJ_WIDTH };
+	motion.scale = { -BACKGROUND_OBJ_WIDTH, -BACKGROUND_OBJ_WIDTH};
 
 
 	registry.renderRequests.insert(

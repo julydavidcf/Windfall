@@ -18,7 +18,7 @@ const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
-const int NUM_DEATH_PARTICLES = 2000;
+const int NUM_DEATH_PARTICLES = 4000;
 vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
@@ -125,6 +125,15 @@ WorldSystem::~WorldSystem() {
 namespace {
 	void glfw_err_cb(int error, const char* desc) {
 		fprintf(stderr, "%d: %s", error, desc);
+	}
+
+	void initParticlesBuffer(ParticlePool& pool) {
+		GLuint particles_position_buffer;
+		glGenBuffers(1, &particles_position_buffer);
+		pool.particles_position_buffer = particles_position_buffer;
+		glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
+		glBufferData(GL_ARRAY_BUFFER, pool.size * 3 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+		pool.positions = new float[pool.size * 3];
 	}
 }
 
@@ -537,7 +546,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// restart game if enemies or companions are 0
-	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.Particles.size() <= 0)) {
+	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0)) {
 		restart_game();
 	}
 
@@ -893,17 +902,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	ScreenState& screen = registry.screenStates.components[0];
 
 	// update state of particles
-	for (Entity entity : registry.Particles.entities) {
-		Particle& particles = registry.Particles.get(entity);
-		if (particles.areTypeDeath) {
-			for (int i = 0; i < particles.deathParticles.size(); i++) {
-				auto& particle = particles.deathParticles[i];
-				// for (auto& particle : deathParticles.deathParticles) {
+	for (Entity entity : registry.particlePools.entities) {
+		ParticlePool& pool = registry.particlePools.get(entity);
+		if (pool.areTypeDeath) {
+			for (int i = 0; i < pool.particles.size(); i++) {
+				auto& particle = pool.particles[i];
 				particle.Life -= elapsed_ms_since_last_update;
-				// if (particle.Life > 0.f) {
 				if (particle.Life <= 0) {
-					particles.fadedParticles++;
-					delete[] particle.positions;
+					pool.fadedParticles++;
 				}
 				particle.motion.position.x -= particle.motion.velocity.y * (rand() % 17) * 0.3f;
 				particle.motion.position.y -= particle.motion.velocity.x * (rand() % 17) * 0.3f;
@@ -912,16 +918,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				if (particle.motion.angle >= (2 * M_PI)) {
 					particle.motion.angle = 0;
 				}
-				particles.positions[i * 3 + 0] = particle.motion.position.x;
-				particles.positions[i * 3 + 1] = particle.motion.position.y;
-				particles.positions[i * 3 + 2] = particle.Life / particles.Life;
-				// deathParticles.positions[i * 3 + 3] = particle.Life;
-				// }
+				pool.positions[i * 3 + 0] = particle.motion.position.x;
+				pool.positions[i * 3 + 1] = particle.motion.position.y;
+				pool.positions[i * 3 + 2] = particle.Life / pool.poolLife;
 			}
-			if (particles.fadedParticles == NUM_DEATH_PARTICLES) {
-				delete[] particles.positions;
-				particles.faded = true;
-				registry.Particles.remove(entity);
+			if (pool.fadedParticles == pool.size) {
+				delete[] pool.positions;
+				pool.faded = true;
+				registry.particlePools.remove(entity);
 				registry.remove_all_components_of(entity);	// added back in, kinda works
 			}
 		}
@@ -936,9 +940,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				for (Entity entity : registry.companions.entities) {
 					Statistics& stat = registry.stats.get(entity);
 					stat.health -= 0.0001;
-					// printf("inside\n");
 					if (stat.health > 0) {
-						// update_healthBars();
 						Companion& companion = registry.companions.get(entity);
 						Entity healthbar = companion.healthbar;
 						Motion& motion = registry.motions.get(healthbar);
@@ -946,9 +948,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 				}
 			}
-			//else {
-			//	printf("outside\n");
-			//}
 		}
 	}
 
@@ -1089,7 +1088,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
 	createBackgroundObject(renderer, { 1160, 315 });
-	auto ent = createBackgroundObject(renderer, { 420, 225 });
+	auto ent = createBackgroundObject(renderer, { 550, 325 });
 	registry.backgroundObjects.get(ent).deformType2 = true;
 
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
@@ -1228,10 +1227,14 @@ void WorldSystem::update_healthBars() {
 
 void WorldSystem::activate_deathParticles(Entity entity)
 {
-	Particle particleEffects;
-	particleEffects.motion.scale = vec2(10.f, 10.f);
-	
-	for (int p = 0; p < NUM_DEATH_PARTICLES; p++) {
+	ParticlePool pool(1000);
+	pool.areTypeDeath = true;
+	// pool.size = 1000;
+	initParticlesBuffer(pool);
+	pool.poolLife = 2000.f;
+	pool.motion.scale = vec2(10.f, 10.f);
+
+	for (int p = 0; p < pool.size; p++) {
 		auto& motion = registry.motions.get(entity);
 		Particle particle;
 		float random1 = ((rand() % 100) - 50) / 10.0f;
@@ -1243,14 +1246,13 @@ void WorldSystem::activate_deathParticles(Entity entity)
 		particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
 		particle.motion.velocity *= 0.1f;
 		particle.motion.scale = vec2({ 10, 10 });
-		particleEffects.deathParticles.push_back(particle);
-		particleEffects.positions[p * 3 + 0] = particle.motion.position.x;
-		particleEffects.positions[p * 3 + 1] = particle.motion.position.y;
-		particleEffects.positions[p * 3 + 2] = particle.Life/ particleEffects.Life;
-		// particleEffects.positions[p * 4 + 3] = particle.Life;
+		pool.particles.push_back(particle);
+		pool.positions[p * 3 + 0] = particle.motion.position.x;
+		pool.positions[p * 3 + 1] = particle.motion.position.y;
+		pool.positions[p * 3 + 2] = particle.Life/ pool.poolLife;
 	}
-	if (!registry.Particles.has(entity)) {
-		registry.Particles.insert(entity, particleEffects);
+	if (!registry.particlePools.has(entity)) {
+		registry.particlePools.insert(entity, pool);
 	}
 }
 

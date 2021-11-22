@@ -337,7 +337,7 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection, GLint& frame, GLfloat& frameWidth, float elapsed_ms);
 	void drawDeathParticles(Entity entity, const mat3& projection);
-	void initParticlesBuffer();
+	// void initParticlesBuffer();
 	void drawToScreen();
 
 	// Window handle
@@ -352,7 +352,7 @@ private:
 
 	Entity screen_state_entity;
 
-	GLuint particles_position_buffer;
+	// GLuint particles_position_buffer;
 	float deformTime = 0.f;
 };
 
