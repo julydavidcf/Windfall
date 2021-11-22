@@ -169,7 +169,7 @@ const int player_mage_hp = 60;
 const int player_swordsman_hp = 85;
 const int necro_minion_health = 30;
 const int necro_1_health = 200;
-const int necro_2_health = 200;
+const int necro_2_health = 150;
 
 //skill dmg
 const int rock_dmg = 2000;
