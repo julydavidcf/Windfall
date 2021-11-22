@@ -167,32 +167,6 @@ private:
 	Entity backgroundImage;
 	Entity dialogue;
 
-	// Music References
-	Mix_Music* background_music;
-	Mix_Chunk* salmon_dead_sound;
-	Mix_Chunk* salmon_eat_sound;
-	Mix_Chunk* hit_enemy_sound;
-	Mix_Chunk* fireball_explosion_sound;
-	Mix_Chunk* death_enemy_sound;
-	Mix_Chunk* fire_spell_sound;
-	Mix_Chunk* rock_spell_sound;
-	Mix_Chunk* heal_spell_sound;
-	Mix_Chunk* taunt_spell_sound;
-	Mix_Chunk* melee_spell_sound;
-	Mix_Chunk* silence_spell_sound;
-	Mix_Chunk* lightning_spell_sound;
-	Mix_Chunk* ice_spell_sound;
-	Mix_Chunk* summon_spell_sound;
-	Mix_Chunk* button_hover_sound;
-	Mix_Chunk* turning_sound;
-	Mix_Chunk* charge_spell_sound;
-	Mix_Chunk* beam_spell_sound;
-	Mix_Chunk* minion_spawn_sound;
-	Mix_Chunk* error_sound;
-	Mix_Chunk* gesture_heal_sound;
-	Mix_Chunk* gesture_aoe_sound;
-	Mix_Chunk* gesture_turn_sound;
-
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
