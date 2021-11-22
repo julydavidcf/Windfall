@@ -511,6 +511,15 @@ void SkillSystem::launchNecroBarrier(Entity target, RenderSystem* renderer) {
 	vec2 targetp = registry.motions.get(target).position;
 	createBarrier(renderer, { targetp.x - 300 , targetp.y });
 
+	if (!registry.shield.has(target)) {
+		registry.shield.emplace(target);
+		Shield* sh = &registry.shield.get(target);
+		sh->shieldDuration = 2;
+	}
+	else {
+		Shield* sh = &registry.shield.get(target);
+		sh->shieldDuration = 2;
+	}
 }
 
 void SkillSystem::luanchCompanionTeamHeal( float amount, RenderSystem* renderer) {

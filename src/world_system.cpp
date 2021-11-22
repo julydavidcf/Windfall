@@ -404,9 +404,12 @@ void WorldSystem::createRound() {
 			Shield* sh = &registry.shield.get(entity);
 			if (sh->shieldDuration > 0) {
 				sh->shieldDuration--;
+				printf("ENTITY IS %g \n", float(registry.stats.get(entity).speed));
+				printf("MY SHIELD IS %g \n", float(sh->shieldDuration));
 			}
 			else {
-				registry.remove_all_components_of(entity);
+				//registry.remove_all_components_of(entity);
+				sk->removeShield(entity);
 			}
 			
 		}
@@ -420,10 +423,10 @@ void WorldSystem::createRound() {
 		}
 	}
 
-	for (int i = 0; i < registry.shield.components.size(); i++) {
-		Shield& sh = registry.shield.components[i];
-		sh.shieldDuration -= 1;
-	}
+	//for (int i = 0; i < registry.shield.components.size(); i++) {
+	//	Shield& sh = registry.shield.components[i];
+	//	sh.shieldDuration -= 1;
+	//}
 
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// iterate through all companions to get speed stats
 		Entity& entity = registry.companions.entities[i];
@@ -1096,9 +1099,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
 	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
-	// necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	//necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
 	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-	// necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 
 	if (gameLevel > 1) {

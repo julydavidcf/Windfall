@@ -1686,12 +1686,12 @@ BTSummonNecroMinion summonNecroMinion;						// done
 BTCastSilence castSilence;									// done
 BTRandomTargetLightningAttack randomTargetLightningAttack;	// done
 
-BTCastAOEAttack castAOEAttack;						// TODO
+BTCastAOEAttack castAOEAttack;						// done
 BTCastParticleBeamCharge castParticleBeamCharge;	// done
 BTCastParticleBeamAttack castParticleBeamAttack;	// done
-BTCastShield castShield;							// TODO
+BTCastShield castShield;							// done
 BTCastCrowsAttack castCrowsAttack;					// TODO
-BTCastSingleTargetAttack castSingleTargetAttack;	// TODO
+BTCastSingleTargetAttack castSingleTargetAttack;	// done
 
 //Another level
 BTIfCrowsZero crowsZero(&castCrowsAttack);							// TODO
@@ -1710,7 +1710,8 @@ BTIfPlayerMageNotTaunted notTaunted(&castTaunt);					// done
 BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
 BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
 
-BTIfShieldTurn isShieldTurn(&castShield);		// done
+
+BTIfShieldTurn isShieldTurn(&castShield);					// done
 BTIfNotShieldTurn notShieldTurn(&castSingleTargetAttack);	// done
 
 // Level 3 Nodes

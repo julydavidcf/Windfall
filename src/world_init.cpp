@@ -249,6 +249,10 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 	enemy.healthbar = createHealthBar(renderer, pos);
 	enemy.enemyType = NECROMANCER_TWO;
 
+	// Emplace ultimate component to delay ultimate attack
+	Ultimate& u = registry.ultimate.emplace(entity);
+	u.ultiDuration = 2;	// allows necro2 to use ultimate after one round
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::NECRO_TWO_IDLE,
@@ -590,7 +594,8 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.reflects.emplace(entity);
-	registry.shield.emplace(entity);
+
+	//registry.shield.emplace(entity);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
