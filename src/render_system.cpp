@@ -680,6 +680,23 @@ void RenderSystem::draw(float elapsed_ms)
 								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
 								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
 								}
+								case CHARGING: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
+									numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
+								}
+								case ULTI: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_DEATH;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH;
+									// Use first three frames of death anim for particle beam ult
+									numFrames = 3; frame_width = NECRO_TWO_DEATH_FRAME_WIDTH; timePerFrame = NECRO_TWO_DEATH_FRAME_TIME; break;
+								}
 								default: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
 										*currFrame = 0;
