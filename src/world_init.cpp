@@ -80,7 +80,7 @@ Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = { -BACKGROUND_OBJ_WIDTH, -BACKGROUND_OBJ_WIDTH };
+	motion.scale = { -BACKGROUND_OBJ_WIDTH, -BACKGROUND_OBJ_WIDTH};
 
 
 	registry.renderRequests.insert(
@@ -89,8 +89,7 @@ Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
 			EFFECT_ASSET_ID::BACKGROUND_OBJ,
 			GEOMETRY_BUFFER_ID::BACKGROUND_OBJ });
 
-	registry.backgroundObjects.insert(entity, {});
-	// renderer->enemyMage = entity;
+	registry.deformableEntities.insert(entity, {});
 	return entity;
 }
 
@@ -102,7 +101,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = { pos.x + 65, pos.y - 10 };
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
@@ -179,7 +178,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, {pos.x, pos.y - motion.scale.y/2});
 	enemy.enemyType = NECROMANCER_MINION;
 
 	// Minion should use appearing anim initially
@@ -215,7 +214,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, { pos.x, pos.y - motion.scale.y / 2 });
 	enemy.enemyType = NECROMANCER_ONE;
 
 	registry.renderRequests.insert(
@@ -247,8 +246,12 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, { pos.x, pos.y - motion.scale.y / 4 });
 	enemy.enemyType = NECROMANCER_TWO;
+
+	// Emplace ultimate component to delay ultimate attack
+	Ultimate& u = registry.ultimate.emplace(entity);
+	u.ultiDuration = 2;	// allows necro2 to use ultimate after one round
 
 	registry.renderRequests.insert(
 		entity,
@@ -592,18 +595,28 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.reflects.emplace(entity);
 
+	registry.shieldIcons.emplace(entity);
+
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { -500.f, 0.f };
-	motion.acceleration = { 300.f, 0.f };
+	motion.velocity = { 0, 0.f };
+	motion.acceleration = { 0, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ BARRIER_WIDTH, BARRIER_HEIGHT });
 
-	registry.renderRequests.insert(
+	/*registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BARRIER,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 GEOMETRY_BUFFER_ID::SPRITE });*/
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::BACKGROUND_OBJ,
+			GEOMETRY_BUFFER_ID::SHIELD_MESH });
+
+	registry.deformableEntities.insert(entity, {});
 
 	return entity;
 }
@@ -684,6 +697,31 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
 
 	return entity;
 }
+Entity createBleedIndicator(RenderSystem* renderer, Entity owner)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto* statid = &registry.bleedIndicators.emplace(entity);
+	statid->owner = owner;
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.acceleration = { 0.f, 0.f };
+	motion.position = { 0.f,0.f };
+	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BLEED,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 
 // create rock
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
@@ -713,6 +751,40 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::ROCK,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+// create cpike
+Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f,90 };
+	motion.acceleration = { 0.f,1000 };
+	motion.position = position;
+	motion.scale = vec2({ SPIKE_WIDTH, SPIKE_HEIGHT });
+
+	auto& proj = registry.projectiles.emplace(entity);
+	proj.enableCameraTracking = 0;
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = spike_dmg;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::SPIKE,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -786,6 +858,38 @@ Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 
 	return entity;
 }
+
+Entity createBleedDMG(RenderSystem* renderer, vec2 position, int isFriendly)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f,0 };
+	motion.acceleration = { 0.f,0 };
+	motion.position = position;
+	motion.scale = vec2({ 1, 1 });
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = bleed_dmg;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.projectiles.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ROCK,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 
 Entity createHealthBar(RenderSystem* renderer, vec2 position)
 {

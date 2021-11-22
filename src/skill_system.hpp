@@ -55,18 +55,22 @@ public:
 	void startRockAttack(Entity origin, Entity target);
 	void startLightningAttack(Entity origin, Entity target);
 	void startHealAttack(Entity origin, Entity target);
-	void startMeleeAttack(Entity origin, Entity target);
 	void startSummonAttack(Entity origin);
 	void startParticleBeamAttack(Entity origin, Entity target);
 	void startParticleBeamCharge(Entity origin, Entity target);
+	void startMeleeAttack(Entity origin, Entity target, int bleedOrAOE);
+	void startShieldAttack(Entity origin);
 
 	// launch skills
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchRock(Entity target, RenderSystem* renderer);
+	Entity launchSpike(Entity target, RenderSystem* renderer);
 	Entity launchLightning(Entity target, RenderSystem* renderer);
 	Entity launchParticleBeamCharge(Entity target, RenderSystem* render);
 	void launchTaunt(Entity target, RenderSystem* renderer);
+	void launchBleed(Entity target, RenderSystem* renderer);
+	void launchBleedDMG(Entity target, RenderSystem* renderer);
 	void launchHeal(Entity target, float amount, RenderSystem* renderer);
 	void launchMelee(Entity target, RenderSystem* renderer);
 	void launchParticleBeam(Entity target);
@@ -78,7 +82,11 @@ public:
 
 	std::pair<bool, bool> updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float width, float height);
 
+	void luanchNecroCompanionTeamBleed(RenderSystem* renderer);
+	void launchNecroBarrier(Entity target, RenderSystem* renderer);
+	
 	void removeTaunt(Entity target);
+	void removeBleed(Entity target);
 	void removeSilence(Entity target);
 	void removeUltimate(Entity target);
 	void removeShield(Entity target);

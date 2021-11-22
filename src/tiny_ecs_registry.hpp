@@ -11,8 +11,8 @@ class ECSRegistry
 
 public:
 	// Manually created list of all components this game has
-	ComponentContainer<BackgroundObj> backgroundObjects;
-	ComponentContainer<Particle> Particles;
+	ComponentContainer<BackgroundObj> deformableEntities;
+	ComponentContainer<ParticlePool> particlePools;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
@@ -45,12 +45,15 @@ public:
 	ComponentContainer<Shield> shield;
 	ComponentContainer<Dot> dots;
 	ComponentContainer<storyTellingBackground> storyTellingBackgrounds;
+	ComponentContainer<Bleed> bleeds;
+	ComponentContainer<BleedIndicator> bleedIndicators;
+	ComponentContainer<ShieldIcon> shieldIcons;
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
-		registry_list.push_back(&backgroundObjects);
-		registry_list.push_back(&Particles);
+		registry_list.push_back(&deformableEntities);
+		registry_list.push_back(&particlePools);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
@@ -80,6 +83,9 @@ public:
 		registry_list.push_back(&shield);
 		registry_list.push_back(&dots);
 		registry_list.push_back(&storyTellingBackgrounds);
+		registry_list.push_back(&bleeds);
+		registry_list.push_back(&bleedIndicators);
+		registry_list.push_back(&shieldIcons);
 	}
 
 	void clear_all_components() {

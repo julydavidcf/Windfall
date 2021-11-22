@@ -1483,7 +1483,7 @@ BTState BTMeleeAttack::process(Entity e) {
 			target = toGet;	// get nearest player entity
 		}
 	}
-	sk.startMeleeAttack(e, target);
+	sk.startMeleeAttack(e, target, -1);
 
 	printf("Melee Attack \n\n");	// print statement to visualize
 
@@ -1599,8 +1599,16 @@ void BTCastAOEAttack::init(Entity e) {
 }
 BTState BTCastAOEAttack::process(Entity e) {
 	printf("Cast AOE Attack \n\n");
+	int j = 0;
 	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.motions.get(toGet).position.x > j) {
+			j = registry.motions.get(toGet).position.x;
+			target = toGet;	// get nearest player entity
+		}
+	}
+	sk.startMeleeAttack(e, target, 1); // FOR TESTING TO REMOVE
 	// return progress
 	return BTState::Success;
 }
@@ -1629,8 +1637,8 @@ void BTCastShield::init(Entity e) {
 }
 BTState BTCastShield::process(Entity e) {
 	printf("Cast Shield \n\n");
-	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	SkillSystem sk;
+	sk.startShieldAttack(e);
 	// return progress
 	return BTState::Success;
 }
@@ -1640,7 +1648,7 @@ void BTCastCrowsAttack::init(Entity e) {
 BTState BTCastCrowsAttack::process(Entity e) {
 	printf("Cast Crows Attack \n\n");
 	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	sk.startHealAttack(e, currPlayer); // FOR TESTING TO REMOVE
 	// return progress
 	return BTState::Success;
 }
@@ -1649,8 +1657,16 @@ void BTCastSingleTargetAttack::init(Entity e) {
 }
 BTState BTCastSingleTargetAttack::process(Entity e) {
 	printf("Cast Single Target Attack \n\n");
+	int j = 0;
 	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.motions.get(toGet).position.x > j) {
+			j = registry.motions.get(toGet).position.x;
+			target = toGet;	// get nearest player entity
+		}
+	}
+	sk.startMeleeAttack(e, target, 0);
 	// return progress
 	return BTState::Success;
 }
@@ -1670,12 +1686,12 @@ BTSummonNecroMinion summonNecroMinion;						// done
 BTCastSilence castSilence;									// done
 BTRandomTargetLightningAttack randomTargetLightningAttack;	// done
 
-BTCastAOEAttack castAOEAttack;						// TODO
+BTCastAOEAttack castAOEAttack;						// done
 BTCastParticleBeamCharge castParticleBeamCharge;	// done
 BTCastParticleBeamAttack castParticleBeamAttack;	// done
-BTCastShield castShield;							// TODO
+BTCastShield castShield;							// done
 BTCastCrowsAttack castCrowsAttack;					// TODO
-BTCastSingleTargetAttack castSingleTargetAttack;	// TODO
+BTCastSingleTargetAttack castSingleTargetAttack;	// done
 
 //Another level
 BTIfCrowsZero crowsZero(&castCrowsAttack);							// TODO
@@ -1694,8 +1710,9 @@ BTIfPlayerMageNotTaunted notTaunted(&castTaunt);					// done
 BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
 BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
 
-BTIfShieldTurn isShieldTurn(&castShield);		// done
-BTIfNotShieldTurn notShieldTurn(&checkCrows);	// done
+
+BTIfShieldTurn isShieldTurn(&castShield);					// done
+BTIfNotShieldTurn notShieldTurn(&castSingleTargetAttack);	// done
 
 // Level 3 Nodes
 BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);			// run pair do not need any further implementation? can merge all run pairs later and test

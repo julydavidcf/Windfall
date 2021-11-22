@@ -9,8 +9,8 @@
 
 void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 {
-	auto& particle = registry.Particles.get(entity);
-	if (!particle.faded) {
+	auto& pool = registry.particlePools.get(entity);
+	if (!pool.faded) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -46,11 +46,11 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 		gl_has_errors();
 
 		glEnableVertexAttribArray(4);
-		glBindBuffer(GL_ARRAY_BUFFER, RenderSystem::particles_position_buffer);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, particle.deathParticles.size() * 3 * sizeof(float), particle.positions);
+		glBindBuffer(GL_ARRAY_BUFFER, pool.particles_position_buffer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, pool.particles.size() * 3 * sizeof(float), pool.positions);
 		gl_has_errors();
 
-		glBindBuffer(GL_ARRAY_BUFFER, RenderSystem::particles_position_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, pool.particles_position_buffer);
 		glVertexAttribPointer(
 			4, // attribute. must match the layout in the shader.
 			3, // size : x + y + z + size => 4
@@ -93,7 +93,7 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 		gl_has_errors();
 
 		//particle type
-		if (particle.areTypeDeath) {
+		if (pool.areTypeDeath) {
 			glUniform1f(glGetUniformLocation(currProgram, "particleType"), 1.f);
 		}
 		else {
@@ -101,18 +101,18 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 		}
 		
 		// particle scales
-		glUniform2f(glGetUniformLocation(currProgram, "scale"), particle.motion.scale.x, particle.motion.scale.y);
+		glUniform2f(glGetUniformLocation(currProgram, "scale"), pool.motion.scale.x, pool.motion.scale.y);
 		gl_has_errors();
 
 		// particle angle
-		auto& angle = particle.angle;
+		auto& angle = pool.angle;
 		angle += 0.5;
 		if (angle >= (2 * M_PI)) {
 			angle = 0;
 		}
 		glUniform1f(glGetUniformLocation(currProgram, "angle"), angle);
 
-		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particle.deathParticles.size());
+		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, pool.particles.size());
 		gl_has_errors();
 
 		glDisable(GL_BLEND);
@@ -204,8 +204,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
 		if (render_request.used_effect == EFFECT_ASSET_ID::BACKGROUND_OBJ) {
-			if (registry.backgroundObjects.has(entity)) {
-				auto& backgroundObj = registry.backgroundObjects.get(entity);
+			if (registry.deformableEntities.has(entity)) {
+				auto& backgroundObj = registry.deformableEntities.get(entity);
 				glUniform1f(glGetUniformLocation(program, "time"), deformTime);
 				if (backgroundObj.shouldDeform) {
 					if (!implode) {
@@ -435,11 +435,11 @@ void RenderSystem::draw(float elapsed_ms)
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
 		// Handle camera focus only on swordsman melee
-		if (registry.runners.has(entity) 
+		if ((registry.runners.has(entity) && !(registry.enemies.has(entity) && registry.enemies.get(entity).enemyType == NECROMANCER_TWO)
 			|| (registry.companions.has(entity) && registry.companions.get(entity).companionType == SWORDSMAN && registry.companions.get(entity).curr_anim_type == ATTACKING)
 			|| (registry.enemies.has(entity) 
 				&& (registry.enemies.get(entity).enemyType == SWORDSMAN || registry.enemies.get(entity).enemyType == NECROMANCER_MINION)
-				&& registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+				&& registry.enemies.get(entity).curr_anim_type == ATTACKING))) {
 			Motion& motion = registry.motions.get(entity);
 
 			if (registry.companions.has(entity)) {
@@ -458,10 +458,10 @@ void RenderSystem::draw(float elapsed_ms)
 		mat3 projectionToUse = projectionMat;
 		if (!registry.motions.has(entity))
 			continue;
-		if (registry.Particles.has(entity)) {
+		if (registry.particlePools.has(entity)) {
 			needParticleEffects.push_back(entity);
 		}
-		if (registry.Particles.has(entity) && registry.Particles.get(entity).areTypeDeath) {
+		if (registry.particlePools.has(entity) && registry.particlePools.get(entity).areTypeDeath) {
 			// if an entity has particles of type "death", that means the 
 			// entity is dead. So, no need to render the dead entity.
 			// (Do nothing inside this conditional)
@@ -488,11 +488,9 @@ void RenderSystem::draw(float elapsed_ms)
 				// Get the type of character (MAGE, SWORDSMAN, ARCHER, HEALER, NECROMANCER)
 				int charType = registry.companions.has(entity) ? registry.companions.get(entity).companionType
 					: registry.enemies.get(entity).enemyType;
-
 				// Get the type of animation (IDLE, ATTACKING, DEAD)
 				int animType = registry.companions.has(entity) ? registry.companions.get(entity).curr_anim_type
 					: registry.enemies.get(entity).curr_anim_type;
-
 				// Get the current texture to alter
 				TEXTURE_ASSET_ID& currTexture = registry.renderRequests.get(entity).used_texture;
 				// Get the current geometry to alter
@@ -601,13 +599,29 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						case ATTACKING: {
 							switch (registry.attackers.get(entity).attack_type) {
-								case SUMMONING: {
+								/*case SUMMONING: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
 										*currFrame = 0;
 									}	
 									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
 									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
 									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME; break;
+								}*/
+								case SUMMONING: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
+									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME;
+
+									if (*currFrame == NECRO_ONE_SUMMONING_FRAMES - 1) {
+										registry.enemies.get(entity).curr_anim_type = IDLE;
+										currTexture = TEXTURE_ASSET_ID::NECRO_ONE_IDLE;
+										currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE;
+										numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAME_WIDTH; timePerFrame = NECRO_ONE_IDLE_FRAME_TIME; break;
+									}
+									break;
 								}
 								default: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING) {
@@ -672,13 +686,21 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						case ATTACKING: {
 							switch (registry.attackers.get(entity).attack_type) {
-								case MELEE: {
+								case BLEEDMELEE: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
 									*currFrame = 0;
 								}
 								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
 								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
 								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
+								}
+								case AOEMELEE: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+									numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
 								}
 								case CHARGING: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
@@ -695,7 +717,7 @@ void RenderSystem::draw(float elapsed_ms)
 									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_DEATH;
 									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH;
 									// Use first three frames of death anim for particle beam ult
-									numFrames = 3; frame_width = NECRO_TWO_DEATH_FRAME_WIDTH; timePerFrame = NECRO_TWO_DEATH_FRAME_TIME; break;
+									numFrames = 3; frame_width = NECRO_TWO_DEATH_FRAME_WIDTH; timePerFrame = 550; break;
 								}
 								default: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
@@ -708,6 +730,14 @@ void RenderSystem::draw(float elapsed_ms)
 								// Todo: Add more spell cases later
 							}
 							break;
+						}
+						case WALKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+							numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
 						}
 						case DEAD: {
 							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH) {

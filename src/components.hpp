@@ -37,7 +37,10 @@ enum AttackType {
 	LIGHTNING	= 9,
 	SUMMON		= 10,
 	ULTI	= 11,
-	CHARGING	= 12
+	CHARGING	= 12,
+	AOEMELEE = 13,
+	BLEEDMELEE = 14,
+	SHIELD = 15,
 };
 
 enum ButtonType {
@@ -80,6 +83,10 @@ struct CharIndicator
 	Entity owner;
 };
 
+struct BleedIndicator
+{
+	Entity owner;
+};
 // Currently attacking
 struct Attack
 {
@@ -95,6 +102,7 @@ struct RunTowards
 	Entity target;
 	vec2 target_position;
 	vec2 old_pos;
+	int bleedOrAOE = -1;
 };
 
 struct Companion
@@ -143,6 +151,11 @@ struct Taunt
 {
 	int duration = 3;
 };
+struct Bleed
+{
+	int duration = 3;
+};
+
 
 struct Ultimate
 {
@@ -152,6 +165,12 @@ struct Ultimate
 struct Shield
 {
 	int shieldDuration = 3;	// 3 to account for -1 after enemy turn
+};
+
+
+struct ShieldIcon
+{
+	int shieldDuration = 2;	// 3 to account for -1 after enemy turn
 };
 
 // reflects projectile
@@ -284,25 +303,45 @@ struct TurnIndicator
 	
 };
 
-// Particles emitted during death
+// Particles emitted
 struct Particle
 {
 	Motion motion;
 	glm::vec4 Color;
 	float     Life;
-	std::vector<Particle> deathParticles;
-	int fadedParticles = 0;
+	// std::vector<Particle> deathParticles;
+	// int fadedParticles = 0;
 	// float positions[2000 * 3];
-	float* positions = new float[4000 * 3];
+	// float* positions = new float[4000 * 3];
 	bool faded;
-	float angle;
+	// float angle;
 	// particles can death particles or aoe particles
-	bool areTypeDeath;
+	// bool areTypeDeath;
 
 	Particle()
-		: Color(1.0f), Life(1500.f), faded(false), angle(0.), areTypeDeath(true) {
+		: Color(1.0f), Life(1500.f), faded(false) {
 		motion.velocity.x = (float)((rand() % 50 - 10) * 5);
 		motion.velocity.y = (float)((rand() % 50 - 10) * 5);
+	}
+};
+
+struct ParticlePool
+{
+	int size;
+	std::vector<Particle> particles;
+	int fadedParticles = 0;
+	float* positions;;
+	GLuint particles_position_buffer;
+	float poolLife;
+	bool areTypeDeath = true;
+	Motion motion;
+	bool faded = false;
+	float angle = 0;
+
+	ParticlePool(int s) {
+		size = s;
+		float* pos = new float[size * 3];
+		positions = pos;
 	}
 };
 
@@ -364,8 +403,10 @@ enum class TEXTURE_ASSET_ID {
 	CHARARROW = METEOR + 1,
 	DOT = CHARARROW +1,
 	PARTICLEBEAMCHARGE = DOT + 1,
+	BLEED = PARTICLEBEAMCHARGE +1 ,
+	SPIKE = BLEED +1,
 
-	ICESHARD = PARTICLEBEAMCHARGE + 1,
+	ICESHARD = SPIKE + 1,
 	ICESHARDICON = ICESHARD +1,
 	ICESHARDICONSELECTED = ICESHARDICON+1,
 	ICESHARDICONDISABLED = ICESHARDICONSELECTED + 1,
@@ -545,7 +586,8 @@ enum class GEOMETRY_BUFFER_ID {
 	BACKGROUND = NECRO_MINION_DEATH + 1,
 
 	BACKGROUND_OBJ = BACKGROUND + 1,
-	GEOMETRY_COUNT = BACKGROUND_OBJ + 1
+	SHIELD_MESH = BACKGROUND_OBJ + 1,
+	GEOMETRY_COUNT = SHIELD_MESH + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
