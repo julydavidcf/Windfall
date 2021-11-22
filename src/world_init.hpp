@@ -169,7 +169,7 @@ const int player_mage_hp = 90;
 const int player_swordsman_hp = 130;
 
 //skill dmg
-const int rock_dmg = 10;
+const int rock_dmg = 2000;
 const int fireball_dmg = 30;
 const int iceshard_dmg = 20;
 const int melee_dmg = 15;
