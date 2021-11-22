@@ -177,7 +177,8 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to necromancer minion
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = necro_minion_health;
+	stat.max_health = necro_minion_health;
 	stat.speed = 1;
 
 	// Add a healthbar
@@ -213,7 +214,8 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to necromancer phase one
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = necro_1_health;
+	stat.max_health = necro_1_health;
 	stat.speed = 0;
 
 	// Add a healthbar
@@ -245,7 +247,8 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to necromancer phase two
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = 100;
+	stat.health = necro_2_health;
+	stat.max_health = necro_2_health;
 	stat.speed = 2;
 
 	// Add a healthbar
