@@ -80,7 +80,7 @@ Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
 	motion.position = pos;
 	motion.angle = 0;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = { -BACKGROUND_OBJ_WIDTH, -BACKGROUND_OBJ_WIDTH };
+	motion.scale = { -BACKGROUND_OBJ_WIDTH, -BACKGROUND_OBJ_WIDTH};
 
 
 	registry.renderRequests.insert(
@@ -89,8 +89,7 @@ Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
 			EFFECT_ASSET_ID::BACKGROUND_OBJ,
 			GEOMETRY_BUFFER_ID::BACKGROUND_OBJ });
 
-	registry.backgroundObjects.insert(entity, {});
-	// renderer->enemyMage = entity;
+	registry.deformableEntities.insert(entity, {});
 	return entity;
 }
 
@@ -595,6 +594,7 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.reflects.emplace(entity);
+
 	registry.shieldIcons.emplace(entity);
 
 	auto& motion = registry.motions.emplace(entity);
@@ -604,11 +604,19 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	motion.position = position;
 	motion.scale = vec2({ BARRIER_WIDTH, BARRIER_HEIGHT });
 
-	registry.renderRequests.insert(
+	/*registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BARRIER,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 GEOMETRY_BUFFER_ID::SPRITE });*/
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::BACKGROUND_OBJ,
+			GEOMETRY_BUFFER_ID::SHIELD_MESH });
+
+	registry.deformableEntities.insert(entity, {});
 
 	return entity;
 }
