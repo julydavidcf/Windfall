@@ -1149,7 +1149,7 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// Deal with fireball - Enemy collisions
-		if (registry.enemies.has(entity)) {
+		else if (registry.enemies.has(entity)) {
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
 
@@ -1206,7 +1206,7 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// barrier collection
-		if (registry.projectiles.has(entity)) {
+		else if (registry.projectiles.has(entity)) {
 			if (registry.reflects.has(entity_other)) {
 				//printf("colleds\n");
 				//printf("%f\n", registry.motions.get(entity).velocity.x);
