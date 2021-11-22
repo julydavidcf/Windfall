@@ -1928,8 +1928,8 @@ void WorldSystem::advanceTutorial(Entity currTutorial, vec2 pos) {
 		case 1: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_TWO; break;
 		case 2: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_THREE; break;
 		case 3: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FOUR; break;
-		case 4: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FIVE; break;
-		case 5: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SIX; break;
+		case 4: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FIVE; showCorrectSkills(); break;
+		case 5: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SIX; showCorrectSkills(); break;
 		case 6: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SEVEN; break;
 		case 7: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_EIGHT; break;
 		default: break;
@@ -2087,42 +2087,42 @@ bool WorldSystem::canUseSkill(Entity user, int skill) {
 void WorldSystem::showCorrectSkills() {
 	if (currPlayer != NULL && registry.companions.has(currPlayer)) {
 		Statistics pStat = registry.stats.get(currPlayer);
-		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0) {
+		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 5)) {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0 || curr_tutorial_box_num < 7) {
+		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0 || curr_tutorial_box_num < 7) {
+		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0 || curr_tutorial_box_num < 7) {
+		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0 || curr_tutorial_box_num < 7) {
+		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0 || curr_tutorial_box_num < 7) {
+		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
