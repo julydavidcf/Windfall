@@ -1504,7 +1504,14 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	// david test
 	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-	//	sk->luanchNecroCompanionTeamBleed(renderer);
+	//	Entity target;
+	//	for (int i = 0; i < registry.companions.components.size(); i++) {
+	//		Entity toGet = registry.companions.entities[i];
+	//		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
+	//			target = toGet;
+	//		}
+	//	}
+	//	sk->launchLightning(target, renderer);
 	//}
 
 	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
