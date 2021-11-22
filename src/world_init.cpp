@@ -178,7 +178,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, {pos.x, pos.y - motion.scale.y/2});
 	enemy.enemyType = NECROMANCER_MINION;
 
 	// Minion should use appearing anim initially
@@ -214,7 +214,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, { pos.x, pos.y - motion.scale.y / 2 });
 	enemy.enemyType = NECROMANCER_ONE;
 
 	registry.renderRequests.insert(
@@ -246,7 +246,7 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, { pos.x, pos.y - motion.scale.y / 4 });
 	enemy.enemyType = NECROMANCER_TWO;
 
 	// Emplace ultimate component to delay ultimate attack

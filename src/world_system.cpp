@@ -18,7 +18,7 @@ const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
-const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
+const vec2 TURN_INDICATOR_LOCATION = { 600, 120 };
 const int NUM_DEATH_PARTICLES = 4000;
 vec2 CURRPLAYER_LOCATION = {};
 
@@ -584,7 +584,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
 		createRound();
 		checkRound();
-	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() <= 0)){
+	} else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0))){
 		restart_game();
 	}
 
