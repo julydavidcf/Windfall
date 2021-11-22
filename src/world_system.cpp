@@ -88,6 +88,10 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(ice_spell_sound);
 	if (summon_spell_sound != nullptr)
 		Mix_FreeChunk(summon_spell_sound);
+	if (button_hover_sound != nullptr)
+		Mix_FreeChunk(button_hover_sound);
+	if (turning_sound != nullptr)
+		Mix_FreeChunk(turning_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -176,6 +180,8 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
 	ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
 	summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
+	button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str()); //https://freesound.org/people/wobesound/sounds/488382/
+	turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());//https://freesound.org/people/InspectorJ/sounds/416179/
 
 	if (background_music == nullptr
 		|| salmon_dead_sound == nullptr
@@ -191,7 +197,10 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| silence_spell_sound == nullptr
 		|| lightning_spell_sound == nullptr
 		|| ice_spell_sound == nullptr
-		|| summon_spell_sound == nullptr) {
+		|| summon_spell_sound == nullptr
+		|| button_hover_sound == nullptr
+		|| turning_sound == nullptr
+		) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -207,7 +216,9 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("silence_spell.wav").c_str(),
 			audio_path("lightning_spell.wav").c_str(),
 			audio_path("ice_spell.wav").c_str(),
-			audio_path("summon_spell.wav").c_str());
+			audio_path("summon_spell.wav").c_str(),
+			audio_path("button_hover.wav").c_str(),
+			audio_path("turning.wav").c_str());
 		return nullptr;
 	}
 	return window;
@@ -232,7 +243,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	Mix_VolumeChunk(lightning_spell_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(ice_spell_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(summon_spell_sound, MIX_MAX_VOLUME);
-
+	Mix_VolumeChunk(button_hover_sound, MIX_MAX_VOLUME);
 	fprintf(stderr, "Loaded music\n");
 
 	// Start game with a start screen
@@ -240,42 +251,42 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 }
 
 void WorldSystem::render_startscreen() {
-	createUIButton(renderer, { 600, 100 }, GAME_TITLE);
-	new_game_button = createUIButton(renderer, { 600, 300 }, NEW_GAME);
-	load_game_button = createUIButton(renderer, { 600, 400 }, LOAD_GAME);
-	exit_game_button = createUIButton(renderer, { 600, 500 }, EXIT_GAME);
+	int w, h;
+	glfwGetWindowSize(window, &w, &h);
+	createStoryBackground(renderer, {w/2, h/2}, 6);
+	new_game_button = createUIButton(renderer, { 600, 400 }, NEW_GAME);
+	load_game_button = createUIButton(renderer, { 600, 500 }, LOAD_GAME);
+	exit_game_button = createUIButton(renderer, { 600, 600 }, EXIT_GAME);
+	registry.motions.get(exit_game_button).scale = { 150, 70 };
 }
 
 void WorldSystem::displayPlayerTurn() {
-	if (registry.turnIndicators.components.size() != 0) {
-		//printf("TURNINDICATORS SIZE IS %g \n", float(registry.health.components.size()));
-		for (int i = 0; i < registry.turnIndicators.components.size(); i++) {
-			registry.remove_all_components_of(registry.turnIndicators.entities[i]);
-		}
-		// registry.remove_all_components_of(registry.turnIndicators.entities[0]);
-	}
+	displayTurnIndicator(1);
 	if (registry.charIndicator.components.size() != 0) {
 		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
-	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
 	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
-	createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
 }
 
 void WorldSystem::displayEnemyTurn() {
-	if (registry.turnIndicators.components.size() != 0) {
-		printf("TURNINDICATORS SIZE IS %g \n", float(registry.turnIndicators.components.size()));
-		for (int i = 0; i < registry.turnIndicators.components.size(); i++) {
-			registry.remove_all_components_of(registry.turnIndicators.entities[i]);
-		}
-		// registry.remove_all_components_of(registry.turnIndicators.entities[0]);
-	}
+	displayTurnIndicator(0);
 	if (registry.charIndicator.components.size() != 0) {
 		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
-	// vec2 currPlayerPos = registry.motions.get(currPlayer).position;
 	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
-	createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
+}
+
+void WorldSystem::displayTurnIndicator(int isPlayerTurn) {
+	if (registry.turnIndicators.components.size() == 0) {
+		// Only initialize this entity once!
+		turn_indicator = isPlayerTurn ? createPlayerTurn(renderer, TURN_INDICATOR_LOCATION) : createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
+	}
+	else {
+		Motion& motion = registry.motions.get(turn_indicator);
+		RenderRequest& renderRequest = registry.renderRequests.get(turn_indicator);
+		motion.position = TURN_INDICATOR_LOCATION;
+		renderRequest.used_texture = isPlayerTurn ? TEXTURE_ASSET_ID::PLAYER_TURN : TEXTURE_ASSET_ID::ENEMY_TURN;
+	}
 }
 
 void WorldSystem::iceShardAttack(Entity currPlayer) {
@@ -860,10 +871,6 @@ void WorldSystem::restart_game(bool force_restart) {
 	//enemy_mage = createEnemyMage(renderer, { 1050, 700 });
 	//registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
-	// Create the first tutorial box
-	//tutorial_enabled = 1;
-	//curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
-
 	necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
 	//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 1400, 400 });
 	necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
@@ -891,6 +898,10 @@ void WorldSystem::restart_game(bool force_restart) {
 	checkRound();
 	showCorrectSkills();
 	displayPlayerTurn();	// display player turn when restart game
+
+	// Create the first tutorial box
+	tutorial_enabled = 1;
+	curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -1216,6 +1227,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(button_hover_sound, Mix_VolumeChunk(button_hover_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
 		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
@@ -1230,6 +1242,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);		
 		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(button_hover_sound, Mix_VolumeChunk(button_hover_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 
@@ -1237,11 +1250,17 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
 
 	// For start menu and pause menu click detection
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
-			// START A NEW GAME
-			restart_game();
-			canStep = 1;
+
+			// Direct to background story telling first
+			int w, h;
+			glfwGetWindowSize(window, &w, &h);
+
+			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
+			dialogue = createDiaogue(renderer, { w / 2, 650}, 1);
+
+			story = 1;
 		}
 		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// LOAD THE SAVED JSON FILE (IF ANY)
@@ -1251,7 +1270,71 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			// EXIT TO DESKTOP
 			closeWindow = 1;
 		}
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 1) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2 ,h / 2 }, 2);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 2);
+		story = 2;
+
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 2) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 3);
+		story = 3;
 	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 3);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 4);
+		story = 4;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 4);
+		registry.remove_all_components_of(dialogue);
+		story = 5;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 5) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 5);
+		story = 6;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 5);
+		story = 7;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
+		// START A NEW GAME			
+		restart_game();
+		canStep = 1;
+	}
+
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep) {
 
@@ -1259,8 +1342,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		// Check menu clicks
 		if (!pauseMenuOpened && inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
 			Motion menu_motion = registry.motions.get(open_menu_button);
-			save_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 2 + UI_BUTTON_HEIGHT }, SAVE_GAME);
-			exit_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 2 + UI_BUTTON_HEIGHT * 2 }, EXIT_GAME);
+			save_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT }, SAVE_GAME);
+			exit_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2 }, EXIT_GAME);
+			registry.motions.get(exit_game_button).scale = { 200,80 };
 			pauseMenuOpened = 1;
 			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
 		}
@@ -1277,6 +1361,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				// GO BACK TO START MENU
 				pauseMenuOpened = 0;
 				canStep = 0;
+				story = 0;
 				while (registry.motions.entities.size() > 0)
 					registry.remove_all_components_of(registry.motions.entities.back());
 				render_startscreen();
@@ -1314,7 +1399,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
 
-		//disable some skill
 		showCorrectSkills();
 
 		if (player_turn == 1) {
@@ -1487,37 +1571,57 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				tutorial_enabled = 0;
 			}
 			else {
-				registry.remove_all_components_of(curr_tutorial_box);
-				vec2 next_box_pos = vec2(0, 0);
-				switch (curr_tutorial_box_num) {
-					case 0: next_box_pos = vec2(300, 300); break;
-					case 1: next_box_pos = vec2(900, 300); break;
-					case 2: next_box_pos = vec2(600, 100); break;
-					case 3: next_box_pos = vec2(500, 600); break;
-					case 4: next_box_pos = vec2(800, 600); tutorial_icon_selected = 0; break;
-					// case 5: next_box_pos = vec2(700, 300); tutorial_ability_fired = 0; break;
-					// case 6: next_box_pos = vec2(600, 300); break;
-					default: break;
-				}
-				curr_tutorial_box_num += 1;
-				curr_tutorial_box = createTutorialBox(renderer, next_box_pos, curr_tutorial_box_num);
+				advanceTutorial(curr_tutorial_box, vec2(-1, -1));
 			}
 		}
 		if (tutorial_icon_selected && curr_tutorial_box_num == 5) {
-			registry.remove_all_components_of(curr_tutorial_box);
-			// Do case 5 from above here
+			// Do case 5 from advanceTutorial here
 			tutorial_ability_fired = 0;
-			curr_tutorial_box_num += 1;
-			curr_tutorial_box = createTutorialBox(renderer, vec2(700, 300), curr_tutorial_box_num);
+			advanceTutorial(curr_tutorial_box, vec2(700, 300));
 		}
 		else if (tutorial_ability_fired && curr_tutorial_box_num == 6) {
-			// Do case 6 from above here
-			registry.remove_all_components_of(curr_tutorial_box);
-			curr_tutorial_box_num += 1;
-			curr_tutorial_box = createTutorialBox(renderer, vec2(600, 300), curr_tutorial_box_num);
+			// Do case 6 from advanceTutorial here
+			advanceTutorial(curr_tutorial_box, vec2(600, 300));
+			showCorrectSkills();
 		}
 	}
 }
+
+void WorldSystem::advanceTutorial(Entity currTutorial, vec2 pos) {
+	vec2 next_box_pos = vec2(0, 0);
+	switch (curr_tutorial_box_num) {
+		case 0: next_box_pos = vec2(300, 300); break; // Companions 
+		case 1: next_box_pos = vec2(900, 300); break; // Enemies
+		case 2: next_box_pos = vec2(950, 150); break; // Turn indicator
+		case 3: next_box_pos = vec2(350, 100); break; // Menu
+		case 4: next_box_pos = vec2(800, 550); tutorial_icon_selected = 0; break; // Ability intro
+		// case 5: next_box_pos = vec2(700, 300); tutorial_ability_fired = 0; break;  // Ability targeting
+		// case 6: next_box_pos = vec2(600, 300); break;  // End of tutorial
+		default: break;
+	}
+	curr_tutorial_box_num += 1;
+
+	// Change box location
+	Motion& motion = registry.motions.get(currTutorial);
+	motion.position = (pos.x != -1) ? pos : next_box_pos;
+
+	// Change box type
+	TEXTURE_ASSET_ID tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_ONE;
+	switch (curr_tutorial_box_num) {
+		case 0: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_ONE; break;
+		case 1: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_TWO; break;
+		case 2: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_THREE; break;
+		case 3: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FOUR; break;
+		case 4: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FIVE; break;
+		case 5: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SIX; break;
+		case 6: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SEVEN; break;
+		case 7: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_EIGHT; break;
+		default: break;
+	}
+	RenderRequest& renderRequest = registry.renderRequests.get(currTutorial);
+	renderRequest.used_texture = tutorial_box_num;
+}
+
 vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float width, float height) {
 	vec2 placePos;
 	if (mouse_position.x <= icon_position.x && mouse_position.y >= icon_position.y) {
@@ -1538,35 +1642,65 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
 	sk->mousePos = mouse_position;
+	if (!canStep && !story) {
+		if (mouseInArea(registry.motions.get(new_game_button).position,UI_BUTTON_WIDTH , UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(new_game_button).used_texture = TEXTURE_ASSET_ID::NEW_GAME_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
+		}
+		else {
+			registry.renderRequests.get(new_game_button).used_texture = TEXTURE_ASSET_ID::NEW_GAME;
+		}
+		if (mouseInArea(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
+		}
+		else {
+			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME;
+		}
+		if (mouseInArea(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
+		}
+		else {
+			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_GAME;
+		}
+	} else if (canStep) {
 
-	if (canStep) {
-
-		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(fireBall_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
 			if (registry.toolTip.size() == 0) {
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
 			}
 		}
-		else if (mouseInArea(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+		else if (mouseInArea(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)
+			&& registry.renderRequests.get(iceShard_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
 			if (registry.toolTip.size() == 0) {
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT), "IS");
 			}
 		}
-		else if (mouseInArea(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+		else if (mouseInArea(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(rock_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
 			if (registry.toolTip.size() == 0) {
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT), "RK");
 			}
 		}
-		else if (mouseInArea(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+		else if (mouseInArea(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(heal_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
 			if (registry.toolTip.size() == 0) {
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT), "HL");
 			}
 		}
-		else if (mouseInArea(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+		else if (mouseInArea(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(taunt_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
 			if (registry.toolTip.size() == 0) {
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "TT");
 			}
 		}
-		else if (mouseInArea(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
+		else if (mouseInArea(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(melee_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
 			if (registry.toolTip.size() == 0) {
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
 			}
@@ -1644,35 +1778,35 @@ void WorldSystem::showCorrectSkills() {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0) {
+		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0 || curr_tutorial_box_num < 7) {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0) {
+		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0 || curr_tutorial_box_num < 7) {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0) {
+		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0 || curr_tutorial_box_num < 7) {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0) {
+		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0 || curr_tutorial_box_num < 7) {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0) {
+		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0 || curr_tutorial_box_num < 7) {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
@@ -1681,3 +1815,10 @@ void WorldSystem::showCorrectSkills() {
 	}
 }
 
+
+
+void WorldSystem::backgroundTelling() {
+
+
+
+}

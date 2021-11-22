@@ -107,9 +107,12 @@ class RenderSystem {
 
 			// Start screen & Pause menu buttons
 			textures_path("new_game.png"),
+			textures_path("new_game_hover.png"),
 			textures_path("load_game.png"),
+			textures_path("load_game_hover.png"),
 			textures_path("save_game.png"),
 			textures_path("exit_game.png"),
+			textures_path("exit_hover.png"),
 			textures_path("game_title.png"),
 			textures_path("open_menu.png"),
 			textures_path("close_menu.png"),
@@ -121,7 +124,26 @@ class RenderSystem {
 			textures_path("rockToolTip.png"),
 			textures_path("meleeToolTip.png"),
 			textures_path("tauntToolTip.png"),
-			textures_path("healToolTip.png")
+			textures_path("healToolTip.png"),
+
+			//storytelling background
+			textures_path("battle.jpg"),
+			textures_path("battleSub.jpg"),
+			textures_path("room.jpg"),
+			textures_path("whisper.png"),
+			textures_path("storyBegin.png"),
+			textures_path("startScreen.png"),
+
+			//dialogue
+			textures_path("backgroundOne.png"),
+			textures_path("backgroundTwo.png"),
+			textures_path("backgroundThree.png"),
+			textures_path("backgroundFour.png"),
+			textures_path("backgroundFive.png"),
+			textures_path("levelOneDialogueOne.png"),
+			textures_path("levelOneDialogueTwo.png"),
+			textures_path("levelOneDialogueThree.png")
+			
   };
   
 	std::array<GLuint, effect_count> effects;

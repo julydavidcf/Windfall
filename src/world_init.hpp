@@ -41,6 +41,10 @@ const float ENEMYTURN_HEIGHT = 100.f;
 const float BACKGROUND_WIDTH = 1800.f;
 const float BACKGROUND_HEIGHT = 1080.f;
 
+const float DIALOGUE_WIDTH = 1200.f;
+const float DIALOGUE_HEIGHT = 200.f;
+
+
 const float ROCK_WIDTH = 75.f;
 const float ROCK_HEIGHT = 75.f;
 const float ICESHARD_WIDTH = 80.f;
@@ -52,14 +56,14 @@ const float LIGHTNING_HEIGHT = 450.f;
 const float CHARARROW_WIDTH = 60.f;
 const float CHARARROW_HEIGHT = 40.f;
 
-const float TUTORIAL_BOX_WIDTH = 300.f;
-const float TUTORIAL_BOX_HEIGHT = 190.f;
-const float UI_BUTTON_WIDTH = 200.f;
+const float TUTORIAL_BOX_WIDTH = 400.f;
+const float TUTORIAL_BOX_HEIGHT = 200.f;
+const float UI_BUTTON_WIDTH = 300.f;
 const float UI_BUTTON_HEIGHT = 75.f;
 const float MENU_PANEL_WIDTH = 600.f;
 const float MENU_PANEL_HEIGHT = 400.f;
-const float TITLE_WIDTH = 300.f;
-const float TITLE_HEIGHT = 100.f;
+const float TITLE_WIDTH = 800.f;
+const float TITLE_HEIGHT = 150.f;
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -122,13 +126,17 @@ Entity createLine(vec2 position, vec2 size);
 
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 
-Entity createTutorialBox(RenderSystem* renderer, vec2 position, int box_number);
+Entity createTutorialBox(RenderSystem* renderer, vec2 position);
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
 
 Entity createCharIndicator(RenderSystem* renderer, vec2 position, Entity owner);
 
 Entity createUIButton(RenderSystem* renderer, vec2 position, int buttonType);
 
+// create story background image
+Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number);
+// create dialogue image
+Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number);
 
 //Game Stats
 
