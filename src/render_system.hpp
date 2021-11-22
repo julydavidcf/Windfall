@@ -25,7 +25,7 @@ class RenderSystem {
 	// Associated id with .obj path
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
-		  //std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BASICENEMY, mesh_path("basicEnemy.obj"))
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ, mesh_path("basicEnemy.obj"))
 		  // specify meshes of other assets here
 	};
 
@@ -47,7 +47,10 @@ class RenderSystem {
 			textures_path("rock.png"),
 			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
+			textures_path("meteor.png"),
 			textures_path("charArrow.png"),
+			textures_path("dot.png"),
+			textures_path("particleBeamCharge.png"),
 			textures_path("iceShard.png"),
 			textures_path("iceShardIcon.png"),
 			textures_path("iceShardIconSelected.png"),
@@ -142,8 +145,9 @@ class RenderSystem {
 			textures_path("backgroundFive.png"),
 			textures_path("levelOneDialogueOne.png"),
 			textures_path("levelOneDialogueTwo.png"),
-			textures_path("levelOneDialogueThree.png")
+			textures_path("levelOneDialogueThree.png"),
 			
+			textures_path("particlered.png"),
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -153,7 +157,8 @@ class RenderSystem {
 		shader_path("pebble"),
 		shader_path("textured"),
 		shader_path("water"),
-		shader_path("particle") };
+		shader_path("particle"),
+		shader_path("basicEnemy")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -290,6 +295,8 @@ public:
 	float fogFactor = 0.2;
 	std::map<int, int> deferredRenderingEntities = {};
 	int gameLevel = 1;
+	int shouldDeform = 0;
+	bool implode = false;
 
 	// Initialize the window
 	bool init(int width, int height, GLFWwindow* window);
@@ -324,8 +331,9 @@ public:
 
 private:
 	// Internal drawing functions for each entity type
-	void drawTexturedMesh(Entity entity, const mat3& projection, GLint& frame, GLfloat& frameWidth);
+	void drawTexturedMesh(Entity entity, const mat3& projection, GLint& frame, GLfloat& frameWidth, float elapsed_ms);
 	void drawDeathParticles(Entity entity, const mat3& projection);
+	void initParticlesBuffer();
 	void drawToScreen();
 
 	// Window handle
@@ -339,7 +347,10 @@ private:
 	GLuint off_screen_render_buffer_depth;
 
 	Entity screen_state_entity;
+
+	GLuint particles_position_buffer;
+	float deformTime = 0.f;
 };
 
 bool loadEffectFromFile(
-	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
+	const std::string& vs_path, const std::string& fs_path, std::string& gs_path, GLuint& out_program);

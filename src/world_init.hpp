@@ -11,8 +11,8 @@ const float SWORDSMAN_WIDTH = 310.f;
 const float SWORDSMAN_HEIGHT = 350.f;
 const float NECRO_ONE_WIDTH = 220.f;
 const float NECRO_ONE_HEIGHT = 250.f;
-const float NECRO_TWO_WIDTH = 400.f;
-const float NECRO_TWO_HEIGHT = 500.f;
+const float NECRO_TWO_WIDTH = 300.f;
+const float NECRO_TWO_HEIGHT = 400.f;
 const float NECRO_MINION_WIDTH = 90.f;
 const float NECRO_MINION_HEIGHT = 110.f;
 
@@ -20,6 +20,8 @@ const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 15.f;
 const float SILENCEBUBBLE_WIDTH = 60.f;
 const float SILENCEBUBBLE_HEIGHT = 40.f;
+const float PARTICLEBEAMCHARGE_WIDTH = 750.f;
+const float PARTICLEBEAMCHARGE_HEIGHT = 750.f;
 const float FIREBALL_WIDTH = 80.f;
 const float FIREBALL_HEIGHT = 30.f;
 const float ARROW_WIDTH = 80.f;
@@ -51,10 +53,18 @@ const float ICESHARD_WIDTH = 80.f;
 const float ICESHARD_HEIGHT = 20.f;
 const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
+const float METEOR_WIDTH = 500.f;
+const float METEOR_HEIGHT = 500.f;
+
+const float BACKGROUND_OBJ_WIDTH = 60;
+const float BACKGROUND_OBJ_HEIGHT = 60.f;
+
 const float LIGHTNING_WIDTH = 300.f;
 const float LIGHTNING_HEIGHT = 450.f;
 const float CHARARROW_WIDTH = 60.f;
 const float CHARARROW_HEIGHT = 40.f;
+const float DOT_WIDTH = 30.f;
+const float DOT_HEIGHT = 30.f;
 
 const float TUTORIAL_BOX_WIDTH = 400.f;
 const float TUTORIAL_BOX_HEIGHT = 200.f;
@@ -90,6 +100,8 @@ Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos);
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
 // create the silence bubble
 Entity createSilenceBubble(RenderSystem* renderer, vec2 position);
+// create the particle beam charge
+Entity createParticleBeamCharge(RenderSystem* renderer, vec2 position);
 // the fireball
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 
@@ -114,6 +126,9 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 Entity createBarrier(RenderSystem* renderer, vec2 position);
 
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
+Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly);
+
+Entity createDot(RenderSystem* renderer, vec2 position);
 
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);
@@ -128,6 +143,8 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 
 Entity createTutorialBox(RenderSystem* renderer, vec2 position);
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
+
+Entity createBackgroundObject(RenderSystem* renderer, vec2 position);
 
 Entity createCharIndicator(RenderSystem* renderer, vec2 position, Entity owner);
 

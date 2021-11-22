@@ -47,3 +47,4 @@ struct Transform {
 bool gl_has_errors();
 
 extern Entity currPlayer;
+extern Entity prevPlayer;
