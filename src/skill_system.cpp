@@ -257,7 +257,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 
 		if (enemy.enemyType == NECROMANCER_TWO) {
 			rt.bleedOrAOE = bleedOrAOE;
-			rt.counter_ms = 0.f;
+			rt.counter_ms = 500.f;
 		}
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
@@ -270,7 +270,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 				timer.counter_ms = rt.counter_ms + 800.f + animation_timer;
 			}
 			else if (enemy.enemyType == NECROMANCER_TWO) {
-				timer.counter_ms = rt.counter_ms + 4000.f + animation_timer;
+				timer.counter_ms = rt.counter_ms + 1500.f + animation_timer;
 			}
 
 		}
@@ -438,6 +438,22 @@ void SkillSystem::startParticleBeamCharge(Entity origin, Entity target) {
 	}
 }
 
+
+void SkillSystem::startShieldAttack(Entity origin) {
+	if (registry.enemies.has(origin)) {
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = SHIELD;
+		attack.counter_ms = 1000.f;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+}
+
 Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
 	float proj_x = startPos.x + 50;
@@ -486,7 +502,13 @@ void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* rendere
 	//update_healthBars();
 }
 
-void SkillSystem::luanchCompanionTeamHeal(float amount, RenderSystem* renderer) {
+void SkillSystem::launchNecroBarrier(Entity target, RenderSystem* renderer) {
+	vec2 targetp = registry.motions.get(target).position;
+	createBarrier(renderer, { targetp.x - 300 , targetp.y });
+
+}
+
+void SkillSystem::luanchCompanionTeamHeal( float amount, RenderSystem* renderer) {
 	for (Entity cp : registry.companions.entities) {
 		vec2 targetp = registry.motions.get(cp).position;
 		createGreenCross(renderer, targetp);

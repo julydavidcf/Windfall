@@ -87,8 +87,59 @@ bool collides(const Entity entity_i, const Entity entity_j)
 	const vec2 my_bonding_box = ps.get_custom_bounding_box(entity_j) / 2.f;
 	const float my_r_squared = dot(my_bonding_box, my_bonding_box);
 	const float r_squared = max(other_r_squared, my_r_squared);
-	if (dist_squared < r_squared)
+
+	if(registry.reflects.has(entity_i)){
+		Motion motion_j = registry.motions.get(entity_j);
+		int dir = 1;
+		if(motion_j.velocity.x < 0){
+			dir = -1;
+		}
+		int left_x_i = custom_pos_i.x - other_bonding_box.x;
+		int right_x_i = custom_pos_i.x + other_bonding_box.x;
+
+		int left_x_j = custom_pos_j.x - my_bonding_box.x;
+		int right_x_j = custom_pos_j.x + my_bonding_box.x;
+
+		if(dir == 1){
+			if(right_x_j >= left_x_i){
+				return true;
+			}
+			return false;
+		} else {
+			if(left_x_j <= right_x_i){
+				return true;
+			}
+			return false;
+		}
+	}
+	else if(registry.reflects.has(entity_j)){
+		Motion motion_i = registry.motions.get(entity_i);
+		int dir = 1;
+		if(motion_i.velocity.x < 0){
+			dir = -1;
+		}
+		int left_x_i = custom_pos_i.x - other_bonding_box.x;
+		int right_x_i = custom_pos_i.x + other_bonding_box.x;
+
+		int left_x_j = custom_pos_j.x - my_bonding_box.x;
+		int right_x_j = custom_pos_j.x + my_bonding_box.x;
+
+		if(dir == 1){
+			if(right_x_i >= left_x_j){
+				return true;
+			}
+			return false;
+		} else {
+			if(left_x_i <= right_x_j){
+				return true;
+			}
+			return false;
+		}
+	}
+
+	if (dist_squared < r_squared){
 		return true;
+	}
 	return false;
 }
 

@@ -1637,8 +1637,8 @@ void BTCastShield::init(Entity e) {
 }
 BTState BTCastShield::process(Entity e) {
 	printf("Cast Shield \n\n");
-	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	SkillSystem sk;
+	sk.startShieldAttack(e);
 	// return progress
 	return BTState::Success;
 }
@@ -1666,7 +1666,7 @@ BTState BTCastSingleTargetAttack::process(Entity e) {
 			target = toGet;	// get nearest player entity
 		}
 	}
-	sk.startMeleeAttack(e, target, 0); // FOR TESTING TO REMOVE
+	sk.startMeleeAttack(e, target, 0);
 	// return progress
 	return BTState::Success;
 }
@@ -1711,7 +1711,7 @@ BTIfPlayerMageSilenced isSilenced(&randomTargetLightningAttack);	// done
 BTIfPlayerMageNotSilenced notSilenced(&castSilence);				// done
 
 BTIfShieldTurn isShieldTurn(&castShield);		// done
-BTIfNotShieldTurn notShieldTurn(&checkCrows);	// done
+BTIfNotShieldTurn notShieldTurn(&castSingleTargetAttack);	// done
 
 // Level 3 Nodes
 BTRunCheckMageHP checkMageHP(&mageBelowHalf, &mageAboveHalf);			// run pair do not need any further implementation? can merge all run pairs later and test

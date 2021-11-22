@@ -60,6 +60,7 @@ public:
 	void startParticleBeamAttack(Entity origin, Entity target);
 	void startParticleBeamCharge(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target, int bleedOrAOE);
+	void startShieldAttack(Entity origin);
 
 	// launch skills
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
@@ -83,6 +84,7 @@ public:
 	std::pair<bool, bool> updateParticleBeam(Entity& origin, float elapsed_ms_since_last_update, float width, float height);
 
 	void luanchNecroCompanionTeamBleed(RenderSystem* renderer);
+	void launchNecroBarrier(Entity target, RenderSystem* renderer);
 	
 	void removeTaunt(Entity target);
 	void removeBleed(Entity target);

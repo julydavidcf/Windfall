@@ -393,11 +393,13 @@ void WorldSystem::createRound() {
 		// also decrement shield duration if present
 		if (registry.shield.has(entity)) {	// need to emplace shield onto necro2 for countdown when David implements the skill
 			Shield* sh = &registry.shield.get(entity);
-			sh->shieldDuration--;
-			// need to remove the skill when duration <= 0
-			if (sh->shieldDuration <= 0) {
-				sk->removeShield(entity);
+			if (sh->shieldDuration > 0) {
+				sh->shieldDuration--;
 			}
+			else {
+				registry.remove_all_components_of(entity);
+			}
+			
 		}
 
 		if (!registry.silenced.has(entity)) {
@@ -407,6 +409,11 @@ void WorldSystem::createRound() {
 			}
 			speedVec.push_back(checkSpeed.speed);
 		}
+	}
+
+	for (int i = 0; i < registry.shield.components.size(); i++) {
+		Shield& sh = registry.shield.components[i];
+		sh.shieldDuration -= 1;
 	}
 
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// iterate through all companions to get speed stats
@@ -557,13 +564,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (motion.position.x + abs(motion.scale.x) < 0.f) {
 			registry.remove_all_components_of(motions_registry.entities[i]);
 		}
-		// remove barrier
-		if (registry.reflects.has(motions_registry.entities[i])) {
-			if (motion.velocity.x > 50.f) {
-				printf("in2");
-				registry.remove_all_components_of(motions_registry.entities[i]);
-			}
-		}
+		
 	}
 
 	//collect mouse gesture
@@ -613,6 +614,18 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			}
 		}
 	}
+
+	for (int i = (int)registry.shield.components.size() - 1; i >= 0; --i) {
+		if (registry.shield.has(registry.shield.entities[i])) {	// need to emplace shield onto necro2 for countdown when David implements the skill
+			Shield* sh = &registry.shield.get(registry.shield.entities[i]);
+			if (sh->shieldDuration < 0) {
+				registry.remove_all_components_of(registry.shield.entities[i]);
+			}
+			
+
+		}
+	}
+
 	// maintain correct health
 	for (int i = (int)registry.stats.components.size() - 1; i >= 0; --i) {
 		if (registry.stats.components[i].health > registry.stats.components[i].max_health) {
@@ -664,7 +677,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				else {
 					attack.attack_type = AOEMELEE;
 				}
-				attack.counter_ms = 4000.f;
+				attack.counter_ms = 1000.f;
 			}
 			
 			registry.runners.remove(runner);
@@ -836,6 +849,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						break;
 					}
 					case SHIELD: {
+						sk->launchNecroBarrier(attacker, renderer);
 						break;
 					}
 					default: break;
@@ -1302,7 +1316,7 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// Deal with fireball - Enemy collisions
-		if (registry.enemies.has(entity)) {
+		else if (registry.enemies.has(entity)) {
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
 				Damage& projDamage = registry.damages.get(entity_other);
@@ -1318,8 +1332,10 @@ void WorldSystem::handle_collisions() {
 								// get rid of dead entity's stats indicators 
 								sk->removeTaunt(entity);
 								sk->removeSilence(entity);
+								sk->removeBleed(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
+
 							else {
 								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
 							}
@@ -1376,7 +1392,7 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// barrier collection
-		if (registry.projectiles.has(entity)) {
+		else if (registry.projectiles.has(entity)) {
 			if (registry.reflects.has(entity_other)) {
 				//printf("colleds\n");
 				//printf("%f\n", registry.motions.get(entity).velocity.x);
@@ -1443,6 +1459,10 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
 		sk->launchSpike(player_mage, renderer);
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
+		sk->launchNecroBarrier(necromancer_phase_two, renderer);
 	}
 
 	// Debugging
