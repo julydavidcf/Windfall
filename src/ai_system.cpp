@@ -331,7 +331,7 @@ void BTRunCheckSwordsmanTaunt::init(Entity e)
 }
 
 BTState BTRunCheckSwordsmanTaunt::process(Entity e) {
-	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	printf("Pair run check swordsman taunt for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
 
@@ -370,7 +370,7 @@ void BTRunCheckPlayersDead::init(Entity e)
 }
 
 BTState BTRunCheckPlayersDead::process(Entity e) {
-	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	printf("Pair run check players dead for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
 
@@ -409,7 +409,7 @@ void BTRunCheckNecroMinion::init(Entity e)
 }
 
 BTState BTRunCheckNecroMinion::process(Entity e) {
-	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	printf("Pair run check necro minion for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
 
@@ -448,7 +448,7 @@ void BTRunCheckPlayerMageSilenced::init(Entity e)
 }
 
 BTState BTRunCheckPlayerMageSilenced::process(Entity e) {
-	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	printf("Pair run check player mage silenced for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
 
@@ -487,7 +487,7 @@ void BTRunCheckUltiTurn::init(Entity e)
 }
 
 BTState BTRunCheckUltiTurn::process(Entity e) {
-	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	printf("Pair run check ultimate turn for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
 
@@ -526,7 +526,7 @@ void BTRunCheckTurn::init(Entity e)
 }
 
 BTState BTRunCheckTurn::process(Entity e) {
-	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	printf("Pair run check turn for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
 
@@ -565,7 +565,7 @@ void BTRunCheckShieldTurn::init(Entity e)
 }
 
 BTState BTRunCheckShieldTurn::process(Entity e) {
-	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	printf("Pair run check shield for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
 
@@ -604,7 +604,7 @@ void BTRunCheckCrows::init(Entity e)
 }
 
 BTState BTRunCheckCrows::process(Entity e) {
-	printf("Pair run check swordsman for me ... child = %g \n", float(m_index));	// print statement to visualize
+	printf("Pair run check crows for me ... child = %g \n", float(m_index));	// print statement to visualize
 	if (m_index >= 2)
 		return BTState::Success;
 
@@ -1265,9 +1265,9 @@ void BTIfUltiTurn::init(Entity e) {
 
 BTState BTIfUltiTurn::process(Entity e) {
 	printf("Checking if it is ultimate's turn ... \n");	// print statement to visualize
-	for (int i = 0; i < registry.companions.components.size(); i++) {
-		Entity toGet = registry.companions.entities[i];
-		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using ulti
+	for (int i = 0; i < registry.enemies.components.size(); i++) {
+		Entity toGet = registry.enemies.entities[i];
+		if (registry.enemies.get(toGet).enemyType == NECROMANCER_TWO) {	// only necromancer two using ulti
 			target = toGet;
 		}
 	}
@@ -1291,9 +1291,9 @@ void BTIfNotUltiTurn::init(Entity e) {
 
 BTState BTIfNotUltiTurn::process(Entity e) {
 	printf("Checking if it is ultimate's turn ... \n");	// print statement to visualize
-	for (int i = 0; i < registry.companions.components.size(); i++) {
-		Entity toGet = registry.companions.entities[i];
-		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using ulti
+	for (int i = 0; i < registry.enemies.components.size(); i++) {
+		Entity toGet = registry.enemies.entities[i];
+		if (registry.enemies.get(toGet).enemyType == NECROMANCER_TWO) {	// only necromancer two using ulti
 			target = toGet;
 		}
 	}
@@ -1361,9 +1361,9 @@ void BTIfShieldTurn::init(Entity e) {
 
 BTState BTIfShieldTurn::process(Entity e) {
 	printf("Checking if it is shield turn ... \n");	// print statement to visualize
-	for (int i = 0; i < registry.companions.components.size(); i++) {
-		Entity toGet = registry.companions.entities[i];
-		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using shield
+	for (int i = 0; i < registry.enemies.components.size(); i++) {
+		Entity toGet = registry.enemies.entities[i];
+		if (registry.enemies.get(toGet).enemyType == NECROMANCER_TWO) {	// only necromancer two using shield
 			target = toGet;
 		}
 	}
@@ -1387,9 +1387,9 @@ void BTIfNotShieldTurn::init(Entity e) {
 
 BTState BTIfNotShieldTurn::process(Entity e) {
 	printf("Checking if it is not shield turn ... \n");	// print statement to visualize
-	for (int i = 0; i < registry.companions.components.size(); i++) {
-		Entity toGet = registry.companions.entities[i];
-		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using shield
+	for (int i = 0; i < registry.enemies.components.size(); i++) {
+		Entity toGet = registry.enemies.entities[i];
+		if (registry.enemies.get(toGet).enemyType == NECROMANCER_TWO) {	// only necromancer two using shield
 			target = toGet;
 		}
 	}
@@ -1609,8 +1609,8 @@ void BTCastParticleBeamCharge::init(Entity e) {
 }
 BTState BTCastParticleBeamCharge::process(Entity e) {
 	printf("Cast Particle Beam Charge \n\n");
-	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startParticleBeamCharge(e, currPlayer); // FOR TESTING TO REMOVE
+	SkillSystem sk;
+	sk.startParticleBeamCharge(e, currPlayer);
 	// return progress
 	return BTState::Success;
 }
@@ -1619,10 +1619,8 @@ void BTCastParticleBeamAttack::init(Entity e) {
 }
 BTState BTCastParticleBeamAttack::process(Entity e) {
 	printf("Cast Particle Beam Attack \n\n");
-	SkillSystem sk;	// FOR TESTING TO REMOVE
-	// sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	SkillSystem sk;
 	sk.startParticleBeamAttack(e, currPlayer);
-	// registry.ultimate.emplace(e);
 	// return progress
 	return BTState::Success;
 }
@@ -1681,7 +1679,7 @@ BTCastSilence castSilence;									// done
 BTRandomTargetLightningAttack randomTargetLightningAttack;	// done
 
 BTCastAOEAttack castAOEAttack;						// TODO
-BTCastParticleBeamCharge castParticleBeamCharge;	// TODO
+BTCastParticleBeamCharge castParticleBeamCharge;	// done
 BTCastParticleBeamAttack castParticleBeamAttack;	// done
 BTCastShield castShield;							// TODO
 BTCastCrowsAttack castCrowsAttack;					// TODO
