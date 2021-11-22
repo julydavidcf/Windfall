@@ -53,6 +53,7 @@ extern int16 loadedLevel;
 extern Entity currPlayer;
 extern Entity prevPlayer;
 // Players + Enemies
+extern Entity prevPlayer;
 extern Entity player_mage;
 extern Entity enemy_mage;
 extern Entity player_swordsman;

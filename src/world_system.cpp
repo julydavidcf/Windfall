@@ -575,7 +575,20 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// restart game if enemies or companions are 0
 	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0)) {
-		restart_game();
+		if (story == 8) {
+		int w, h;
+		glfwGetFramebufferSize(window, &w, &h);
+		dialogue = createDiaogue(renderer, { w / 2, h- h/3 }, 6);
+		canStep = 0;
+		story = 9;
+		} else if (story == 15) {
+		int w, h;
+		glfwGetFramebufferSize(window, &w, &h);
+		dialogue = createDiaogue(renderer, { w / 2, h - h/3}, 12);
+		canStep = 0;
+		story = 16;
+		}
+		//restart_game();
 	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
 		roundVec.clear();	// empty vector roundVec to create a new round
 		createBackgroundObject(renderer, { 1160, 315 });
@@ -1068,6 +1081,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 
 		// check round once the timer expired
+		printf("TIMER IS %g \n", float(timerCounter.counter_ms));
 		if (timerCounter.counter_ms < 0) {
 			registry.checkRoundTimer.remove(entity);
 			printf("check round timer finished, checking round now \n");
@@ -1085,10 +1099,10 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
 		if(gameLevel < 3){
-			renderer->transitioningToNextLevel = true;
-			renderer->gameLevel = gameLevel;
-			gameLevel++;
-			printf("Updated gamel level %d\n", gameLevel);
+				renderer->transitioningToNextLevel = true;
+				renderer->gameLevel = gameLevel;
+				gameLevel++;
+				printf("Updated gamel level %d\n", gameLevel);
 		}
 	}
 	if (gameLevel > MAX_GAME_LEVELS) {
@@ -1132,7 +1146,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	createBackgroundLayerTwo(renderer, { w / 2, h / 2 });
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
-
+	
 	// Pause menu button
 	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 	bool hasSaveFile = false;
@@ -1613,7 +1627,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// START A NEW GAME
-			loadedLevel = 3;
+			loadedLevel = 0;
 			loaded_game = false;
 			restart_game(false);
 			canStep = 1;
@@ -1694,8 +1708,56 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		loaded_game = false;
 		restart_game(false);
 		canStep = 1;
+		story = 8;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 9) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO;
+		story = 10;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 10) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE;
+		story = 11;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 11) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR;
+		story = 12;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 12) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE;
+		story = 13;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 13) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX;
+		story = 14;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 14) {
+		story = 15;
+		canStep = 1;
+		restart_game();
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 16) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO;
+		story = 17;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 17) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE;
+		story = 18;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 18) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR;
+		story = 19;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 19) {
+		story = 20;
+		canStep = 1;
+		restart_game();
 	}
-
 
 	//gesture skill
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && canStep) {
@@ -1803,13 +1865,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	//other clicks
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep) {
 
-
 		// Check menu clicks
 		if (!pauseMenuOpened && inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
 			Motion menu_motion = registry.motions.get(open_menu_button);
 			save_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT }, SAVE_GAME);
 			exit_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2 }, EXIT_GAME);
-			registry.motions.get(exit_game_button).scale = { 200,80 };
+			registry.motions.get(exit_game_button).scale = { 200, 80 };
 			pauseMenuOpened = 1;
 			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
 		}
