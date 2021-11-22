@@ -150,14 +150,6 @@ private:
 	//Entity fireball_icon;
 	Entity silence_icon;
 	Entity iceShard;
-
-	//icons
-	Entity melee_icon;
-	Entity iceShard_icon;
-	Entity fireBall_icon;
-	Entity taunt_icon;
-	Entity heal_icon;
-	Entity rock_icon;
 	Entity tooltip;
 
 

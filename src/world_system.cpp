@@ -2,6 +2,7 @@
 #include "world_system.hpp"
 #include "world_init.hpp"
 #include "physics_system.hpp"
+#include "json_loader.hpp"
 
 // stlib
 #include <cassert>
@@ -23,6 +24,22 @@ vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
+
+Entity player_mage;
+Entity enemy_mage;
+Entity player_swordsman;
+Entity enemy_swordsman;
+Entity necromancer;
+Entity silence_icon;
+
+//icons
+Entity melee_icon;
+Entity iceShard_icon;
+Entity fireBall_icon;
+Entity taunt_icon;
+Entity heal_icon;
+Entity rock_icon;
+
 
 Entity currPlayer;
 //Entity target;
@@ -1005,6 +1022,11 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
+	JSONLoader jsonloader;
+	jsonloader.init(renderer);
+	if (gameLevel <= 1){
+		jsonloader.get_level("level_1.json");
+	}
 	// Pause menu button
 	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 
@@ -1031,9 +1053,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 
 	if (gameLevel > 1) {
-		// Create an enemy swordsman
-		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
-		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
+		jsonloader.get_level("level_2.json");
 	}
 
 	// Create the icons here
