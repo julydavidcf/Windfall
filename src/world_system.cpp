@@ -1031,12 +1031,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	createBackgroundLayerTwo(renderer, { w / 2, h / 2 });
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
-
-	JSONLoader jsonloader;
-	jsonloader.init(renderer);
-	if (gameLevel <= 1){
-		jsonloader.get_level("level_1.json");
-	}
+	
 	// Pause menu button
 	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 	bool hasSaveFile = false;
@@ -1056,7 +1051,7 @@ void WorldSystem::restart_game(bool force_restart) {
 		gameLevel = loadedLevel;
 		// NO LEVEL SHADER EXISTS FOR LEVEL3
 		renderer->gameLevel = 1;
-		if(gameLevel == 1){
+		if(gameLevel <= 1){
 			printf("Loading level 1\n");
 			json_loader.get_level("level_1.json");
 		} else if(gameLevel == 2){
@@ -1115,14 +1110,6 @@ void WorldSystem::restart_game(bool force_restart) {
 		jsonloader.get_level("level_2.json");
 	}
 	*/
-
-	// Create the icons here
-	taunt_icon = createTauntIcon(renderer, { 400, 700 });
-	heal_icon = createHealIcon(renderer, { 550, 700 });
-	melee_icon = createMeleeIcon(renderer, { 700, 700 });
-	iceShard_icon = createIceShardIcon(renderer, { 850, 700 });
-	fireBall_icon = createFireballIcon(renderer, { 1000, 700 });
-	rock_icon = createRockIcon(renderer, { 1150, 700 });
 
 	//Create a tooltip
 	tooltip;
@@ -1631,7 +1618,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
 		// START A NEW GAME			
-		loadedLevel = 1;
+		loadedLevel = 0;
 		loaded_game = false;
 		restart_game(false);
 		canStep = 1;
