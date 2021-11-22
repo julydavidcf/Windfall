@@ -439,10 +439,10 @@ void WorldSystem::createRound() {
 		}
 	}
 
-	//for (int i = 0; i < registry.shield.components.size(); i++) {
-	//	Shield& sh = registry.shield.components[i];
-	//	sh.shieldDuration -= 1;
-	//}
+	for (int i = 0; i < registry.shieldIcons.components.size(); i++) {
+		ShieldIcon& sh = registry.shieldIcons.components[i];
+		sh.shieldDuration -= 1;
+	}
 
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// iterate through all companions to get speed stats
 		Entity& entity = registry.companions.entities[i];
@@ -650,15 +650,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	for (int i = (int)registry.shield.components.size() - 1; i >= 0; --i) {
-		if (registry.shield.has(registry.shield.entities[i])) {	// need to emplace shield onto necro2 for countdown when David implements the skill
-			Shield* sh = &registry.shield.get(registry.shield.entities[i]);
-			if (sh->shieldDuration < 0) {
-				registry.remove_all_components_of(registry.shield.entities[i]);
-			}
-			
+	for (int i = (int)registry.shieldIcons.components.size() - 1; i >= 0; --i) {
 
-		}
+			ShieldIcon* sh = &registry.shieldIcons.get(registry.shieldIcons.entities[i]);
+			if (sh->shieldDuration <= 0) {
+				registry.remove_all_components_of(registry.shieldIcons.entities[i]);
+			}
+		
 	}
 
 	// maintain correct health
@@ -1484,13 +1482,13 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// david test
-	if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-		sk->luanchNecroCompanionTeamBleed(renderer);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+	//	sk->luanchNecroCompanionTeamBleed(renderer);
+	//}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-		sk->launchSpike(player_mage, renderer);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+	//	sk->launchSpike(player_mage, renderer);
+	//}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
 		sk->launchNecroBarrier(necromancer_phase_two, renderer);
