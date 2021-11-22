@@ -966,6 +966,7 @@ void WorldSystem::restart_game(bool force_restart) {
 			renderer->transitioningToNextLevel = true;
 			renderer->gameLevel = gameLevel;
 			gameLevel++;
+			printf("Updated gamel level %d\n", gameLevel);
 		}
 	}
 	if (gameLevel > MAX_GAME_LEVELS) {
@@ -1024,11 +1025,10 @@ void WorldSystem::restart_game(bool force_restart) {
 			renderer->gameLevel = gameLevel;
 		}
 		loaded_game = false;
+		printf("Loaded game is now false\n");
 	}
 	if(!hasSaveFile){
-		gameLevel = loadedLevel;
-		// NO LEVEL SHADER EXISTS FOR LEVEL3
-		renderer->gameLevel = 1;
+		printf("Loading a file\n");
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
 			json_loader.get_level("level_1.json");
