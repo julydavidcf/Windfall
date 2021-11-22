@@ -167,6 +167,12 @@ struct Shield
 	int shieldDuration = 3;	// 3 to account for -1 after enemy turn
 };
 
+
+struct ShieldIcon
+{
+	int shieldDuration = 2;	// 3 to account for -1 after enemy turn
+};
+
 // reflects projectile
 struct Reflect
 {

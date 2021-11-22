@@ -4,7 +4,7 @@
 
 // stlib
 #include <chrono>
-//hi hi
+#include <iostream>
 
 
 // internal
@@ -15,6 +15,7 @@
 #include "skill_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
+using namespace std;
 
 const int window_width_px = 1200;
 const int window_height_px = 750;
@@ -44,6 +45,7 @@ int main()
 	//world.createRound();
 	//world.checkRound();
 	//world.displayPlayerTurn();	// display player turn when world renders
+	
 
 	// variable timestep loop
 	auto t = Clock::now();
