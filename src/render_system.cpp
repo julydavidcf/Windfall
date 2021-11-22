@@ -488,11 +488,9 @@ void RenderSystem::draw(float elapsed_ms)
 				// Get the type of character (MAGE, SWORDSMAN, ARCHER, HEALER, NECROMANCER)
 				int charType = registry.companions.has(entity) ? registry.companions.get(entity).companionType
 					: registry.enemies.get(entity).enemyType;
-
 				// Get the type of animation (IDLE, ATTACKING, DEAD)
 				int animType = registry.companions.has(entity) ? registry.companions.get(entity).curr_anim_type
 					: registry.enemies.get(entity).curr_anim_type;
-
 				// Get the current texture to alter
 				TEXTURE_ASSET_ID& currTexture = registry.renderRequests.get(entity).used_texture;
 				// Get the current geometry to alter

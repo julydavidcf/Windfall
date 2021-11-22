@@ -124,14 +124,14 @@ void load_level(json j){
             } 
             // Swordsman
             else if(entity["skill"] == "Swordsman"){
-                printf("Creating a swordsman\n");
+                printf("Loading the enemy swordsman\n");
                 enemy_swordsman = createEnemySwordsman(renderer_load, vec2(entity["position"]["x"], 
                                                                         entity["position"]["y"]));
                 create_entity = enemy_swordsman;
                 }
             // Necromancer1
             else if(entity["skill"] == "Necromancer1"){
-                printf("Creating phase 1 necromancer\n");
+                printf("Loading the phase 1 necromancer\n");
                 necromancer_phase_one = createNecromancerPhaseOne(renderer_load, vec2(entity["position"]["x"], 
                                                                         entity["position"]["y"]));
                 create_entity = necromancer_phase_one;
