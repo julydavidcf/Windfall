@@ -1140,14 +1140,24 @@ void WorldSystem::restart_game(bool force_restart) {
 	}
 	if(!hasSaveFile){
 		printf("Loading a file\n");
+		if(gameLevel == 0){
+			printf("Loading level 0\n");
+			renderer->gameLevel = 1;
+			json_loader.get_level("level_0.json");
+
+			tutorial_enabled = 1;
+			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
+			curr_tutorial_box_num = 0;
+
+		}
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
 			json_loader.get_level("level_1.json");
 
-			tutorial_enabled = 1;
-			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
-			curr_tutorial_box_num = 0;
+
+
+
 
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
@@ -1693,7 +1703,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
 		// START A NEW GAME	
-		loadedLevel = 3;
+		loadedLevel = 0;
 		loaded_game = false;
 		restart_game(false);
 		canStep = 1;
