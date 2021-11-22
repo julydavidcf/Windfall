@@ -172,7 +172,7 @@ const int necro_1_health = 200;
 const int necro_2_health = 150;
 
 //skill dmg
-const int rock_dmg = 2000;
+const int rock_dmg = 10;
 const int fireball_dmg = 30;
 const int iceshard_dmg = 20;
 const int melee_dmg = 15;
