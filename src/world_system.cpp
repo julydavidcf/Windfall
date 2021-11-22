@@ -517,7 +517,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		createBackgroundObject(renderer, { 1160, 315 });
 		auto ent = createBackgroundObject(renderer, { 420, 225 });
 		registry.backgroundObjects.get(ent).deformType2 = true;
-
 		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
 	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() <= 0)){
 		restart_game();
