@@ -72,8 +72,10 @@ const float UI_BUTTON_WIDTH = 300.f;
 const float UI_BUTTON_HEIGHT = 75.f;
 const float MENU_PANEL_WIDTH = 600.f;
 const float MENU_PANEL_HEIGHT = 400.f;
-const float TITLE_WIDTH = 800.f;
-const float TITLE_HEIGHT = 150.f;
+const float TITLE_WIDTH = 300.f;
+const float TITLE_HEIGHT = 100.f;
+const float SPIKE_WIDTH = 40.f;
+const float SPIKE_HEIGHT = 100.f;
 
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
@@ -131,6 +133,7 @@ Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly)
 Entity createDot(RenderSystem* renderer, vec2 position);
 
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
+Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);
 
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly);
@@ -142,6 +145,8 @@ Entity createLine(vec2 position, vec2 size);
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 
 Entity createTutorialBox(RenderSystem* renderer, vec2 position);
+Entity createBleedIndicator(RenderSystem* renderer, Entity owner);
+Entity createBleedDMG(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
 
 Entity createBackgroundObject(RenderSystem* renderer, vec2 position);
@@ -157,17 +162,19 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number);
 
 //Game Stats
 
-const int enemy_mage_hp = 100;
-const int enemy_swordsman_hp = 150;
+const int enemy_mage_hp = 90;
+const int enemy_swordsman_hp = 130;
 
-const int player_mage_hp = 50;
-const int player_swordsman_hp = 75;
+const int player_mage_hp = 60;
+const int player_swordsman_hp = 85;
 
 //skill dmg
 const int rock_dmg = 10;
 const int fireball_dmg = 30;
 const int iceshard_dmg = 20;
 const int melee_dmg = 15;
+const int bleed_dmg = 5;
+const int spike_dmg = 10;
 const int lightning_dmg = 15;
 
 

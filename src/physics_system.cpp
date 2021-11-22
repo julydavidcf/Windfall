@@ -157,6 +157,27 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		}
 	}
 
+	// make sure each bleed indicator is with their owner
+	ComponentContainer<BleedIndicator>& bleed_container = registry.bleedIndicators;
+	for (uint i = 0; i < bleed_container.components.size(); i++)
+	{
+		Motion* motion_i = &registry.motions.get(bleed_container.entities[i]);
+
+		if (registry.motions.has(bleed_container.components[i].owner)) {
+			Motion motion_o = registry.motions.get(bleed_container.components[i].owner);
+			motion_i->position.x = motion_o.position.x + 20;
+			motion_i->position.y = motion_o.position.y - 30;
+
+			//lower it for mage 
+			if (registry.enemies.has(bleed_container.components[i].owner) && registry.enemies.get(bleed_container.components[i].owner).enemyType == MAGE) {
+				motion_i->position.y += 30;
+			}
+			if (registry.companions.has(bleed_container.components[i].owner) && registry.companions.get(bleed_container.components[i].owner).companionType == MAGE) {
+				motion_i->position.y += 30;
+			}
+		}
+	}
+
 	// Check for collisions between all moving entities
     ComponentContainer<Motion> &motion_container = registry.motions;
 	for(uint i = 0; i<motion_container.components.size(); i++)

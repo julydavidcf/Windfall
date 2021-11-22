@@ -1483,7 +1483,7 @@ BTState BTMeleeAttack::process(Entity e) {
 			target = toGet;	// get nearest player entity
 		}
 	}
-	sk.startMeleeAttack(e, target);
+	sk.startMeleeAttack(e, target, -1);
 
 	printf("Melee Attack \n\n");	// print statement to visualize
 
@@ -1600,7 +1600,7 @@ void BTCastAOEAttack::init(Entity e) {
 BTState BTCastAOEAttack::process(Entity e) {
 	printf("Cast AOE Attack \n\n");
 	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	sk.startMeleeAttack(e, currPlayer, 1); // FOR TESTING TO REMOVE
 	// return progress
 	return BTState::Success;
 }
@@ -1642,7 +1642,7 @@ void BTCastCrowsAttack::init(Entity e) {
 BTState BTCastCrowsAttack::process(Entity e) {
 	printf("Cast Crows Attack \n\n");
 	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	sk.startHealAttack(e, currPlayer); // FOR TESTING TO REMOVE
 	// return progress
 	return BTState::Success;
 }
@@ -1651,8 +1651,16 @@ void BTCastSingleTargetAttack::init(Entity e) {
 }
 BTState BTCastSingleTargetAttack::process(Entity e) {
 	printf("Cast Single Target Attack \n\n");
+	int j = 0;
 	SkillSystem sk;	// FOR TESTING TO REMOVE
-	sk.startIceShardAttack(e, currPlayer); // FOR TESTING TO REMOVE
+	for (int i = 0; i < registry.companions.components.size(); i++) {
+		Entity toGet = registry.companions.entities[i];
+		if (registry.motions.get(toGet).position.x > j) {
+			j = registry.motions.get(toGet).position.x;
+			target = toGet;	// get nearest player entity
+		}
+	}
+	sk.startMeleeAttack(e, target, 0); // FOR TESTING TO REMOVE
 	// return progress
 	return BTState::Success;
 }

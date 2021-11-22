@@ -672,13 +672,21 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						case ATTACKING: {
 							switch (registry.attackers.get(entity).attack_type) {
-								case MELEE: {
+								case BLEEDMELEE: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
 									*currFrame = 0;
 								}
 								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
 								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
 								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
+								}
+								case AOEMELEE: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+									numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
 								}
 								case CHARGING: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
