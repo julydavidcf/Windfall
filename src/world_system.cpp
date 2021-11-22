@@ -511,7 +511,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// restart game if enemies or companions are 0
-	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.Particles.size() <= 0)) {
+	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.Particles.size() <= 0)) {
+		restart_game();
+	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
+		createBackgroundObject(renderer, { 1160, 315 });
+		auto ent = createBackgroundObject(renderer, { 420, 225 });
+		registry.backgroundObjects.get(ent).deformType2 = true;
+
+		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
+	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() <= 0)){
 		restart_game();
 	}
 
@@ -955,9 +963,11 @@ void WorldSystem::restart_game(bool force_restart) {
 	json_loader.init(renderer);
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
-		gameLevel++;
-		renderer->transitioningToNextLevel = true;
-		renderer->gameLevel = gameLevel;
+		if(gameLevel < 3){
+			renderer->transitioningToNextLevel = true;
+			renderer->gameLevel = gameLevel;
+			gameLevel++;
+		}
 	}
 	if (gameLevel > MAX_GAME_LEVELS) {
 		gameLevel = loadedLevel == -1? 1:loadedLevel;
@@ -1028,23 +1038,7 @@ void WorldSystem::restart_game(bool force_restart) {
 			json_loader.get_level("level_2.json");
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 2\n");
-			player_mage = createPlayerMage(renderer, { 150, 550 });
-		
-			createBackgroundObject(renderer, { 1160, 315 });
-			auto ent = createBackgroundObject(renderer, { 420, 225 });
-			registry.backgroundObjects.get(ent).deformType2 = true;
-
-			player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
-
-			necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-
-			taunt_icon = createTauntIcon(renderer, { 400, 700 });
-			heal_icon = createHealIcon(renderer, { 550, 700 });
-			melee_icon = createMeleeIcon(renderer, { 700, 700 });
-			iceShard_icon = createIceShardIcon(renderer, { 850, 700 });
-			fireBall_icon = createFireballIcon(renderer, { 1000, 700 });
-			rock_icon = createRockIcon(renderer, { 1150, 700 });
-
+			json_loader.get_level("level_3.json");
 		} else{
 			printf("Incorrect level\n");
 		}
@@ -1074,7 +1068,6 @@ void WorldSystem::restart_game(bool force_restart) {
 	//curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
 
 	// necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
-	// necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 
 	/*
@@ -1499,7 +1492,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// START A NEW GAME
-			loadedLevel = 1;
+			loadedLevel = 3;
 			loaded_game = false;
 			restart_game(false);
 			canStep = 1;
