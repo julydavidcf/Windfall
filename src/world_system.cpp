@@ -1139,6 +1139,11 @@ void WorldSystem::restart_game(bool force_restart) {
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
 			json_loader.get_level("level_1.json");
+
+			tutorial_enabled = 1;
+			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
+			curr_tutorial_box_num = 0;
+
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
 			json_loader.get_level("level_2.json");
@@ -1577,10 +1582,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// START A NEW GAME
-			loadedLevel = 3;
-			loaded_game = false;
-			restart_game(false);
-			canStep = 1;
+			// Direct to background story telling first
+			int w, h;
+			glfwGetWindowSize(window, &w, &h);
+			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
+			dialogue = createDiaogue(renderer, { w / 2, 650 }, 1);
+			story = 1;
 		}
 		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			loaded_game = true;
@@ -1653,8 +1660,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		story = 7;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
-		// START A NEW GAME			
-		restart_game();
+		// START A NEW GAME	
+		loadedLevel = 1;
+		loaded_game = false;
+		restart_game(false);
 		canStep = 1;
 	}
 
