@@ -18,7 +18,8 @@ const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
-const int NUM_DEATH_PARTICLES = 120;
+const int NUM_DEATH_PARTICLES = 2000;
+vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
@@ -42,6 +43,12 @@ int SILENCESELECTED = 0;
 
 int selected_skill = -1;
 
+//mouse gesture skills related=============
+int startMousePosCollect = 0;
+std::vector<vec2> mouseGestures;
+int gestureSkillRemaining = 1;
+int extraCompanionTurn = 1;
+//===========================================
 int hover_skill = -1;
 //selected button
 Entity selectedButton;
@@ -79,6 +86,32 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(taunt_spell_sound);
 	if (melee_spell_sound != nullptr)
 		Mix_FreeChunk(melee_spell_sound);
+	if (silence_spell_sound != nullptr)
+		Mix_FreeChunk(silence_spell_sound);
+	if (lightning_spell_sound != nullptr)
+		Mix_FreeChunk(lightning_spell_sound);
+	if (ice_spell_sound != nullptr)
+		Mix_FreeChunk(ice_spell_sound);
+	if (summon_spell_sound != nullptr)
+		Mix_FreeChunk(summon_spell_sound);
+	if (button_hover_sound != nullptr)
+		Mix_FreeChunk(button_hover_sound);
+	if (turning_sound != nullptr)
+		Mix_FreeChunk(turning_sound);
+	if (charge_spell_sound != nullptr)
+		Mix_FreeChunk(charge_spell_sound);
+	if (beam_spell_sound != nullptr)
+		Mix_FreeChunk(beam_spell_sound);
+	if (minion_spawn_sound != nullptr)
+		Mix_FreeChunk(minion_spawn_sound);
+	if (error_sound != nullptr)
+		Mix_FreeChunk(error_sound);
+	if (gesture_heal_sound != nullptr)
+		Mix_FreeChunk(gesture_heal_sound);
+	if (gesture_aoe_sound != nullptr)
+		Mix_FreeChunk(gesture_aoe_sound);
+	if (gesture_turn_sound != nullptr)
+		Mix_FreeChunk(gesture_turn_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -139,6 +172,7 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
+
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
 	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
@@ -162,6 +196,19 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
 	melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	//https://freesound.org/people/Vicces1212/sounds/123757/
+	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
+	ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
+	summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
+	button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str()); //https://freesound.org/people/wobesound/sounds/488382/
+	turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());//https://freesound.org/people/InspectorJ/sounds/416179/
+	charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str()); //https://freesound.org/people/18hiltc/sounds/186048/
+	beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str()); //https://freesound.org/people/MATRIXXX_/sounds/403297/
+	minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str()); //https://freesound.org/people/Breviceps/sounds/453391/
+	error_sound = Mix_LoadWAV(audio_path("error.wav").c_str()); //https://freesound.org/people/plasterbrain/sounds/423169/
+	gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str()); //https://freesound.org/people/SilverIllusionist/sounds/580814/
+	gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str()); //https://freesound.org/people/humanoide9000/sounds/329029/
+	gesture_turn_sound = Mix_LoadWAV(audio_path("gesture_turn.wav").c_str()); //https://freesound.org/people/Aleks41/sounds/406063/
 
 	if (background_music == nullptr
 		|| salmon_dead_sound == nullptr
@@ -173,7 +220,21 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 		|| rock_spell_sound == nullptr
 		|| heal_spell_sound == nullptr
 		|| taunt_spell_sound == nullptr
-		|| melee_spell_sound == nullptr) {
+		|| melee_spell_sound == nullptr
+		|| silence_spell_sound == nullptr
+		|| lightning_spell_sound == nullptr
+		|| ice_spell_sound == nullptr
+		|| summon_spell_sound == nullptr
+		|| button_hover_sound == nullptr
+		|| turning_sound == nullptr
+		|| summon_spell_sound == nullptr
+		|| charge_spell_sound == nullptr
+		|| beam_spell_sound == nullptr
+		|| minion_spawn_sound == nullptr
+		|| error_sound == nullptr
+		|| gesture_heal_sound == nullptr
+		|| gesture_aoe_sound == nullptr
+		|| gesture_turn_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -185,7 +246,22 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 			audio_path("heal_spell.wav").c_str(),
 			audio_path("taunt_spell.wav").c_str(),
 			audio_path("melee_spell.wav").c_str(),
-			audio_path("death_enemy.wav").c_str());
+			audio_path("death_enemy.wav").c_str(),
+			audio_path("silence_spell.wav").c_str(),
+			audio_path("lightning_spell.wav").c_str(),
+			audio_path("ice_spell.wav").c_str(),
+			audio_path("summon_spell.wav").c_str(),
+			audio_path("button_hover.wav").c_str(),
+			audio_path("turning.wav").c_str(),
+			audio_path("summon_spell.wav").c_str(),
+			audio_path("charge_spell.wav").c_str(),
+			audio_path("beam_spell.wav").c_str(),
+			audio_path("minion_spawn.wav").c_str(),
+			audio_path("error.wav").c_str(),
+			audio_path("gesture_heal.wav").c_str(),
+			audio_path("gesture_aoe.wav").c_str(),
+			audio_path("gesture_turn.wav").c_str()
+			);
 		return nullptr;
 	}
 	return window;
@@ -196,32 +272,76 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	this->ai = ai_arg;
 	this->sk = skill_arg;
 
-	// Playing background music indefinitely (Later)
-	//Mix_VolumeMusic(8);	// adjust volume from 0 to 128
-	//Mix_PlayMusic(background_music, -1);
+	Mix_VolumeMusic(0);
+	Mix_PlayMusic(background_music, -1);
+	Mix_VolumeChunk(hit_enemy_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(fireball_explosion_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(death_enemy_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(fire_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(rock_spell_sound,MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(heal_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(taunt_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(melee_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(silence_spell_sound, MIX_MAX_VOLUME / 8);
+	Mix_VolumeChunk(lightning_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(ice_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(summon_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(button_hover_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(charge_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(beam_spell_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(minion_spawn_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(error_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(gesture_heal_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(gesture_aoe_sound, MIX_MAX_VOLUME);
+	Mix_VolumeChunk(gesture_turn_sound, MIX_MAX_VOLUME);
 
 	fprintf(stderr, "Loaded music\n");
 
-	// Set all states to default
-	restart_game();
+	// Start game with a start screen
+	render_startscreen();
+}
+
+void WorldSystem::render_startscreen() {
+	int w, h;
+	glfwGetWindowSize(window, &w, &h);
+	createStoryBackground(renderer, {w/2, h/2}, 6);
+	new_game_button = createUIButton(renderer, { 600, 400 }, NEW_GAME);
+	load_game_button = createUIButton(renderer, { 600, 500 }, LOAD_GAME);
+	exit_game_button = createUIButton(renderer, { 600, 600 }, EXIT_GAME);
+	registry.motions.get(exit_game_button).scale = { 150, 70 };
 }
 
 void WorldSystem::displayPlayerTurn() {
-	if (registry.turnIndicators.components.size() != 0) {
-		registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+	displayTurnIndicator(1);
+	if (registry.charIndicator.components.size() != 0) {
+		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
-	createPlayerTurn(renderer, TURN_INDICATOR_LOCATION);
+	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
 }
 
 void WorldSystem::displayEnemyTurn() {
-	if (registry.turnIndicators.components.size() != 0) {
-		registry.remove_all_components_of(registry.turnIndicators.entities[0]);
+	displayTurnIndicator(0);
+	if (registry.charIndicator.components.size() != 0) {
+		registry.remove_all_components_of(registry.charIndicator.entities[0]);
 	}
-	createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
+	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
+}
+
+void WorldSystem::displayTurnIndicator(int isPlayerTurn) {
+	if (registry.turnIndicators.components.size() == 0) {
+		// Only initialize this entity once!
+		turn_indicator = isPlayerTurn ? createPlayerTurn(renderer, TURN_INDICATOR_LOCATION) : createEnemyTurn(renderer, TURN_INDICATOR_LOCATION);
+	}
+	else {
+		Motion& motion = registry.motions.get(turn_indicator);
+		RenderRequest& renderRequest = registry.renderRequests.get(turn_indicator);
+		motion.position = TURN_INDICATOR_LOCATION;
+		renderRequest.used_texture = isPlayerTurn ? TEXTURE_ASSET_ID::PLAYER_TURN : TEXTURE_ASSET_ID::ENEMY_TURN;
+	}
 }
 
 void WorldSystem::iceShardAttack(Entity currPlayer) {
-	Mix_PlayChannel(-1, fire_spell_sound, 0); // added fire spell sound but doesnt work
+	// Mix_PlayChannel(-1, fire_spell_sound, 0); // added fire spell sound but doesnt work
 	Motion enemy = registry.motions.get(currPlayer);
 	if (!registry.deathTimers.has(currPlayer)) {
 		Motion enemy = registry.motions.get(currPlayer);
@@ -239,25 +359,96 @@ void WorldSystem::createRound() {
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {	// iterate through all enemies to get speed stats
 		Entity& entity = registry.enemies.entities[i];
-		Statistics& checkSpeed = registry.stats.get(entity);
-		speedVec.push_back(checkSpeed.speed);
 
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
 		}
+		if (registry.bleeds.has(entity)) {
+			Bleed* b = &registry.bleeds.get(entity);
+			b->duration--;
+			sk->launchBleedDMG(entity, renderer);
+			update_healthBars();
+		}
+		// also decrement silence duration if present
+		if (registry.silenced.has(entity)) {
+			Silenced* s = &registry.silenced.get(entity);
+			s->turns--;
+			if (s->turns <= 0) {			// remove silence to add speed stat later if turns <= 0
+				sk->removeSilence(entity);
+			}
+		}
+		// also decrement ultimate duration if present
+		if (registry.ultimate.has(entity)) {	// need to emplace ultimate onto necro2 for countdown when David implements the skill
+			Ultimate* u = &registry.ultimate.get(entity);
+			u->ultiDuration--;
+			printf("ENTITY IS %g \n", float(registry.stats.get(entity).speed));
+			printf("MY ULTIDURATION IS %g \n", float(u->ultiDuration));
+			// need to remove the skill when duration <= 0
+			if (u->ultiDuration <= 0) {
+				sk->removeUltimate(entity);
+			}
+		}
+		// also decrement shield duration if present
+		if (registry.shield.has(entity)) {	// need to emplace shield onto necro2 for countdown when David implements the skill
+			Shield* sh = &registry.shield.get(entity);
+			if (sh->shieldDuration > 0) {
+				sh->shieldDuration--;
+				printf("ENTITY IS %g \n", float(registry.stats.get(entity).speed));
+				printf("MY SHIELD IS %g \n", float(sh->shieldDuration));
+			}
+			else {
+				//registry.remove_all_components_of(entity);
+				sk->removeShield(entity);
+			}
+			
+		}
+
+		if (!registry.silenced.has(entity)) {
+			Statistics& checkSpeed = registry.stats.get(entity);
+			if (checkSpeed.speed == 2) {	// add extra turn for necromancer, change this if necromancer speed changes
+				speedVec.push_back(checkSpeed.speed);
+			}
+			speedVec.push_back(checkSpeed.speed);
+		}
 	}
+
+	//for (int i = 0; i < registry.shield.components.size(); i++) {
+	//	Shield& sh = registry.shield.components[i];
+	//	sh.shieldDuration -= 1;
+	//}
 
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// iterate through all companions to get speed stats
 		Entity& entity = registry.companions.entities[i];
-		Statistics& checkSpeed = registry.stats.get(entity);
-		speedVec.push_back(checkSpeed.speed);
 
 		// also decrement taunt duration if present
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
+		}
+		// also decrement bleed duration if present
+		if (registry.bleeds.has(entity)) {
+			Bleed* b = &registry.bleeds.get(entity);
+			b->duration--;
+			sk->launchBleedDMG(entity, renderer);
+			update_healthBars();
+		}
+		// also decrement silence duration if present
+		if (registry.silenced.has(entity)) {
+			Silenced* s = &registry.silenced.get(entity);
+			s->turns--;
+			if (s->turns <= 0) {			// remove silence to add speed stat later if turns <= 0
+				sk->removeSilence(entity);
+			}
+		}
+
+		if (!registry.silenced.has(entity)) {
+			Statistics& checkSpeed = registry.stats.get(entity);
+			if (extraCompanionTurn <= 0) {	// if extraCompanionTurn <= 0, add extra turn for all companions on screen
+				speedVec.push_back(checkSpeed.speed);
+			}
+			speedVec.push_back(checkSpeed.speed);
 		}
 	}
 
@@ -280,7 +471,11 @@ void WorldSystem::createRound() {
 		}
 	}
 
-	// here I have the sorted array
+	if (extraCompanionTurn <= 0) {
+		extraCompanionTurn = 1;
+	}
+
+	// print the sorted array
 	for (int i = 0; i < roundVec.size(); i++) {
 		printf("%g \n", float(registry.stats.get(roundVec[i]).speed));
 	}
@@ -320,14 +515,18 @@ void WorldSystem::checkRound() {
 		showCorrectSkills();
 	}
 
+	CURRPLAYER_LOCATION = registry.motions.get(currPlayer).position;	// get currPlayer location
+
 	printf("finished check round \n");
+	// print the current round
+	for (int i = 0; i < roundVec.size(); i++) {
+		printf("CURRENT ROUND IS %g \n", float(registry.stats.get(roundVec[i]).speed));
+	}
 	printf("playerUseMelee is %g \n", float(playerUseMelee));
 }
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-
-
 	// Get the screen dimensions
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
@@ -341,14 +540,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	// restart game if enemies or companions are 0
-	if (registry.enemies.size() <= 0 || registry.companions.size() <= 0) {
+	if ((registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.Particles.size() <= 0)) {
 		restart_game();
 	}
 
-	// Updating window title with points (MAYBE USE FOR LATER)
-	//std::stringstream title_ss;
-	//title_ss << "Points: " << points;
-	//glfwSetWindowTitle(window, title_ss.str().c_str());
+	// Updating window title with volume control
+	std::stringstream title_ss;
+	title_ss << "Music volume (z-key , x-key): " << Mix_VolumeMusic(-1) << " ,   Effects volume (c-key , v-key): " << Mix_VolumeChunk(death_enemy_sound, -1) << " ";
+	glfwSetWindowTitle(window, title_ss.str().c_str());
 
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
@@ -368,20 +567,36 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (motion.position.x + abs(motion.scale.x) < 0.f) {
 			registry.remove_all_components_of(motions_registry.entities[i]);
 		}
-		// remove barrier
-		if (registry.reflects.has(motions_registry.entities[i])) {
-			if (motion.velocity.x > 50.f) {
-				printf("in2");
-				registry.remove_all_components_of(motions_registry.entities[i]);
-			}
+		
+	}
+
+	//collect mouse gesture
+	if (startMousePosCollect == 1) {
+		mouseGestures.push_back(msPos);
+		// creates dots
+		createDot(renderer, msPos);
+	}
+	else {
+		for (int j = 0; j < registry.dots.components.size(); j++) {
+			registry.remove_all_components_of(registry.dots.entities[j]);
 		}
 	}
 
-	//check taunt for enemy and companion
+	//check taunt bleed and silence for enemy and companion
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.enemies.entities[i])) {
 			if (registry.taunts.get(registry.enemies.entities[i]).duration <= 0) {
 				sk->removeTaunt(registry.enemies.entities[i]);
+			}
+		}
+		if (registry.bleeds.has(registry.enemies.entities[i])) {
+			if (registry.bleeds.get(registry.enemies.entities[i]).duration <= 0) {
+				sk->removeBleed(registry.enemies.entities[i]);
+			}
+		}
+		if (registry.silenced.has(registry.enemies.entities[i])) {
+			if (registry.silenced.get(registry.enemies.entities[i]).turns <= 0) {
+				sk->removeSilence(registry.enemies.entities[i]);
 			}
 		}
 	}
@@ -391,7 +606,29 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				sk->removeTaunt(registry.companions.entities[i]);
 			}
 		}
+		if (registry.bleeds.has(registry.companions.entities[i])) {
+			if (registry.bleeds.get(registry.companions.entities[i]).duration <= 0) {
+				sk->removeBleed(registry.companions.entities[i]);
+			}
+		}
+		if (registry.silenced.has(registry.companions.entities[i])) {
+			if (registry.silenced.get(registry.companions.entities[i]).turns <= 0) {
+				sk->removeSilence(registry.companions.entities[i]);
+			}
+		}
 	}
+
+	for (int i = (int)registry.shield.components.size() - 1; i >= 0; --i) {
+		if (registry.shield.has(registry.shield.entities[i])) {	// need to emplace shield onto necro2 for countdown when David implements the skill
+			Shield* sh = &registry.shield.get(registry.shield.entities[i]);
+			if (sh->shieldDuration < 0) {
+				registry.remove_all_components_of(registry.shield.entities[i]);
+			}
+			
+
+		}
+	}
+
 	// maintain correct health
 	for (int i = (int)registry.stats.components.size() - 1; i >= 0; --i) {
 		if (registry.stats.components[i].health > registry.stats.components[i].max_health) {
@@ -413,6 +650,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			auto& anim_type = registry.companions.has(runner) ? registry.companions.get(runner).curr_anim_type
 				: registry.enemies.get(runner).curr_anim_type;
 
+			auto& runner_type = registry.companions.has(runner) ? registry.companions.get(runner).companionType
+				: registry.enemies.get(runner).enemyType;
+
 			Entity healthbar = registry.companions.has(runner) ? registry.companions.get(runner).healthbar
 				: registry.enemies.get(runner).healthbar;
 			Motion& healthbar_motion = registry.motions.get(healthbar);
@@ -425,7 +665,24 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			attack.attack_type = MELEE;
 			attack.old_pos = run.old_pos;
 			attack.target = run.target;
-			attack.counter_ms = 1250.f;
+
+			if (runner_type == SWORDSMAN) {
+				attack.counter_ms = 1250.f;
+			}
+			else if (runner_type == NECROMANCER_MINION) {
+				attack.counter_ms = 800.f;
+			}
+			else if (runner_type == NECROMANCER_TWO) {
+				runner_motion.position = vec2(run.target_position.x - 25, runner_motion.position.y);
+				if (run.bleedOrAOE == 0) {
+					attack.attack_type = BLEEDMELEE;
+				}
+				else {
+					attack.attack_type = AOEMELEE;
+				}
+				attack.counter_ms = 1000.f;
+			}
+			
 			registry.runners.remove(runner);
 
 			// Replace with better melee sound effect
@@ -438,8 +695,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		Attack& attack = registry.attackers.get(attacker);
 		// Updating animation time
 		attack.counter_ms -= elapsed_ms_since_last_update;
+		printf("Updating time : %f\n",attack.counter_ms);
 		if (!registry.deathTimers.has(attacker)) {
-			if (attack.counter_ms <= 0.f) {
+			if (attack.counter_ms <= 0.f || attack.attack_type == SUMMON) {
 				// Attack
 				if (registry.companions.has(attacker)) {
 					printf("Companion is attacking\n");
@@ -479,7 +737,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case ICESHARD: {
 						Mix_Volume(5, 32);
-						Mix_PlayChannel(5, rock_spell_sound, 0);
+						Mix_PlayChannel(5, ice_spell_sound, 0);
 						currentProjectile = sk->launchIceShard(companion_motion.position, attack.old_pos,renderer);
 						break;
 					}
@@ -505,9 +763,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					Enemy& enemy = registry.enemies.get(attacker);
 					switch (attack.attack_type) {
 					case TAUNT: {
-						Mix_PlayChannel(-1, taunt_spell_sound, 0);	// TODO
+						//Mix_PlayChannel(-1, taunt_spell_sound, 0);	// sound moved to skill_system
 						printf("taunt attack enemy\n");
 						sk->launchTaunt(attack.target,renderer);
+						break;
+					}
+					case SILENCE: {
+						//Mix_PlayChannel(-1, silence_spell_sound, 0);	// sound moved to skill_system
+						printf("taunt attack enemy\n");
+						sk->launchSilence(attack.target, renderer);
 						break;
 					}
 					case ROCK: {
@@ -515,6 +779,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						Mix_PlayChannel(5, rock_spell_sound, 0);
 						printf("Rock attack enemy\n");
 						currentProjectile = sk->launchRock(attack.target,renderer);
+						// sk->startParticleBeamAttack(attacker);
+						break;
+					}
+					case LIGHTNING: {
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, lightning_spell_sound, 0);
+						printf("Lightning attack enemy\n");
+						currentProjectile = sk->launchLightning(attack.target, renderer);
 						break;
 					}
 					case MELEE: {
@@ -528,6 +800,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case ICESHARD: {
 						printf("ice shard attack enemy\n");
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, ice_spell_sound, 0);
 						iceShardAttack(attack.target); // TODO
 						break;
 					}
@@ -536,6 +810,49 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						printf("heal attack enemy\n");
 						sk->launchHeal(attack.target, 30,renderer);
 						update_healthBars();
+						break;
+					}
+					case SUMMONING: {
+						Mix_Volume(5, 32);
+						Mix_PlayChannel(5, summon_spell_sound, 0);
+						printf("summon necrominion \n");
+						sk->launchSummon(renderer);
+						break;
+					}
+					case ULTI: {
+						printf("ultimate attack enemy \n");
+						sk->launchParticleBeam(attack.target);
+						break;
+					}
+					case CHARGING: {
+						printf("ultimate charge enemy \n");
+						currentProjectile = sk->launchParticleBeamCharge(attack.target, renderer);
+						break;
+					}
+					case BLEEDMELEE: {
+						Motion& motion = registry.motions.get(attacker);
+						motion.position = attack.old_pos;
+						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
+						healthbar_motion.position.x = attack.old_pos.x;
+						sk->launchMelee(attack.target, renderer);
+						sk->launchBleed(attack.target, renderer);
+						break;
+					}
+					case AOEMELEE: {
+						Motion& motion = registry.motions.get(attacker);
+						motion.position = attack.old_pos;
+						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
+						healthbar_motion.position.x = attack.old_pos.x;
+						if (registry.motions.has(player_mage)) {
+							sk->launchMelee(player_mage, renderer);
+						}
+						if (registry.motions.has(player_swordsman)) {
+							sk->launchMelee(player_swordsman, renderer);
+						}
+						break;
+					}
+					case SHIELD: {
+						sk->launchNecroBarrier(attacker, renderer);
 						break;
 					}
 					default: break;
@@ -555,45 +872,42 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// this area is to check for edge cases for enemy to attack during their turn
 	if (player_turn == 0) {
-		printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
-		printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
+		//printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
+		//printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
 
-		if (!registry.checkRoundTimer.has(currPlayer)) {
-			displayEnemyTurn();
-			if (registry.companions.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// First case: Checks if selected companion character has died so as to progress to an enemy's
-				if (registry.stats.get(prevPlayer).health <= 0 || playerUseMelee == 1) {	// Second case: (Brute force) playerUseMelee checks if the previous player used melee attack
-					prevPlayer = currPlayer;
-					ai->callTree(currPlayer);
-				}
-			}
-			if (registry.enemies.has(prevPlayer) && registry.enemies.has(currPlayer)) {	// checks if enemy is going right after another enemy's turn
-				enemy_turn_timer -= elapsed_ms_since_last_update;
-				if (enemy_turn_timer < 0) {
-					if (registry.companions.size() == 0) {
-						restart_game();
+				if ((registry.checkRoundTimer.size()<=0)&&(registry.companions.size()>0)) {
+					displayEnemyTurn();
+					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+						printf("Calling tree here\n");
+						ai->callTree(currPlayer);
+						prevPlayer = currPlayer;	// added this line to progress the necromancer phase 2 turn 2 after the first turn's tree is called, not sure if it will affect other things, need more testing
 					}
 					else {
-						prevPlayer = currPlayer;
-						ai->callTree(currPlayer);
+						if (roundVec.empty()) {
+							printf("roundVec is empty at enemy turn, createRound now \n");
+							createRound();
+						}
 					}
 				}
-				if (registry.stats.get(prevPlayer).health <= 0) {	// Checks if selected enemy character has died so as to progress to an enemy's TO TEST
-					ai->callTree(currPlayer);
-				}
-			}
-		}
 	}
 
 	// Processing the salmon state
 	assert(registry.screenStates.components.size() <= 1);
 	ScreenState& screen = registry.screenStates.components[0];
 
-	// update state of death particles
-	for (Entity entity : registry.deathParticles.entities) {
-		DeathParticle& deathParticles = registry.deathParticles.get(entity);
-		for (auto& particle : deathParticles.deathParticles) {
-			particle.Life -= elapsed_ms_since_last_update;
-			if (particle.Life > 0.f) {
+	// update state of particles
+	for (Entity entity : registry.Particles.entities) {
+		Particle& particles = registry.Particles.get(entity);
+		if (particles.areTypeDeath) {
+			for (int i = 0; i < particles.deathParticles.size(); i++) {
+				auto& particle = particles.deathParticles[i];
+				// for (auto& particle : deathParticles.deathParticles) {
+				particle.Life -= elapsed_ms_since_last_update;
+				// if (particle.Life > 0.f) {
+				if (particle.Life <= 0) {
+					particles.fadedParticles++;
+					delete[] particle.positions;
+				}
 				particle.motion.position.x -= particle.motion.velocity.y * (rand() % 17) * 0.3f;
 				particle.motion.position.y -= particle.motion.velocity.x * (rand() % 17) * 0.3f;
 				particle.Color.a -= 0.05f * 0.01f;
@@ -601,14 +915,43 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				if (particle.motion.angle >= (2 * M_PI)) {
 					particle.motion.angle = 0;
 				}
+				particles.positions[i * 3 + 0] = particle.motion.position.x;
+				particles.positions[i * 3 + 1] = particle.motion.position.y;
+				particles.positions[i * 3 + 2] = particle.Life / particles.Life;
+				// deathParticles.positions[i * 3 + 3] = particle.Life;
+				// }
 			}
-			else {
-				deathParticles.fadedParticles++;
+			if (particles.fadedParticles == NUM_DEATH_PARTICLES) {
+				delete[] particles.positions;
+				particles.faded = true;
+				registry.Particles.remove(entity);
+				registry.remove_all_components_of(entity);	// added back in, kinda works
 			}
 		}
-		if (deathParticles.fadedParticles >= NUM_DEATH_PARTICLES) {
-			registry.deathParticles.remove(entity);
-			registry.remove_all_components_of(entity);	// added back in, kinda works
+		else {
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			auto maybeUpdateHealth = sk->updateParticleBeam(entity, elapsed_ms_since_last_update, (float)w, (float)h);
+			if (maybeUpdateHealth.second == true) {
+				// printf("life reached below 50%\n");
+			}
+			if (maybeUpdateHealth.first && !maybeUpdateHealth.second) {
+				for (Entity entity : registry.companions.entities) {
+					Statistics& stat = registry.stats.get(entity);
+					stat.health -= 0.0001;
+					// printf("inside\n");
+					if (stat.health > 0) {
+						// update_healthBars();
+						Companion& companion = registry.companions.get(entity);
+						Entity healthbar = companion.healthbar;
+						Motion& motion = registry.motions.get(healthbar);
+						motion.scale = vec2({ (HEALTHBAR_WIDTH * (stat.health / 100.f)), HEALTHBAR_HEIGHT });
+					}
+				}
+			}
+			//else {
+			//	printf("outside\n");
+			//}
 		}
 	}
 
@@ -624,6 +967,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// restart the game once the death timer expired
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
+			if(registry.companions.has(entity)){
+				registry.companions.remove(entity);
+			} else if(registry.enemies.has(entity)){
+				registry.enemies.remove(entity);
+			}
 			activate_deathParticles(entity);
 			screen.darken_screen_factor = 0;
 			// restart_game();
@@ -725,47 +1073,66 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	// Layer 1 (Last layer in background)
 	createBackgroundLayerOne(renderer, { w / 2, h / 2 });
-	// Layer 2
-	createBackgroundLayerTwo(renderer, { w / 2, h / 2 });
 	// Layer 3
 	createBackgroundLayerThree(renderer, { w / 2, h / 2 });
+	// Layer 2
+	createBackgroundLayerTwo(renderer, { w / 2, h / 2 });
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
 
+	// Pause menu button
+	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
+
 	// Create a player mage
-	player_mage = createPlayerMage(renderer, { 100, 575 });
+	player_mage = createPlayerMage(renderer, { 150, 550 });
 	// Create a player swordsman
-	player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
+	// player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
 	// Create an enemy mage
-	enemy_mage = createEnemyMage(renderer, { 1050, 575 });
-	registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
+	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+
+	createBackgroundObject(renderer, { 1160, 315 });
+	auto ent = createBackgroundObject(renderer, { 550, 325 });
+	registry.backgroundObjects.get(ent).deformType2 = true;
+
+	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
+	//// Create an enemy mage
+	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
+	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
+
+	//necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
+	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 
 	if (gameLevel > 1) {
 		// Create an enemy swordsman
 		enemy_swordsman = createEnemySwordsman(renderer, { 875, 500 });
 		registry.colors.insert(enemy_swordsman, { 0.f, 1.f, 1.f });
 	}
-	// Create the fireball icon
-	fireball_icon = createFireballIcon(renderer, { 600, 700 });
 
 	// Create the icons here
-	taunt_icon = createTauntIcon(renderer, { 300, 700 });
-	heal_icon = createHealIcon(renderer, { 400, 700 });
-	melee_icon = createMeleeIcon(renderer, { 500, 700 });
-	iceShard_icon = createIceShardIcon(renderer, { 600, 700 });
-	fireBall_icon = createFireballIcon(renderer, { 700, 700 });
-	rock_icon = createRockIcon(renderer, { 800, 700 });
+	taunt_icon = createTauntIcon(renderer, { 400, 700 });
+	heal_icon = createHealIcon(renderer, { 550, 700 });
+	melee_icon = createMeleeIcon(renderer, { 700, 700 });
+	iceShard_icon = createIceShardIcon(renderer, { 850, 700 });
+	fireBall_icon = createFireballIcon(renderer, { 1000, 700 });
+	rock_icon = createRockIcon(renderer, { 1150, 700 });
 
 	//Create a tooltip
 	tooltip;
-
 	player_turn = 1;	// player turn indicator
+	gestureSkillRemaining = 1; // reset gesture skill remaining
 	roundVec.clear();	// empty vector roundVec to create a new round
 	createRound();
 	checkRound();
 	showCorrectSkills();
-
 	displayPlayerTurn();	// display player turn when restart game
+
+	// Create the first tutorial box
+	tutorial_enabled = 1;
+	curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
+	curr_tutorial_box_num = 0;
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -864,10 +1231,12 @@ void WorldSystem::update_healthBars() {
 
 void WorldSystem::activate_deathParticles(Entity entity)
 {
-	DeathParticle particleEffects;
-	for (int p = 0; p <= NUM_DEATH_PARTICLES; p++) {
+	Particle particleEffects;
+	particleEffects.motion.scale = vec2(10.f, 10.f);
+	
+	for (int p = 0; p < NUM_DEATH_PARTICLES; p++) {
 		auto& motion = registry.motions.get(entity);
-		DeathParticle particle;
+		Particle particle;
 		float random1 = ((rand() % 100) - 50) / 10.0f;
 		float random2 = ((rand() % 200) - 100) / 10.0f;
 		float rColor = 0.5f + ((rand() % 100) / 100.0f);
@@ -878,9 +1247,13 @@ void WorldSystem::activate_deathParticles(Entity entity)
 		particle.motion.velocity *= 0.1f;
 		particle.motion.scale = vec2({ 10, 10 });
 		particleEffects.deathParticles.push_back(particle);
+		particleEffects.positions[p * 3 + 0] = particle.motion.position.x;
+		particleEffects.positions[p * 3 + 1] = particle.motion.position.y;
+		particleEffects.positions[p * 3 + 2] = particle.Life/ particleEffects.Life;
+		// particleEffects.positions[p * 4 + 3] = particle.Life;
 	}
-	if (!registry.deathParticles.has(entity)) {
-		registry.deathParticles.insert(entity, particleEffects);
+	if (!registry.Particles.has(entity)) {
+		registry.Particles.insert(entity, particleEffects);
 	}
 }
 
@@ -927,8 +1300,6 @@ void WorldSystem::handle_collisions() {
 					}
 				}
 			}
-			// create death particles. Register for rendering.
-
 			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
 			{
 				// get rid of dead entity's healthbar.
@@ -948,10 +1319,9 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// Deal with fireball - Enemy collisions
-		if (registry.enemies.has(entity)) {
+		else if (registry.enemies.has(entity)) {
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
-
 				Damage& projDamage = registry.damages.get(entity_other);
 				if (projDamage.isFriendly == 1) {	// check if isFriendly = 1 which hits enemy
 					// initiate death unless already dying
@@ -964,8 +1334,11 @@ void WorldSystem::handle_collisions() {
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
 								// get rid of dead entity's stats indicators 
 								sk->removeTaunt(entity);
+								sk->removeSilence(entity);
+								sk->removeBleed(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
+
 							else {
 								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
 							}
@@ -976,27 +1349,11 @@ void WorldSystem::handle_collisions() {
 							}
 
 							//enemy turn start
-							if (player_turn == 0) {
-								if (!registry.checkRoundTimer.has(currPlayer)) {
-									displayEnemyTurn();
-									if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-										prevPlayer = currPlayer;
-										ai->callTree(currPlayer);
-									}
-									else {
-										if (roundVec.empty()) {
-											printf("roundVec is empty at enemy turn, createRound now \n");
-											createRound();
-										}
-									}
-								}
-							}
+						
 						}
 					}
 				}
 			}
-
-			// create death particles. Register for rendering.
 			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
 			{
 				// get rid of dead entity's healthbar.
@@ -1015,8 +1372,30 @@ void WorldSystem::handle_collisions() {
 				}
 			}
 		}
+		// handle collisions with background objects
+		if (registry.backgroundObjects.has(entity) && registry.projectiles.has(entity_other)) {
+			auto& backgroundObj = registry.backgroundObjects.get(entity);
+			backgroundObj.shouldDeform = true;
+			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
+			registry.remove_all_components_of(entity_other);
+			//enemy turn start
+			if (player_turn == 0) {
+				if (!registry.checkRoundTimer.has(currPlayer)) {
+					displayEnemyTurn();
+					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
+						ai->callTree(currPlayer);
+					}
+					else {
+						if (roundVec.empty()) {
+							printf("roundVec is empty at enemy turn, createRound now \n");
+							createRound();
+						}
+					}
+				}
+			}
+		}
 		// barrier collection
-		if (registry.projectiles.has(entity)) {
+		else if (registry.projectiles.has(entity)) {
 			if (registry.reflects.has(entity_other)) {
 				//printf("colleds\n");
 				//printf("%f\n", registry.motions.get(entity).velocity.x);
@@ -1056,27 +1435,14 @@ void WorldSystem::handle_boundary_collision() {
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
 			//enemy turn start
-			if (player_turn == 0) {
-				if (!registry.checkRoundTimer.has(currPlayer)) {
-					displayEnemyTurn();
-					if (registry.enemies.has(currPlayer)) {	// check if enemies have currPlayer
-						ai->callTree(currPlayer);
-					}
-					else {
-						if (roundVec.empty()) {
-							printf("roundVec is empty at enemy turn, createRound now \n");
-							createRound();
-						}
-					}
-				}
-			}
+			
 		}
 	}
 }
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
-	return bool(glfwWindowShouldClose(window));
+	return bool(glfwWindowShouldClose(window)) || closeWindow;
 }
 
 // On key callback
@@ -1089,6 +1455,19 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		restart_game(true);
 	}
 
+	// david test
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+		sk->luanchNecroCompanionTeamBleed(renderer);
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		sk->launchSpike(player_mage, renderer);
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
+		sk->launchNecroBarrier(necromancer_phase_two, renderer);
+	}
+
 	// Debugging
 	if (key == GLFW_KEY_D) {
 		if (action == GLFW_RELEASE)
@@ -1096,18 +1475,316 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		else
 			debugging.in_debug_mode = true;
 	}
+
+	// testing particle beam
+	//if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
+	//	if (!registry.Particles.has(necromancer_phase_two)) {
+	//		sk->startParticleBeamAttack(necromancer_phase_two);
+	//	}
+	//}
+
+	// testing deformation of mesh. NOTE: render_system also needs to be updated
+	// to use this
+	/*if (key == GLFW_KEY_Q && action == GLFW_RELEASE) {
+		renderer->shouldDeform = 1;
+	}*/
+
+	// Volume control (z = Decrease BGM vol., x = Increase BGM vol., c = Decrease effects vol., v = Increase effects vol.)
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Z) {
+		Mix_VolumeMusic(Mix_VolumeMusic(-1) - MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_X) {
+		Mix_VolumeMusic(Mix_VolumeMusic(-1) + MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_C) {
+		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fireball_explosion_sound, Mix_VolumeChunk(fireball_explosion_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(death_enemy_sound, Mix_VolumeChunk(death_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fire_spell_sound, Mix_VolumeChunk(fire_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(rock_spell_sound, Mix_VolumeChunk(rock_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(button_hover_sound, Mix_VolumeChunk(button_hover_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(charge_spell_sound, Mix_VolumeChunk(charge_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(beam_spell_sound, Mix_VolumeChunk(beam_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(minion_spawn_sound, Mix_VolumeChunk(minion_spawn_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(error_sound, Mix_VolumeChunk(error_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_heal_sound, Mix_VolumeChunk(gesture_heal_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_aoe_sound, Mix_VolumeChunk(gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_turn_sound, Mix_VolumeChunk(gesture_turn_sound, -1) - MIX_MAX_VOLUME / 10);
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
+		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fireball_explosion_sound, Mix_VolumeChunk(fireball_explosion_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(death_enemy_sound, Mix_VolumeChunk(death_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(fire_spell_sound, Mix_VolumeChunk(fire_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(rock_spell_sound, Mix_VolumeChunk(rock_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(button_hover_sound, Mix_VolumeChunk(button_hover_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(charge_spell_sound, Mix_VolumeChunk(charge_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(beam_spell_sound, Mix_VolumeChunk(beam_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(minion_spawn_sound, Mix_VolumeChunk(minion_spawn_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(error_sound, Mix_VolumeChunk(error_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_heal_sound, Mix_VolumeChunk(gesture_heal_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_aoe_sound, Mix_VolumeChunk(gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(gesture_turn_sound, Mix_VolumeChunk(gesture_turn_sound, -1) + MIX_MAX_VOLUME / 10);
+	}
 }
 
 void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+	// For start menu and pause menu click detection
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story) {
+		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+
+			// Direct to background story telling first
+			int w, h;
+			glfwGetWindowSize(window, &w, &h);
+
+			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
+			dialogue = createDiaogue(renderer, { w / 2, 650}, 1);
+
+			story = 1;
+		}
+		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			// LOAD THE SAVED JSON FILE (IF ANY)
+			// Todo: implement
+		}
+		else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			// EXIT TO DESKTOP
+			closeWindow = 1;
+		}
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 1) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2 ,h / 2 }, 2);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 2);
+		story = 2;
+
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 2) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 3);
+		story = 3;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 3);
+		registry.remove_all_components_of(dialogue);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 4);
+		story = 4;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 4);
+		registry.remove_all_components_of(dialogue);
+		story = 5;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 5) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 5);
+		story = 6;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6) {
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 5);
+		story = 7;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
+		// START A NEW GAME			
+		restart_game();
+		canStep = 1;
+	}
+
+
+	//gesture skill
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && canStep) {
+		printf("gesture skill collecting active!\n");
+		startMousePosCollect = 1;
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE && canStep) {
+		startMousePosCollect = 0;
+		float maxX = -9999;
+		float minX = 9999;
+		float maxY = -9999;
+		float minY = 9999;
+		float aveX;
+		float aveY;
+		float totalX=0;
+		float totalY=0;
+		// Y increasing means going down! idk why
+		float Yincreasing_switch = 1;
+		float Xincreasing_switch = 1;
+		float Ydecreasing_switch = 1;
+		float Xdecreasing_switch = 1;
+		
+		for (int i = 0; i < mouseGestures.size(); i++) {
+			// print out conditions
+			printf("collected mousePos: X=%f Y=%f\n",mouseGestures[i].x, mouseGestures[i].y);
+			totalX += mouseGestures[i].x;
+			totalY += mouseGestures[i].y;
+			if (mouseGestures[i].x > maxX) {
+				if (maxX != -9999) {
+					Xdecreasing_switch = 0;
+				}
+				maxX = mouseGestures[i].x;
+			}
+			if (mouseGestures[i].x < minX) {
+				if (minX != 9999) {
+					Xincreasing_switch = 0;
+				}
+				minX = mouseGestures[i].x;
+			}
+			if (mouseGestures[i].y > maxY) {
+				if (maxY != -9999) {
+					Ydecreasing_switch = 0;
+				}
+				maxY = mouseGestures[i].y;
+			}
+			if (mouseGestures[i].y < minY) {
+				if (minY != 9999) {
+					Yincreasing_switch = 0;
+				}
+				minY = mouseGestures[i].y;
+			}
+		}
+		printf("gesture skill collecting deactive!\n");
+		aveX = totalX / mouseGestures.size();
+		aveY = totalY / mouseGestures.size();
+		printf("Ave X is %f, Ave Y is %f, MaxminX is %f %f, MixminY is %f %f\n",aveX, aveY, maxX, minX, maxY, minY );
+		printf("X inc:%f X dec:%f Yinc:%f Y dec:%f\n",Xincreasing_switch,Xdecreasing_switch,Yincreasing_switch,Ydecreasing_switch);
+		
+		// horisontal line - skill 1: heal
+		if (gestureSkillRemaining > 0) {
+			if (Xincreasing_switch == 1 && Xdecreasing_switch == 0 &&
+				maxX - aveX >= 200 && aveX - minX >= 200 &&
+				maxY - aveY <= 50 && aveY - minY <= 50) {
+				// launch heal skill
+				Mix_Volume(5, 32);
+				Mix_PlayChannel(5, gesture_heal_sound, 0);
+				sk->luanchCompanionTeamHeal(50, renderer);
+				update_healthBars();
+				gestureSkillRemaining--;	// decrement gestureSkillRemaining
+				printf("heal Gesture skill activated!");
+			}
+			// vertical line -skill 2: aoe damage
+			if (Yincreasing_switch == 1 && Ydecreasing_switch == 0 &&
+				maxX - aveX <= 50 && aveX - minX <= 50 &&
+				maxY - aveY >= 150 && aveY - minY >= 150) {
+				// launch aoe damage skill
+				Mix_Volume(5, 32);
+				Mix_PlayChannel(5, gesture_aoe_sound, 0);
+				sk->luanchEnemyTeamDamage(30, renderer);
+				update_healthBars();
+				gestureSkillRemaining--;	// decrement gestureSkillRemaining
+				printf("damage Gesture skill activated!");
+			}
+			// circle - skill 3: one more turn
+			if (Xincreasing_switch == 0 && Xdecreasing_switch == 0 &&
+				Yincreasing_switch == 0 && Ydecreasing_switch == 0 &&
+				maxX - aveX <= 300 && aveX - minX <= 300 &&
+				maxY - aveY <= 300 && aveY - minY <= 300) {
+				// launch extra one turn
+				Mix_Volume(5, 32);
+				Mix_PlayChannel(5, gesture_turn_sound, 0);
+				extraCompanionTurn--;
+				gestureSkillRemaining--;	// decrement gestureSkillRemaining
+				printf("one more turn skill activated!");
+			}
+		}
+		else {
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, error_sound, 0);
+		}
+
+	mouseGestures.clear();
+
+	}
+	//other clicks
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep) {
+
+
+		// Check menu clicks
+		if (!pauseMenuOpened && inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
+			Motion menu_motion = registry.motions.get(open_menu_button);
+			save_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT }, SAVE_GAME);
+			exit_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2 }, EXIT_GAME);
+			registry.motions.get(exit_game_button).scale = { 200,80 };
+			pauseMenuOpened = 1;
+			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
+		}
+		else if (pauseMenuOpened) {
+			
+			if (inButton(registry.motions.get(save_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+				// SAVE THE CURRENT GAME STATE
+				pauseMenuOpened = 0;
+				// Todo: implement
+
+			}
+			
+			if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+				// GO BACK TO START MENU
+				pauseMenuOpened = 0;
+				canStep = 0;
+				story = 0;
+				while (registry.motions.entities.size() > 0)
+					registry.remove_all_components_of(registry.motions.entities.back());
+				render_startscreen();
+				return;
+			}
+			
+			if (inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
+				// HIDE MENU OPTIONS
+				registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::OPEN_MENU;
+				// Clear on-screen buttons
+				registry.remove_all_components_of(save_game_button);
+				registry.remove_all_components_of(exit_game_button);
+				pauseMenuOpened = 0;
+			}	
+		}
+
 
 		//show all skill
 		if (selected_skill != 0) {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 		if (selected_skill != 1) {
-			registry.renderRequests.get(fireball_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 		if (selected_skill != 2) {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
@@ -1121,7 +1798,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		if (selected_skill != 5) {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
-		//disable some skill
+
 		showCorrectSkills();
 
 		if (player_turn == 1) {
@@ -1133,6 +1810,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					if (selected_skill == -1) {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
 						selected_skill = 0;
+						tutorial_icon_selected = 1;
 					}
 					else {
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
@@ -1204,6 +1882,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					if (selected_skill == 0) {
 						sk->startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
+						tutorial_ability_fired = 1;
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						playerUseMelee = 0;	// added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
@@ -1261,7 +1940,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
-								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j]);
+								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j], -1);
 								playerUseMelee = 1;
 								selected_skill = -1;
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
@@ -1281,8 +1960,68 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				}
 			}
 		}
+
+		// Handle clicks on tutorial box
+		if (tutorial_ability_fired && tutorial_icon_selected && tutorial_enabled
+			&& (curr_tutorial_box_num <= 4 || curr_tutorial_box_num == 7) && inButton(registry.motions.get(curr_tutorial_box).position, TUTORIAL_BOX_WIDTH, TUTORIAL_BOX_HEIGHT)) {
+
+			if (curr_tutorial_box_num == 7) {
+				registry.remove_all_components_of(curr_tutorial_box);
+				curr_tutorial_box_num += 1;
+				tutorial_enabled = 0;
+			}
+			else {
+				advanceTutorial(curr_tutorial_box, vec2(-1, -1));
+			}
+		}
+		if (tutorial_icon_selected && curr_tutorial_box_num == 5) {
+			// Do case 5 from advanceTutorial here
+			tutorial_ability_fired = 0;
+			advanceTutorial(curr_tutorial_box, vec2(700, 300));
+		}
+		else if (tutorial_ability_fired && curr_tutorial_box_num == 6) {
+			// Do case 6 from advanceTutorial here
+			advanceTutorial(curr_tutorial_box, vec2(600, 300));
+			showCorrectSkills();
+		}
 	}
 }
+
+void WorldSystem::advanceTutorial(Entity currTutorial, vec2 pos) {
+	vec2 next_box_pos = vec2(0, 0);
+	switch (curr_tutorial_box_num) {
+		case 0: next_box_pos = vec2(300, 300); break; // Companions 
+		case 1: next_box_pos = vec2(900, 300); break; // Enemies
+		case 2: next_box_pos = vec2(950, 150); break; // Turn indicator
+		case 3: next_box_pos = vec2(350, 100); break; // Menu
+		case 4: next_box_pos = vec2(800, 550); tutorial_icon_selected = 0; break; // Ability intro
+		// case 5: next_box_pos = vec2(700, 300); tutorial_ability_fired = 0; break;  // Ability targeting
+		// case 6: next_box_pos = vec2(600, 300); break;  // End of tutorial
+		default: break;
+	}
+	curr_tutorial_box_num += 1;
+
+	// Change box location
+	Motion& motion = registry.motions.get(currTutorial);
+	motion.position = (pos.x != -1) ? pos : next_box_pos;
+
+	// Change box type
+	TEXTURE_ASSET_ID tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_ONE;
+	switch (curr_tutorial_box_num) {
+		case 0: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_ONE; break;
+		case 1: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_TWO; break;
+		case 2: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_THREE; break;
+		case 3: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FOUR; break;
+		case 4: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FIVE; showCorrectSkills(); break;
+		case 5: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SIX; showCorrectSkills(); break;
+		case 6: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SEVEN; break;
+		case 7: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_EIGHT; break;
+		default: break;
+	}
+	RenderRequest& renderRequest = registry.renderRequests.get(currTutorial);
+	renderRequest.used_texture = tutorial_box_num;
+}
+
 vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float width, float height) {
 	vec2 placePos;
 	if (mouse_position.x <= icon_position.x && mouse_position.y >= icon_position.y) {
@@ -1303,39 +2042,73 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	msPos = mouse_position;
 	sk->mousePos = mouse_position;
-	if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
+	if (!canStep && !story) {
+		if (mouseInArea(registry.motions.get(new_game_button).position,UI_BUTTON_WIDTH , UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(new_game_button).used_texture = TEXTURE_ASSET_ID::NEW_GAME_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
 		}
-	}
-	else if (mouseInArea(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT), "IS");
+		else {
+			registry.renderRequests.get(new_game_button).used_texture = TEXTURE_ASSET_ID::NEW_GAME;
 		}
-	}
-	else if (mouseInArea(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT), "RK");
+		if (mouseInArea(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
 		}
-	}
-	else if (mouseInArea(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT), "HL");
+		else {
+			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME;
 		}
-	}
-	else if (mouseInArea(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "TT");
+		if (mouseInArea(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, button_hover_sound, 0);
 		}
-	}
-	else if (mouseInArea(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT)) {
-		if (registry.toolTip.size() == 0) {
-			tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
+		else {
+			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_GAME;
 		}
-	}
-	else {
-		registry.renderRequests.remove(tooltip);
-		registry.toolTip.clear();
+	} else if (canStep) {
+
+		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(fireBall_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT), "FB");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT)
+			&& registry.renderRequests.get(iceShard_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT), "IS");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(rock_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT), "RK");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(heal_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT), "HL");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(taunt_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "TT");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT) 
+			&& registry.renderRequests.get(melee_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE) {
+			if (registry.toolTip.size() == 0) {
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
+			}
+		}
+		else {
+			registry.remove_all_components_of(tooltip);
+			registry.toolTip.clear();
+		}
 	}
 }
 
@@ -1389,7 +2162,6 @@ void WorldSystem::deselectButtons() {
 	}
 }
 
-
 bool WorldSystem::canUseSkill(Entity user, int skill) {
 	Statistics pStat = registry.stats.get(user);
 	return skill_character_aviability[pStat.classID][skill];
@@ -1399,43 +2171,43 @@ bool WorldSystem::canUseSkill(Entity user, int skill) {
 void WorldSystem::showCorrectSkills() {
 	if (currPlayer != NULL && registry.companions.has(currPlayer)) {
 		Statistics pStat = registry.stats.get(currPlayer);
-		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0) {
-			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 5)) {
+			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0) {
-			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
+			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0) {
-			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][2] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
+			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0) {
-			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][3] || registry.taunts.has(currPlayer) || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
+			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0) {
-			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][4] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
+			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 		}
 
-		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0) {
-			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICONDISABLED;
+		if (!skill_character_aviability[pStat.classID][5] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7)) {
+			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
@@ -1443,3 +2215,10 @@ void WorldSystem::showCorrectSkills() {
 	}
 }
 
+
+
+void WorldSystem::backgroundTelling() {
+
+
+
+}

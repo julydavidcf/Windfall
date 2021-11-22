@@ -9,90 +9,121 @@
 
 void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 {
-	auto& particles = registry.deathParticles.get(entity).deathParticles;
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	for (auto& particle : particles) {
-		if (particle.Life > 0.f) {
-			Transform transform;
-			transform.translate(particle.motion.position);
-			transform.rotate(particle.motion.angle);
-			transform.scale(particle.motion.scale);
+	auto& particle = registry.Particles.get(entity);
+	if (!particle.faded) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-			const GLuint used_effect_enum = (GLuint)EFFECT_ASSET_ID::PARTICLE;
-			// assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
-			const GLuint program = (GLuint)effects[used_effect_enum];
+		const GLuint used_effect_enum = (GLuint)EFFECT_ASSET_ID::PARTICLE;
+		const GLuint program = (GLuint)effects[used_effect_enum];
 
-			// Setting shaders
-			glUseProgram(program);
-			gl_has_errors();
+		// Setting shaders
+		glUseProgram(program);
+		gl_has_errors();
 
-			// assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
-			const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
-			const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+		const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+		const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
 
-			// Setting vertex and index buffers
-			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			gl_has_errors();
+		// Setting vertex and index buffers
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		gl_has_errors();
 
-			GLint in_position_loc = glGetAttribLocation(program, "in_position");
-			GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
-			gl_has_errors();
-			assert(in_texcoord_loc >= 0);
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
 
-			glEnableVertexAttribArray(in_position_loc);
-			glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
-				sizeof(TexturedVertex), (void*)0);
-			gl_has_errors();
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+			sizeof(TexturedVertex), (void*)0);
+		gl_has_errors();
 
-			glEnableVertexAttribArray(in_texcoord_loc);
-			glVertexAttribPointer(
-				in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
-				(void*)sizeof(vec3)); // note the stride to skip the preceeding vertex position
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(
+			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
+			(void*)sizeof(vec3)); // note the stride to skip the preceeding vertex position
+		gl_has_errors();
 
-			// Enabling and binding texture to slot 0
-			glActiveTexture(GL_TEXTURE0);
-			gl_has_errors();
-			GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::DEATH_PARTICLE];
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			gl_has_errors();
+		glEnableVertexAttribArray(4);
+		glBindBuffer(GL_ARRAY_BUFFER, RenderSystem::particles_position_buffer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, particle.deathParticles.size() * 3 * sizeof(float), particle.positions);
+		gl_has_errors();
 
-			// Getting uniform locations for glUniform* calls
-			GLint color_uloc = glGetUniformLocation(program, "deathParticleColor");
-			// const vec3 color = registry.colors.has(entity) ? registry.colors.get(entity) : vec3(1);
-			glUniform4fv(color_uloc, 1, (float*)&particle.Color);
-			gl_has_errors();
+		glBindBuffer(GL_ARRAY_BUFFER, RenderSystem::particles_position_buffer);
+		glVertexAttribPointer(
+			4, // attribute. must match the layout in the shader.
+			3, // size : x + y + z + size => 4
+			GL_FLOAT, // type
+			GL_FALSE, // normalized?
+			0, // stride
+			(void*)0 // array buffer offset
+		);
+		gl_has_errors();
 
-			// Get number of indices from index buffer, which has elements uint16_t
-			GLint size = 0;
-			glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-			gl_has_errors();
+		glVertexAttribDivisor(4, 1);
+		gl_has_errors();
 
-			GLsizei num_indices = size / sizeof(uint16_t);
-			// GLsizei num_triangles = num_indices / 3;
+		// Enabling and binding texture to slot 0
+		//glActiveTexture(GL_TEXTURE0);
+		//gl_has_errors();
+		//GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::DEATH_PARTICLE];
+		//glBindTexture(GL_TEXTURE_2D, texture_id);
+		//gl_has_errors();
 
-			GLint currProgram;
-			glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
-			// Setting uniform values to the currently bound program
-			GLuint transform_loc = glGetUniformLocation(currProgram, "transform");
-			glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float*)&transform.mat);
-			GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
-			glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float*)&projection);
-			gl_has_errors();
-			// Drawing of num_indices/3 triangles specified in the index buffer
-			glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
-			gl_has_errors();
+		// textures
+		GLint blueTexLoc = glGetUniformLocation(program, "particleTextureBlue");
+		GLint redTexLoc = glGetUniformLocation(program, "particleTextureRed");
+		glUniform1i(blueTexLoc, 0);
+		glUniform1i(redTexLoc, 1);
+		gl_has_errors();
+
+		glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+		glBindTexture(GL_TEXTURE_2D, texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::DEATH_PARTICLE]);
+		gl_has_errors();
+
+		glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+		glBindTexture(GL_TEXTURE_2D, texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::RED_PARTICLE]);
+		gl_has_errors();
+
+		GLint currProgram;
+		glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
+		GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
+		glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+		gl_has_errors();
+
+		//particle type
+		if (particle.areTypeDeath) {
+			glUniform1f(glGetUniformLocation(currProgram, "particleType"), 1.f);
 		}
+		else {
+			glUniform1f(glGetUniformLocation(currProgram, "particleType"), 2.f);
+		}
+		
+		// particle scales
+		glUniform2f(glGetUniformLocation(currProgram, "scale"), particle.motion.scale.x, particle.motion.scale.y);
+		gl_has_errors();
+
+		// particle angle
+		auto& angle = particle.angle;
+		angle += 0.5;
+		if (angle >= (2 * M_PI)) {
+			angle = 0;
+		}
+		glUniform1f(glGetUniformLocation(currProgram, "angle"), angle);
+
+		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particle.deathParticles.size());
+		gl_has_errors();
+
+		glDisable(GL_BLEND);
 	}
-	glDisable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void RenderSystem::drawTexturedMesh(Entity entity,
 									const mat3 &projection,
 								    GLint& frame,
-									GLfloat& frameWidth)
+									GLfloat& frameWidth,
+									float elapsed_ms)
 {
 	Motion &motion = registry.motions.get(entity);
 	// Transformation code, see Rendering and Transformation in the template
@@ -168,12 +199,71 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glUniform1i(frame_uloc, frame);
 		glUniform1f(frame_width_uloc, frameWidth);
 	}
-	else if (render_request.used_effect == EFFECT_ASSET_ID::PEBBLE)
+	else if (render_request.used_effect == EFFECT_ASSET_ID::BACKGROUND_OBJ || render_request.used_effect == EFFECT_ASSET_ID::PEBBLE)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
-		gl_has_errors();
+		if (render_request.used_effect == EFFECT_ASSET_ID::BACKGROUND_OBJ) {
+			if (registry.backgroundObjects.has(entity)) {
+				auto& backgroundObj = registry.backgroundObjects.get(entity);
+				glUniform1f(glGetUniformLocation(program, "time"), deformTime);
+				if (backgroundObj.shouldDeform) {
+					if (!implode) {
+						deformTime += elapsed_ms;
+					}
+					if (deformTime >= 2200 && !implode) {
+						implode = true;
+						// shouldDeform = 0;
+						// deformTime = 0;
+					}
 
+					if (implode) {
+						deformTime -= elapsed_ms;
+					}
+
+					if (implode && deformTime <= 0) {
+						implode = false;
+						// keeping this variable since it can help for testing all deformations at once.
+						shouldDeform = 0.;
+						backgroundObj.shouldDeform = false;
+						deformTime = 0;
+					}
+				}
+				glUniform1i(glGetUniformLocation(program, "shouldDeform"), backgroundObj.shouldDeform);
+				glUniform1i(glGetUniformLocation(program, "deformType2"), backgroundObj.deformType2);
+				gl_has_errors();
+			}
+			else {
+				// reaching here implies that we've got a render request but 
+				// the entity is missing from the background objects container.
+				// Indicates asynchronous behavior. Not very serious, so just log warning.
+				printf("WARNING: recieved renderRequest for background object but object is missing from backgroundObject container\n");
+				glUniform1i(glGetUniformLocation(program, "shouldDeform"), false);
+				glUniform1f(glGetUniformLocation(program, "time"), 0.f);
+			}
+			//glUniform1f(glGetUniformLocation(program, "time"), deformTime);
+			//if (!implode) {
+			//	deformTime += elapsed_ms;
+			//}
+			//if (deformTime >= 2200 && !implode) {
+			//	implode = true;
+			//	// shouldDeform = 0;
+			//	// deformTime = 0;
+			//}
+
+			//if (implode) {
+			//	deformTime -= elapsed_ms;
+			//}
+
+			//if (implode && deformTime <= 0) {
+			//	implode = false;
+			//	shouldDeform = 0.;
+			//	deformTime = 0;
+			//}
+
+			//glUniform1i(glGetUniformLocation(program, "shouldDeform"), shouldDeform);
+			//gl_has_errors();
+		}
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
 			sizeof(ColoredVertex), (void*)0);
@@ -344,21 +434,12 @@ void RenderSystem::draw(float elapsed_ms)
 
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
-		// Handle camera focus on projectiles and swordsman melee
-		if (registry.projectiles.has(entity) && registry.projectiles.get(entity).flyingTimer > 0) {
-			Motion& motion = registry.motions.get(entity);
-			projectionMat = createCameraProjection(motion);
-
-			if (registry.damages.has(entity) && registry.damages.get(entity).isFriendly) {
-				hasTravellingProjectile = 1;
-			}
-			else if (registry.damages.has(entity) && !registry.damages.get(entity).isFriendly) {
-				hasTravellingProjectile = 2;
-			}
-		}
-		else if (registry.runners.has(entity) 
-			|| (registry.companions.has(entity) && registry.companions.get(entity).curr_anim_type == ATTACKING)
-			|| (registry.enemies.has(entity) && registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+		// Handle camera focus only on swordsman melee
+		if ((registry.runners.has(entity) && !(registry.enemies.has(entity) && registry.enemies.get(entity).enemyType == NECROMANCER_TWO)
+			|| (registry.companions.has(entity) && registry.companions.get(entity).companionType == SWORDSMAN && registry.companions.get(entity).curr_anim_type == ATTACKING)
+			|| (registry.enemies.has(entity) 
+				&& (registry.enemies.get(entity).enemyType == SWORDSMAN || registry.enemies.get(entity).enemyType == NECROMANCER_MINION)
+				&& registry.enemies.get(entity).curr_anim_type == ATTACKING))) {
 			Motion& motion = registry.motions.get(entity);
 
 			if (registry.companions.has(entity)) {
@@ -377,10 +458,13 @@ void RenderSystem::draw(float elapsed_ms)
 		mat3 projectionToUse = projectionMat;
 		if (!registry.motions.has(entity))
 			continue;
-		// if an entity has a deathParticle compononent, that means the 
-		// entity is dead. So, no need to render the dead entity.
-		if (registry.deathParticles.has(entity)) {
+		if (registry.Particles.has(entity)) {
 			needParticleEffects.push_back(entity);
+		}
+		if (registry.Particles.has(entity) && registry.Particles.get(entity).areTypeDeath) {
+			// if an entity has particles of type "death", that means the 
+			// entity is dead. So, no need to render the dead entity.
+			// (Do nothing inside this conditional)
 		}
 		else {
 			// Note, its not very efficient to access elements indirectly via the entity
@@ -505,16 +589,211 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						break;
 				}
-				case NECROMANCER: {
+				case NECROMANCER_ONE: {
 					switch (animType) {
-						case IDLE: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAME_WIDTH; break;
-						case ATTACKING: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
-						case DEAD: numFrames = NECROMANCER_IDLE_FRAMES; frame_width = NECROMANCER_IDLE_FRAMES; break;
+						case IDLE: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_ONE_IDLE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE;
+							numFrames = NECRO_ONE_IDLE_FRAMES; frame_width = NECRO_ONE_IDLE_FRAME_WIDTH; timePerFrame = NECRO_ONE_IDLE_FRAME_TIME; break;
+						}
+						case ATTACKING: {
+							switch (registry.attackers.get(entity).attack_type) {
+								case SUMMONING: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING) {
+										*currFrame = 0;
+									}	
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_SUMMONING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING;
+									numFrames = NECRO_ONE_SUMMONING_FRAMES; frame_width = NECRO_ONE_SUMMONING_FRAME_WIDTH; timePerFrame = NECRO_ONE_SUMMONING_FRAME_TIME; break;
+								}
+								default: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING;
+									numFrames = NECRO_ONE_CASTING_FRAMES; frame_width = NECRO_ONE_CASTING_FRAME_WIDTH; timePerFrame = NECRO_ONE_CASTING_FRAME_TIME; break;
+								}
+							}
+							break;
+						}
+						case DEAD: {
+							// Starting to die
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE && currGeometry != GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO) {
+								*currFrame = 0;
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_ONE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE;
+								numFrames = NECRO_ONE_DEATH_ONE_FRAMES; frame_width = NECRO_ONE_DEATH_ONE_FRAME_WIDTH;
+							}
+							else if (currGeometry == GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_ONE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE;
+								numFrames = NECRO_ONE_DEATH_ONE_FRAMES; frame_width = NECRO_ONE_DEATH_ONE_FRAME_WIDTH;
+
+								// Half-dead, switch to second death anim
+								if (*currFrame == NECRO_ONE_DEATH_ONE_FRAMES - 1) {
+									*currFrame = 0;
+									currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_TWO;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO;
+									numFrames = NECRO_ONE_DEATH_TWO_FRAMES; frame_width = NECRO_ONE_DEATH_TWO_FRAME_WIDTH;
+								}
+							}
+							else if (currGeometry == GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_ONE_DEATH_TWO;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO;
+								numFrames = NECRO_ONE_DEATH_TWO_FRAMES; frame_width = NECRO_ONE_DEATH_TWO_FRAME_WIDTH;
+							}
+							timePerFrame = NECRO_ONE_DEATH_FRAME_TIME; break;
+						}
 						default: break;
 					}
 					break;
 				}
-					// TODO: Implement healer, archer, necromancer cases later
+				case NECROMANCER_TWO: {
+					switch (animType) {
+						case APPEARING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_APPEAR) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_TWO_APPEAR;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_APPEAR;
+							numFrames = NECRO_TWO_APPEAR_FRAMES; frame_width = NECRO_TWO_APPEAR_FRAME_WIDTH; timePerFrame = NECRO_TWO_APPEAR_FRAME_TIME; break;
+						}
+						case IDLE: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_TWO_IDLE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE;
+							numFrames = NECRO_TWO_IDLE_FRAMES; frame_width = NECRO_TWO_IDLE_FRAME_WIDTH; timePerFrame = NECRO_TWO_IDLE_FRAME_TIME; break;
+						}
+						case ATTACKING: {
+							switch (registry.attackers.get(entity).attack_type) {
+								case BLEEDMELEE: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+									*currFrame = 0;
+								}
+								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
+								}
+								case AOEMELEE: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+									numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
+								}
+								case CHARGING: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
+									numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
+								}
+								case ULTI: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_DEATH;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH;
+									// Use first three frames of death anim for particle beam ult
+									numFrames = 3; frame_width = NECRO_TWO_DEATH_FRAME_WIDTH; timePerFrame = 550; break;
+								}
+								default: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_CASTING;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING;
+									numFrames = NECRO_TWO_CASTING_FRAMES; frame_width = NECRO_TWO_CASTING_FRAME_WIDTH; timePerFrame = NECRO_TWO_CASTING_FRAME_TIME; break;
+								}
+								// Todo: Add more spell cases later
+							}
+							break;
+						}
+						case WALKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+							numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
+						}
+						case DEAD: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_TWO_DEATH;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH;
+							numFrames = NECRO_TWO_DEATH_FRAMES; frame_width = NECRO_TWO_DEATH_FRAME_WIDTH; timePerFrame = NECRO_TWO_DEATH_FRAME_TIME; break;
+						}
+						default: break;
+						}
+					break;
+				}
+				case NECROMANCER_MINION: {
+					switch (animType) {
+						case APPEARING: {
+							// Finished appearing, switch to idle anim
+							if (*currFrame == NECRO_MINION_APPEAR_FRAMES - 1) {
+								*currFrame = 0;
+								// Change state here
+								registry.enemies.get(entity).curr_anim_type = IDLE;
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_IDLE;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE;
+								numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME;
+							}
+							else {
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_APPEAR;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_APPEAR;
+								numFrames = NECRO_MINION_APPEAR_FRAMES; frame_width = NECRO_MINION_APPEAR_FRAME_WIDTH; timePerFrame = NECRO_MINION_APPEAR_FRAME_TIME;
+							}
+							break;
+							
+						}
+						case IDLE: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_MINION_IDLE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE;
+							numFrames = NECRO_MINION_IDLE_FRAMES; frame_width = NECRO_MINION_IDLE_FRAME_WIDTH; timePerFrame = NECRO_MINION_IDLE_FRAME_TIME; break;
+						}
+						case ATTACKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_MELEE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::NECRO_MINION_MELEE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_MELEE;
+							numFrames = NECRO_MINION_MELEE_FRAMES; frame_width = NECRO_MINION_MELEE_FRAME_WIDTH; timePerFrame = NECRO_MINION_MELEE_FRAME_TIME; break;
+						}
+						case WALKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_WALK) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_WALK;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_WALK;
+								*currFrame = 0;
+							}
+							numFrames = NECRO_MINION_WALK_FRAMES; frame_width = NECRO_MINION_WALK_FRAME_WIDTH; timePerFrame = NECRO_MINION_WALK_FRAME_TIME; break;
+						}
+						case DEAD: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_MINION_DEATH) {
+								currTexture = TEXTURE_ASSET_ID::NECRO_MINION_DEATH;
+								currGeometry = GEOMETRY_BUFFER_ID::NECRO_MINION_DEATH;
+								*currFrame = 0;
+							}
+							numFrames = NECRO_MINION_DEATH_FRAMES; frame_width = NECRO_MINION_DEATH_FRAME_WIDTH; timePerFrame = NECRO_MINION_DEATH_FRAME_TIME; break;
+						}
+						default: break;
+					}
+					break;
+				}
+					// TODO: Implement healer, archer later
 				default: break;
 			}
 
@@ -564,7 +843,7 @@ void RenderSystem::draw(float elapsed_ms)
 
 			}
 			// UI-related entities should remain in constant position on screen
-			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity)) projectionToUse = projection_2D;
+			if (registry.buttons.has(entity) || registry.turnIndicators.has(entity) || registry.uiButtons.has(entity)) projectionToUse = projection_2D;
 
 			if (registry.enemies.has(entity)) {
 				deferredRenderingEntities.emplace(registry.enemies.get(entity).healthbar, entity);
@@ -574,7 +853,7 @@ void RenderSystem::draw(float elapsed_ms)
 			} else if (transitioningToNextLevel && deferredRenderingEntities.count(entity) > 0) {
 				// delay rendering of enemy healthbar when transitioning to next level
 			} else {
-				drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width);
+				drawTexturedMesh(entity, projectionToUse, curr_frame, frame_width, elapsed_ms);
 			}
 		}
 

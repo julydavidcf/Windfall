@@ -10,7 +10,9 @@ enum CharacterType {
 	SWORDSMAN = 2,
 	ARCHER = 3,
 	HEALER = 4,
-	NECROMANCER = 5
+	NECROMANCER_ONE = 5,
+	NECROMANCER_TWO = 6,
+	NECROMANCER_MINION = 7
 };
 
 
@@ -19,6 +21,7 @@ enum AnimType {
 	ATTACKING = 2,
 	DEAD = 3,
 	WALKING = 4,
+	APPEARING = 5
 };
 
 enum AttackType {
@@ -29,14 +32,61 @@ enum AttackType {
 	ROCK 		= 4,
 	HEAL		= 5,
 	ICESHARD    = 6,
+	SUMMONING   = 7,
+	SILENCE		= 8,
+	LIGHTNING	= 9,
+	SUMMON		= 10,
+	ULTI	= 11,
+	CHARGING	= 12,
+	AOEMELEE = 13,
+	BLEEDMELEE = 14,
+	SHIELD = 15,
 };
 
+enum ButtonType {
+	NEW_GAME = 1,
+	LOAD_GAME = 2,
+	SAVE_GAME = 3,
+	EXIT_GAME = 4,
+	GAME_TITLE = 5,
+	OPEN_MENU = 6,
+	CLOSE_MENU = 7,
+};
+
+struct UIButton {
+	int button_type = 0;
+};
+
+struct BackgroundObj
+{
+	bool shouldDeform;
+	bool deformType2;
+};
+
+
+struct storyTellingBackground {
+
+};
 // Health bar entity
 struct HealthBar
 {
 
 };
 
+struct Dot
+{
+
+};
+
+struct CharIndicator
+{
+	Entity owner;
+};
+
+struct BleedIndicator
+{
+	Entity owner;
+};
 // Currently attacking
 struct Attack
 {
@@ -52,6 +102,7 @@ struct RunTowards
 	Entity target;
 	vec2 target_position;
 	vec2 old_pos;
+	int bleedOrAOE = -1;
 };
 
 struct Companion
@@ -92,6 +143,7 @@ struct Gravity
 struct Projectile
 {
 	float flyingTimer = 0.f;
+	int enableCameraTracking = 1;
 };
 
 //Special effect : Taunt
@@ -99,10 +151,26 @@ struct Taunt
 {
 	int duration = 3;
 };
+struct Bleed
+{
+	int duration = 3;
+};
+
+
+struct Ultimate
+{
+	int ultiDuration = 4;	// 4 to account for -1 after enemy turn
+};
+
+struct Shield
+{
+	int shieldDuration = 3;	// 3 to account for -1 after enemy turn
+};
 
 // reflects projectile
 struct Reflect
 {
+
 };
 
 // Damage component for attacks
@@ -135,14 +203,12 @@ struct Silenced
 	Entity silenced_effect;
 };
 
-
 // The power to be able to silence
 // TODO: check if needed
 struct Silence
 {
 
 };
-
 
 struct StatIndicator
 {
@@ -232,16 +298,22 @@ struct TurnIndicator
 };
 
 // Particles emitted during death
-struct DeathParticle
+struct Particle
 {
 	Motion motion;
 	glm::vec4 Color;
 	float     Life;
-	std::vector<DeathParticle> deathParticles;
+	std::vector<Particle> deathParticles;
 	int fadedParticles = 0;
+	// float positions[2000 * 3];
+	float* positions = new float[4000 * 3];
+	bool faded;
+	float angle;
+	// particles can death particles or aoe particles
+	bool areTypeDeath;
 
-	DeathParticle()
-		: Color(1.0f), Life(1500.f) {
+	Particle()
+		: Color(1.0f), Life(1500.f), faded(false), angle(0.), areTypeDeath(true) {
 		motion.velocity.x = (float)((rand() % 50 - 10) * 5);
 		motion.velocity.y = (float)((rand() % 50 - 10) * 5);
 	}
@@ -299,9 +371,16 @@ enum class TEXTURE_ASSET_ID {
 	ENEMY_TURN = PLAYER_TURN + 1,
 	ARROW = ENEMY_TURN + 1,
 	ROCK = ARROW + 1,
-	GREENCROSS = ROCK+1,
+	LIGHTNING = ROCK + 1,
+	GREENCROSS = LIGHTNING + 1,
+	METEOR = GREENCROSS + 1,
+	CHARARROW = METEOR + 1,
+	DOT = CHARARROW +1,
+	PARTICLEBEAMCHARGE = DOT + 1,
+	BLEED = PARTICLEBEAMCHARGE +1 ,
+	SPIKE = BLEED +1,
 
-	ICESHARD = GREENCROSS + 1,
+	ICESHARD = SPIKE + 1,
 	ICESHARDICON = ICESHARD +1,
 	ICESHARDICONSELECTED = ICESHARDICON+1,
 	ICESHARDICONDISABLED = ICESHARDICONSELECTED + 1,
@@ -330,23 +409,82 @@ enum class TEXTURE_ASSET_ID {
 	SWORDSMAN_MELEE = SWORDSMAN_WALK + 1,
 	SWORDSMAN_TAUNT = SWORDSMAN_MELEE + 1,
 	SWORDSMAN_DEATH = SWORDSMAN_TAUNT + 1,
-	NECROMANCER_IDLE = SWORDSMAN_DEATH + 1,
-	
-
+	NECRO_ONE_IDLE = SWORDSMAN_DEATH + 1,
+	NECRO_ONE_CASTING = NECRO_ONE_IDLE + 1,
+	NECRO_ONE_SUMMONING = NECRO_ONE_CASTING + 1,
+	NECRO_ONE_DEATH_ONE = NECRO_ONE_SUMMONING + 1,
+	NECRO_ONE_DEATH_TWO = NECRO_ONE_DEATH_ONE + 1,
+	NECRO_TWO_APPEAR = NECRO_ONE_DEATH_TWO + 1,
+	NECRO_TWO_IDLE = NECRO_TWO_APPEAR + 1,
+	NECRO_TWO_MELEE = NECRO_TWO_IDLE + 1,
+	NECRO_TWO_CASTING = NECRO_TWO_MELEE + 1,
+	NECRO_TWO_DEATH = NECRO_TWO_CASTING + 1,
+	NECRO_MINION_APPEAR = NECRO_TWO_DEATH + 1,
+	NECRO_MINION_IDLE = NECRO_MINION_APPEAR + 1,
+	NECRO_MINION_WALK = NECRO_MINION_IDLE + 1,
+	NECRO_MINION_MELEE = NECRO_MINION_WALK + 1,
+	NECRO_MINION_DEATH = NECRO_MINION_MELEE + 1,
 	// ------- Background layers ------
-	BACKGROUNDLAYERONE = NECROMANCER_IDLE + 1,
+	BACKGROUNDLAYERONE = NECRO_MINION_DEATH + 1,
 	BACKGROUNDLAYERTWO = BACKGROUNDLAYERONE + 1,
 	BACKGROUNDLAYERTHREE = BACKGROUNDLAYERTWO + 1,
 	BACKGROUNDLAYERFOUR = BACKGROUNDLAYERTHREE + 1,
+
+	// ------ Tutorial text boxes ------
+	TUTORIAL_ONE = BACKGROUNDLAYERFOUR + 1,
+	TUTORIAL_TWO = TUTORIAL_ONE + 1,
+	TUTORIAL_THREE = TUTORIAL_TWO + 1,
+	TUTORIAL_FOUR = TUTORIAL_THREE + 1,
+	TUTORIAL_FIVE = TUTORIAL_FOUR + 1,
+	TUTORIAL_SIX = TUTORIAL_FIVE + 1,
+	TUTORIAL_SEVEN = TUTORIAL_SIX + 1,
+	TUTORIAL_EIGHT = TUTORIAL_SEVEN + 1,
+
+	// ------ Start screen & Pause menu buttons ------
+	NEW_GAME = TUTORIAL_EIGHT + 1,
+	NEW_GAME_HOVER = NEW_GAME + 1,
+	LOAD_GAME = NEW_GAME_HOVER + 1,
+	LOAD_GAME_HOVER = LOAD_GAME + 1,
+	SAVE_GAME = LOAD_GAME_HOVER + 1,
+	EXIT_GAME = SAVE_GAME + 1,
+	EXIT_HOVER = EXIT_GAME + 1,
+	GAME_TITLE = EXIT_HOVER + 1,
+	OPEN_MENU = GAME_TITLE + 1,
+	CLOSE_MENU = OPEN_MENU + 1,
+	EMPTY_IMAGE = CLOSE_MENU + 1,
+
 	//------- iconToolTips -------------
-	FIREBALLTOOLTIP = BACKGROUNDLAYERFOUR + 1,
+	FIREBALLTOOLTIP = EMPTY_IMAGE + 1,
 	ICESHARDTOOLTIP = FIREBALLTOOLTIP + 1,
 	ROCKTOOLTIP = ICESHARDTOOLTIP + 1,
 	MELEETOOLTIP = ROCKTOOLTIP + 1,
 	TAUNTTOOLTIP = MELEETOOLTIP + 1,
 	HEALTOOLTIP = TAUNTTOOLTIP + 1,
-	// --------------------------
-	TEXTURE_COUNT = HEALTOOLTIP + 1
+
+	// ----------- Story scene---------------
+	BATTLE = HEALTOOLTIP + 1,
+	BATTLESUB = BATTLE + 1,
+	ROOM = BATTLESUB + 1,
+	WHISPER = ROOM + 1,
+	STORYBEGIN = WHISPER + 1,
+	STARTSCREEN = STORYBEGIN + 1,
+	
+	// ---------- dialogue --------------
+
+	BACKGROUNDONE = STARTSCREEN + 1,
+	BACKGROUNDTWO = BACKGROUNDONE + 1,
+	BACKGROUNDTHREE = BACKGROUNDTWO + 1,
+	BACKGROUNDFOUR = BACKGROUNDTHREE + 1,
+	BACKGROUNDFIVE = BACKGROUNDFOUR + 1,
+	LEVELONEDIALOGUEONE = BACKGROUNDFIVE + 1,
+	LEVELONEDIALOGUETWO = LEVELONEDIALOGUEONE + 1,
+	LEVELONEDIALOGUETHREE = LEVELONEDIALOGUETWO + 1,
+
+
+	RED_PARTICLE = LEVELONEDIALOGUETHREE + 1,
+	TEXTURE_COUNT = RED_PARTICLE + 1
+	//-----------------------------
+	
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -356,7 +494,8 @@ enum class EFFECT_ASSET_ID {
 	TEXTURED = PEBBLE + 1,
 	WATER = TEXTURED + 1,
 	PARTICLE = WATER + 1,
-	EFFECT_COUNT = PARTICLE + 1
+	BACKGROUND_OBJ = PARTICLE + 1,
+	EFFECT_COUNT = BACKGROUND_OBJ + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
@@ -375,11 +514,26 @@ enum class GEOMETRY_BUFFER_ID {
 	SWORDSMAN_MELEE = SWORDSMAN_WALK + 1,
 	SWORDSMAN_TAUNT = SWORDSMAN_MELEE + 1,
 	SWORDSMAN_DEATH = SWORDSMAN_TAUNT + 1,
-	NECROMANCER_IDLE = SWORDSMAN_DEATH + 1,
+	NECRO_ONE_IDLE = SWORDSMAN_DEATH + 1,
+	NECRO_ONE_CASTING = NECRO_ONE_IDLE + 1,
+	NECRO_ONE_SUMMONING = NECRO_ONE_CASTING + 1,
+	NECRO_ONE_DEATH_ONE = NECRO_ONE_SUMMONING + 1,
+	NECRO_ONE_DEATH_TWO = NECRO_ONE_DEATH_ONE + 1,
+	NECRO_TWO_APPEAR = NECRO_ONE_DEATH_TWO + 1,
+	NECRO_TWO_IDLE = NECRO_TWO_APPEAR + 1,
+	NECRO_TWO_MELEE = NECRO_TWO_IDLE + 1,
+	NECRO_TWO_CASTING = NECRO_TWO_MELEE + 1,
+	NECRO_TWO_DEATH = NECRO_TWO_CASTING + 1,
+	NECRO_MINION_APPEAR = NECRO_TWO_DEATH + 1,
+	NECRO_MINION_IDLE = NECRO_MINION_APPEAR + 1,
+	NECRO_MINION_WALK = NECRO_MINION_IDLE + 1,
+	NECRO_MINION_MELEE = NECRO_MINION_WALK + 1,
+	NECRO_MINION_DEATH = NECRO_MINION_MELEE + 1,
 	// --------------------------
-	BACKGROUND = NECROMANCER_IDLE + 1,
+	BACKGROUND = NECRO_MINION_DEATH + 1,
 
-	GEOMETRY_COUNT = BACKGROUND + 1
+	BACKGROUND_OBJ = BACKGROUND + 1,
+	GEOMETRY_COUNT = BACKGROUND_OBJ + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

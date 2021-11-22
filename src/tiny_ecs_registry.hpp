@@ -11,7 +11,8 @@ class ECSRegistry
 
 public:
 	// Manually created list of all components this game has
-	ComponentContainer<DeathParticle> deathParticles;
+	ComponentContainer<BackgroundObj> backgroundObjects;
+	ComponentContainer<Particle> Particles;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
@@ -38,12 +39,20 @@ public:
 	ComponentContainer<StatIndicator> statsindicators;
 	ComponentContainer<CheckRoundTimer> checkRoundTimer;
 	ComponentContainer<toolTip> toolTip;
+	ComponentContainer<CharIndicator> charIndicator;
+	ComponentContainer<UIButton> uiButtons;
+	ComponentContainer<Ultimate> ultimate;
+	ComponentContainer<Shield> shield;
+	ComponentContainer<Dot> dots;
+	ComponentContainer<storyTellingBackground> storyTellingBackgrounds;
+	ComponentContainer<Bleed> bleeds;
+	ComponentContainer<BleedIndicator> bleedIndicators;
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
-		// TODO: A1 add a LightUp component
-		registry_list.push_back(&deathParticles);
+		registry_list.push_back(&backgroundObjects);
+		registry_list.push_back(&Particles);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
@@ -67,6 +76,14 @@ public:
 		registry_list.push_back(&checkRoundTimer);
 		registry_list.push_back(&statsindicators);
 		registry_list.push_back(&toolTip);
+		registry_list.push_back(&charIndicator);
+		registry_list.push_back(&uiButtons);
+		registry_list.push_back(&ultimate);
+		registry_list.push_back(&shield);
+		registry_list.push_back(&dots);
+		registry_list.push_back(&storyTellingBackgrounds);
+		registry_list.push_back(&bleeds);
+		registry_list.push_back(&bleedIndicators);
 	}
 
 	void clear_all_components() {
