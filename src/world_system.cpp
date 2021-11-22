@@ -816,6 +816,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				else if (registry.enemies.has(attacker)) {
 					printf("Enemy is attacking\n");
 					Enemy& enemy = registry.enemies.get(attacker);
+					bool create_minion = false;
 					switch (attack.attack_type) {
 					case TAUNT: {
 						//Mix_PlayChannel(-1, taunt_spell_sound, 0);	// sound moved to skill_system
@@ -872,6 +873,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						Mix_PlayChannel(5, summon_spell_sound, 0);
 						printf("summon necrominion \n");
 						sk->launchSummon(renderer);
+						create_minion = true;
 						break;
 					}
 					case ULTI: {
@@ -915,6 +917,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					enemy.curr_anim_type = IDLE;
 					printf("Not attacking anymore in idle\n");
 					registry.attackers.remove(attacker);
+					if(create_minion){
+						necromancer_minion = createNecromancerMinion(renderer, { 750, 600 });
+					}
 				}
 			}
 		}
@@ -1138,7 +1143,7 @@ void WorldSystem::restart_game(bool force_restart) {
 		hasSaveFile = json_loader.get_save_file();
 		if(hasSaveFile){
 			gameLevel = loadedLevel;
-			renderer->gameLevel = gameLevel;
+			renderer->gameLevel = gameLevel > 2? 1: gameLevel;
 		} else {
 			loadedLevel = 1;
 			gameLevel = loadedLevel;
@@ -1149,19 +1154,32 @@ void WorldSystem::restart_game(bool force_restart) {
 	}
 	if(!hasSaveFile){
 		printf("Loading a file\n");
-		if(gameLevel <= 1){
-			printf("Loading level 1\n");
-			json_loader.get_level("level_1.json");
+		if(gameLevel == 0){
+			printf("Loading level 0\n");
+			renderer->gameLevel = 1;
+			json_loader.get_level("level_0.json");
 
 			tutorial_enabled = 1;
 			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
 			curr_tutorial_box_num = 0;
 
+		}
+		if(gameLevel == 1){
+			printf("Loading level 1\n");
+			renderer->gameLevel = gameLevel;
+			json_loader.get_level("level_1.json");
+
+
+
+
+
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
+			renderer->gameLevel = gameLevel;
 			json_loader.get_level("level_2.json");
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
+			renderer->gameLevel = 1;
 			json_loader.get_level("level_3.json");
 		} else{
 			printf("Incorrect level\n");
@@ -1699,7 +1717,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
 		// START A NEW GAME	
-		loadedLevel = 1;
+		loadedLevel = 0;
 		loaded_game = false;
 		restart_game(false);
 		canStep = 1;

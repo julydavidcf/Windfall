@@ -1,0 +1,87 @@
+{
+    "entities": [
+        {
+            "type": "Companion",
+            "skill": "Mage",
+            "position": 
+                {
+                    "x": 100,
+                    "y": 575
+                }
+        },
+        {
+            "type": "Enemy",
+            "skill": "Mage",
+            "position": 
+                {
+                    "x": 1050,
+                    "y": 575
+                },
+            "components": [
+                {
+                    "type": "colors",
+                    "vec": 
+                        {
+                            "x": 0,
+                            "y": 1,
+                            "z": 1
+                        }
+                }
+            ]
+        },
+        {
+            "type": "Icon",
+            "skill": "Taunt",
+            "position": 
+                {
+                    "x": 300,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Heal",
+            "position": 
+                {
+                    "x": 400,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Melee",
+            "position": 
+                {
+                    "x": 500,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Iceshard",
+            "position": 
+                {
+                    "x": 600,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Fireball",
+            "position": 
+                {
+                    "x": 700,
+                    "y": 700
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Rock",
+            "position": 
+                {
+                    "x": 800,
+                    "y": 700
+                }
+        }
+    ]
+}
