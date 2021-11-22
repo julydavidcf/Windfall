@@ -30,6 +30,9 @@ Entity enemy_mage;
 Entity player_swordsman;
 Entity enemy_swordsman;
 Entity necromancer;
+Entity necromancer_phase_one;
+Entity necromancer_phase_two;
+Entity necromancer_minion;
 Entity silence_icon;
 
 //icons
@@ -1014,6 +1017,9 @@ void WorldSystem::restart_game(bool force_restart) {
 		loaded_game = false;
 	}
 	if(!hasSaveFile){
+		gameLevel = loadedLevel;
+		// NO LEVEL SHADER EXISTS FOR LEVEL3
+		renderer->gameLevel = 1;
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
 			json_loader.get_level("level_1.json");
@@ -1021,9 +1027,7 @@ void WorldSystem::restart_game(bool force_restart) {
 			printf("Loading level 2\n");
 			json_loader.get_level("level_2.json");
 		} else if(gameLevel == 3){
-			printf("Loading level 3\n");
-		} else if(gameLevel == 4){
-			printf("Loading level 4\n");
+			printf("Loading level 3 phase 2\n");
 			player_mage = createPlayerMage(renderer, { 150, 550 });
 		
 			createBackgroundObject(renderer, { 1160, 315 });

@@ -131,10 +131,6 @@ private:
 
 	float current_speed;
 
-	Entity necromancer_phase_one;
-	Entity necromancer_phase_two;
-	Entity necromancer_minion;
-
 	Entity fireball;
 	Entity silence_icon;
 	Entity iceShard;
@@ -190,7 +186,7 @@ private:
 	float ARROWSPEED = 700.f;
 	float ICESHARDSPEED = 100.f;
 
-	const int16 MAX_GAME_LEVELS = 4;
+	const int16 MAX_GAME_LEVELS = 3;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee

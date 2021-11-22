@@ -58,6 +58,9 @@ extern Entity enemy_mage;
 extern Entity player_swordsman;
 extern Entity enemy_swordsman;
 extern Entity necromancer;
+extern Entity necromancer_phase_one;
+extern Entity necromancer_phase_two;
+extern Entity necromancer_minion;
 
 extern std::vector<Entity> roundVec;
 
