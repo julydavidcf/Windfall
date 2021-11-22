@@ -948,6 +948,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 // Reset the world state to its initial state
 void WorldSystem::restart_game(bool force_restart) {
+	JSONLoader json_loader;
+	json_loader.init(renderer);
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
 		gameLevel++;
@@ -982,6 +984,10 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
+	
+	if(loadedLevel){
+		gameLevel = loadedLevel;
+	}
 
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
@@ -999,9 +1005,6 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Pause menu button
 	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 
-
-	JSONLoader json_loader;
-	json_loader.init(renderer);
 	if(!loaded_game){
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
@@ -1038,7 +1041,10 @@ void WorldSystem::restart_game(bool force_restart) {
 		checkRound();
 	} else {
 		json_loader.get_save_file();
+		gameLevel = loadedLevel;
+		renderer->gameLevel = gameLevel;
 		update_healthBars();
+		loaded_game = false;
 	}
 
 	// Create a player mage
