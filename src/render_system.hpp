@@ -142,16 +142,42 @@ class RenderSystem {
 			textures_path("storyBegin.png"),
 			textures_path("startScreen.png"),
 
-			//dialogue
+			//background dialogue
 			textures_path("backgroundOne.png"),
 			textures_path("backgroundTwo.png"),
 			textures_path("backgroundThree.png"),
 			textures_path("backgroundFour.png"),
 			textures_path("backgroundFive.png"),
+
+			//Level One dialogue
 			textures_path("levelOneDialogueOne.png"),
 			textures_path("levelOneDialogueTwo.png"),
 			textures_path("levelOneDialogueThree.png"),
+			textures_path("levelOneDialogueFour.png"),
+			textures_path("levelOneDialogueFive.png"),
+			textures_path("levelOneDialogueSix.png"),
+
+			//Level Two dialogue
+			textures_path("levelTwoDialogueOne.png"),
+			textures_path("levelTwoDialogueTwo.png"),
+			textures_path("levelTwoDialogueThree.png"),
+			textures_path("levelTwoDialogueFour.png"),
 			
+			//level Three dialogue
+			textures_path("levelThreeDialogueOne.png"),
+			textures_path("levelThreeDialogueTwo.png"),
+			textures_path("levelThreeDialogueThree.png"),
+			textures_path("levelThreeDialogueFour.png"),
+			textures_path("levelThreeDialogueFive.png"),
+			textures_path("levelThreeDialogueSix.png"),
+			textures_path("levelThreeDialogueSeven.png"),
+			textures_path("levelThreeDialogueEight.png"),
+
+			//level Four dialogue
+			textures_path("levelFourDialogueOne.png"),
+			textures_path("levelFourDialogueTwo.png"),
+			textures_path("levelFourDialogueThree.png"),
+
 			textures_path("particlered.png"),
   };
   

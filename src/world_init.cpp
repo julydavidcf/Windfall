@@ -114,7 +114,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Companion& companion = registry.companions.emplace(entity);
-	companion.healthbar = createHealthBar(renderer, pos);
+	companion.healthbar = createHealthBar(renderer, { pos.x, pos.y - 20 });
 	companion.companionType = SWORDSMAN;
 
 	auto& abc = registry.renderRequests.insert(
@@ -134,7 +134,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = { pos.x - 65, pos.y - 10 };
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ -SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
@@ -146,7 +146,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, { pos.x, pos.y - 20 });
 	enemy.enemyType = SWORDSMAN;
 
 	registry.renderRequests.insert(
@@ -1256,6 +1256,36 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	case 3: dialogue = TEXTURE_ASSET_ID::BACKGROUNDTHREE; break;
 	case 4: dialogue = TEXTURE_ASSET_ID::BACKGROUNDFOUR; break;
 	case 5: dialogue = TEXTURE_ASSET_ID::BACKGROUNDFIVE; break;
+
+	//level one
+	case 6: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEONE; break;
+	case 7: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO; break;
+	case 8: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE; break;
+	case 9: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR; break;
+	case 10: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE; break;
+	case 11: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX; break;
+
+	//level two
+	case 12: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEONE; break;
+	case 13: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO; break;
+	case 14: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE; break;
+	case 15: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR; break;
+
+	//level three
+	case 16: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEONE; break;
+	case 17: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETWO; break;
+	case 18: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE; break;
+	case 19: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR; break;
+	case 20: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFIVE; break;
+	case 21: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESIX; break;
+	case 22: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESEVEN; break;
+	case 23: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT; break;
+
+	//level Four
+	case 24: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUEONE; break;
+	case 25: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO; break;
+	case 26: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETHREE; break;
+
 	default: break;
 	}
 
