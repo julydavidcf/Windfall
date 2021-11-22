@@ -67,6 +67,7 @@ public:
 	void luanchCompanionTeamHeal(float amount, RenderSystem* renderer);
 	void luanchEnemyTeamDamage(float amount, RenderSystem* renderer);
 	void luanchNecroCompanionTeamBleed(RenderSystem* renderer);
+	void launchNecroBarrier(Entity target, RenderSystem* renderer);
 	
 	void removeTaunt(Entity target);
 	void removeBleed(Entity target);

@@ -564,11 +564,12 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.reflects.emplace(entity);
+	registry.shield.emplace(entity);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { -500.f, 0.f };
-	motion.acceleration = { 300.f, 0.f };
+	motion.velocity = { 0, 0.f };
+	motion.acceleration = { 0, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ BARRIER_WIDTH, BARRIER_HEIGHT });
 
