@@ -250,6 +250,10 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 	enemy.healthbar = createHealthBar(renderer, pos);
 	enemy.enemyType = NECROMANCER_TWO;
 
+	// Emplace ultimate component to delay ultimate attack
+	Ultimate& u = registry.ultimate.emplace(entity);
+	u.ultiDuration = 2;	// allows necro2 to use ultimate after one round
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::NECRO_TWO_IDLE,

@@ -1017,7 +1017,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
 	createBackgroundObject(renderer, { 1160, 315 });
-	auto ent = createBackgroundObject(renderer, { 420, 225 });
+	auto ent = createBackgroundObject(renderer, { 550, 325 });
 	registry.backgroundObjects.get(ent).deformType2 = true;
 
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
@@ -1025,9 +1025,9 @@ void WorldSystem::restart_game(bool force_restart) {
 	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
 	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
 
-	// necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
+	//necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
 	necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-	// necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
+	//necromancer_minion = createNecromancerMinion(renderer, { 750, 550 });
 	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
 
 	if (gameLevel > 1) {
