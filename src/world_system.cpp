@@ -955,19 +955,18 @@ void WorldSystem::restart_game(bool force_restart) {
 		gameLevel++;
 		renderer->transitioningToNextLevel = true;
 		renderer->gameLevel = gameLevel;
-		printf("At the level %d\n", gameLevel);
 	}
 	if (gameLevel > MAX_GAME_LEVELS) {
-		gameLevel = loadedLevel;
+		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
 	}
 	if (registry.companions.size() == 0) {
-		gameLevel = loadedLevel;
+		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
 		// renderer->transitioningToNextLevel = true;
 	}
 	if (force_restart) {
-		gameLevel = loadedLevel;
+		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
 	}
 
@@ -1007,7 +1006,6 @@ void WorldSystem::restart_game(bool force_restart) {
 		if(hasSaveFile){
 			gameLevel = loadedLevel;
 			renderer->gameLevel = gameLevel;
-			update_healthBars();
 		} else {
 			loadedLevel = 1;
 			gameLevel = loadedLevel;
@@ -1089,6 +1087,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	gestureSkillRemaining = 1; // reset gesture skill remaining
 	showCorrectSkills();
 	displayPlayerTurn();	// display player turn when restart game
+	update_healthBars();
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
@@ -1503,6 +1502,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			loaded_game = true;
+			loadedLevel = -1;
 			restart_game(false);
 			canStep = 1;
 			// LOAD THE SAVED JSON FILE (IF ANY)
