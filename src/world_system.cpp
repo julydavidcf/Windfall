@@ -955,6 +955,7 @@ void WorldSystem::restart_game(bool force_restart) {
 		gameLevel++;
 		renderer->transitioningToNextLevel = true;
 		renderer->gameLevel = gameLevel;
+		printf("At the level %d\n", gameLevel);
 	}
 	if (gameLevel > MAX_GAME_LEVELS) {
 		gameLevel = loadedLevel;
@@ -984,10 +985,6 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
-	
-	if(loadedLevel){
-		gameLevel = loadedLevel;
-	}
 
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
