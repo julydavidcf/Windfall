@@ -74,6 +74,7 @@ public:
 	// IMPORTANT: Determines if systems can call step()
 	int canStep = 0;
 	int closeWindow = 0;
+	int story = 0;
 
 private:
 	// Input callback functions
@@ -124,6 +125,12 @@ private:
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
 
+	void displayTurnIndicator(int isPlayerTurn);
+	void advanceTutorial(Entity currTutorial, vec2 pos);
+
+	// Story telling
+	void backgroundTelling();
+
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;
@@ -153,6 +160,8 @@ private:
 	Entity rock_icon;
 	Entity tooltip;
 
+
+	Entity turn_indicator;
 	Entity curr_tutorial_box;
 	int curr_tutorial_box_num = 0;
 	int tutorial_icon_selected = 1;
@@ -166,6 +175,10 @@ private:
 	Entity exit_game_button;
 	Entity open_menu_button;
 	int pauseMenuOpened = 0;
+
+	// story telling system
+	Entity backgroundImage;
+	Entity dialogue;
 
 	// Music References
 	Mix_Music* background_music;
@@ -183,12 +196,15 @@ private:
 	Mix_Chunk* lightning_spell_sound;
 	Mix_Chunk* ice_spell_sound;
 	Mix_Chunk* summon_spell_sound;
+	Mix_Chunk* button_hover_sound;
+	Mix_Chunk* turning_sound;
 	Mix_Chunk* charge_spell_sound;
 	Mix_Chunk* beam_spell_sound;
 	Mix_Chunk* minion_spawn_sound;
 	Mix_Chunk* error_sound;
 	Mix_Chunk* gesture_heal_sound;
 	Mix_Chunk* gesture_aoe_sound;
+	Mix_Chunk* gesture_turn_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;

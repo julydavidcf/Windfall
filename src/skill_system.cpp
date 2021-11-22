@@ -505,7 +505,7 @@ void SkillSystem::luanchCompanionTeamHeal(float amount, RenderSystem* renderer) 
 void SkillSystem::luanchEnemyTeamDamage(float amount, RenderSystem* renderer) {
 	for (Entity cp : registry.enemies.entities) {
 		vec2 targetp = registry.motions.get(cp).position;
-		createGreenCross(renderer, targetp);
+		Entity resultEntity = createMeteorShower(renderer, { targetp.x + 300, targetp.y - 500 }, 0);
 		if (registry.stats.has(cp)) {
 			Statistics* tStats = &registry.stats.get(cp);
 			tStats->health -= amount;

@@ -37,6 +37,7 @@ public:
 	Mix_Chunk* error_sound;
 	Mix_Chunk* gesture_heal_sound;
 	Mix_Chunk* gesture_aoe_sound;
+	Mix_Chunk* gesture_turn_sound;
 
 	//timers
 	const float animation_timer = 500.f;
