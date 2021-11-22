@@ -1411,7 +1411,9 @@ void WorldSystem::handle_collisions() {
 				backgroundObj.deformType2 = true;
 			}
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
-			registry.remove_all_components_of(entity_other);
+			if (!registry.reflects.has(entity)) {
+				registry.remove_all_components_of(entity_other);
+			}
 			//enemy turn start
 			if (player_turn == 0) {
 				if (!registry.checkRoundTimer.has(currPlayer)) {
