@@ -1321,6 +1321,9 @@ void WorldSystem::handle_collisions() {
 							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
 							showCorrectSkills();
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
+								sk->removeTaunt(entity);
+								sk->removeSilence(entity);
+								sk->removeBleed(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
 							else {
@@ -1347,6 +1350,7 @@ void WorldSystem::handle_collisions() {
 					Companion& companion = registry.companions.get(entity);
 					companion.curr_anim_type = DEAD;
 				}
+
 				else if (registry.enemies.has(entity)) {
 					printf("Enemy is dead\n");
 					Enemy& enemy = registry.enemies.get(entity);
