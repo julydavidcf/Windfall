@@ -12,6 +12,8 @@ class JSONLoader
     public: 
         JSONLoader();
         void get_level(std::string file_name);
+        bool get_save_file();
+        void save_game();
         void init(RenderSystem* renderer);
 
 };

@@ -47,14 +47,25 @@ struct Transform {
 bool gl_has_errors();
 
 
-// Players + Enemies
+extern int16 gameLevel;
+extern int16 loadedLevel;
+
 extern Entity currPlayer;
+extern Entity prevPlayer;
+// Players + Enemies
 extern Entity prevPlayer;
 extern Entity player_mage;
 extern Entity enemy_mage;
 extern Entity player_swordsman;
 extern Entity enemy_swordsman;
 extern Entity necromancer;
+extern Entity necromancer_phase_one;
+extern Entity necromancer_phase_two;
+extern Entity necromancer_minion;
+
+extern std::vector<Entity> roundVec;
+
+
 extern Entity silence_icon;
 
 //icons

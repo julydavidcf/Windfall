@@ -14,7 +14,6 @@
 #include "world_system.hpp"
 #include "skill_system.hpp"
 
-
 using Clock = std::chrono::high_resolution_clock;
 using namespace std;
 
