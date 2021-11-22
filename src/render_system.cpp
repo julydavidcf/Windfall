@@ -435,11 +435,11 @@ void RenderSystem::draw(float elapsed_ms)
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
 		// Handle camera focus only on swordsman melee
-		if (registry.runners.has(entity) 
+		if ((registry.runners.has(entity) && !(registry.enemies.has(entity) && registry.enemies.get(entity).enemyType == NECROMANCER_TWO)
 			|| (registry.companions.has(entity) && registry.companions.get(entity).companionType == SWORDSMAN && registry.companions.get(entity).curr_anim_type == ATTACKING)
 			|| (registry.enemies.has(entity) 
 				&& (registry.enemies.get(entity).enemyType == SWORDSMAN || registry.enemies.get(entity).enemyType == NECROMANCER_MINION)
-				&& registry.enemies.get(entity).curr_anim_type == ATTACKING)) {
+				&& registry.enemies.get(entity).curr_anim_type == ATTACKING))) {
 			Motion& motion = registry.motions.get(entity);
 
 			if (registry.companions.has(entity)) {
@@ -672,13 +672,21 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						case ATTACKING: {
 							switch (registry.attackers.get(entity).attack_type) {
-								case MELEE: {
+								case BLEEDMELEE: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
 									*currFrame = 0;
 								}
 								currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
 								currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
 								numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
+								}
+								case AOEMELEE: {
+									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+										*currFrame = 0;
+									}
+									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_MELEE;
+									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+									numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
 								}
 								case CHARGING: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
@@ -708,6 +716,14 @@ void RenderSystem::draw(float elapsed_ms)
 								// Todo: Add more spell cases later
 							}
 							break;
+						}
+						case WALKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE) {
+								*currFrame = 0;
+							}
+							currTexture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+							currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE;
+							numFrames = NECRO_TWO_MELEE_FRAMES; frame_width = NECRO_TWO_MELEE_FRAME_WIDTH; timePerFrame = NECRO_TWO_MELEE_FRAME_TIME; break;
 						}
 						case DEAD: {
 							if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH) {

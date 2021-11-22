@@ -365,6 +365,12 @@ void WorldSystem::createRound() {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
 		}
+		if (registry.bleeds.has(entity)) {
+			Bleed* b = &registry.bleeds.get(entity);
+			b->duration--;
+			sk->launchBleedDMG(entity, renderer);
+			update_healthBars();
+		}
 		// also decrement silence duration if present
 		if (registry.silenced.has(entity)) {
 			Silenced* s = &registry.silenced.get(entity);
@@ -387,11 +393,16 @@ void WorldSystem::createRound() {
 		// also decrement shield duration if present
 		if (registry.shield.has(entity)) {	// need to emplace shield onto necro2 for countdown when David implements the skill
 			Shield* sh = &registry.shield.get(entity);
-			sh->shieldDuration--;
-			// need to remove the skill when duration <= 0
-			if (sh->shieldDuration <= 0) {
+			if (sh->shieldDuration > 0) {
+				sh->shieldDuration--;
+				printf("ENTITY IS %g \n", float(registry.stats.get(entity).speed));
+				printf("MY SHIELD IS %g \n", float(sh->shieldDuration));
+			}
+			else {
+				//registry.remove_all_components_of(entity);
 				sk->removeShield(entity);
 			}
+			
 		}
 
 		if (!registry.silenced.has(entity)) {
@@ -403,6 +414,11 @@ void WorldSystem::createRound() {
 		}
 	}
 
+	//for (int i = 0; i < registry.shield.components.size(); i++) {
+	//	Shield& sh = registry.shield.components[i];
+	//	sh.shieldDuration -= 1;
+	//}
+
 	for (int i = 0; i < registry.companions.components.size(); i++) {	// iterate through all companions to get speed stats
 		Entity& entity = registry.companions.entities[i];
 
@@ -410,6 +426,13 @@ void WorldSystem::createRound() {
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
+		}
+		// also decrement bleed duration if present
+		if (registry.bleeds.has(entity)) {
+			Bleed* b = &registry.bleeds.get(entity);
+			b->duration--;
+			sk->launchBleedDMG(entity, renderer);
+			update_healthBars();
 		}
 		// also decrement silence duration if present
 		if (registry.silenced.has(entity)) {
@@ -544,13 +567,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (motion.position.x + abs(motion.scale.x) < 0.f) {
 			registry.remove_all_components_of(motions_registry.entities[i]);
 		}
-		// remove barrier
-		if (registry.reflects.has(motions_registry.entities[i])) {
-			if (motion.velocity.x > 50.f) {
-				printf("in2");
-				registry.remove_all_components_of(motions_registry.entities[i]);
-			}
-		}
+		
 	}
 
 	//collect mouse gesture
@@ -565,11 +582,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	//check taunt and silence for enemy and companion
+	//check taunt bleed and silence for enemy and companion
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.enemies.entities[i])) {
 			if (registry.taunts.get(registry.enemies.entities[i]).duration <= 0) {
 				sk->removeTaunt(registry.enemies.entities[i]);
+			}
+		}
+		if (registry.bleeds.has(registry.enemies.entities[i])) {
+			if (registry.bleeds.get(registry.enemies.entities[i]).duration <= 0) {
+				sk->removeBleed(registry.enemies.entities[i]);
 			}
 		}
 		if (registry.silenced.has(registry.enemies.entities[i])) {
@@ -584,12 +606,29 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				sk->removeTaunt(registry.companions.entities[i]);
 			}
 		}
+		if (registry.bleeds.has(registry.companions.entities[i])) {
+			if (registry.bleeds.get(registry.companions.entities[i]).duration <= 0) {
+				sk->removeBleed(registry.companions.entities[i]);
+			}
+		}
 		if (registry.silenced.has(registry.companions.entities[i])) {
 			if (registry.silenced.get(registry.companions.entities[i]).turns <= 0) {
 				sk->removeSilence(registry.companions.entities[i]);
 			}
 		}
 	}
+
+	for (int i = (int)registry.shield.components.size() - 1; i >= 0; --i) {
+		if (registry.shield.has(registry.shield.entities[i])) {	// need to emplace shield onto necro2 for countdown when David implements the skill
+			Shield* sh = &registry.shield.get(registry.shield.entities[i]);
+			if (sh->shieldDuration < 0) {
+				registry.remove_all_components_of(registry.shield.entities[i]);
+			}
+			
+
+		}
+	}
+
 	// maintain correct health
 	for (int i = (int)registry.stats.components.size() - 1; i >= 0; --i) {
 		if (registry.stats.components[i].health > registry.stats.components[i].max_health) {
@@ -632,6 +671,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			}
 			else if (runner_type == NECROMANCER_MINION) {
 				attack.counter_ms = 800.f;
+			}
+			else if (runner_type == NECROMANCER_TWO) {
+				runner_motion.position = vec2(run.target_position.x - 25, runner_motion.position.y);
+				if (run.bleedOrAOE == 0) {
+					attack.attack_type = BLEEDMELEE;
+				}
+				else {
+					attack.attack_type = AOEMELEE;
+				}
+				attack.counter_ms = 1000.f;
 			}
 			
 			registry.runners.remove(runner);
@@ -778,6 +827,32 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					case CHARGING: {
 						printf("ultimate charge enemy \n");
 						currentProjectile = sk->launchParticleBeamCharge(attack.target, renderer);
+						break;
+					}
+					case BLEEDMELEE: {
+						Motion& motion = registry.motions.get(attacker);
+						motion.position = attack.old_pos;
+						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
+						healthbar_motion.position.x = attack.old_pos.x;
+						sk->launchMelee(attack.target, renderer);
+						sk->launchBleed(attack.target, renderer);
+						break;
+					}
+					case AOEMELEE: {
+						Motion& motion = registry.motions.get(attacker);
+						motion.position = attack.old_pos;
+						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
+						healthbar_motion.position.x = attack.old_pos.x;
+						if (registry.motions.has(player_mage)) {
+							sk->launchMelee(player_mage, renderer);
+						}
+						if (registry.motions.has(player_swordsman)) {
+							sk->launchMelee(player_swordsman, renderer);
+						}
+						break;
+					}
+					case SHIELD: {
+						sk->launchNecroBarrier(attacker, renderer);
 						break;
 					}
 					default: break;
@@ -1244,7 +1319,7 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// Deal with fireball - Enemy collisions
-		if (registry.enemies.has(entity)) {
+		else if (registry.enemies.has(entity)) {
 			// Checking Projectile - Enemy collisions
 			if (registry.projectiles.has(entity_other)) {
 				Damage& projDamage = registry.damages.get(entity_other);
@@ -1260,8 +1335,10 @@ void WorldSystem::handle_collisions() {
 								// get rid of dead entity's stats indicators 
 								sk->removeTaunt(entity);
 								sk->removeSilence(entity);
+								sk->removeBleed(entity);
 								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
 							}
+
 							else {
 								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
 							}
@@ -1318,7 +1395,7 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// barrier collection
-		if (registry.projectiles.has(entity)) {
+		else if (registry.projectiles.has(entity)) {
 			if (registry.reflects.has(entity_other)) {
 				//printf("colleds\n");
 				//printf("%f\n", registry.motions.get(entity).velocity.x);
@@ -1379,15 +1456,17 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// david test
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-	//	sk->luanchCompanionTeamHeal(50,renderer);
-	//	update_healthBars();
-	//}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+		sk->luanchNecroCompanionTeamBleed(renderer);
+	}
 
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-	//	sk->luanchEnemyTeamDamage(30, renderer);
-	//	update_healthBars();
-	//}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		sk->launchSpike(player_mage, renderer);
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
+		sk->launchNecroBarrier(necromancer_phase_two, renderer);
+	}
 
 	// Debugging
 	if (key == GLFW_KEY_D) {
@@ -1861,7 +1940,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							PhysicsSystem physicsSystem;
 							vec2 b_box = physicsSystem.get_custom_bounding_box(registry.enemies.entities[j]);
 							if (inButton(registry.motions.get(registry.enemies.entities[j]).position, b_box.x, b_box.y)) {
-								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j]);
+								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j], -1);
 								playerUseMelee = 1;
 								selected_skill = -1;
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;

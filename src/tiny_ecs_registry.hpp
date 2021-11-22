@@ -45,6 +45,8 @@ public:
 	ComponentContainer<Shield> shield;
 	ComponentContainer<Dot> dots;
 	ComponentContainer<storyTellingBackground> storyTellingBackgrounds;
+	ComponentContainer<Bleed> bleeds;
+	ComponentContainer<BleedIndicator> bleedIndicators;
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -80,6 +82,8 @@ public:
 		registry_list.push_back(&shield);
 		registry_list.push_back(&dots);
 		registry_list.push_back(&storyTellingBackgrounds);
+		registry_list.push_back(&bleeds);
+		registry_list.push_back(&bleedIndicators);
 	}
 
 	void clear_all_components() {
