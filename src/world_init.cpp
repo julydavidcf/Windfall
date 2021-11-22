@@ -16,7 +16,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to companion mage
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = player_swordsman_hp;
+	stat.health = player_mage_hp;
 	stat.speed = 14;
 	stat.classID = 0;
 	
@@ -595,7 +595,7 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.reflects.emplace(entity);
-	//registry.shield.emplace(entity);
+	registry.shieldIcons.emplace(entity);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;

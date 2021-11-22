@@ -40,6 +40,7 @@ file(GLOB SOURCE_FILES src/*.cpp src/*.hpp)
 #	src/world.cpp
 #	src/mini_ecs.cpp
 # 	src/pebbles.cpp
+# 	src/json_loader.cpp
 
 #    ext/project_path.hpp
 #	src/common.hpp
@@ -50,6 +51,7 @@ file(GLOB SOURCE_FILES src/*.cpp src/*.hpp)
 #	src/world.hpp
 #	src/mini_ecs.hpp
 #	src/pebbles.hpp
+# 	src/json_loader.hpp
 #	)
 
 # external libraries will be installed into /usr/local/include and /usr/local/lib but that folder is not automatically included in the search on MACs
@@ -76,8 +78,10 @@ if (OPENGL_FOUND)
    target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENGL_gl_LIBRARY})
 endif()
 
+
 set(glm_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext/glm/cmake/glm) # if necessary
 find_package(glm REQUIRED)
+
 
 # glfw, sdl could be precompiled (on windows) or installed by a package manager (on OSX and Linux)
 if (IS_OS_LINUX OR IS_OS_MAC)
@@ -169,7 +173,9 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})
 
+
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm)
+
 
 # Needed to add this
 if(IS_OS_LINUX)
