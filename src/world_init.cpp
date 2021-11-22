@@ -17,6 +17,7 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 	// Give statistics to companion mage
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = player_mage_hp;
+	stat.max_health = player_mage_hp;
 	stat.speed = 14;
 	stat.classID = 0;
 	
@@ -51,6 +52,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 	// Give statistics to enemy mage
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.max_health = enemy_mage_hp;
+	stat.health = enemy_mage_hp;
 	stat.speed = 13;
 
 	// Add a healthbar
@@ -109,6 +111,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	// Give statistics to companion swordsman
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = player_swordsman_hp;
+	stat.max_health = player_swordsman_hp;
 	stat.speed = 12;
 	stat.classID = 1;
 
@@ -142,6 +145,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	// Give statistics to enemy swordsman
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = enemy_swordsman_hp;
+	stat.max_health = enemy_swordsman_hp;
 	stat.speed = 11;
 
 	// Add a healthbar
