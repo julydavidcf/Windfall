@@ -587,16 +587,30 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		dialogue = createDiaogue(renderer, { w / 2, h - h/3}, 12);
 		canStep = 0;
 		story = 16;
-		}
+		} 
 		//restart_game();
 	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
-		roundVec.clear();	// empty vector roundVec to create a new round
-		createBackgroundObject(renderer, { 1160, 315 });
-		auto ent = createBackgroundObject(renderer, { 550, 325 });
-		registry.deformableEntities.get(ent).deformType2 = true;
-		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-		createRound();
-		checkRound();
+		if (story == 20) {
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 17);
+			canStep = 0;
+			story = 21;
+		}
+		else if (story == 28) {
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 24);
+			canStep = 0;
+			story = 29;
+		}
+		//roundVec.clear();	// empty vector roundVec to create a new round
+		//createBackgroundObject(renderer, { 1160, 315 });
+		//auto ent = createBackgroundObject(renderer, { 550, 325 });
+		//registry.deformableEntities.get(ent).deformType2 = true;
+		//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
+		//createRound();
+		//checkRound();
 	} else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0))){
 		restart_game();
 	}
@@ -1091,10 +1105,26 @@ void WorldSystem::restart_game(bool force_restart) {
 	if (gameLevel > MAX_GAME_LEVELS) {
 		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
+		if (gameLevel == 1) {
+			story = 8;
+		}
+		else if (gameLevel == 2) {
+			story = 15;
+		}
+		else if (gameLevel == 3) {
+			story = 20;
+		}
 	}
 	if (registry.companions.size() == 0) {
 		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
+		if (gameLevel == 1) {
+			story = 8;
+		} else if (gameLevel == 2) {
+			story = 15;
+		} else if (gameLevel == 3) {
+			story = 20;
+		}
 		// renderer->transitioningToNextLevel = true;
 	}
 	if (force_restart) {
@@ -1704,28 +1734,18 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		story = 8;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 9) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
 		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO;
 		story = 10;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 10) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
 		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE;
 		story = 11;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 11) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
 		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR;
 		story = 12;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 12) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
 		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE;
 		story = 13;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 13) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
 		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX;
 		story = 14;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 14) {
@@ -1733,25 +1753,62 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		restart_game();
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 16) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
 		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO;
 		story = 17;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 17) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
 		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE;
 		story = 18;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 18) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
 		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR;
 		story = 19;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 19) {
 		story = 20;
 		canStep = 1;
 		restart_game();
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 21) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE;
+		story = 22;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 22) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR;
+		story = 23;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 23) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFIVE;
+		story = 24;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 24) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESIX;
+		story = 25;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 25) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESEVEN;
+		story = 26;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 26) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT;
+		story = 27;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 27) {
+		//registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT;
+		registry.remove_all_components_of(dialogue);
+		canStep = 1;
+		story = 28;
+		roundVec.clear();	// empty vector roundVec to create a new round
+		createBackgroundObject(renderer, { 1160, 315 });
+		auto ent = createBackgroundObject(renderer, { 550, 325 });
+		registry.deformableEntities.get(ent).deformType2 = true;
+		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
+		createRound();
+		checkRound();
+
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 29) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;
+		story = 30;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 30) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETHREE;
+		story = 31;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 31) {
+		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
+		story = 32;
+		canStep = 1;
+		restart_game();
 	}
+
 
 
 	//gesture skill
