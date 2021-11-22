@@ -1052,6 +1052,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 
 		// check round once the timer expired
+		printf("TIMER IS %g \n", float(timerCounter.counter_ms));
 		if (timerCounter.counter_ms < 0) {
 			registry.checkRoundTimer.remove(entity);
 			printf("check round timer finished, checking round now \n");
@@ -1685,12 +1686,11 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
 		// START A NEW GAME	
-		loadedLevel = 3;
+		loadedLevel = 1;
 		loaded_game = false;
 		restart_game(false);
 		canStep = 1;
 	}
-
 
 	//gesture skill
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && canStep) {
