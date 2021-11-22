@@ -14,12 +14,11 @@
 #include "world_system.hpp"
 #include "skill_system.hpp"
 
-
 using Clock = std::chrono::high_resolution_clock;
 using namespace std;
 
 const int window_width_px = 1200;
-const int window_height_px = 800;
+const int window_height_px = 750;
 
 // Entry point
 int main()
@@ -60,11 +59,14 @@ int main()
 		float elapsed_ms =
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
-		world.step(elapsed_ms);
-		// ai.step(elapsed_ms);
-		physics.step(elapsed_ms, window_width_px, window_height_px);
-		world.handle_collisions();
-		world.handle_boundary_collision();
+
+		if (world.canStep) {
+			world.step(elapsed_ms);
+			// ai.step(elapsed_ms);
+			physics.step(elapsed_ms, window_width_px, window_height_px);
+			world.handle_collisions();
+			world.handle_boundary_collision();
+		}
 
 		renderer.draw(elapsed_ms);
 	}

@@ -25,7 +25,7 @@ class RenderSystem {
 	// Associated id with .obj path
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
-		  //std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BASICENEMY, mesh_path("basicEnemy.obj"))
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ, mesh_path("basicEnemy.obj"))
 		  // specify meshes of other assets here
 	};
 
@@ -45,7 +45,11 @@ class RenderSystem {
 			textures_path("enemyTurn.png"),
 			textures_path("arrow.png"),
 			textures_path("rock.png"),
+			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
+			textures_path("charArrow.png"),
+			textures_path("dot.png"),
+			textures_path("particleBeamCharge.png"),
 			textures_path("iceShard.png"),
 			textures_path("iceShardIcon.png"),
 			textures_path("iceShardIconSelected.png"),
@@ -64,18 +68,54 @@ class RenderSystem {
 			textures_path("tauntIconSelected.png"),
 			textures_path("tauntIconDisable.png"),
 
-
+			// Animation sheets
 			textures_path("mage_anim.png"),
 			textures_path("swordsman_idle.png"),
 			textures_path("swordsman_walk.png"),
 			textures_path("swordsman_melee.png"),
 			textures_path("swordsman_taunt.png"),
 			textures_path("swordsman_death.png"),
-			textures_path("necromancer_idle.png"),
+			textures_path("necro_one_idle.png"),
+			textures_path("necro_one_casting.png"),
+			textures_path("necro_one_summoning.png"),
+			textures_path("necro_one_death_one.png"),
+			textures_path("necro_one_death_two.png"),
+			textures_path("necro_two_appear.png"),
+			textures_path("necro_two_idle.png"),
+			textures_path("necro_two_melee.png"),
+			textures_path("necro_two_casting.png"),
+			textures_path("necro_two_death.png"),
+			textures_path("necro_minion_appear.png"),
+			textures_path("necro_minion_idle.png"),
+			textures_path("necro_minion_walk.png"),
+			textures_path("necro_minion_melee.png"),
+			textures_path("necro_minion_death.png"),
+
+			// Background layers
 			textures_path("backgroundLayerOne.png"),
 			textures_path("backgroundLayerTwo.png"),
 			textures_path("backgroundLayerThree.png"),
 			textures_path("backgroundLayerFour.png"),
+
+			// Tutorial text boxes
+			textures_path("tutorial_one.png"),
+			textures_path("tutorial_two.png"),
+			textures_path("tutorial_three.png"),
+			textures_path("tutorial_four.png"),
+			textures_path("tutorial_five.png"),
+			textures_path("tutorial_six.png"),
+			textures_path("tutorial_seven.png"),
+			textures_path("tutorial_eight.png"),
+
+			// Start screen & Pause menu buttons
+			textures_path("new_game.png"),
+			textures_path("load_game.png"),
+			textures_path("save_game.png"),
+			textures_path("exit_game.png"),
+			textures_path("game_title.png"),
+			textures_path("open_menu.png"),
+			textures_path("close_menu.png"),
+			textures_path("empty_image.png"),
 
 			//tootips
 			textures_path("fireBallToolTip.png"),
@@ -83,7 +123,9 @@ class RenderSystem {
 			textures_path("rockToolTip.png"),
 			textures_path("meleeToolTip.png"),
 			textures_path("tauntToolTip.png"),
-			textures_path("healToolTip.png")
+			textures_path("healToolTip.png"),
+
+			textures_path("particlered.png")
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -93,7 +135,8 @@ class RenderSystem {
 		shader_path("pebble"),
 		shader_path("textured"),
 		shader_path("water"),
-		shader_path("particle") };
+		shader_path("particle"),
+		shader_path("basicEnemy")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -110,6 +153,23 @@ class RenderSystem {
 	float SWORDSMAN_WALK_FRAME_TIME = 100;
 	float SWORDSMAN_TAUNT_FRAME_TIME = 90;
 	float SWORDSMAN_DEATH_FRAME_TIME = 80;
+
+	float NECRO_ONE_IDLE_FRAME_TIME = 200;
+	float NECRO_ONE_CASTING_FRAME_TIME = 241.666666667;
+	float NECRO_ONE_SUMMONING_FRAME_TIME = 550;
+	float NECRO_ONE_DEATH_FRAME_TIME = 100;
+
+	float NECRO_TWO_APPEAR_FRAME_TIME = 250;
+	float NECRO_TWO_IDLE_FRAME_TIME = 200;
+	float NECRO_TWO_MELEE_FRAME_TIME = 200;
+	float NECRO_TWO_CASTING_FRAME_TIME = 200;
+	float NECRO_TWO_DEATH_FRAME_TIME = 250;
+
+	float NECRO_MINION_APPEAR_FRAME_TIME = 220;
+	float NECRO_MINION_IDLE_FRAME_TIME = 300;
+	float NECRO_MINION_WALK_FRAME_TIME = 100;
+	float NECRO_MINION_MELEE_FRAME_TIME = 75;
+	float NECRO_MINION_DEATH_FRAME_TIME = 200;
 
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
@@ -146,13 +206,57 @@ class RenderSystem {
 	const int SWORDSMAN_DEATH_FRAMES = 40;
 	const GLfloat SWORDSMAN_DEATH_FRAME_WIDTH = 0.025;
 
-	// Necromancer frame stats
-	const int NECROMANCER_IDLE_FRAMES = 4;
-	const GLfloat NECROMANCER_IDLE_FRAME_WIDTH = 0.25;
+	// Necromancer phase 1 frame stats
+	const int NECRO_ONE_IDLE_FRAMES = 4;
+	const GLfloat NECRO_ONE_IDLE_FRAME_WIDTH = 0.25;
+
+	const int NECRO_ONE_CASTING_FRAMES = 6;
+	const GLfloat NECRO_ONE_CASTING_FRAME_WIDTH = 0.16666666666;
+
+	const int NECRO_ONE_SUMMONING_FRAMES = 4;
+	const GLfloat NECRO_ONE_SUMMONING_FRAME_WIDTH = 0.25;
+
+	const int NECRO_ONE_DEATH_ONE_FRAMES = 10;
+	const GLfloat NECRO_ONE_DEATH_ONE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_ONE_DEATH_TWO_FRAMES = 10;
+	const GLfloat NECRO_ONE_DEATH_TWO_FRAME_WIDTH = 0.10;
+
+	// Necromancer phase 2 frame stats
+	const int NECRO_TWO_APPEAR_FRAMES = 6;
+	const GLfloat NECRO_TWO_APPEAR_FRAME_WIDTH = 0.16666666666;
+
+	const int NECRO_TWO_IDLE_FRAMES = 8;
+	const GLfloat NECRO_TWO_IDLE_FRAME_WIDTH = 0.125;
+
+	const int NECRO_TWO_MELEE_FRAMES = 10;
+	const GLfloat NECRO_TWO_MELEE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_TWO_CASTING_FRAMES = 8;
+	const GLfloat NECRO_TWO_CASTING_FRAME_WIDTH = 0.125;
+
+	const int NECRO_TWO_DEATH_FRAMES = 7;
+	const GLfloat NECRO_TWO_DEATH_FRAME_WIDTH = 0.14285714285;
+
+	// Necromancer minion frame stats
+	const int NECRO_MINION_APPEAR_FRAMES = 10;
+	const GLfloat NECRO_MINION_APPEAR_FRAME_WIDTH = 0.10;
+
+	const int NECRO_MINION_IDLE_FRAMES = 5;
+	const GLfloat NECRO_MINION_IDLE_FRAME_WIDTH = 0.2;
+
+	const int NECRO_MINION_WALK_FRAMES = 8;
+	const GLfloat NECRO_MINION_WALK_FRAME_WIDTH = 0.125;
+
+	const int NECRO_MINION_MELEE_FRAMES = 10;
+	const GLfloat NECRO_MINION_MELEE_FRAME_WIDTH = 0.10;
+
+	const int NECRO_MINION_DEATH_FRAMES = 10;
+	const GLfloat NECRO_MINION_DEATH_FRAME_WIDTH = 0.10;
 
 	// Camera/scrolling constants
-	float CAMERA_OFFSET_LEFT = 500;
-	float CAMERA_OFFSET_TOP = 500;
+	float CAMERA_OFFSET_LEFT = 400;
+	float CAMERA_OFFSET_TOP = 400;
 	float CAMERA_OFFSET_RIGHT = 400;
 	float CAMERA_OFFSET_BOTTOM = 200;
 
@@ -169,6 +273,8 @@ public:
 	float fogFactor = 0.2;
 	std::map<int, int> deferredRenderingEntities = {};
 	int gameLevel = 1;
+	int shouldDeform = 0;
+	bool implode = false;
 
 	// Initialize the window
 	bool init(int width, int height, GLFWwindow* window);
@@ -203,8 +309,9 @@ public:
 
 private:
 	// Internal drawing functions for each entity type
-	void drawTexturedMesh(Entity entity, const mat3& projection, GLint& frame, GLfloat& frameWidth);
+	void drawTexturedMesh(Entity entity, const mat3& projection, GLint& frame, GLfloat& frameWidth, float elapsed_ms);
 	void drawDeathParticles(Entity entity, const mat3& projection);
+	void initParticlesBuffer();
 	void drawToScreen();
 
 	// Window handle
@@ -218,7 +325,10 @@ private:
 	GLuint off_screen_render_buffer_depth;
 
 	Entity screen_state_entity;
+
+	GLuint particles_position_buffer;
+	float deformTime = 0.f;
 };
 
 bool loadEffectFromFile(
-	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
+	const std::string& vs_path, const std::string& fs_path, std::string& gs_path, GLuint& out_program);

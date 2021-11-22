@@ -66,6 +66,7 @@ bool RenderSystem::init(int width, int height, GLFWwindow* window_arg)
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
 	createRandomLightBallPosForBackground(width, height);
+	initParticlesBuffer();
 
 	return true;
 }
@@ -104,8 +105,13 @@ void RenderSystem::initializeGlEffects()
 	{
 		const std::string vertex_shader_name = effect_paths[i] + ".vs.glsl";
 		const std::string fragment_shader_name = effect_paths[i] + ".fs.glsl";
-
-		bool is_valid = loadEffectFromFile(vertex_shader_name, fragment_shader_name, effects[i]);
+		std::string geometry_shader_name;
+		if (effect_paths[i] == shader_path("basicEnemy")) {
+			geometry_shader_name = effect_paths[i] + ".gs.glsl";
+			
+		}
+		bool is_valid = loadEffectFromFile(vertex_shader_name, fragment_shader_name, geometry_shader_name, effects[i]);
+		// bool is_valid = loadEffectFromFile(vertex_shader_name, fragment_shader_name, effects[i]);
 		assert(is_valid && (GLuint)effects[i] != 0);
 	}
 }
@@ -268,19 +274,185 @@ void RenderSystem::initializeGlGeometryBuffers()
 	swordsman_death_vertices[3].texcoord = { 0.f, 0.f };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SWORDSMAN_DEATH, swordsman_death_vertices, textured_indices);
 
-	// necromancer_idle sprite row
-	std::vector<TexturedVertex> necromancer_idle_vertices(4);
-	necromancer_idle_vertices[0].position = { -1.f, +1.f, 0.f };
-	necromancer_idle_vertices[1].position = { +1.f, +1.f, 0.f };
-	necromancer_idle_vertices[2].position = { +1.f, -1.f, 0.f };
-	necromancer_idle_vertices[3].position = { -1.f, -1.f, 0.f };
-	necromancer_idle_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
-	necromancer_idle_vertices[1].texcoord = { 0.25, 1.f };        // Bottom right
-	necromancer_idle_vertices[2].texcoord = { 0.25, 0.f };        // Top right
-	necromancer_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
-	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECROMANCER_IDLE, necromancer_idle_vertices, textured_indices);
+	// necro_one_idle sprite row
+	std::vector<TexturedVertex> necro_one_idle_vertices(4);
+	necro_one_idle_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_idle_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_idle_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_idle_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_idle_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_one_idle_vertices[1].texcoord = { 0.25, 1.f };        // Bottom right
+	necro_one_idle_vertices[2].texcoord = { 0.25, 0.f };        // Top right
+	necro_one_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE, necro_one_idle_vertices, textured_indices);
 
+	// necro_one_casting sprite row
+	std::vector<TexturedVertex> necro_one_casting_vertices(4);
+	necro_one_casting_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_casting_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_casting_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_casting_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_casting_vertices[0].texcoord = { 0.f, 0.6666666666 };           // Bottom left
+	necro_one_casting_vertices[1].texcoord = { 0.16666666666, 0.6666666666 };        // Bottom right
+	necro_one_casting_vertices[2].texcoord = { 0.16666666666, 0.3333333333 };        // Top right
+	necro_one_casting_vertices[3].texcoord = { 0.f, 0.3333333333 };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_CASTING, necro_one_casting_vertices, textured_indices);
 
+	// necro_one_summoning sprite row
+	std::vector<TexturedVertex> necro_one_summoning_vertices(4);
+	necro_one_summoning_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_summoning_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_summoning_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_summoning_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_summoning_vertices[0].texcoord = { 0.f, 0.5 };           // Bottom left
+	necro_one_summoning_vertices[1].texcoord = { 0.25, 0.5 };        // Bottom right
+	necro_one_summoning_vertices[2].texcoord = { 0.25, 0.f };        // Top right
+	necro_one_summoning_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_SUMMONING, necro_one_summoning_vertices, textured_indices);
+
+	// necro_one_death_one sprite row
+	std::vector<TexturedVertex> necro_one_death_one_vertices(4);
+	necro_one_death_one_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_death_one_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_death_one_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_death_one_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_death_one_vertices[0].texcoord = { 0.f, 0.5 };           // Bottom left
+	necro_one_death_one_vertices[1].texcoord = { 0.10, 0.5 };        // Bottom right
+	necro_one_death_one_vertices[2].texcoord = { 0.10, 0.f };        // Top right
+	necro_one_death_one_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_ONE, necro_one_death_one_vertices, textured_indices);
+
+	// necro_one_death_two sprite row
+	std::vector<TexturedVertex> necro_one_death_two_vertices(4);
+	necro_one_death_two_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_one_death_two_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_one_death_two_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_one_death_two_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_one_death_two_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_one_death_two_vertices[1].texcoord = { 0.10, 1.f };        // Bottom right
+	necro_one_death_two_vertices[2].texcoord = { 0.10, 0.5 };        // Top right
+	necro_one_death_two_vertices[3].texcoord = { 0.f, 0.5 };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_ONE_DEATH_TWO, necro_one_death_two_vertices, textured_indices);
+
+	// necro_two_appear sprite row
+	std::vector<TexturedVertex> necro_two_appear_vertices(4);
+	necro_two_appear_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_appear_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_appear_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_appear_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_appear_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_appear_vertices[1].texcoord = { 0.16666666666, 1.f };        // Bottom right
+	necro_two_appear_vertices[2].texcoord = { 0.16666666666, 0.f };        // Top right
+	necro_two_appear_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_APPEAR, necro_two_appear_vertices, textured_indices);
+
+	// necro_two_idle sprite row
+	std::vector<TexturedVertex> necro_two_idle_vertices(4);
+	necro_two_idle_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_idle_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_idle_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_idle_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_idle_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_idle_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	necro_two_idle_vertices[2].texcoord = { 0.125, 0.f };        // Top right
+	necro_two_idle_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE, necro_two_idle_vertices, textured_indices);
+
+	// necro_two_melee sprite row
+	std::vector<TexturedVertex> necro_two_melee_vertices(4);
+	necro_two_melee_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_melee_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_melee_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_melee_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_melee_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_melee_vertices[1].texcoord = { 0.10, 1.f };        // Bottom right
+	necro_two_melee_vertices[2].texcoord = { 0.10, 0.f };        // Top right
+	necro_two_melee_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_MELEE, necro_two_melee_vertices, textured_indices);
+
+	// necro_two_casting sprite row
+	std::vector<TexturedVertex> necro_two_casting_vertices(4);
+	necro_two_casting_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_casting_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_casting_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_casting_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_casting_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_casting_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	necro_two_casting_vertices[2].texcoord = { 0.125, 0.f };        // Top right
+	necro_two_casting_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING, necro_two_casting_vertices, textured_indices);
+
+	// necro_two_death sprite row
+	std::vector<TexturedVertex> necro_two_death_vertices(4);
+	necro_two_death_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_two_death_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_two_death_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_two_death_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_two_death_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_two_death_vertices[1].texcoord = { 0.14285714285, 1.f };        // Bottom right
+	necro_two_death_vertices[2].texcoord = { 0.14285714285, 0.f };        // Top right
+	necro_two_death_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH, necro_two_death_vertices, textured_indices);
+
+	// necro_minion_appear sprite row
+	std::vector<TexturedVertex> necro_minion_appear_ertices(4);
+	necro_minion_appear_ertices[0].position = { -1.f, +1.f, 0.f };
+	necro_minion_appear_ertices[1].position = { +1.f, +1.f, 0.f };
+	necro_minion_appear_ertices[2].position = { +1.f, -1.f, 0.f };
+	necro_minion_appear_ertices[3].position = { -1.f, -1.f, 0.f };
+	necro_minion_appear_ertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_minion_appear_ertices[1].texcoord = { 0.10, 1.f };        // Bottom right
+	necro_minion_appear_ertices[2].texcoord = { 0.10, 0.f };        // Top right
+	necro_minion_appear_ertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_MINION_APPEAR, necro_minion_appear_ertices, textured_indices);
+
+	// necro_minion_idle sprite row
+	std::vector<TexturedVertex> necro_minion_idle_ertices(4);
+	necro_minion_idle_ertices[0].position = { -1.f, +1.f, 0.f };
+	necro_minion_idle_ertices[1].position = { +1.f, +1.f, 0.f };
+	necro_minion_idle_ertices[2].position = { +1.f, -1.f, 0.f };
+	necro_minion_idle_ertices[3].position = { -1.f, -1.f, 0.f };
+	necro_minion_idle_ertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_minion_idle_ertices[1].texcoord = { 0.20, 1.f };        // Bottom right
+	necro_minion_idle_ertices[2].texcoord = { 0.20, 0.f };        // Top right
+	necro_minion_idle_ertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_MINION_IDLE, necro_minion_idle_ertices, textured_indices);
+
+	// necro_minion_walk sprite row
+	std::vector<TexturedVertex> necro_minion_walk_ertices(4);
+	necro_minion_walk_ertices[0].position = { -1.f, +1.f, 0.f };
+	necro_minion_walk_ertices[1].position = { +1.f, +1.f, 0.f };
+	necro_minion_walk_ertices[2].position = { +1.f, -1.f, 0.f };
+	necro_minion_walk_ertices[3].position = { -1.f, -1.f, 0.f };
+	necro_minion_walk_ertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_minion_walk_ertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	necro_minion_walk_ertices[2].texcoord = { 0.125, 0.f };        // Top right
+	necro_minion_walk_ertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_MINION_WALK, necro_minion_walk_ertices, textured_indices);
+
+	// necro_minion_melee sprite row
+	std::vector<TexturedVertex> necro_minion_melee_vertices(4);
+	necro_minion_melee_vertices[0].position = { -1.f, +1.f, 0.f };
+	necro_minion_melee_vertices[1].position = { +1.f, +1.f, 0.f };
+	necro_minion_melee_vertices[2].position = { +1.f, -1.f, 0.f };
+	necro_minion_melee_vertices[3].position = { -1.f, -1.f, 0.f };
+	necro_minion_melee_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_minion_melee_vertices[1].texcoord = { 0.10, 1.f };        // Bottom right
+	necro_minion_melee_vertices[2].texcoord = { 0.10, 0.f };        // Top right
+	necro_minion_melee_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_MINION_MELEE, necro_minion_melee_vertices, textured_indices);
+
+	// necro_minion_death sprite row
+	std::vector<TexturedVertex> necro_minion_death_ertices(4);
+	necro_minion_death_ertices[0].position = { -1.f, +1.f, 0.f };
+	necro_minion_death_ertices[1].position = { +1.f, +1.f, 0.f };
+	necro_minion_death_ertices[2].position = { +1.f, -1.f, 0.f };
+	necro_minion_death_ertices[3].position = { -1.f, -1.f, 0.f };
+	necro_minion_death_ertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	necro_minion_death_ertices[1].texcoord = { 0.10, 1.f };        // Bottom right
+	necro_minion_death_ertices[2].texcoord = { 0.10, 0.f };        // Top right
+	necro_minion_death_ertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_MINION_DEATH, necro_minion_death_ertices, textured_indices);
 
 	////////////////////////
 	// Initialize pebble
@@ -418,11 +590,17 @@ bool gl_compile_shader(GLuint shader)
 }
 
 bool loadEffectFromFile(
-	const std::string& vs_path, const std::string& fs_path, GLuint& out_program)
+	const std::string& vs_path, const std::string& fs_path, std::string& gs_path, GLuint& out_program)
 {
 	// Opening files
 	std::ifstream vs_is(vs_path);
 	std::ifstream fs_is(fs_path);
+	std::ifstream gs_is(gs_path);
+	if (!gs_path.empty() && !gs_is.good()) {
+		fprintf(stderr, "Failed to load geometry shader file %s\n", gs_path.c_str());
+		assert(false);
+		return false;
+	}
 	if (!vs_is.good() || !fs_is.good())
 	{
 		fprintf(stderr, "Failed to load shader files %s, %s", vs_path.c_str(), fs_path.c_str());
@@ -431,7 +609,28 @@ bool loadEffectFromFile(
 	}
 
 	// Reading sources
-	std::stringstream vs_ss, fs_ss;
+	std::stringstream vs_ss, fs_ss, gs_ss;
+
+	bool link_gs = false;
+	GLuint geometry;
+	if (!gs_path.empty()) {
+		gs_ss << gs_is.rdbuf();
+		std::string gs_str = gs_ss.str();
+		const char* gs_src = gs_str.c_str();
+		GLsizei gs_len = (GLsizei)gs_str.size();
+		geometry = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geometry, 1, &gs_src, &gs_len);
+		gl_has_errors();
+
+		if (!gl_compile_shader(geometry))
+		{
+			fprintf(stderr, "geometry compilation failed");
+			assert(false);
+			return false;
+		}
+		link_gs = true;
+	}
+
 	vs_ss << vs_is.rdbuf();
 	fs_ss << fs_is.rdbuf();
 	std::string vs_str = vs_ss.str();
@@ -456,7 +655,7 @@ bool loadEffectFromFile(
 	}
 	if (!gl_compile_shader(fragment))
 	{
-		fprintf(stderr, "Vertex compilation failed");
+		fprintf(stderr, "fragment compilation failed");
 		assert(false);
 		return false;
 	}
@@ -465,6 +664,9 @@ bool loadEffectFromFile(
 	out_program = glCreateProgram();
 	glAttachShader(out_program, vertex);
 	glAttachShader(out_program, fragment);
+	if (link_gs) {
+		glAttachShader(out_program, geometry);
+	}
 	glLinkProgram(out_program);
 	gl_has_errors();
 
@@ -492,6 +694,10 @@ bool loadEffectFromFile(
 	glDetachShader(out_program, fragment);
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+	if (link_gs) {
+		glDetachShader(out_program, geometry);
+		glDeleteShader(geometry);
+	}
 	gl_has_errors();
 
 	return true;
@@ -507,7 +713,15 @@ void RenderSystem::createRandomLightBallPosForBackground(int windowWidth, int wi
 		RenderSystem::lightBallsYcoords.push_back(RandomFloat(0.8, 1.));
 	}
 
-	for (int i = 0; i < lightBallsXcoords.size(); i++) {
+	/*for (int i = 0; i < lightBallsXcoords.size(); i++) {
 		printf("%f, %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
-	}
+	}*/
+}
+
+void RenderSystem::initParticlesBuffer() {
+	GLuint particles_position_buffer;
+	glGenBuffers(1, &particles_position_buffer);
+	RenderSystem::particles_position_buffer = particles_position_buffer;
+	glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
+	glBufferData(GL_ARRAY_BUFFER, 4000 * 3 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 }

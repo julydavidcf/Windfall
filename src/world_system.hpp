@@ -15,7 +15,6 @@
 #include "render_system.hpp"
 #include "skill_system.hpp"
 
-
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
 class WorldSystem
@@ -28,6 +27,9 @@ public:
 
 	// starts the game
 	void init(RenderSystem* renderer, AISystem* ai_arg, SkillSystem* skill_arg);
+
+	// Displays the start screen and buttons
+	void render_startscreen();
 
 	// display player turn
 	void displayPlayerTurn();
@@ -69,11 +71,15 @@ public:
 
 	int player_turn;
 
+	// IMPORTANT: Determines if systems can call step()
+	int canStep = 0;
+	int closeWindow = 0;
+
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
-	// handel mouse click
+	// handle mouse click
 	void on_mouse_button( int button,int action, int mods);
 
 	// check if mouse in button
@@ -114,6 +120,7 @@ private:
 
 	//Skills Function
 	void removeTaunt(Entity target);
+	void removeSilence(Entity target);
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
 
@@ -123,9 +130,29 @@ private:
 	SkillSystem* sk;
 
 	float current_speed;
+
+	Entity necromancer_phase_one;
+	Entity necromancer_phase_two;
+	Entity necromancer_minion;
+
 	Entity fireball;
+	Entity silence_icon;
 	Entity iceShard;
 	Entity tooltip;
+
+	Entity curr_tutorial_box;
+	int curr_tutorial_box_num = 0;
+	int tutorial_icon_selected = 1;
+	int tutorial_ability_fired = 1;
+	int tutorial_enabled = 0;
+
+	// UI buttons
+	Entity new_game_button;
+	Entity load_game_button;
+	Entity save_game_button;
+	Entity exit_game_button;
+	Entity open_menu_button;
+	int pauseMenuOpened = 0;
 
 	// Music References
 	Mix_Music* background_music;
@@ -139,6 +166,16 @@ private:
 	Mix_Chunk* heal_spell_sound;
 	Mix_Chunk* taunt_spell_sound;
 	Mix_Chunk* melee_spell_sound;
+	Mix_Chunk* silence_spell_sound;
+	Mix_Chunk* lightning_spell_sound;
+	Mix_Chunk* ice_spell_sound;
+	Mix_Chunk* summon_spell_sound;
+	Mix_Chunk* charge_spell_sound;
+	Mix_Chunk* beam_spell_sound;
+	Mix_Chunk* minion_spawn_sound;
+	Mix_Chunk* error_sound;
+	Mix_Chunk* gesture_heal_sound;
+	Mix_Chunk* gesture_aoe_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
@@ -153,8 +190,7 @@ private:
 	float ARROWSPEED = 700.f;
 	float ICESHARDSPEED = 100.f;
 
-	int16 gameLevel;
-	const int16 MAX_GAME_LEVELS = 2;
+	const int16 MAX_GAME_LEVELS = 4;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee
