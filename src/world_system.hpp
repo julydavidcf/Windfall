@@ -125,6 +125,9 @@ private:
 	bool canUseSkill(Entity user, int skill);
 	void showCorrectSkills();
 
+	void displayTurnIndicator(int isPlayerTurn);
+	void advanceTutorial(Entity currTutorial, vec2 pos);
+
 	// Story telling
 	void backgroundTelling();
 
@@ -157,6 +160,8 @@ private:
 	Entity rock_icon;
 	Entity tooltip;
 
+
+	Entity turn_indicator;
 	Entity curr_tutorial_box;
 	int curr_tutorial_box_num = 0;
 	int tutorial_icon_selected = 1;
@@ -193,6 +198,13 @@ private:
 	Mix_Chunk* summon_spell_sound;
 	Mix_Chunk* button_hover_sound;
 	Mix_Chunk* turning_sound;
+	Mix_Chunk* charge_spell_sound;
+	Mix_Chunk* beam_spell_sound;
+	Mix_Chunk* minion_spawn_sound;
+	Mix_Chunk* error_sound;
+	Mix_Chunk* gesture_heal_sound;
+	Mix_Chunk* gesture_aoe_sound;
+	Mix_Chunk* gesture_turn_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;

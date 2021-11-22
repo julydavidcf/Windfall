@@ -44,7 +44,7 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
-	motion.angle = 0.f;
+	motion.angle = 0;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = { -MAGE_WIDTH, MAGE_HEIGHT };
 
@@ -64,6 +64,33 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::MAGE_IDLE });
 
+	return entity;
+}
+
+Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { -BACKGROUND_OBJ_WIDTH, -BACKGROUND_OBJ_WIDTH };
+
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::BACKGROUND_OBJ,
+			GEOMETRY_BUFFER_ID::BACKGROUND_OBJ });
+
+	registry.backgroundObjects.insert(entity, {});
+	// renderer->enemyMage = entity;
 	return entity;
 }
 
@@ -555,6 +582,7 @@ Entity createCharIndicator(RenderSystem* renderer, vec2 position, Entity owner)
 	return entity;
 }
 
+
 // create barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position)
 {
@@ -601,6 +629,35 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
+}
+
+Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly)
+{	
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.velocity = { -50.f, 50.f };
+	motion.position = position;
+	motion.scale = vec2({ METEOR_WIDTH, METEOR_HEIGHT });
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = 0;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::METEOR, //https://www.cleanpng.com/png-designer-tencent-tmall-golden-meteor-shower-99329/download-png.html
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+
 }
 
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
@@ -699,7 +756,6 @@ Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly)
 	return entity;
 }
 
-
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 {
 	auto entity = Entity();
@@ -782,6 +838,28 @@ Entity createSilenceBubble(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
+Entity createParticleBeamCharge(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion, probably can make it rotate/increase scale
+	auto& motion = registry.motions.emplace(entity);
+	position[1] += 100;
+	motion.position = position;
+	motion.scale = vec2({ PARTICLEBEAMCHARGE_WIDTH, PARTICLEBEAMCHARGE_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::PARTICLEBEAMCHARGE,	//https://pngtree.com/freepng/abstract-ring-purple-light-effect_5102994.html
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
 
 Entity createLine(vec2 position, vec2 scale)
 {
@@ -803,6 +881,27 @@ Entity createLine(vec2 position, vec2 scale)
 	registry.debugComponents.emplace(entity);
 	return entity;
 }
+
+Entity createDot(RenderSystem* renderer, vec2 position)
+{
+	Entity entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::DOT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = {DOT_WIDTH,DOT_HEIGHT};
+	registry.dots.emplace(entity);
+	return entity;
+}
+
 
 Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos)
 {
@@ -907,7 +1006,7 @@ Entity createPebble(vec2 pos, vec2 size)
 	return entity;
 }
 
-Entity createTutorialBox(RenderSystem* renderer, vec2 position, int box_number) {
+Entity createTutorialBox(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
 
 	Motion& motion = registry.motions.emplace(entity);
@@ -917,18 +1016,6 @@ Entity createTutorialBox(RenderSystem* renderer, vec2 position, int box_number) 
 	motion.scale = { TUTORIAL_BOX_WIDTH, TUTORIAL_BOX_HEIGHT };
 
 	TEXTURE_ASSET_ID tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_ONE;
-
-	switch (box_number) {
-		case 0: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_ONE; break;
-		case 1: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_TWO; break;
-		case 2: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_THREE; break;
-		case 3: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FOUR; break;
-		case 4: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_FIVE; break;
-		case 5: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SIX; break;
-		case 6: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_SEVEN; break;
-		case 7: tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_EIGHT; break;
-		default: break;
-	}
 
 	registry.renderRequests.insert(
 		entity,

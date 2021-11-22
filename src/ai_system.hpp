@@ -60,10 +60,10 @@ public:
 class BTRunCheckCharacter : public BTNode {
 private:
 	int m_index;
-	BTNode* m_children[4];	// Run pair has two children, using an array
+	BTNode* m_children[5];	// Run pair has two children, using an array
 
 public:
-	BTRunCheckCharacter(BTNode* c0, BTNode* c1, BTNode* c2, BTNode* c3)	// build tree bottom up, we need to know children before building this node for instance
+	BTRunCheckCharacter(BTNode* c0, BTNode* c1, BTNode* c2, BTNode* c3, BTNode* c4)	// build tree bottom up, we need to know children before building this node for instance
 	;
 
 	void init(Entity e) override;
@@ -184,6 +184,66 @@ private:
 
 public:
 	BTRunCheckPlayerMageSilenced(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		;
+
+	void init(Entity e) override;
+
+	BTState process(Entity e) override;
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckUltiTurn : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckUltiTurn(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		;
+
+	void init(Entity e) override;
+
+	BTState process(Entity e) override;
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckTurn : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckTurn(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		;
+
+	void init(Entity e) override;
+
+	BTState process(Entity e) override;
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckShieldTurn : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckShieldTurn(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		;
+
+	void init(Entity e) override;
+
+	BTState process(Entity e) override;
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckCrows : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckCrows(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
 		;
 
 	void init(Entity e) override;
@@ -551,6 +611,141 @@ private:
 	BTNode* m_child;	// one child stored in BTNode as a pointer
 };
 
+// A general decorator with lambda condition
+class BTIfEnemyIsNecroPhaseTwo : public BTNode
+{
+public:
+	BTIfEnemyIsNecroPhaseTwo(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfUltiTurn : public BTNode
+{
+public:
+	BTIfUltiTurn(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfNotUltiTurn : public BTNode
+{
+public:
+	BTIfNotUltiTurn(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfTurnOne : public BTNode
+{
+public:
+	BTIfTurnOne(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfTurnTwo : public BTNode
+{
+public:
+	BTIfTurnTwo(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfShieldTurn : public BTNode
+{
+public:
+	BTIfShieldTurn(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfNotShieldTurn : public BTNode
+{
+public:
+	BTIfNotShieldTurn(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfCrowsZero : public BTNode
+{
+public:
+	BTIfCrowsZero(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfCrowsMoreThanZero : public BTNode
+{
+public:
+	BTIfCrowsMoreThanZero(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
 class BTCastIceShard : public BTNode {
 private:
 	void init(Entity e) override;
@@ -606,6 +801,42 @@ private:
 };
 
 class BTRandomTargetLightningAttack : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
+class BTCastAOEAttack : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
+class BTCastParticleBeamCharge : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
+class BTCastParticleBeamAttack : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
+class BTCastShield : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
+class BTCastCrowsAttack : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
+class BTCastSingleTargetAttack : public BTNode {
 private:
 	void init(Entity e) override;
 	BTState process(Entity e) override;
