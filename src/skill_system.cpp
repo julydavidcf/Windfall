@@ -399,15 +399,21 @@ void SkillSystem::luanchCompanionTeamHeal( float amount, RenderSystem* renderer)
 }
 
 void SkillSystem::luanchEnemyTeamDamage(float amount, RenderSystem* renderer) {
-	for (Entity cp : registry.enemies.entities) {
-		vec2 targetp = registry.motions.get(cp).position;
+	for (Entity em : registry.enemies.entities) {
+		vec2 targetp = registry.motions.get(em).position;
 		createGreenCross(renderer, targetp);
-		if (registry.stats.has(cp)) {
-			Statistics* tStats = &registry.stats.get(cp);
+		if (registry.stats.has(em)) {
+			Statistics* tStats = &registry.stats.get(em);
 				tStats->health -= amount;
 		}
 	}
 
+}
+
+void SkillSystem::luanchNecroCompanionTeamBleed(RenderSystem* renderer) {
+	for (Entity cp : registry.companions.entities) {
+		launchBleed(cp, renderer);
+	}
 }
 
 Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
@@ -473,6 +479,21 @@ void SkillSystem::launchTaunt(Entity target, RenderSystem* renderer) {
 	}
 }
 
+void SkillSystem::launchBleed(Entity target, RenderSystem* renderer) {
+	if (!registry.bleeds.has(target)) {
+		registry.bleeds.emplace(target);
+		Bleed* t = &registry.bleeds.get(target);
+		t->duration = 3;	// making it 4 so that it last one more turn when checkRound decrements it on the next turn
+		createBleedIndicator(renderer, target);
+		printf("bleed!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
+	else {
+		Bleed* t = &registry.bleeds.get(target);
+		t->duration = 3;	// making it 4 so that it last one more turn when checkRound decrements it on the next turn
+		printf("bleed extended!\n");
+	}
+}
+
 void SkillSystem::removeTaunt(Entity target) {
 	if (registry.taunts.has(target)) {
 		registry.taunts.remove(target);
@@ -485,6 +506,18 @@ void SkillSystem::removeTaunt(Entity target) {
 	}
 }
 
+void SkillSystem::removeBleed(Entity target) {
+	if (registry.bleeds.has(target)) {
+		registry.bleeds.remove(target);
+		for (int j = 0; j < registry.bleedIndicators.components.size(); j++) {
+			if (registry.bleedIndicators.components[j].owner == target) {
+				registry.remove_all_components_of(registry.bleedIndicators.entities[j]);
+			}
+		}
+		printf("bleed removed!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
+}
+
 void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
 	printf("creating a melee skill\n");
 	Motion enemy = registry.motions.get(target);
@@ -493,6 +526,18 @@ void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
 	}
 	else {
 		Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 1);
+	}
+}
+
+
+void SkillSystem::launchBleedDMG(Entity target, RenderSystem* renderer) {
+	printf("creating a bleed skill\n");
+	Motion enemy = registry.motions.get(target);
+	if (registry.companions.has(target)) {
+		Entity resultEntity = createBleedDMG(renderer, { enemy.position.x, enemy.position.y }, 0);
+	}
+	else {
+		Entity resultEntity = createBleedDMG(renderer, { enemy.position.x, enemy.position.y }, 1);
 	}
 }
 

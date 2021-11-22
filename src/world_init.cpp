@@ -628,6 +628,31 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
 
 	return entity;
 }
+Entity createBleedIndicator(RenderSystem* renderer, Entity owner)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto* statid = &registry.bleedIndicators.emplace(entity);
+	statid->owner = owner;
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.acceleration = { 0.f, 0.f };
+	motion.position = { 0.f,0.f };
+	motion.scale = vec2({ GREENCROSS_WIDTH, GREENCROSS_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BLEED,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 
 // create rock
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
@@ -731,6 +756,38 @@ Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 
 	return entity;
 }
+
+Entity createBleedDMG(RenderSystem* renderer, vec2 position, int isFriendly)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f,0 };
+	motion.acceleration = { 0.f,0 };
+	motion.position = position;
+	motion.scale = vec2({ 1, 1 });
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = bleed_dmg;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.projectiles.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ROCK,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 
 Entity createHealthBar(RenderSystem* renderer, vec2 position)
 {

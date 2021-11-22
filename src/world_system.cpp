@@ -308,6 +308,12 @@ void WorldSystem::createRound() {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
 		}
+		if (registry.bleeds.has(entity)) {
+			Bleed* b = &registry.bleeds.get(entity);
+			b->duration--;
+			sk->launchBleedDMG(entity, renderer);
+			update_healthBars();
+		}
 		// also decrement silence duration if present
 		if (registry.silenced.has(entity)) {
 			Silenced* s = &registry.silenced.get(entity);
@@ -345,6 +351,13 @@ void WorldSystem::createRound() {
 		if (registry.taunts.has(entity)) {
 			Taunt* t = &registry.taunts.get(entity);
 			t->duration--;
+		}
+		// also decrement bleed duration if present
+		if (registry.bleeds.has(entity)) {
+			Bleed* b = &registry.bleeds.get(entity);
+			b->duration--;
+			sk->launchBleedDMG(entity, renderer);
+			update_healthBars();
 		}
 		// also decrement silence duration if present
 		if (registry.silenced.has(entity)) {
@@ -493,11 +506,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	//check taunt and silence for enemy and companion
+	//check taunt bleed and silence for enemy and companion
 	for (int i = (int)registry.enemies.components.size() - 1; i >= 0; --i) {
 		if (registry.taunts.has(registry.enemies.entities[i])) {
 			if (registry.taunts.get(registry.enemies.entities[i]).duration <= 0) {
 				sk->removeTaunt(registry.enemies.entities[i]);
+			}
+		}
+		if (registry.bleeds.has(registry.enemies.entities[i])) {
+			if (registry.bleeds.get(registry.enemies.entities[i]).duration <= 0) {
+				sk->removeBleed(registry.enemies.entities[i]);
 			}
 		}
 		if (registry.silenced.has(registry.enemies.entities[i])) {
@@ -510,6 +528,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (registry.taunts.has(registry.companions.entities[i])) {
 			if (registry.taunts.get(registry.companions.entities[i]).duration <= 0) {
 				sk->removeTaunt(registry.companions.entities[i]);
+			}
+		}
+		if (registry.bleeds.has(registry.companions.entities[i])) {
+			if (registry.bleeds.get(registry.companions.entities[i]).duration <= 0) {
+				sk->removeBleed(registry.companions.entities[i]);
 			}
 		}
 		if (registry.silenced.has(registry.companions.entities[i])) {
@@ -1226,10 +1249,9 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// david test
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-	//	sk->luanchCompanionTeamHeal(50,renderer);
-	//	update_healthBars();
-	//}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+		sk->luanchNecroCompanionTeamBleed(renderer);
+	}
 
 	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
 	//	sk->luanchEnemyTeamDamage(30, renderer);

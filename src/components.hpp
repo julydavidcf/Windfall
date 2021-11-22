@@ -68,6 +68,10 @@ struct CharIndicator
 	Entity owner;
 };
 
+struct BleedIndicator
+{
+	Entity owner;
+};
 // Currently attacking
 struct Attack
 {
@@ -131,6 +135,11 @@ struct Taunt
 {
 	int duration = 3;
 };
+struct Bleed
+{
+	int duration = 3;
+};
+
 
 struct Ultimate
 {
@@ -344,8 +353,9 @@ enum class TEXTURE_ASSET_ID {
 	GREENCROSS = LIGHTNING + 1,
 	CHARARROW = GREENCROSS + 1,
 	DOT = CHARARROW +1,
+	BLEED= DOT +1 ,
 
-	ICESHARD = DOT + 1,
+	ICESHARD = BLEED + 1,
 	ICESHARDICON = ICESHARD +1,
 	ICESHARDICONSELECTED = ICESHARDICON+1,
 	ICESHARDICONDISABLED = ICESHARDICONSELECTED + 1,

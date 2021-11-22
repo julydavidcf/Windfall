@@ -57,14 +57,18 @@ public:
 	Entity launchRock(Entity target, RenderSystem* renderer);
 	Entity launchLightning(Entity target, RenderSystem* renderer);
 	void launchTaunt(Entity target, RenderSystem* renderer);
+	void launchBleed(Entity target, RenderSystem* renderer);
+	void launchBleedDMG(Entity target, RenderSystem* renderer);
 	void launchHeal(Entity target, float amount, RenderSystem* renderer);
 	void launchMelee(Entity target, RenderSystem* renderer);
 	void launchSilence(Entity target, RenderSystem* renderer);
 	void launchSummon(RenderSystem* renderer);
 	void luanchCompanionTeamHeal(float amount, RenderSystem* renderer);
 	void luanchEnemyTeamDamage(float amount, RenderSystem* renderer);
+	void luanchNecroCompanionTeamBleed(RenderSystem* renderer);
 	
 	void removeTaunt(Entity target);
+	void removeBleed(Entity target);
 	void removeSilence(Entity target);
 	
 

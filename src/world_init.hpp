@@ -126,6 +126,9 @@ Entity createLine(vec2 position, vec2 size);
 
 Entity createTauntIndicator(RenderSystem* renderer, Entity owner);
 
+Entity createBleedIndicator(RenderSystem* renderer, Entity owner);
+Entity createBleedDMG(RenderSystem* renderer, vec2 position, int isFriendly);
+
 Entity createTutorialBox(RenderSystem* renderer, vec2 position, int box_number);
 Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type);
 
@@ -147,6 +150,7 @@ const int rock_dmg = 10;
 const int fireball_dmg = 30;
 const int iceshard_dmg = 20;
 const int melee_dmg = 15;
+const int bleed_dmg = 5;
 const int lightning_dmg = 15;
 
 
