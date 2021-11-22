@@ -619,14 +619,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	for (int i = (int)registry.shieldIcons.components.size() - 1; i >= 0; --i) {
-		if (registry.shield.has(registry.shieldIcons.entities[i])) {	// need to emplace shield onto necro2 for countdown when David implements the skill
-			ShieldIcon* sh = &registry.shieldIcons.get(registry.shieldIcons.entities[i]);
-			if (sh->shieldDuration < 0) {
-				registry.remove_all_components_of(registry.shield.entities[i]);
-			}
-			
 
-		}
+			ShieldIcon* sh = &registry.shieldIcons.get(registry.shieldIcons.entities[i]);
+			if (sh->shieldDuration <= 0) {
+				registry.remove_all_components_of(registry.shieldIcons.entities[i]);
+			}
+		
 	}
 
 	// maintain correct health
