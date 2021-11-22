@@ -134,7 +134,7 @@ void load_level(json j){
                 printf("Creating phase 1 necromancer\n");
                 necromancer_phase_one = createNecromancerPhaseOne(renderer_load, vec2(entity["position"]["x"], 
                                                                         entity["position"]["y"]));
-                create_entity = enemy_swordsman;
+                create_entity = necromancer_phase_one;
                 }
 
             else {

@@ -1037,7 +1037,7 @@ void WorldSystem::restart_game(bool force_restart) {
 			printf("Loading level 2\n");
 			json_loader.get_level("level_2.json");
 		} else if(gameLevel == 3){
-			printf("Loading level 3 phase 2\n");
+			printf("Loading level 3 phase 1\n");
 			json_loader.get_level("level_3.json");
 		} else{
 			printf("Incorrect level\n");
