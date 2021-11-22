@@ -165,8 +165,8 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number);
 const int enemy_mage_hp = 90;
 const int enemy_swordsman_hp = 130;
 
-const int player_mage_hp = 60;
-const int player_swordsman_hp = 85;
+const int player_mage_hp = 80;
+const int player_swordsman_hp = 120;
 
 //skill dmg
 const int rock_dmg = 10;

@@ -78,6 +78,7 @@ std::ifstream get_file(string file_name){
 
 // Load the level from the given json
 void load_level(json j){
+    int roundNum = 0;
     printf("Loading\n");
     Entity tempRound[10];
     if(!j["roundSize"].is_null()){
@@ -258,20 +259,27 @@ void load_level(json j){
             } else if(entity["status"] == "Round"){
                  std::cout << "In round: "<< entity["round_num"] << std::endl;
                 tempRound[entity["round_num"]] = create_entity;
+                roundNum++;
             } 
         }
         if(!entity["round_status"].is_null()){
             std::cout << "In round: "<< entity["round_nums"] << std::endl;
             for(int round: entity["round_nums"]){
                 tempRound[round] = create_entity;
+                roundNum++;
             }
         } 
         printf("Loaded the entity\n");
     }
-
-    for(int i = 0; i<j["roundSize"]; i++){
-        roundVec.push_back(tempRound[i]);
+    if(j["roundSize"] != roundNum) {
+        roundVec.clear();
+    } else {
+        for(int i = 0; i<roundNum; i++){
+            std::cout << "Round"<< i << std::endl;
+            roundVec.push_back(tempRound[i]);
+        }
     }
+    
 
 }
 
