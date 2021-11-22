@@ -722,3 +722,14 @@ Entity SkillSystem::launchParticleBeamCharge(Entity target, RenderSystem* render
 	registry.ultimate.emplace(resultEntity);
 	return  resultEntity;
 }
+
+void SkillSystem::removeShield(Entity target) {
+	if (registry.shield.has(target)) {
+		registry.shield.remove(target);
+		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
+			if (registry.statsindicators.components[j].owner == target) {
+				registry.remove_all_components_of(registry.statsindicators.entities[j]);
+			}
+		}
+	}
+}

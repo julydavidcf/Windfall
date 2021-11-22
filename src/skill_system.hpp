@@ -81,6 +81,7 @@ public:
 	void removeTaunt(Entity target);
 	void removeSilence(Entity target);
 	void removeUltimate(Entity target);
+	void removeShield(Entity target);
 	
 
 	//skill constants

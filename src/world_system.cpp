@@ -386,6 +386,7 @@ void WorldSystem::createRound() {
 		if (registry.ultimate.has(entity)) {	// need to emplace ultimate onto necro2 for countdown when David implements the skill
 			Ultimate* u = &registry.ultimate.get(entity);
 			u->ultiDuration--;
+			printf("ENTITY IS %g \n", float(registry.stats.get(entity).speed));
 			printf("MY ULTIDURATION IS %g \n", float(u->ultiDuration));
 			// need to remove the skill when duration <= 0
 			if (u->ultiDuration <= 0) {
@@ -397,6 +398,9 @@ void WorldSystem::createRound() {
 			Shield* sh = &registry.shield.get(entity);
 			sh->shieldDuration--;
 			// need to remove the skill when duration <= 0
+			if (sh->shieldDuration <= 0) {
+				sk->removeShield(entity);
+			}
 		}
 
 		if (!registry.silenced.has(entity)) {
@@ -1052,6 +1056,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	// Create the first tutorial box
 	tutorial_enabled = 1;
 	curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
+	curr_tutorial_box_num = 0;
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity) {
