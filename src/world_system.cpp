@@ -575,7 +575,19 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// restart game if enemies or companions are 0
 	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0)) {
-		restart_game();
+		if (story == 8) {
+		int w, h;
+		glfwGetFramebufferSize(window, &w, &h);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 6);
+		canStep = 0;
+		story = 9;
+		} else if (story == 15) {
+		int w, h;
+		glfwGetFramebufferSize(window, &w, &h);
+		dialogue = createDiaogue(renderer, { w / 2, 650 }, 12);
+		story = 16;
+		}
+		//restart_game();
 	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
 		roundVec.clear();	// empty vector roundVec to create a new round
 		createBackgroundObject(renderer, { 1160, 315 });
@@ -1069,10 +1081,10 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
 		if(gameLevel < 3){
-			renderer->transitioningToNextLevel = true;
-			renderer->gameLevel = gameLevel;
-			gameLevel++;
-			printf("Updated gamel level %d\n", gameLevel);
+				renderer->transitioningToNextLevel = true;
+				renderer->gameLevel = gameLevel;
+				gameLevel++;
+				printf("Updated gamel level %d\n", gameLevel);
 		}
 	}
 	if (gameLevel > MAX_GAME_LEVELS) {
@@ -1685,10 +1697,59 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7) {
 		// START A NEW GAME	
-		loadedLevel = 3;
+		loadedLevel = 1;
 		loaded_game = false;
 		restart_game(false);
 		canStep = 1;
+		story = 8;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 9) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO;
+		story = 10;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 10) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE;
+		story = 11;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 11) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR;
+		story = 12;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 12) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE;
+		story = 13;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 13) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX;
+		story = 14;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 14) {
+		story = 15;
+		canStep = 1;
+		restart_game();
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 16) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO;
+		story = 17;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 17) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE;
+		story = 18;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 18) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR;
+		story = 19;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 19) {
+		story = 20;
+		canStep = 1;
+		restart_game();
 	}
 
 
