@@ -89,8 +89,7 @@ Entity createBackgroundObject(RenderSystem* renderer, vec2 pos)
 			EFFECT_ASSET_ID::BACKGROUND_OBJ,
 			GEOMETRY_BUFFER_ID::BACKGROUND_OBJ });
 
-	registry.backgroundObjects.insert(entity, {});
-	// renderer->enemyMage = entity;
+	registry.deformableEntities.insert(entity, {});
 	return entity;
 }
 
@@ -600,11 +599,19 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 	motion.position = position;
 	motion.scale = vec2({ BARRIER_WIDTH, BARRIER_HEIGHT });
 
-	registry.renderRequests.insert(
+	/*registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BARRIER,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 GEOMETRY_BUFFER_ID::SPRITE });*/
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::BACKGROUND_OBJ,
+			GEOMETRY_BUFFER_ID::SHIELD_MESH });
+
+	registry.deformableEntities.insert(entity, {});
 
 	return entity;
 }

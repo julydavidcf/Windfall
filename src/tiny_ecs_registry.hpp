@@ -11,7 +11,7 @@ class ECSRegistry
 
 public:
 	// Manually created list of all components this game has
-	ComponentContainer<BackgroundObj> backgroundObjects;
+	ComponentContainer<BackgroundObj> deformableEntities;
 	ComponentContainer<ParticlePool> particlePools;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
@@ -51,7 +51,7 @@ public:
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
-		registry_list.push_back(&backgroundObjects);
+		registry_list.push_back(&deformableEntities);
 		registry_list.push_back(&particlePools);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&motions);

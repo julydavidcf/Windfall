@@ -204,8 +204,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
 		if (render_request.used_effect == EFFECT_ASSET_ID::BACKGROUND_OBJ) {
-			if (registry.backgroundObjects.has(entity)) {
-				auto& backgroundObj = registry.backgroundObjects.get(entity);
+			if (registry.deformableEntities.has(entity)) {
+				auto& backgroundObj = registry.deformableEntities.get(entity);
 				glUniform1f(glGetUniformLocation(program, "time"), deformTime);
 				if (backgroundObj.shouldDeform) {
 					if (!implode) {

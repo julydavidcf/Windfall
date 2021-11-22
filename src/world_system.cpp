@@ -1089,7 +1089,7 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	createBackgroundObject(renderer, { 1160, 315 });
 	auto ent = createBackgroundObject(renderer, { 550, 325 });
-	registry.backgroundObjects.get(ent).deformType2 = true;
+	registry.deformableEntities.get(ent).deformType2 = true;
 
 	player_swordsman = createPlayerSwordsman(renderer, { 350, 450 });
 	//// Create an enemy mage
@@ -1372,9 +1372,12 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// handle collisions with background objects
-		if (registry.backgroundObjects.has(entity) && registry.projectiles.has(entity_other)) {
-			auto& backgroundObj = registry.backgroundObjects.get(entity);
+		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other)) {
+			auto& backgroundObj = registry.deformableEntities.get(entity);
 			backgroundObj.shouldDeform = true;
+			if (registry.reflects.has(entity)) {
+				backgroundObj.deformType2 = true;
+			}
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
 			registry.remove_all_components_of(entity_other);
 			//enemy turn start
@@ -1413,6 +1416,9 @@ void WorldSystem::handle_collisions() {
 					printf("calculated %f\n", reflectE);
 					printf("actual %f\n", reflectEM->angle);
 				}
+				// auto& shieldMesh = registry.deformableEntities.get(entity_other);
+				// shieldMesh.shouldDeform = true;
+				// shieldMesh.deformType2 = true;
 			}
 		}
 	}
