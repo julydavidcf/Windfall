@@ -57,7 +57,7 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 		attack.counter_ms = 1500.f;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -101,7 +101,7 @@ void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 		attack.counter_ms = 1500.f;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -129,7 +129,7 @@ void SkillSystem::startHealAttack(Entity origin, Entity target) {
 		attack.target = target;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -142,10 +142,10 @@ void SkillSystem::startIceShardAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ICESHARD;
 		attack.target = target;
-		attack.counter_ms += 50.f;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + animation_timer; // adjust this value to delay enemy attack
 		}
 	}
 	else if (registry.companions.has(origin)) {
@@ -154,9 +154,10 @@ void SkillSystem::startIceShardAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ICESHARD;
 		attack.old_pos = mousePos;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }
@@ -171,11 +172,11 @@ void SkillSystem::startFireballAttack(Entity origin) {
 		companion.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = FIREBALL;
-		attack.counter_ms += 30.f;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		attack.old_pos = mousePos;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }
@@ -188,9 +189,10 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ROCK;
 		attack.target = target;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + animation_timer; // adjust this value to delay enemy attack
 		}
 	}
 	else if (registry.companions.has(origin)) {
@@ -199,9 +201,10 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ROCK;
 		attack.target = target;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }
@@ -228,7 +231,7 @@ void SkillSystem::startLightningAttack(Entity origin, Entity target) {
 		attack.target = target;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -321,7 +324,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+			timer.counter_ms = rt.counter_ms + 1250.f + 1500;
 		}
 
 		//playerUseMelee = 1;
@@ -454,7 +457,7 @@ void SkillSystem::startShieldAttack(Entity origin) {
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -732,7 +735,6 @@ void SkillSystem::launchSummon(RenderSystem* renderer) {
 	else {
 		printf("soundEff failed loading");
 	}
-	createNecromancerMinion(renderer, { 750, 600 });
 	printf("summoned\n");
 }
 
