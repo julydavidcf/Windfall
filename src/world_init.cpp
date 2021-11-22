@@ -114,7 +114,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Companion& companion = registry.companions.emplace(entity);
-	companion.healthbar = createHealthBar(renderer, pos);
+	companion.healthbar = createHealthBar(renderer, { pos.x, pos.y - 20 });
 	companion.companionType = SWORDSMAN;
 
 	auto& abc = registry.renderRequests.insert(
@@ -134,7 +134,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
+	motion.position = { pos.x - 65, pos.y - 10 };
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ -SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
@@ -146,7 +146,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
-	enemy.healthbar = createHealthBar(renderer, pos);
+	enemy.healthbar = createHealthBar(renderer, { pos.x, pos.y - 20 });
 	enemy.enemyType = SWORDSMAN;
 
 	registry.renderRequests.insert(

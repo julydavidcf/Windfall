@@ -157,7 +157,7 @@ void SkillSystem::startIceShardAttack(Entity origin, Entity target) {
 		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + 1500; // adjust this value to delay enemy attack
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }
@@ -176,7 +176,7 @@ void SkillSystem::startFireballAttack(Entity origin) {
 		attack.old_pos = mousePos;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + 1500; // adjust this value to delay enemy attack
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }
@@ -204,7 +204,7 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + 1500; // adjust this value to delay enemy attack
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }

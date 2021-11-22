@@ -1860,13 +1860,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	//other clicks
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep) {
 
-
 		// Check menu clicks
 		if (!pauseMenuOpened && inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
 			Motion menu_motion = registry.motions.get(open_menu_button);
 			save_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT }, SAVE_GAME);
 			exit_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2 }, EXIT_GAME);
-			registry.motions.get(exit_game_button).scale = { 200,80 };
+			registry.motions.get(exit_game_button).scale = { 200, 80 };
 			pauseMenuOpened = 1;
 			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
 		}
