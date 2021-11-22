@@ -1001,8 +1001,21 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	// Pause menu button
 	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
-
-	if(!loaded_game){
+	bool hasSaveFile = false;
+	if(loaded_game){
+		hasSaveFile = json_loader.get_save_file();
+		if(hasSaveFile){
+			gameLevel = loadedLevel;
+			renderer->gameLevel = gameLevel;
+			update_healthBars();
+		} else {
+			loadedLevel = 1;
+			gameLevel = loadedLevel;
+			renderer->gameLevel = gameLevel;
+		}
+		loaded_game = false;
+	}
+	if(!hasSaveFile){
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
 			json_loader.get_level("level_1.json");
@@ -1037,10 +1050,6 @@ void WorldSystem::restart_game(bool force_restart) {
 		createRound();
 		checkRound();
 	} else {
-		json_loader.get_save_file();
-		gameLevel = loadedLevel;
-		renderer->gameLevel = gameLevel;
-		update_healthBars();
 		loaded_game = false;
 	}
 

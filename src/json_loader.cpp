@@ -79,7 +79,6 @@ std::ifstream get_file(string file_name){
 // Load the level from the given json
 void load_level(json j){
     printf("Loading\n");
-    int tempRoundSize = 10;
     Entity tempRound[10];
     if(!j["roundSize"].is_null()){
         printf("Loading round size\n");
@@ -391,13 +390,17 @@ void JSONLoader::get_level(string file_name){
 	else {printf("File not found\n");}
 }
 
-void JSONLoader::get_save_file(){
+bool JSONLoader::get_save_file(){
     std::ifstream jsonFile("./save_file.json");
     if (jsonFile.is_open()){
         printf("Found the save file\n");
         json j = json::parse(jsonFile);
         std::cout << j << std::endl;
         load_level(j);
+        return true;
 	}
-	else {printf("File not found\n");}
+	else {
+        printf("File not found\n");
+        return false;
+    }
 }
