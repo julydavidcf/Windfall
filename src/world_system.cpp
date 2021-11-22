@@ -1406,10 +1406,12 @@ void WorldSystem::handle_collisions() {
 		// handle collisions with background objects
 		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other)) {
 			auto& backgroundObj = registry.deformableEntities.get(entity);
-			backgroundObj.shouldDeform = true;
-			if (registry.reflects.has(entity)) {
-				backgroundObj.deformType2 = true;
+			if (!registry.reflects.has(entity)) {
+				backgroundObj.shouldDeform = true;
 			}
+			/*if (registry.reflects.has(entity)) {
+				backgroundObj.deformType2 = true;
+			}*/
 			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
 			if (!registry.reflects.has(entity)) {
 				registry.remove_all_components_of(entity_other);
@@ -1449,10 +1451,11 @@ void WorldSystem::handle_collisions() {
 					reflectEM->angle = reflectE;
 					printf("calculated %f\n", reflectE);
 					printf("actual %f\n", reflectEM->angle);
+
+					 auto& shieldMesh = registry.deformableEntities.get(entity_other);
+					shieldMesh.shouldDeform = true;
+					shieldMesh.deformType2 = true;
 				}
-				// auto& shieldMesh = registry.deformableEntities.get(entity_other);
-				// shieldMesh.shouldDeform = true;
-				// shieldMesh.deformType2 = true;
 			}
 		}
 	}
