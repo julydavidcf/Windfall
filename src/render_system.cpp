@@ -695,7 +695,7 @@ void RenderSystem::draw(float elapsed_ms)
 									currTexture = TEXTURE_ASSET_ID::NECRO_TWO_DEATH;
 									currGeometry = GEOMETRY_BUFFER_ID::NECRO_TWO_DEATH;
 									// Use first three frames of death anim for particle beam ult
-									numFrames = 3; frame_width = NECRO_TWO_DEATH_FRAME_WIDTH; timePerFrame = NECRO_TWO_DEATH_FRAME_TIME; break;
+									numFrames = 3; frame_width = NECRO_TWO_DEATH_FRAME_WIDTH; timePerFrame = 550; break;
 								}
 								default: {
 									if (currGeometry != GEOMETRY_BUFFER_ID::NECRO_TWO_CASTING) {
