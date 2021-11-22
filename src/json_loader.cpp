@@ -136,6 +136,26 @@ void load_level(json j){
                                                                         entity["position"]["y"]));
                 create_entity = necromancer_phase_one;
                 }
+            // Necromancer2
+            else if(entity["skill"] == "Necromancer2"){
+                printf("Loading the phase 2 necromancer\n");
+                necromancer_phase_two = createNecromancerPhaseTwo(renderer_load, vec2(entity["position"]["x"], 
+                                                                        entity["position"]["y"]));
+                create_entity = necromancer_phase_two;
+                if(registry.enemies.has(create_entity)){
+                    printf("is an enemy\n");
+                }if(registry.motions.has(create_entity)){
+                    printf("has motion\n");
+                }
+                }
+            
+            // Minion
+            else if(entity["skill"] == "Minion"){
+                printf("Loading the necromancer minion\n");
+                necromancer_minion = createNecromancerMinion(renderer_load, vec2(entity["position"]["x"], 
+                                                                        entity["position"]["y"]));
+                create_entity = necromancer_minion;
+                }
 
             else {
                 printf("Given enemy does not exist\n");
@@ -219,6 +239,11 @@ void load_level(json j){
                 printf("Emplacing entity in death timer\n");
                 DeathTimer& dt = registry.deathTimers.emplace(create_entity);
                 dt.counter_ms = component["time"];
+            } else if(component["type"] == "bleed"){
+                printf("Emplacing entity in bleed\n");
+                Bleed& bleed = registry.bleeds.emplace(create_entity);
+                bleed.duration = component["turn"];
+                createBleedIndicator(renderer_load, create_entity);
             }
         }
         // ---------------------------- STATUS ----------------------------
@@ -233,8 +258,14 @@ void load_level(json j){
             } else if(entity["status"] == "Round"){
                  std::cout << "In round: "<< entity["round_num"] << std::endl;
                 tempRound[entity["round_num"]] = create_entity;
-            }
+            } 
         }
+        if(!entity["round_status"].is_null()){
+            std::cout << "In round: "<< entity["round_nums"] << std::endl;
+            for(int round: entity["round_nums"]){
+                tempRound[round] = create_entity;
+            }
+        } 
         printf("Loaded the entity\n");
     }
 
@@ -276,7 +307,7 @@ json get_entity(Entity entity){
         comp_num++;
 
     } else if(entity == enemy_swordsman){
-        printf("Saving enemt swordsman");
+        printf("Saving enemy swordsman");
         j["type"] = "Enemy";
         j["skill"] = "Swordsman";
         j["components"][comp_num]["type"] = "colors";
@@ -284,6 +315,18 @@ json get_entity(Entity entity){
         j["components"][comp_num]["vec"]["y"] = 1;
         j["components"][comp_num]["vec"]["z"] = 1;
         comp_num++;
+    } else if(entity == necromancer_phase_one){
+        printf("Saving enemy necromancer phase 1");
+        j["type"] = "Enemy";
+        j["skill"] = "Necromancer1";
+    } else if(entity == necromancer_phase_two){
+        printf("Saving enemy necromancer phase 2");
+        j["type"] = "Enemy";
+        j["skill"] = "Necromancer2";
+    } else if(entity == necromancer_minion){
+        printf("Saving the necromancer minion");
+        j["type"] = "Enemy";
+        j["skill"] = "Minion";
     } 
     if(registry.motions.has(entity)){
         Motion motion = registry.motions.get(entity);
@@ -315,17 +358,36 @@ json get_entity(Entity entity){
          j["components"][comp_num]["time"] = dt.counter_ms;
          comp_num++;
     } 
+    if (registry.bleeds.has(entity)){
+        Bleed bleed = registry.bleeds.get(entity);
+        j["components"][comp_num]["type"] = "bleed";
+        j["components"][comp_num]["turn"] = bleed.duration;
+        comp_num++;
+    } 
     if(entity == currPlayer){
         j["status"] = "Current";
     } 
     else if(entity == prevPlayer){
         j["status"] = "Previous";
     } 
+    if(entity == necromancer_phase_two){
 
+    }
     int round_val = get_round(entity);
     if(round_val > (-1)){
-        j["status"] = "Round";
-        j["round_num"] = round_val;
+        if(entity == necromancer_phase_two){
+            j["round_status"] = "Round";
+            int ind = 0;
+            for(int i = 0; i<roundVec.size(); i++){
+                if(entity == roundVec[i]){
+                    j["round_nums"][ind] = i;
+                    ind++;
+                }
+            }
+        } else {
+            j["status"] = "Round";
+            j["round_num"] = round_val;
+        }
     }
     return j;
 }
@@ -346,6 +408,7 @@ void JSONLoader::save_game(){
         j["entities"][entity] = get_entity(enemy);
         entity++;
     }
+
     j["entities"][entity]["type"] = "Icon";
     j["entities"][entity]["skill"] = "Taunt";
     j["entities"][entity]["position"]["x"] = 300;
