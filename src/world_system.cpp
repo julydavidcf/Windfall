@@ -986,6 +986,8 @@ void WorldSystem::restart_game(bool force_restart) {
 	json_loader.init(renderer);
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
+
+
 		gameLevel++;
 		renderer->transitioningToNextLevel = true;
 		renderer->gameLevel = gameLevel;
