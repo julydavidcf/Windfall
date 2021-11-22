@@ -578,13 +578,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (story == 8) {
 		int w, h;
 		glfwGetFramebufferSize(window, &w, &h);
-		dialogue = createDiaogue(renderer, { w / 2, h - h/3 }, 6);
+		dialogue = createDiaogue(renderer, { w / 2, h- h/3 }, 6);
 		canStep = 0;
 		story = 9;
 		} else if (story == 15) {
 		int w, h;
 		glfwGetFramebufferSize(window, &w, &h);
-		dialogue = createDiaogue(renderer, { w / 2, h - h/3 }, 12);
+		dialogue = createDiaogue(renderer, { w / 2, h - h/3}, 12);
+		canStep = 0;
 		story = 16;
 		}
 		//restart_game();
