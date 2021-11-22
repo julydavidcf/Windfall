@@ -1361,9 +1361,9 @@ void BTIfShieldTurn::init(Entity e) {
 
 BTState BTIfShieldTurn::process(Entity e) {
 	printf("Checking if it is shield turn ... \n");	// print statement to visualize
-	for (int i = 0; i < registry.companions.components.size(); i++) {
-		Entity toGet = registry.companions.entities[i];
-		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using shield
+	for (int i = 0; i < registry.enemies.components.size(); i++) {
+		Entity toGet = registry.enemies.entities[i];
+		if (registry.enemies.get(toGet).enemyType == NECROMANCER_TWO) {	// only necromancer two using shield
 			target = toGet;
 		}
 	}
@@ -1387,9 +1387,9 @@ void BTIfNotShieldTurn::init(Entity e) {
 
 BTState BTIfNotShieldTurn::process(Entity e) {
 	printf("Checking if it is not shield turn ... \n");	// print statement to visualize
-	for (int i = 0; i < registry.companions.components.size(); i++) {
-		Entity toGet = registry.companions.entities[i];
-		if (registry.companions.get(toGet).companionType == NECROMANCER_TWO) {	// only necromancer two using shield
+	for (int i = 0; i < registry.enemies.components.size(); i++) {
+		Entity toGet = registry.enemies.entities[i];
+		if (registry.enemies.get(toGet).enemyType == NECROMANCER_TWO) {	// only necromancer two using shield
 			target = toGet;
 		}
 	}
