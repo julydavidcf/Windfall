@@ -581,23 +581,25 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		dialogue = createDiaogue(renderer, { w / 2, h- h/3 }, 6);
 		canStep = 0;
 		story = 9;
-		} else if (story == 15) {
-		int w, h;
-		glfwGetFramebufferSize(window, &w, &h);
-		dialogue = createDiaogue(renderer, { w / 2, h - h/3}, 12);
-		canStep = 0;
-		story = 16;
-		} 
-		//restart_game();
-	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() <= 0)){
-		if (story == 20) {
+		}
+		else if (story == 15) {
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 12);
+			canStep = 0;
+			story = 16;
+		}
+		else if (story == 20) {
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
 			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 17);
 			canStep = 0;
 			story = 21;
 		}
-		else if (story == 28) {
+
+		//restart_game();
+	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() <= 0)){
+		if (story == 28) {
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
 			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 24);
@@ -1665,10 +1667,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// START A NEW GAME
-			loadedLevel = 0;
-			loaded_game = false;
-			restart_game(false);
-			canStep = 1;
+			// Direct to background story telling first
+			int w, h;
+			glfwGetWindowSize(window, &w, &h);
+			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
+			dialogue = createDiaogue(renderer, { w / 2, 650 }, 1);
+			story = 1;
 		}
 		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			loaded_game = true;
