@@ -1253,10 +1253,9 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		sk->luanchNecroCompanionTeamBleed(renderer);
 	}
 
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-	//	sk->luanchEnemyTeamDamage(30, renderer);
-	//	update_healthBars();
-	//}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		sk->launchSpike(player_mage, renderer);
+	}
 
 	// Debugging
 	if (key == GLFW_KEY_D) {

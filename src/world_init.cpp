@@ -688,6 +688,40 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	return entity;
 }
 
+// create cpike
+Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f,90 };
+	motion.acceleration = { 0.f,1000 };
+	motion.position = position;
+	motion.scale = vec2({ SPIKE_WIDTH, SPIKE_HEIGHT });
+
+	auto& proj = registry.projectiles.emplace(entity);
+	proj.enableCameraTracking = 0;
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = spike_dmg;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::SPIKE,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 //https://pngtree.com/freepng/lightning-design-lightning-effect-natural-phenomenon-lightning-source_3916935.html
 // create lightning
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly)

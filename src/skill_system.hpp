@@ -55,6 +55,7 @@ public:
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchRock(Entity target, RenderSystem* renderer);
+	Entity launchSpike(Entity target, RenderSystem* renderer);
 	Entity launchLightning(Entity target, RenderSystem* renderer);
 	void launchTaunt(Entity target, RenderSystem* renderer);
 	void launchBleed(Entity target, RenderSystem* renderer);

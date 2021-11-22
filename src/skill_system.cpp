@@ -452,6 +452,18 @@ Entity SkillSystem::launchRock(Entity target, RenderSystem* renderer) {
 	return  resultEntity;
 }
 
+Entity SkillSystem::launchSpike(Entity target, RenderSystem* renderer) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		isFriendly = 0;
+	}
+	Entity resultEntity = createSpike(renderer, { targetp.x, targetp.y - 500 }, isFriendly);
+	Projectile* proj = &registry.projectiles.get(resultEntity);
+	proj->flyingTimer = 2000.f;
+	return  resultEntity;
+}
+
 Entity SkillSystem::launchLightning(Entity target, RenderSystem* renderer) {
 	int isFriendly = 1;
 	vec2 targetp = registry.motions.get(target).position;

@@ -50,6 +50,7 @@ class RenderSystem {
 			textures_path("charArrow.png"),
 			textures_path("dot.png"),
 			textures_path("bleed.png"),
+			textures_path("spike.png"),
 
 
 			textures_path("iceShard.png"),
