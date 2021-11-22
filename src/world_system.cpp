@@ -1048,35 +1048,6 @@ void WorldSystem::restart_game(bool force_restart) {
 		loaded_game = false;
 	}
 
-	// Create a player mage
-	
-	// Create a player swordsman
-	// player_swordsman = createPlayerSwordsman(renderer, { 275, 500 });
-	// Create an enemy mage
-	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
-	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
-
-	
-	
-	//// Create an enemy mage
-	// enemy_mage = createEnemyMage(renderer, { 1050, 575 });
-	// registry.colors.insert(enemy_mage, { 0.0, 0.0, 1.f });
-
-	// Create the first tutorial box
-	//tutorial_enabled = 1;
-	//curr_tutorial_box = createTutorialBox(renderer, { 600, 300 }, 0);
-
-	// necromancer_phase_one = createNecromancerPhaseOne(renderer, { 1000, 550 });
-	// registry.colors.insert(necromancer_phase_two, { 0.5, 0.5, 0.5 });
-
-	/*
-	JSONLoader jsonloader;
-	if (gameLevel > 1) {
-		jsonloader.get_level("level_2.json");
-	}
-	*/
-
-
 	//Create a tooltip
 	tooltip;
 	player_turn = 1;	// player turn indicator
@@ -1491,7 +1462,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep) {
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// START A NEW GAME
-			loadedLevel = 3;
+			loadedLevel = 1;
 			loaded_game = false;
 			restart_game(false);
 			canStep = 1;
@@ -1501,8 +1472,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			loadedLevel = -1;
 			restart_game(false);
 			canStep = 1;
-			// LOAD THE SAVED JSON FILE (IF ANY)
-			// Todo: implement
 		}
 		else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// EXIT TO DESKTOP
