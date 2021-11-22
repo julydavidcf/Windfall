@@ -51,6 +51,10 @@ class RenderSystem {
 			textures_path("charArrow.png"),
 			textures_path("dot.png"),
 			textures_path("particleBeamCharge.png"),
+			textures_path("bleed.png"),
+			textures_path("spike.png"),
+
+
 			textures_path("iceShard.png"),
 			textures_path("iceShardIcon.png"),
 			textures_path("iceShardIconSelected.png"),
@@ -183,8 +187,8 @@ class RenderSystem {
 
 	float NECRO_TWO_APPEAR_FRAME_TIME = 250;
 	float NECRO_TWO_IDLE_FRAME_TIME = 200;
-	float NECRO_TWO_MELEE_FRAME_TIME = 200;
-	float NECRO_TWO_CASTING_FRAME_TIME = 200;
+	float NECRO_TWO_MELEE_FRAME_TIME = 100;
+	float NECRO_TWO_CASTING_FRAME_TIME = 150;
 	float NECRO_TWO_DEATH_FRAME_TIME = 250;
 
 	float NECRO_MINION_APPEAR_FRAME_TIME = 220;

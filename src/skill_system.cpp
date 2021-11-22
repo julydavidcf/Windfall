@@ -233,7 +233,7 @@ void SkillSystem::startLightningAttack(Entity origin, Entity target) {
 	}
 }
 
-void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
+void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE) {
 	printf("Started the melee attack\n");
 	if (registry.enemies.has(origin)) {
 		Enemy& enemy = registry.enemies.get(origin);
@@ -266,6 +266,11 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 		float time = (enemy_motion.position.x - rt.target_position.x) / speed;
 		rt.counter_ms = time * 1000;
 
+		if (enemy.enemyType == NECROMANCER_TWO) {
+			rt.bleedOrAOE = bleedOrAOE;
+			rt.counter_ms = 500.f;
+		}
+
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 
@@ -275,7 +280,9 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target) {
 			else if (enemy.enemyType == NECROMANCER_MINION) {
 				timer.counter_ms = rt.counter_ms + 800.f + animation_timer;
 			}
-
+			else if (enemy.enemyType == NECROMANCER_TWO) {
+				timer.counter_ms = rt.counter_ms + 1500.f + animation_timer;
+			}
 
 		}
 
@@ -436,6 +443,22 @@ void SkillSystem::startParticleBeamCharge(Entity origin, Entity target) {
 	}
 }
 
+
+void SkillSystem::startShieldAttack(Entity origin) {
+	if (registry.enemies.has(origin)) {
+		Enemy& enemy = registry.enemies.get(origin);
+		enemy.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = SHIELD;
+		attack.counter_ms = 1000.f;
+
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + animation_timer;
+		}
+	}
+}
+
 Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
 	float proj_x = startPos.x + 50;
@@ -484,7 +507,13 @@ void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* rendere
 	//update_healthBars();
 }
 
-void SkillSystem::luanchCompanionTeamHeal(float amount, RenderSystem* renderer) {
+void SkillSystem::launchNecroBarrier(Entity target, RenderSystem* renderer) {
+	vec2 targetp = registry.motions.get(target).position;
+	createBarrier(renderer, { targetp.x - 300 , targetp.y });
+
+}
+
+void SkillSystem::luanchCompanionTeamHeal( float amount, RenderSystem* renderer) {
 	for (Entity cp : registry.companions.entities) {
 		vec2 targetp = registry.motions.get(cp).position;
 		createGreenCross(renderer, targetp);
@@ -503,15 +532,21 @@ void SkillSystem::luanchCompanionTeamHeal(float amount, RenderSystem* renderer) 
 }
 
 void SkillSystem::luanchEnemyTeamDamage(float amount, RenderSystem* renderer) {
-	for (Entity cp : registry.enemies.entities) {
-		vec2 targetp = registry.motions.get(cp).position;
-		Entity resultEntity = createMeteorShower(renderer, { targetp.x + 300, targetp.y - 500 }, 0);
-		if (registry.stats.has(cp)) {
-			Statistics* tStats = &registry.stats.get(cp);
-			tStats->health -= amount;
+	for (Entity em : registry.enemies.entities) {
+		vec2 targetp = registry.motions.get(em).position;
+		createGreenCross(renderer, targetp);
+		if (registry.stats.has(em)) {
+			Statistics* tStats = &registry.stats.get(em);
+				tStats->health -= amount;
 		}
 	}
 
+}
+
+void SkillSystem::luanchNecroCompanionTeamBleed(RenderSystem* renderer) {
+	for (Entity cp : registry.companions.entities) {
+		launchBleed(cp, renderer);
+	}
 }
 
 Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
@@ -550,6 +585,18 @@ Entity SkillSystem::launchRock(Entity target, RenderSystem* renderer) {
 	return  resultEntity;
 }
 
+Entity SkillSystem::launchSpike(Entity target, RenderSystem* renderer) {
+	int isFriendly = 1;
+	vec2 targetp = registry.motions.get(target).position;
+	if (registry.companions.has(target)) {
+		isFriendly = 0;
+	}
+	Entity resultEntity = createSpike(renderer, { targetp.x, targetp.y - 500 }, isFriendly);
+	Projectile* proj = &registry.projectiles.get(resultEntity);
+	proj->flyingTimer = 2000.f;
+	return  resultEntity;
+}
+
 Entity SkillSystem::launchLightning(Entity target, RenderSystem* renderer) {
 	int isFriendly = 1;
 	vec2 targetp = registry.motions.get(target).position;
@@ -577,6 +624,21 @@ void SkillSystem::launchTaunt(Entity target, RenderSystem* renderer) {
 	}
 }
 
+void SkillSystem::launchBleed(Entity target, RenderSystem* renderer) {
+	if (!registry.bleeds.has(target)) {
+		registry.bleeds.emplace(target);
+		Bleed* t = &registry.bleeds.get(target);
+		t->duration = 3;	// making it 4 so that it last one more turn when checkRound decrements it on the next turn
+		createBleedIndicator(renderer, target);
+		printf("bleed!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
+	else {
+		Bleed* t = &registry.bleeds.get(target);
+		t->duration = 3;	// making it 4 so that it last one more turn when checkRound decrements it on the next turn
+		printf("bleed extended!\n");
+	}
+}
+
 void SkillSystem::removeTaunt(Entity target) {
 	if (registry.taunts.has(target)) {
 		registry.taunts.remove(target);
@@ -589,6 +651,18 @@ void SkillSystem::removeTaunt(Entity target) {
 	}
 }
 
+void SkillSystem::removeBleed(Entity target) {
+	if (registry.bleeds.has(target)) {
+		registry.bleeds.remove(target);
+		for (int j = 0; j < registry.bleedIndicators.components.size(); j++) {
+			if (registry.bleedIndicators.components[j].owner == target) {
+				registry.remove_all_components_of(registry.bleedIndicators.entities[j]);
+			}
+		}
+		printf("bleed removed!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}
+}
+
 void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
 	printf("creating a melee skill\n");
 	Motion enemy = registry.motions.get(target);
@@ -597,6 +671,18 @@ void SkillSystem::launchMelee(Entity target, RenderSystem* renderer) {
 	}
 	else {
 		Entity resultEntity = createMelee(renderer, { enemy.position.x, enemy.position.y }, 1);
+	}
+}
+
+
+void SkillSystem::launchBleedDMG(Entity target, RenderSystem* renderer) {
+	printf("creating a bleed skill\n");
+	Motion enemy = registry.motions.get(target);
+	if (registry.companions.has(target)) {
+		Entity resultEntity = createBleedDMG(renderer, { enemy.position.x, enemy.position.y }, 0);
+	}
+	else {
+		Entity resultEntity = createBleedDMG(renderer, { enemy.position.x, enemy.position.y }, 1);
 	}
 }
 

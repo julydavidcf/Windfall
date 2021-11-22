@@ -37,7 +37,10 @@ enum AttackType {
 	LIGHTNING	= 9,
 	SUMMON		= 10,
 	ULTI	= 11,
-	CHARGING	= 12
+	CHARGING	= 12,
+	AOEMELEE = 13,
+	BLEEDMELEE = 14,
+	SHIELD = 15,
 };
 
 enum ButtonType {
@@ -80,6 +83,10 @@ struct CharIndicator
 	Entity owner;
 };
 
+struct BleedIndicator
+{
+	Entity owner;
+};
 // Currently attacking
 struct Attack
 {
@@ -95,6 +102,7 @@ struct RunTowards
 	Entity target;
 	vec2 target_position;
 	vec2 old_pos;
+	int bleedOrAOE = -1;
 };
 
 struct Companion
@@ -143,6 +151,11 @@ struct Taunt
 {
 	int duration = 3;
 };
+struct Bleed
+{
+	int duration = 3;
+};
+
 
 struct Ultimate
 {
@@ -384,8 +397,10 @@ enum class TEXTURE_ASSET_ID {
 	CHARARROW = METEOR + 1,
 	DOT = CHARARROW +1,
 	PARTICLEBEAMCHARGE = DOT + 1,
+	BLEED = PARTICLEBEAMCHARGE +1 ,
+	SPIKE = BLEED +1,
 
-	ICESHARD = PARTICLEBEAMCHARGE + 1,
+	ICESHARD = SPIKE + 1,
 	ICESHARDICON = ICESHARD +1,
 	ICESHARDICONSELECTED = ICESHARDICON+1,
 	ICESHARDICONDISABLED = ICESHARDICONSELECTED + 1,
