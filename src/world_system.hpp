@@ -137,6 +137,10 @@ private:
 	SkillSystem* sk;
 
 	float current_speed;
+	Entity player_mage;
+	Entity enemy_mage;
+	Entity player_swordsman;
+	Entity enemy_swordsman;
 
 	Entity fireball;
 	Entity silence_icon;
