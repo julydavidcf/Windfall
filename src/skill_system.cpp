@@ -455,6 +455,9 @@ Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 
 void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* renderer) {
 	vec2 targetp = registry.motions.get(target).position;
+	if ((gameLevel == 0) && registry.enemies.has(target)){
+		amount = 0.5;
+	}
 	createGreenCross(renderer, targetp);
 	if (registry.stats.has(target)) {
 		Statistics* tStats = &registry.stats.get(target);

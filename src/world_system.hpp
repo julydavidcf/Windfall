@@ -74,7 +74,6 @@ public:
 	// IMPORTANT: Determines if systems can call step()
 	int canStep = 0;
 	int closeWindow = 0;
-	int story = 0;
 
 private:
 	// Input callback functions

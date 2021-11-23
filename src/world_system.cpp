@@ -81,6 +81,8 @@ Entity selectedButton;
 //current projectile
 Entity currentProjectile;
 
+int story = 0;
+
 WorldSystem::WorldSystem()
 	: points(0) {
 	// Seeding rng with random device
@@ -580,14 +582,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		} else if (story == 8 && gameLevel == 1) {
 		int w, h;
 		glfwGetFramebufferSize(window, &w, &h);
-		dialogue = createDiaogue(renderer, { w / 2, h- h/3 }, 6);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, window_height_px-window_height_px/3 }, 6);
 		canStep = 0;
 		story = 9;
 		}
 		else if (story == 15 && gameLevel == 2) {
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 12);
+			dialogue = createDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px/ 3 }, 12);
 			canStep = 0;
 			story = 16;
 		}
@@ -598,24 +600,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (story == 20) {
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 17);
+			dialogue = createDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px/ 3 }, 17);
 			canStep = 0;
 			story = 21;
 		}
 		else if (story == 28) {
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 24);
+			dialogue = createDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px/ 3 }, 24);
 			canStep = 0;
 			story = 29;
 		}
-		//roundVec.clear();	// empty vector roundVec to create a new round
-		//createBackgroundObject(renderer, { 1160, 315 });
-		//auto ent = createBackgroundObject(renderer, { 550, 325 });
-		//registry.deformableEntities.get(ent).deformType2 = true;
-		//necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-		//createRound();
-		//checkRound();
 	} else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0))){
 		restart_game();
 	}
@@ -1690,8 +1685,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			// Direct to background story telling first
 			int w, h;
 			glfwGetWindowSize(window, &w, &h);
-			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
-			dialogue = createDiaogue(renderer, { w / 2, 650 }, 1);
+			backgroundImage = createStoryBackground(renderer, { window_width_px / 2, window_height_px / 2 }, 1);
+			dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 1);
 			story = 1;
 			canStep = 0;
 		}
@@ -1711,9 +1706,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(backgroundImage);
-		backgroundImage = createStoryBackground(renderer, { w / 2 ,h / 2 }, 2);
+		backgroundImage = createStoryBackground(renderer, { window_width_px / 2 , window_height_px / 2 }, 2);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, { w / 2, 650 }, 2);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 2);
 		story = 2;
 
 	}
@@ -1723,7 +1718,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, { w / 2, 650 }, 3);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 3);
 		story = 3;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3) {
@@ -1732,9 +1727,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(backgroundImage);
-		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 3);
+		backgroundImage = createStoryBackground(renderer, { window_width_px / 2, window_height_px / 2 }, 3);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, { w / 2, 650 }, 4);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 4);
 		story = 4;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4) {
@@ -1752,7 +1747,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-		dialogue = createDiaogue(renderer, { w / 2, 650 }, 5);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 5);
 		story = 6;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6) {
