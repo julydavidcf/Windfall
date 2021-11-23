@@ -933,11 +933,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						motion.position = attack.old_pos;
 						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
 						healthbar_motion.position.x = attack.old_pos.x;
-						if (registry.motions.has(player_mage)) {
-							sk->launchMelee(player_mage, renderer);
-						}
-						if (registry.motions.has(player_swordsman)) {
-							sk->launchMelee(player_swordsman, renderer);
+
+						for (Entity e : registry.companions.entities) {
+							sk->launchMelee(e, renderer);
 						}
 						break;
 					}
@@ -1833,7 +1831,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		createBackgroundObject(renderer, { 1160, 315 });
 		auto ent = createBackgroundObject(renderer, { 550, 325 });
 		registry.deformableEntities.get(ent).deformType2 = true;
-		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
+		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 350 });
 		createRound();
 		checkRound();
 

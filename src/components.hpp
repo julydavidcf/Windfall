@@ -55,6 +55,7 @@ enum ButtonType {
 
 struct UIButton {
 	int button_type = 0;
+	int isDialogue = 0;
 };
 
 struct BackgroundObj

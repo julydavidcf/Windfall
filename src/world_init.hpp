@@ -5,14 +5,14 @@
 #include "render_system.hpp"
 
 // These are ahrd coded to the dimensions of the entity texture
-const float MAGE_WIDTH = 250.f;
-const float MAGE_HEIGHT = 200.f;
-const float SWORDSMAN_WIDTH = 310.f;
-const float SWORDSMAN_HEIGHT = 350.f;
-const float NECRO_ONE_WIDTH = 220.f;
-const float NECRO_ONE_HEIGHT = 250.f;
-const float NECRO_TWO_WIDTH = 300.f;
-const float NECRO_TWO_HEIGHT = 400.f;
+const float MAGE_WIDTH = 175.f;
+const float MAGE_HEIGHT = 190.f;
+const float SWORDSMAN_WIDTH = 250.f;
+const float SWORDSMAN_HEIGHT = 290.f;
+const float NECRO_ONE_WIDTH = 240.f;
+const float NECRO_ONE_HEIGHT = 270.f;
+const float NECRO_TWO_WIDTH = 350.f;
+const float NECRO_TWO_HEIGHT = 500.f;
 const float NECRO_MINION_WIDTH = 90.f;
 const float NECRO_MINION_HEIGHT = 110.f;
 
@@ -41,7 +41,7 @@ const float ENEMYTURN_WIDTH = 300.f;
 const float ENEMYTURN_HEIGHT = 100.f;
 
 const float BACKGROUND_WIDTH = 1800.f;
-const float BACKGROUND_HEIGHT = 1080.f;
+const float BACKGROUND_HEIGHT = 1200.f;
 
 const float DIALOGUE_WIDTH = 1200.f;
 const float DIALOGUE_HEIGHT = 200.f;
@@ -162,19 +162,20 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number);
 
 //Game Stats
 
-const int enemy_mage_hp = 90;
-const int enemy_swordsman_hp = 130;
+const int enemy_mage_hp = 1;
+const int enemy_swordsman_hp = 1;
 
 const int player_mage_hp = 60;
 const int player_swordsman_hp = 85;
-const int necro_minion_health = 30;
-const int necro_1_health = 200;
+const int necro_minion_health = 1;
+const int necro_1_health = 1;
 const int necro_2_health = 150;
+
 
 //skill dmg
 const int rock_dmg = 10;
 const int fireball_dmg = 30;
-const int iceshard_dmg = 500;
+const int iceshard_dmg = 20;
 const int melee_dmg = 15;
 const int bleed_dmg = 5;
 const int spike_dmg = 10;
