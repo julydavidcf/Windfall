@@ -1508,7 +1508,7 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 		// handle collisions with background objects
-		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other)) {
+		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other) && !registry.reflects.has(entity)) {
 			auto& backgroundObj = registry.deformableEntities.get(entity);
 			backgroundObj.shouldDeform = true;
 			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
@@ -1536,6 +1536,10 @@ void WorldSystem::handle_collisions() {
 				//printf("%f\n", registry.motions.get(entity).velocity.x);
 				if (registry.motions.get(entity).velocity.x > 0.f) {
 					//printf("colleds1");
+					auto& shieldMesh = registry.deformableEntities.get(entity_other);
+					shieldMesh.shouldDeform = true;
+					shieldMesh.deformType2 = true;
+
 					Motion* reflectEM = &registry.motions.get(entity);
 
 					reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
