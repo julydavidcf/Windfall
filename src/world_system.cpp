@@ -823,7 +823,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case HEAL: {
 						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
-						sk->launchHeal(attack.target, 50,renderer);
+						//heal_amount
+						sk->launchHeal(attack.target, 75,renderer);
 						update_healthBars();
 						//basiclly to have something hitting the boundary
 						currentProjectile = sk->launchFireball({ -20,-20 }, { 0,0 },renderer);

@@ -167,7 +167,7 @@ const int enemy_swordsman_hp = 130;
 
 const int player_mage_hp = 60;
 const int player_swordsman_hp = 85;
-const int necro_minion_health = 30;
+const int necro_minion_health = 15;
 const int necro_1_health = 200;
 const int necro_2_health = 150;
 
@@ -179,6 +179,6 @@ const int iceshard_dmg = 20;
 const int melee_dmg = 15;
 const int bleed_dmg = 5;
 const int spike_dmg = 10;
-const int lightning_dmg = 15;
+const int lightning_dmg = 25;
 
 
