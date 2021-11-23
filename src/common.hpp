@@ -75,3 +75,8 @@ extern Entity fireBall_icon;
 extern Entity taunt_icon;
 extern Entity heal_icon;
 extern Entity rock_icon;
+
+extern int window_width_px;
+extern int window_height_px;
+
+extern int story;

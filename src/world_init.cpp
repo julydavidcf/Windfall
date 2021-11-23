@@ -1255,7 +1255,8 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number)
 
 	TEXTURE_ASSET_ID dialogue = TEXTURE_ASSET_ID::GAME_TITLE;
 
-	registry.uiButtons.emplace(entity);
+	auto& ui = registry.uiButtons.emplace(entity);
+	ui.isDialogue = 1;
 
 	switch (number) {
 	case 1: dialogue = TEXTURE_ASSET_ID::BACKGROUNDONE; break;
