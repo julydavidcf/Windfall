@@ -21,14 +21,7 @@ SkillSystem::~SkillSystem() { }
 void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 	printf("Started the taunt attack\n");
 	if (registry.enemies.has(origin)) {
-		taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());
-		if (taunt_spell_sound != nullptr) {
-			Mix_Volume(5, 32);
-			Mix_PlayChannel(-1, taunt_spell_sound, 0);
-		}
-		else {
-			printf("soundEff failed loading");
-		}
+		Mix_PlayChannel(-1, registry.taunt_spell_sound, 0);
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
@@ -41,14 +34,8 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 		}
 	}
 	else if (registry.companions.has(origin)) {
-		taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());
-		if (taunt_spell_sound != nullptr) {
-			Mix_Volume(5, 32);
-			Mix_PlayChannel(-1, taunt_spell_sound, 0);
-		}
-		else {
-			printf("soundEff failed loading");
-		}
+		Mix_PlayChannel(-1, registry.taunt_spell_sound, 0);
+
 		Companion& companion = registry.companions.get(origin);
 		companion.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
@@ -57,7 +44,7 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 		attack.counter_ms = 1500.f;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -65,14 +52,7 @@ void SkillSystem::startTauntAttack(Entity origin, Entity target) {
 void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 	printf("Started the silence attack\n");
 	if (registry.enemies.has(origin)) {
-		silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());
-		if (silence_spell_sound != nullptr) {
-			Mix_Volume(5, 32);
-			Mix_PlayChannel(-1, silence_spell_sound, 0);
-		}
-		else {
-			printf("soundEff failed loading");
-		}
+		Mix_PlayChannel(-1, registry.silence_spell_sound, 0);
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
@@ -85,14 +65,7 @@ void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 		}
 	}
 	else if (registry.companions.has(origin)) {
-		silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());
-		if (silence_spell_sound != nullptr) {
-			Mix_Volume(5, 32);
-			Mix_PlayChannel(-1, silence_spell_sound, 0);
-		}
-		else {
-			printf("soundEff failed loading");
-		}
+		Mix_PlayChannel(-1, registry.silence_spell_sound, 0);
 		Companion& companion = registry.companions.get(origin);
 		companion.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
@@ -101,7 +74,7 @@ void SkillSystem::startSilenceAttack(Entity origin, Entity target) {
 		attack.counter_ms = 1500.f;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -129,7 +102,7 @@ void SkillSystem::startHealAttack(Entity origin, Entity target) {
 		attack.target = target;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -142,10 +115,10 @@ void SkillSystem::startIceShardAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ICESHARD;
 		attack.target = target;
-		attack.counter_ms += 50.f;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + animation_timer; // adjust this value to delay enemy attack
 		}
 	}
 	else if (registry.companions.has(origin)) {
@@ -154,9 +127,10 @@ void SkillSystem::startIceShardAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ICESHARD;
 		attack.old_pos = mousePos;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }
@@ -171,11 +145,11 @@ void SkillSystem::startFireballAttack(Entity origin) {
 		companion.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = FIREBALL;
-		attack.counter_ms += 30.f;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		attack.old_pos = mousePos;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }
@@ -188,9 +162,10 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ROCK;
 		attack.target = target;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + animation_timer; // adjust this value to delay enemy attack
 		}
 	}
 	else if (registry.companions.has(origin)) {
@@ -199,9 +174,10 @@ void SkillSystem::startRockAttack(Entity origin, Entity target) {
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = ROCK;
 		attack.target = target;
+		attack.counter_ms += 50.f;	// attack.counter_ms is 250, animation_timer is 500
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
 		}
 	}
 }
@@ -228,7 +204,7 @@ void SkillSystem::startLightningAttack(Entity origin, Entity target) {
 		attack.target = target;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -321,7 +297,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+			timer.counter_ms = rt.counter_ms + 1250.f + 1500;
 		}
 
 		//playerUseMelee = 1;
@@ -349,14 +325,7 @@ void SkillSystem::startSummonAttack(Entity origin) {
 void SkillSystem::startParticleBeamAttack(Entity origin, Entity target) {
 	printf("Started the ultimate particle beam attack\n");
 	if (registry.enemies.has(origin)) {
-		beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str());
-		if (beam_spell_sound != nullptr) {
-			Mix_Volume(5, 32);
-			Mix_PlayChannel(-1, beam_spell_sound, 0);
-		}
-		else {
-			printf("soundEff failed loading");
-		}
+		Mix_PlayChannel(-1, registry.beam_spell_sound, 0);
 
 		Motion motion = registry.motions.get(origin);
 		Enemy& enemy = registry.enemies.get(origin);
@@ -418,14 +387,7 @@ void SkillSystem::startParticleBeamAttack(Entity origin, Entity target) {
 void SkillSystem::startParticleBeamCharge(Entity origin, Entity target) {
 	printf("Started the particle beam charge\n");
 	if (registry.enemies.has(origin)) {
-		charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str());
-		if (charge_spell_sound != nullptr) {
-			Mix_Volume(5, 32);
-			Mix_PlayChannel(-1, charge_spell_sound, 0);
-		}
-		else {
-			printf("soundEff failed loading");
-		}
+		Mix_PlayChannel(-1, registry.charge_spell_sound, 0);
 
 		Enemy& enemy = registry.enemies.get(origin);
 		enemy.curr_anim_type = ATTACKING;
@@ -454,7 +416,7 @@ void SkillSystem::startShieldAttack(Entity origin) {
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = attack.counter_ms + animation_timer;
+			timer.counter_ms = attack.counter_ms + 1500;
 		}
 	}
 }
@@ -727,14 +689,8 @@ void SkillSystem::removeSilence(Entity target) {
 }
 
 void SkillSystem::launchSummon(RenderSystem* renderer) {
-	minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str());
-	if (minion_spawn_sound != nullptr) {
-		Mix_Volume(5, 32);
-		Mix_PlayChannel(-1, minion_spawn_sound, 0);
-	}
-	else {
-		printf("soundEff failed loading");
-	}
+	Mix_PlayChannel(-1, registry.minion_spawn_sound, 0);
+
 	printf("summoned\n");
 }
 

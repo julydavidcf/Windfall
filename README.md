@@ -45,6 +45,8 @@ The game is now a turn-based RPG, where the player can choose to use different a
 3. https://freesound.org/people/tonsil5/sounds/416838/
 4. Background music: Darkest Dungeon OST
 5. https://freesound.org/people/theuncertainman/sounds/402645/
+6. https://freesound.org/people/wobesound/sounds/488382/
+7. https://freesound.org/people/InspectorJ/sounds/416179/
 
 # Image references
 
@@ -57,4 +59,6 @@ The game is now a turn-based RPG, where the player can choose to use different a
 7. https://oco.itch.io/medieval-fantasy-character-pack-2
 8. https://www.pngwing.com/en/free-png-zxihk
 9. https://www.pikpng.com/pngvi/JhRJw_anime-angry-face-png-anime-angry-vein-png/
-10.https://dribbble.com/shots/4325775-Shard-of-ice
+10. https://dribbble.com/shots/4325775-Shard-of-ice
+11. https://www.istockphoto.com/illustrations/fantasy-battle
+12. https://www.artstation.com/artwork/Vd5444

@@ -18,7 +18,7 @@ const size_t TURTLE_DELAY_MS = 2000 * 3;
 const size_t FISH_DELAY_MS = 5000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
-const vec2 TURN_INDICATOR_LOCATION = { 600, 120 };
+const vec2 TURN_INDICATOR_LOCATION = { 600, 150 };
 const int NUM_DEATH_PARTICLES = 4000;
 vec2 CURRPLAYER_LOCATION = {};
 
@@ -81,6 +81,8 @@ Entity selectedButton;
 //current projectile
 Entity currentProjectile;
 
+int story = 0;
+
 WorldSystem::WorldSystem()
 	: points(0) {
 	// Seeding rng with random device
@@ -89,54 +91,54 @@ WorldSystem::WorldSystem()
 
 WorldSystem::~WorldSystem() {
 	// Destroy music components
-	if (background_music != nullptr)
-		Mix_FreeMusic(background_music);
-	if (salmon_dead_sound != nullptr)
-		Mix_FreeChunk(salmon_dead_sound);
-	if (salmon_eat_sound != nullptr)
-		Mix_FreeChunk(salmon_eat_sound);
-	if (hit_enemy_sound != nullptr)
-		Mix_FreeChunk(hit_enemy_sound);
-	if (fireball_explosion_sound != nullptr)
-		Mix_FreeChunk(fireball_explosion_sound);
-	if (death_enemy_sound != nullptr)
-		Mix_FreeChunk(death_enemy_sound);
-	if (fire_spell_sound != nullptr)
-		Mix_FreeChunk(fire_spell_sound);
-	if (rock_spell_sound != nullptr)
-		Mix_FreeChunk(rock_spell_sound);
-	if (heal_spell_sound != nullptr)
-		Mix_FreeChunk(heal_spell_sound);
-	if (taunt_spell_sound != nullptr)
-		Mix_FreeChunk(taunt_spell_sound);
-	if (melee_spell_sound != nullptr)
-		Mix_FreeChunk(melee_spell_sound);
-	if (silence_spell_sound != nullptr)
-		Mix_FreeChunk(silence_spell_sound);
-	if (lightning_spell_sound != nullptr)
-		Mix_FreeChunk(lightning_spell_sound);
-	if (ice_spell_sound != nullptr)
-		Mix_FreeChunk(ice_spell_sound);
-	if (summon_spell_sound != nullptr)
-		Mix_FreeChunk(summon_spell_sound);
-	if (button_hover_sound != nullptr)
-		Mix_FreeChunk(button_hover_sound);
-	if (turning_sound != nullptr)
-		Mix_FreeChunk(turning_sound);
-	if (charge_spell_sound != nullptr)
-		Mix_FreeChunk(charge_spell_sound);
-	if (beam_spell_sound != nullptr)
-		Mix_FreeChunk(beam_spell_sound);
-	if (minion_spawn_sound != nullptr)
-		Mix_FreeChunk(minion_spawn_sound);
-	if (error_sound != nullptr)
-		Mix_FreeChunk(error_sound);
-	if (gesture_heal_sound != nullptr)
-		Mix_FreeChunk(gesture_heal_sound);
-	if (gesture_aoe_sound != nullptr)
-		Mix_FreeChunk(gesture_aoe_sound);
-	if (gesture_turn_sound != nullptr)
-		Mix_FreeChunk(gesture_turn_sound);
+	if (registry.background_music != nullptr)
+		Mix_FreeMusic(registry.background_music);
+	if (registry.salmon_dead_sound != nullptr)
+		Mix_FreeChunk(registry.salmon_dead_sound);
+	if (registry.salmon_eat_sound != nullptr)
+		Mix_FreeChunk(registry.salmon_eat_sound);
+	if (registry.hit_enemy_sound != nullptr)
+		Mix_FreeChunk(registry.hit_enemy_sound);
+	if (registry.fireball_explosion_sound != nullptr)
+		Mix_FreeChunk(registry.fireball_explosion_sound);
+	if (registry.death_enemy_sound != nullptr)
+		Mix_FreeChunk(registry.death_enemy_sound);
+	if (registry.fire_spell_sound != nullptr)
+		Mix_FreeChunk(registry.fire_spell_sound);
+	if (registry.rock_spell_sound != nullptr)
+		Mix_FreeChunk(registry.rock_spell_sound);
+	if (registry.heal_spell_sound != nullptr)
+		Mix_FreeChunk(registry.heal_spell_sound);
+	if (registry.taunt_spell_sound != nullptr)
+		Mix_FreeChunk(registry.taunt_spell_sound);
+	if (registry.melee_spell_sound != nullptr)
+		Mix_FreeChunk(registry.melee_spell_sound);
+	if (registry.silence_spell_sound != nullptr)
+		Mix_FreeChunk(registry.silence_spell_sound);
+	if (registry.lightning_spell_sound != nullptr)
+		Mix_FreeChunk(registry.lightning_spell_sound);
+	if (registry.ice_spell_sound != nullptr)
+		Mix_FreeChunk(registry.ice_spell_sound);
+	if (registry.summon_spell_sound != nullptr)
+		Mix_FreeChunk(registry.summon_spell_sound);
+	if (registry.button_hover_sound != nullptr)
+		Mix_FreeChunk(registry.button_hover_sound);
+	if (registry.turning_sound != nullptr)
+		Mix_FreeChunk(registry.turning_sound);
+	if (registry.charge_spell_sound != nullptr)
+		Mix_FreeChunk(registry.charge_spell_sound);
+	if (registry.beam_spell_sound != nullptr)
+		Mix_FreeChunk(registry.beam_spell_sound);
+	if (registry.minion_spawn_sound != nullptr)
+		Mix_FreeChunk(registry.minion_spawn_sound);
+	if (registry.error_sound != nullptr)
+		Mix_FreeChunk(registry.error_sound);
+	if (registry.gesture_heal_sound != nullptr)
+		Mix_FreeChunk(registry.gesture_heal_sound);
+	if (registry.gesture_aoe_sound != nullptr)
+		Mix_FreeChunk(registry.gesture_aoe_sound);
+	if (registry.gesture_turn_sound != nullptr)
+		Mix_FreeChunk(registry.gesture_turn_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -219,56 +221,56 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	}
 
 	// TODO: Add different music and load sound effects later
-	background_music = Mix_LoadMUS(audio_path("combatMusic.wav").c_str());
-	salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
-	salmon_eat_sound = Mix_LoadWAV(audio_path("salmon_eat.wav").c_str());
-	hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
-	fireball_explosion_sound = Mix_LoadWAV(audio_path("fireball_explosion_short.wav").c_str());
-	death_enemy_sound = Mix_LoadWAV(audio_path("death_enemy.wav").c_str());
-	fire_spell_sound = Mix_LoadWAV(audio_path("fireball_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
-	rock_spell_sound = Mix_LoadWAV(audio_path("rock_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
-	heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
-	taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
-	melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
-	silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	//https://freesound.org/people/Vicces1212/sounds/123757/
-	lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
-	ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
-	summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
-	button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str()); //https://freesound.org/people/wobesound/sounds/488382/
-	turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());//https://freesound.org/people/InspectorJ/sounds/416179/
-	charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str()); //https://freesound.org/people/18hiltc/sounds/186048/
-	beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str()); //https://freesound.org/people/MATRIXXX_/sounds/403297/
-	minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str()); //https://freesound.org/people/Breviceps/sounds/453391/
-	error_sound = Mix_LoadWAV(audio_path("error.wav").c_str()); //https://freesound.org/people/plasterbrain/sounds/423169/
-	gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str()); //https://freesound.org/people/SilverIllusionist/sounds/580814/
-	gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str()); //https://freesound.org/people/humanoide9000/sounds/329029/
-	gesture_turn_sound = Mix_LoadWAV(audio_path("gesture_turn.wav").c_str()); //https://freesound.org/people/Aleks41/sounds/406063/
+	registry.background_music = Mix_LoadMUS(audio_path("combatMusic.wav").c_str());
+	registry.salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
+	registry.salmon_eat_sound = Mix_LoadWAV(audio_path("salmon_eat.wav").c_str());
+	registry.hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
+	registry.fireball_explosion_sound = Mix_LoadWAV(audio_path("fireball_explosion_short.wav").c_str());
+	registry.death_enemy_sound = Mix_LoadWAV(audio_path("death_enemy.wav").c_str());
+	registry.fire_spell_sound = Mix_LoadWAV(audio_path("fireball_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	registry.rock_spell_sound = Mix_LoadWAV(audio_path("rock_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	registry.heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	registry.taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	registry.melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str()); //https://mixkit.co/free-sound-effects/spell/
+	registry.silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	//https://freesound.org/people/Vicces1212/sounds/123757/
+	registry.lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); //https://freesound.org/people/Puerta118m/sounds/471691/
+	registry.ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str()); //https://freesound.org/people/EminYILDIRIM/sounds/550267/
+	registry.summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str()); //https://freesound.org/people/alonsotm/sounds/396500/
+	registry.button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str()); //https://freesound.org/people/wobesound/sounds/488382/
+	registry.turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());//https://freesound.org/people/InspectorJ/sounds/416179/
+	registry.charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str()); //https://freesound.org/people/18hiltc/sounds/186048/
+	registry.beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str()); //https://freesound.org/people/MATRIXXX_/sounds/403297/
+	registry.minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str()); //https://freesound.org/people/Breviceps/sounds/453391/
+	registry.error_sound = Mix_LoadWAV(audio_path("error.wav").c_str()); //https://freesound.org/people/plasterbrain/sounds/423169/
+	registry.gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str()); //https://freesound.org/people/SilverIllusionist/sounds/580814/
+	registry.gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str()); //https://freesound.org/people/humanoide9000/sounds/329029/
+	registry.gesture_turn_sound = Mix_LoadWAV(audio_path("gesture_turn.wav").c_str()); //https://freesound.org/people/Aleks41/sounds/406063/
 
-	if (background_music == nullptr
-		|| salmon_dead_sound == nullptr
-		|| salmon_eat_sound == nullptr
-		|| hit_enemy_sound == nullptr
-		|| fireball_explosion_sound == nullptr
-		|| death_enemy_sound == nullptr
-		|| fire_spell_sound == nullptr
-		|| rock_spell_sound == nullptr
-		|| heal_spell_sound == nullptr
-		|| taunt_spell_sound == nullptr
-		|| melee_spell_sound == nullptr
-		|| silence_spell_sound == nullptr
-		|| lightning_spell_sound == nullptr
-		|| ice_spell_sound == nullptr
-		|| summon_spell_sound == nullptr
-		|| button_hover_sound == nullptr
-		|| turning_sound == nullptr
-		|| summon_spell_sound == nullptr
-		|| charge_spell_sound == nullptr
-		|| beam_spell_sound == nullptr
-		|| minion_spawn_sound == nullptr
-		|| error_sound == nullptr
-		|| gesture_heal_sound == nullptr
-		|| gesture_aoe_sound == nullptr
-		|| gesture_turn_sound == nullptr) {
+	if (registry.background_music == nullptr
+		|| registry.salmon_dead_sound == nullptr
+		|| registry.salmon_eat_sound == nullptr
+		|| registry.hit_enemy_sound == nullptr
+		|| registry.fireball_explosion_sound == nullptr
+		|| registry.death_enemy_sound == nullptr
+		|| registry.fire_spell_sound == nullptr
+		|| registry.rock_spell_sound == nullptr
+		|| registry.heal_spell_sound == nullptr
+		|| registry.taunt_spell_sound == nullptr
+		|| registry.melee_spell_sound == nullptr
+		|| registry.silence_spell_sound == nullptr
+		|| registry.lightning_spell_sound == nullptr
+		|| registry.ice_spell_sound == nullptr
+		|| registry.summon_spell_sound == nullptr
+		|| registry.button_hover_sound == nullptr
+		|| registry.turning_sound == nullptr
+		|| registry.summon_spell_sound == nullptr
+		|| registry.charge_spell_sound == nullptr
+		|| registry.beam_spell_sound == nullptr
+		|| registry.minion_spawn_sound == nullptr
+		|| registry.error_sound == nullptr
+		|| registry.gesture_heal_sound == nullptr
+		|| registry.gesture_aoe_sound == nullptr
+		|| registry.gesture_turn_sound == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("combatMusic.wav").c_str(),
 			audio_path("salmon_dead.wav").c_str(),
@@ -307,27 +309,27 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	this->sk = skill_arg;
 
 	Mix_VolumeMusic(0);
-	Mix_PlayMusic(background_music, -1);
-	Mix_VolumeChunk(hit_enemy_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(fireball_explosion_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(death_enemy_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(fire_spell_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(rock_spell_sound,MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(heal_spell_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(taunt_spell_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(melee_spell_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(silence_spell_sound, MIX_MAX_VOLUME / 8);
-	Mix_VolumeChunk(lightning_spell_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(ice_spell_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(summon_spell_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(button_hover_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(charge_spell_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(beam_spell_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(minion_spawn_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(error_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(gesture_heal_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(gesture_aoe_sound, MIX_MAX_VOLUME);
-	Mix_VolumeChunk(gesture_turn_sound, MIX_MAX_VOLUME);
+	Mix_PlayMusic(registry.background_music, -1);
+	Mix_VolumeChunk(registry.hit_enemy_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.fireball_explosion_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.death_enemy_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.fire_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.rock_spell_sound,MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.heal_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.taunt_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.melee_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.silence_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.lightning_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.ice_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.summon_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.button_hover_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.charge_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.beam_spell_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.minion_spawn_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.error_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.gesture_heal_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.gesture_aoe_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.gesture_turn_sound, MIX_MAX_VOLUME/ 10);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -575,22 +577,47 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// restart game if enemies or companions are 0
 	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0)) {
-		restart_game();
+		if (story == 8 && gameLevel == 0) {
+			restart_game();
+		} else if (story == 8 && gameLevel == 1) {
+		int w, h;
+		glfwGetFramebufferSize(window, &w, &h);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, window_height_px-window_height_px/3 }, 6);
+		canStep = 0;
+		story = 9;
+		}
+		else if (story == 15 && gameLevel == 2) {
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			dialogue = createDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px/ 3 }, 12);
+			canStep = 0;
+			story = 16;
+		}
+
+
+		//restart_game();
 	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
-		roundVec.clear();	// empty vector roundVec to create a new round
-		createBackgroundObject(renderer, { 1160, 315 });
-		auto ent = createBackgroundObject(renderer, { 550, 325 });
-		registry.deformableEntities.get(ent).deformType2 = true;
-		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 400 });
-		createRound();
-		checkRound();
+		if (story == 20) {
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			dialogue = createDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px/ 3 }, 17);
+			canStep = 0;
+			story = 21;
+		}
+		else if (story == 28) {
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			dialogue = createDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px/ 3 }, 24);
+			canStep = 0;
+			story = 29;
+		}
 	} else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0))){
 		restart_game();
 	}
 
 	// Updating window title with volume control
 	std::stringstream title_ss;
-	title_ss << "Music volume (z-key , x-key): " << Mix_VolumeMusic(-1) << " ,   Effects volume (c-key , v-key): " << Mix_VolumeChunk(death_enemy_sound, -1) << " ";
+	title_ss << "Music volume (z-key , x-key): " << Mix_VolumeMusic(-1) << " ,   Effects volume (c-key , v-key): " << Mix_VolumeChunk(registry.death_enemy_sound, -1) << " ";
 	glfwSetWindowTitle(window, title_ss.str().c_str());
 
 	// Remove debug info from the last step
@@ -659,6 +686,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			if (registry.silenced.get(registry.companions.entities[i]).turns <= 0) {
 				sk->removeSilence(registry.companions.entities[i]);
 			}
+		}
+	}
+
+	for (int i = (int)registry.shield.components.size() - 1; i >= 0; --i) {
+		if (registry.shield.has(registry.shield.entities[i])) {	// need to emplace shield onto necro2 for countdown when David implements the skill
+			Shield* sh = &registry.shield.get(registry.shield.entities[i]);
+			if (sh->shieldDuration < 0) {
+				registry.remove_all_components_of(registry.shield.entities[i]);
+			}
+			
+
 		}
 	}
 
@@ -747,7 +785,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					Motion& companion_motion = registry.motions.get(attacker);
 					switch (attack.attack_type) {
 					case FIREBALL: {
-						Mix_PlayChannel(-1, fire_spell_sound, 0);
+						Mix_PlayChannel(-1, registry.fire_spell_sound, 0);
 						printf("Fireball attack companion\n");
 						currentProjectile = sk->launchFireball(companion_motion.position, attack.old_pos,renderer);
 						Projectile* proj = &registry.projectiles.get(currentProjectile);
@@ -766,7 +804,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case ROCK: {
 						Mix_Volume(5, 32);
-						Mix_PlayChannel(5, rock_spell_sound, 0);
+						Mix_PlayChannel(5, registry.rock_spell_sound, 0);
 						currentProjectile = sk->launchRock(attack.target,renderer);
 						break;
 					}
@@ -779,12 +817,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case ICESHARD: {
 						Mix_Volume(5, 32);
-						Mix_PlayChannel(5, ice_spell_sound, 0);
+						Mix_PlayChannel(5, registry.ice_spell_sound, 0);
 						currentProjectile = sk->launchIceShard(companion_motion.position, attack.old_pos,renderer);
 						break;
 					}
 					case HEAL: {
-						Mix_PlayChannel(-1, heal_spell_sound, 0);
+						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
 						sk->launchHeal(attack.target, 50,renderer);
 						update_healthBars();
 						//basiclly to have something hitting the boundary
@@ -819,7 +857,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case ROCK: {
 						Mix_Volume(5, 32);
-						Mix_PlayChannel(5, rock_spell_sound, 0);
+						Mix_PlayChannel(5, registry.rock_spell_sound, 0);
 						printf("Rock attack enemy\n");
 						currentProjectile = sk->launchRock(attack.target,renderer);
 						// sk->startParticleBeamAttack(attacker);
@@ -827,7 +865,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					}
 					case LIGHTNING: {
 						Mix_Volume(5, 32);
-						Mix_PlayChannel(5, lightning_spell_sound, 0);
+						Mix_PlayChannel(5, registry.lightning_spell_sound, 0);
 						printf("Lightning attack enemy\n");
 						currentProjectile = sk->launchLightning(attack.target, renderer);
 						break;
@@ -844,20 +882,23 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					case ICESHARD: {
 						printf("ice shard attack enemy\n");
 						Mix_Volume(5, 32);
-						Mix_PlayChannel(5, ice_spell_sound, 0);
+						Mix_PlayChannel(5, registry.ice_spell_sound, 0);
 						iceShardAttack(attack.target); // TODO
 						break;
 					}
 					case HEAL: {
-						Mix_PlayChannel(-1, heal_spell_sound, 0);
+						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
 						printf("heal attack enemy\n");
-						sk->launchHeal(attack.target, 30,renderer);
+
+						int healValue = (gameLevel == 0) ? 10 : 30;
+
+						sk->launchHeal(attack.target, healValue, renderer);
 						update_healthBars();
 						break;
 					}
 					case SUMMONING: {
 						Mix_Volume(5, 32);
-						Mix_PlayChannel(5, summon_spell_sound, 0);
+						Mix_PlayChannel(5, registry.summon_spell_sound, 0);
 						printf("summon necrominion \n");
 						sk->launchSummon(renderer);
 						create_minion = true;
@@ -887,11 +928,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 						motion.position = attack.old_pos;
 						Motion& healthbar_motion = registry.motions.get(enemy.healthbar);
 						healthbar_motion.position.x = attack.old_pos.x;
-						if (registry.motions.has(player_mage)) {
-							sk->launchMelee(player_mage, renderer);
-						}
-						if (registry.motions.has(player_swordsman)) {
-							sk->launchMelee(player_swordsman, renderer);
+
+						for (Entity e : registry.companions.entities) {
+							sk->launchMelee(e, renderer);
 						}
 						break;
 					}
@@ -1057,6 +1096,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 
 		// check round once the timer expired
+		printf("TIMER IS %g \n", float(timerCounter.counter_ms));
 		if (timerCounter.counter_ms < 0) {
 			registry.checkRoundTimer.remove(entity);
 			printf("check round timer finished, checking round now \n");
@@ -1074,24 +1114,62 @@ void WorldSystem::restart_game(bool force_restart) {
 
 	if (registry.companions.size() > 0 && registry.enemies.size() == 0) {
 		if(gameLevel < 3){
-			renderer->transitioningToNextLevel = true;
-			renderer->gameLevel = gameLevel;
-			gameLevel++;
-			printf("Updated gamel level %d\n", gameLevel);
+				renderer->transitioningToNextLevel = true;
+				renderer->gameLevel = gameLevel;
+				gameLevel++;
+				if (gameLevel == 1) {
+					story = 8;
+				}
+				else if (gameLevel == 2) {
+					story = 15;
+				}
+				else if (gameLevel == 3) {
+					story = 20;
+				}
+				if (gameLevel > 0) {
+					tutorial_enabled = 0;
+				}
+
+				printf("Updated gamel level %d\n", gameLevel);
 		}
 	}
 	if (gameLevel > MAX_GAME_LEVELS) {
 		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
+		if (gameLevel == 1) {
+			story = 8;
+		}
+		else if (gameLevel == 2) {
+			story = 15;
+		}
+		else if (gameLevel == 3) {
+			story = 20;
+		}
 	}
 	if (registry.companions.size() == 0) {
 		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
+		if (gameLevel == 1) {
+			story = 8;
+		} else if (gameLevel == 2) {
+			story = 15;
+		} else if (gameLevel == 3) {
+			story = 20;
+		}
 		// renderer->transitioningToNextLevel = true;
 	}
 	if (force_restart) {
 		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
+		if (gameLevel == 1) {
+			story = 8;
+		}
+		else if (gameLevel == 2) {
+			story = 15;
+		}
+		else if (gameLevel == 3) {
+			story = 20;
+		}
 	}
 
 	// Debugging for memory/component leaks
@@ -1121,7 +1199,7 @@ void WorldSystem::restart_game(bool force_restart) {
 	createBackgroundLayerTwo(renderer, { w / 2, h / 2 });
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, { w / 2, h / 2 });
-
+	
 	// Pause menu button
 	open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 	bool hasSaveFile = false;
@@ -1154,7 +1232,7 @@ void WorldSystem::restart_game(bool force_restart) {
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
 			json_loader.get_level("level_1.json");
-
+			story = 8;
 
 
 
@@ -1163,10 +1241,12 @@ void WorldSystem::restart_game(bool force_restart) {
 			printf("Loading level 2\n");
 			renderer->gameLevel = gameLevel;
 			json_loader.get_level("level_2.json");
+			story = 15;
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
 			renderer->gameLevel = 1;
 			json_loader.get_level("level_3.json");
+			story = 20;
 		} else{
 			printf("Incorrect level\n");
 		}
@@ -1336,16 +1416,13 @@ void WorldSystem::handle_collisions() {
 
 							update_health(entity_other, entity);
 							registry.remove_all_components_of(entity_other);
-							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
 							showCorrectSkills();
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
-								sk->removeTaunt(entity);
-								sk->removeSilence(entity);
-								sk->removeBleed(entity);
-								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
 							}
 							else {
-								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
+								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound							
 							}
 							// update only if hit_timer for entity does not already exist
 							if (!registry.hit_timer.has(entity)) {
@@ -1368,7 +1445,6 @@ void WorldSystem::handle_collisions() {
 					Companion& companion = registry.companions.get(entity);
 					companion.curr_anim_type = DEAD;
 				}
-
 				else if (registry.enemies.has(entity)) {
 					printf("Enemy is dead\n");
 					Enemy& enemy = registry.enemies.get(entity);
@@ -1388,17 +1464,17 @@ void WorldSystem::handle_collisions() {
 
 							update_health(entity_other, entity);
 							registry.remove_all_components_of(entity_other);
-							Mix_PlayChannel(-1, fireball_explosion_sound, 0); // added fireball hit sound
+							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
 							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0) {
 								// get rid of dead entity's stats indicators 
 								sk->removeTaunt(entity);
 								sk->removeSilence(entity);
 								sk->removeBleed(entity);
-								Mix_PlayChannel(-1, death_enemy_sound, 0); // added enemy death sound
+								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
 							}
 
 							else {
-								Mix_PlayChannel(-1, hit_enemy_sound, 0); // new enemy hit sound							
+								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound							
 							}
 							// update only if hit_timer for entity does not already exist
 							if (!registry.hit_timer.has(entity)) {
@@ -1433,16 +1509,9 @@ void WorldSystem::handle_collisions() {
 		// handle collisions with background objects
 		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other)) {
 			auto& backgroundObj = registry.deformableEntities.get(entity);
-			if (!registry.reflects.has(entity)) {
-				backgroundObj.shouldDeform = true;
-			}
-			/*if (registry.reflects.has(entity)) {
-				backgroundObj.deformType2 = true;
-			}*/
-			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
-			if (!registry.reflects.has(entity)) {
-				registry.remove_all_components_of(entity_other);
-			}
+			backgroundObj.shouldDeform = true;
+			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+			registry.remove_all_components_of(entity_other);
 			//enemy turn start
 			if (player_turn == 0) {
 				if (!registry.checkRoundTimer.has(currPlayer)) {
@@ -1478,10 +1547,6 @@ void WorldSystem::handle_collisions() {
 					reflectEM->angle = reflectE;
 					printf("calculated %f\n", reflectE);
 					printf("actual %f\n", reflectEM->angle);
-
-					 auto& shieldMesh = registry.deformableEntities.get(entity_other);
-					shieldMesh.shouldDeform = true;
-					shieldMesh.deformType2 = true;
 				}
 			}
 		}
@@ -1502,7 +1567,7 @@ void WorldSystem::handle_boundary_collision() {
 			registry.motions.get(entity).position.y >= screen_height + 20) {
 			registry.remove_all_components_of(entity);
 			registry.remove_all_components_of(entity);
-			Mix_PlayChannel(-1, fireball_explosion_sound, 0);
+			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
 			//enemy turn start
 			
 		}
@@ -1526,14 +1591,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	// david test
 	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-	//	Entity target;
-	//	for (int i = 0; i < registry.companions.components.size(); i++) {
-	//		Entity toGet = registry.companions.entities[i];
-	//		if (registry.companions.get(toGet).companionType == MAGE) {	// only cast taunt on companion mage
-	//			target = toGet;
-	//		}
-	//	}
-	//	sk->launchLightning(target, renderer);
+	//	sk->luanchNecroCompanionTeamBleed(renderer);
 	//}
 
 	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
@@ -1573,48 +1631,48 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		Mix_VolumeMusic(Mix_VolumeMusic(-1) + MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_C) {
-		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(fireball_explosion_sound, Mix_VolumeChunk(fireball_explosion_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(death_enemy_sound, Mix_VolumeChunk(death_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(fire_spell_sound, Mix_VolumeChunk(fire_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(rock_spell_sound, Mix_VolumeChunk(rock_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(button_hover_sound, Mix_VolumeChunk(button_hover_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(charge_spell_sound, Mix_VolumeChunk(charge_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(beam_spell_sound, Mix_VolumeChunk(beam_spell_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(minion_spawn_sound, Mix_VolumeChunk(minion_spawn_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(error_sound, Mix_VolumeChunk(error_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(gesture_heal_sound, Mix_VolumeChunk(gesture_heal_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(gesture_aoe_sound, Mix_VolumeChunk(gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(gesture_turn_sound, Mix_VolumeChunk(gesture_turn_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.hit_enemy_sound, Mix_VolumeChunk(registry.hit_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.fireball_explosion_sound, Mix_VolumeChunk(registry.fireball_explosion_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.death_enemy_sound, Mix_VolumeChunk(registry.death_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.fire_spell_sound, Mix_VolumeChunk(registry.fire_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.rock_spell_sound, Mix_VolumeChunk(registry.rock_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.heal_spell_sound, Mix_VolumeChunk(registry.heal_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.taunt_spell_sound, Mix_VolumeChunk(registry.taunt_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.melee_spell_sound, Mix_VolumeChunk(registry.melee_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.silence_spell_sound, Mix_VolumeChunk(registry.silence_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.lightning_spell_sound, Mix_VolumeChunk(registry.lightning_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.ice_spell_sound, Mix_VolumeChunk(registry.ice_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.summon_spell_sound, Mix_VolumeChunk(registry.summon_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.button_hover_sound, Mix_VolumeChunk(registry.button_hover_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.charge_spell_sound, Mix_VolumeChunk(registry.charge_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.beam_spell_sound, Mix_VolumeChunk(registry.beam_spell_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.minion_spawn_sound, Mix_VolumeChunk(registry.minion_spawn_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.error_sound, Mix_VolumeChunk(registry.error_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.gesture_heal_sound, Mix_VolumeChunk(registry.gesture_heal_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V) {
-		Mix_VolumeChunk(hit_enemy_sound, Mix_VolumeChunk(hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(fireball_explosion_sound, Mix_VolumeChunk(fireball_explosion_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(death_enemy_sound, Mix_VolumeChunk(death_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(fire_spell_sound, Mix_VolumeChunk(fire_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(rock_spell_sound, Mix_VolumeChunk(rock_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(heal_spell_sound, Mix_VolumeChunk(heal_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(taunt_spell_sound, Mix_VolumeChunk(taunt_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(melee_spell_sound, Mix_VolumeChunk(melee_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(silence_spell_sound, Mix_VolumeChunk(silence_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(lightning_spell_sound, Mix_VolumeChunk(lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(ice_spell_sound, Mix_VolumeChunk(ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(summon_spell_sound, Mix_VolumeChunk(summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(button_hover_sound, Mix_VolumeChunk(button_hover_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(charge_spell_sound, Mix_VolumeChunk(charge_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(beam_spell_sound, Mix_VolumeChunk(beam_spell_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(minion_spawn_sound, Mix_VolumeChunk(minion_spawn_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(error_sound, Mix_VolumeChunk(error_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(gesture_heal_sound, Mix_VolumeChunk(gesture_heal_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(gesture_aoe_sound, Mix_VolumeChunk(gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
-		Mix_VolumeChunk(gesture_turn_sound, Mix_VolumeChunk(gesture_turn_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.hit_enemy_sound, Mix_VolumeChunk(registry.hit_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.fireball_explosion_sound, Mix_VolumeChunk(registry.fireball_explosion_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.death_enemy_sound, Mix_VolumeChunk(registry.death_enemy_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.fire_spell_sound, Mix_VolumeChunk(registry.fire_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.rock_spell_sound, Mix_VolumeChunk(registry.rock_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.heal_spell_sound, Mix_VolumeChunk(registry.heal_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.taunt_spell_sound, Mix_VolumeChunk(registry.taunt_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.melee_spell_sound, Mix_VolumeChunk(registry.melee_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.silence_spell_sound, Mix_VolumeChunk(registry.silence_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.lightning_spell_sound, Mix_VolumeChunk(registry.lightning_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.ice_spell_sound, Mix_VolumeChunk(registry.ice_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.summon_spell_sound, Mix_VolumeChunk(registry.summon_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.button_hover_sound, Mix_VolumeChunk(registry.button_hover_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.charge_spell_sound, Mix_VolumeChunk(registry.charge_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.beam_spell_sound, Mix_VolumeChunk(registry.beam_spell_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.minion_spawn_sound, Mix_VolumeChunk(registry.minion_spawn_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.error_sound, Mix_VolumeChunk(registry.error_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.gesture_heal_sound, Mix_VolumeChunk(registry.gesture_heal_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 
@@ -1627,9 +1685,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			// Direct to background story telling first
 			int w, h;
 			glfwGetWindowSize(window, &w, &h);
-			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
-			dialogue = createDiaogue(renderer, { w / 2, 650 }, 1);
+			backgroundImage = createStoryBackground(renderer, { window_width_px / 2, window_height_px / 2 }, 1);
+			dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 1);
 			story = 1;
+			canStep = 0;
 		}
 		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			loaded_game = true;
@@ -1643,39 +1702,39 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 1) {
 		Mix_Volume(5, 32);
-		Mix_PlayChannel(5, turning_sound, 0);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(backgroundImage);
-		backgroundImage = createStoryBackground(renderer, { w / 2 ,h / 2 }, 2);
+		backgroundImage = createStoryBackground(renderer, { window_width_px / 2 , window_height_px / 2 }, 2);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, { w / 2, 650 }, 2);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 2);
 		story = 2;
 
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 2) {
 		Mix_Volume(5, 32);
-		Mix_PlayChannel(5, turning_sound, 0);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, { w / 2, 650 }, 3);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 3);
 		story = 3;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3) {
 		Mix_Volume(5, 32);
-		Mix_PlayChannel(5, turning_sound, 0);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(backgroundImage);
-		backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 3);
+		backgroundImage = createStoryBackground(renderer, { window_width_px / 2, window_height_px / 2 }, 3);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, { w / 2, 650 }, 4);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 4);
 		story = 4;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4) {
 		Mix_Volume(5, 32);
-		Mix_PlayChannel(5, turning_sound, 0);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(backgroundImage);
@@ -1685,15 +1744,15 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 5) {
 		Mix_Volume(5, 32);
-		Mix_PlayChannel(5, turning_sound, 0);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-		dialogue = createDiaogue(renderer, { w / 2, 650 }, 5);
+		dialogue = createDiaogue(renderer, { window_width_px / 2, 650 }, 5);
 		story = 6;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6) {
 		Mix_Volume(5, 32);
-		Mix_PlayChannel(5, turning_sound, 0);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(dialogue);
@@ -1707,7 +1766,83 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		loaded_game = false;
 		restart_game(false);
 		canStep = 1;
+		story = 8;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 9) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO;
+		story = 10;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 10) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE;
+		story = 11;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 11) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR;
+		story = 12;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 12) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE;
+		story = 13;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 13) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX;
+		story = 14;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 14) {
+		story = 15;
+		canStep = 1;
+		restart_game();
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 16) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO;
+		story = 17;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 17) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE;
+		story = 18;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 18) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR;
+		story = 19;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 19) {
+		story = 20;
+		canStep = 1;
+		restart_game();
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 21) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE;
+		story = 22;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 22) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR;
+		story = 23;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 23) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFIVE;
+		story = 24;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 24) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESIX;
+		story = 25;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 25) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESEVEN;
+		story = 26;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 26) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT;
+		story = 27;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 27) {
+		//registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT;
+		registry.remove_all_components_of(dialogue);
+		canStep = 1;
+		story = 28;
+		roundVec.clear();	// empty vector roundVec to create a new round
+		createBackgroundObject(renderer, { 1160, 315 });
+		auto ent = createBackgroundObject(renderer, { 550, 325 });
+		registry.deformableEntities.get(ent).deformType2 = true;
+		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 350 });
+		createRound();
+		checkRound();
+
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 29) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;
+		story = 30;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 30) {
+		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETHREE;
+		story = 31;
+	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 31) {
+		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
+		story = 32;
+		canStep = 1;
+		restart_game();
 	}
+
 
 
 	//gesture skill
@@ -1774,7 +1909,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				maxY - aveY <= 50 && aveY - minY <= 50) {
 				// launch heal skill
 				Mix_Volume(5, 32);
-				Mix_PlayChannel(5, gesture_heal_sound, 0);
+				Mix_PlayChannel(5, registry.gesture_heal_sound, 0);
 				sk->luanchCompanionTeamHeal(50, renderer);
 				update_healthBars();
 				gestureSkillRemaining--;	// decrement gestureSkillRemaining
@@ -1786,7 +1921,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				maxY - aveY >= 150 && aveY - minY >= 150) {
 				// launch aoe damage skill
 				Mix_Volume(5, 32);
-				Mix_PlayChannel(5, gesture_aoe_sound, 0);
+				Mix_PlayChannel(5, registry.gesture_aoe_sound, 0);
 				sk->luanchEnemyTeamDamage(30, renderer);
 				update_healthBars();
 				gestureSkillRemaining--;	// decrement gestureSkillRemaining
@@ -1799,7 +1934,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				maxY - aveY <= 300 && aveY - minY <= 300) {
 				// launch extra one turn
 				Mix_Volume(5, 32);
-				Mix_PlayChannel(5, gesture_turn_sound, 0);
+				Mix_PlayChannel(5, registry.gesture_turn_sound, 0);
 				extraCompanionTurn--;
 				gestureSkillRemaining--;	// decrement gestureSkillRemaining
 				printf("one more turn skill activated!");
@@ -1807,7 +1942,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 		else {
 			Mix_Volume(5, 32);
-			Mix_PlayChannel(5, error_sound, 0);
+			Mix_PlayChannel(5, registry.error_sound, 0);
 		}
 
 	mouseGestures.clear();
@@ -1816,13 +1951,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	//other clicks
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep) {
 
-
 		// Check menu clicks
 		if (!pauseMenuOpened && inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT)) {
 			Motion menu_motion = registry.motions.get(open_menu_button);
 			save_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT }, SAVE_GAME);
 			exit_game_button = createUIButton(renderer, { menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2 }, EXIT_GAME);
-			registry.motions.get(exit_game_button).scale = { 200,80 };
+			registry.motions.get(exit_game_button).scale = { 200, 80 };
 			pauseMenuOpened = 1;
 			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
 		}
@@ -1879,7 +2013,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 
 		showCorrectSkills();
 
-		if (player_turn == 1) {
+		if (player_turn == 1 && registry.checkRoundTimer.entities.size() == 0) {
 			if (registry.companions.has(currPlayer)) {
 
 				//iceshard
@@ -2124,7 +2258,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 		if (mouseInArea(registry.motions.get(new_game_button).position,UI_BUTTON_WIDTH , UI_BUTTON_HEIGHT)) {
 			registry.renderRequests.get(new_game_button).used_texture = TEXTURE_ASSET_ID::NEW_GAME_HOVER;
 			Mix_Volume(5, 32);
-			Mix_PlayChannel(5, button_hover_sound, 0);
+			Mix_PlayChannel(5, registry.button_hover_sound, 0);
 		}
 		else {
 			registry.renderRequests.get(new_game_button).used_texture = TEXTURE_ASSET_ID::NEW_GAME;
@@ -2132,7 +2266,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 		if (mouseInArea(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME_HOVER;
 			Mix_Volume(5, 32);
-			Mix_PlayChannel(5, button_hover_sound, 0);
+			Mix_PlayChannel(5, registry.button_hover_sound, 0);
 		}
 		else {
 			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME;
@@ -2140,7 +2274,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 		if (mouseInArea(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_HOVER;
 			Mix_Volume(5, 32);
-			Mix_PlayChannel(5, button_hover_sound, 0);
+			Mix_PlayChannel(5, registry.button_hover_sound, 0);
 		}
 		else {
 			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_GAME;

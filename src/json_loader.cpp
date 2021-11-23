@@ -90,6 +90,9 @@ void load_level(json j){
         printf("Loading level\n");
         loadedLevel = j["level"];
     }
+    if(!j["story"].is_null()){
+        story = j["story"];
+    }
     for(json entity: j["entities"]){
         Entity create_entity;
         // ---------------------------- COMPANIONS ----------------------------
@@ -275,7 +278,6 @@ void load_level(json j){
         roundVec.clear();
     } else {
         for(int i = 0; i<roundNum; i++){
-            std::cout << "Round"<< i << std::endl;
             roundVec.push_back(tempRound[i]);
         }
     }
@@ -407,6 +409,7 @@ void JSONLoader::save_game(){
     json j;
     j["level"] = gameLevel;
     j["roundSize"] = roundVec.size();
+    j["story"] = story;
     int entity = 0;
     for(Entity companion: registry.companions.entities){
         j["entities"][entity] = get_entity(companion);

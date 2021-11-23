@@ -432,6 +432,8 @@ void RenderSystem::draw(float elapsed_ms)
 	std::vector<Entity> needParticleEffects;
 	int hasTravellingProjectile = 0;
 
+	std::vector<Entity> dialogues;
+
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
 		// Handle camera focus only on swordsman melee
@@ -450,11 +452,22 @@ void RenderSystem::draw(float elapsed_ms)
 			}
 			
 		}
+		// Add only dialogue entities
+		if (registry.uiButtons.has(entity) && registry.uiButtons.get(entity).isDialogue) {
+			dialogues.push_back(entity);
+		}
 	}
+
 
 	// Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
 	{
+
+		// Skip the dialogue boxes to be rendered later
+		if (registry.uiButtons.has(entity) && registry.uiButtons.get(entity).isDialogue) {
+			continue;
+		}
+
 		mat3 projectionToUse = projectionMat;
 		if (!registry.motions.has(entity))
 			continue;
@@ -879,6 +892,13 @@ void RenderSystem::draw(float elapsed_ms)
 	// render particles at the end
 	for (auto& entity : needParticleEffects) {
 		drawDeathParticles(entity, projection_2D);
+	}
+
+	// Render the dialogue boxes
+	for (auto& entity : dialogues) {
+		GLint curr_frame = 0;
+		GLfloat frame_width = 0;
+		drawTexturedMesh(entity, projection_2D, curr_frame, frame_width, elapsed_ms);
 	}
 	
 	// flicker-free display with a double buffer
