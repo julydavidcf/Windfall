@@ -436,22 +436,25 @@ void RenderSystem::draw(float elapsed_ms)
 
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
-		// Handle camera focus only on swordsman melee
-		if ((registry.runners.has(entity) && !(registry.enemies.has(entity) && registry.enemies.get(entity).enemyType == NECROMANCER_TWO)
-			|| (registry.companions.has(entity) && registry.companions.get(entity).companionType == SWORDSMAN && registry.companions.get(entity).curr_anim_type == ATTACKING)
-			|| (registry.enemies.has(entity) 
-				&& (registry.enemies.get(entity).enemyType == SWORDSMAN || registry.enemies.get(entity).enemyType == NECROMANCER_MINION)
-				&& registry.enemies.get(entity).curr_anim_type == ATTACKING))) {
-			Motion& motion = registry.motions.get(entity);
 
-			if (registry.companions.has(entity)) {
-				projectionMat = createCameraProjection(motion);
-			}
-			else if (registry.enemies.has(entity)) {
-				projectionMat = createCameraProjection(motion);
-			}
-			
-		}
+		// DISABLE CAMERA FOR NOW
+
+		// Handle camera focus only on swordsman melee
+		//if ((registry.runners.has(entity) && !(registry.enemies.has(entity) && registry.enemies.get(entity).enemyType == NECROMANCER_TWO)
+		//	|| (registry.companions.has(entity) && registry.companions.get(entity).companionType == SWORDSMAN && registry.companions.get(entity).curr_anim_type == ATTACKING)
+		//	|| (registry.enemies.has(entity) 
+		//		&& (registry.enemies.get(entity).enemyType == SWORDSMAN || registry.enemies.get(entity).enemyType == NECROMANCER_MINION)
+		//		&& registry.enemies.get(entity).curr_anim_type == ATTACKING))) {
+		//	Motion& motion = registry.motions.get(entity);
+
+		//	if (registry.companions.has(entity)) {
+		//		projectionMat = createCameraProjection(motion);
+		//	}
+		//	else if (registry.enemies.has(entity)) {
+		//		projectionMat = createCameraProjection(motion);
+		//	}
+		//	
+		//}
 		// Add only dialogue entities
 		if (registry.uiButtons.has(entity) && registry.uiButtons.get(entity).isDialogue) {
 			dialogues.push_back(entity);
