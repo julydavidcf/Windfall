@@ -575,31 +575,34 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// restart game if enemies or companions are 0
 	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0)) {
-		if (story == 8) {
+		if (story == 8 && gameLevel == 0) {
+			restart_game();
+		} else if (story == 8 && gameLevel == 1) {
 		int w, h;
 		glfwGetFramebufferSize(window, &w, &h);
 		dialogue = createDiaogue(renderer, { w / 2, h- h/3 }, 6);
 		canStep = 0;
 		story = 9;
 		}
-		else if (story == 15) {
+		else if (story == 15 && gameLevel == 2) {
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
 			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 12);
 			canStep = 0;
 			story = 16;
 		}
-		else if (story == 20) {
+
+
+		//restart_game();
+	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
+		if (story == 20) {
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
 			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 17);
 			canStep = 0;
 			story = 21;
 		}
-
-		//restart_game();
-	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() <= 0)){
-		if (story == 28) {
+		else if (story == 28) {
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
 			dialogue = createDiaogue(renderer, { w / 2, h - h / 3 }, 24);
@@ -1121,7 +1124,15 @@ void WorldSystem::restart_game(bool force_restart) {
 				renderer->transitioningToNextLevel = true;
 				renderer->gameLevel = gameLevel;
 				gameLevel++;
-
+				if (gameLevel == 1) {
+					story = 8;
+				}
+				else if (gameLevel == 2) {
+					story = 15;
+				}
+				else if (gameLevel == 3) {
+					story = 20;
+				}
 				if (gameLevel > 0) {
 					tutorial_enabled = 0;
 				}
@@ -1157,6 +1168,15 @@ void WorldSystem::restart_game(bool force_restart) {
 	if (force_restart) {
 		gameLevel = loadedLevel == -1? 1:loadedLevel;
 		renderer->gameLevel = gameLevel;
+		if (gameLevel == 1) {
+			story = 8;
+		}
+		else if (gameLevel == 2) {
+			story = 15;
+		}
+		else if (gameLevel == 3) {
+			story = 20;
+		}
 	}
 
 	// Debugging for memory/component leaks
@@ -1219,7 +1239,7 @@ void WorldSystem::restart_game(bool force_restart) {
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
 			json_loader.get_level("level_1.json");
-
+			story = 8;
 
 
 
@@ -1228,10 +1248,12 @@ void WorldSystem::restart_game(bool force_restart) {
 			printf("Loading level 2\n");
 			renderer->gameLevel = gameLevel;
 			json_loader.get_level("level_2.json");
+			story = 15;
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
 			renderer->gameLevel = 1;
 			json_loader.get_level("level_3.json");
+			story = 20;
 		} else{
 			printf("Incorrect level\n");
 		}
@@ -1673,6 +1695,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			backgroundImage = createStoryBackground(renderer, { w / 2,h / 2 }, 1);
 			dialogue = createDiaogue(renderer, { w / 2, 650 }, 1);
 			story = 1;
+			canStep = 0;
 		}
 		else if (inButton(registry.motions.get(load_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			loaded_game = true;
