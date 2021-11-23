@@ -309,7 +309,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	this->sk = skill_arg;
 
 	Mix_VolumeMusic(MIX_MAX_VOLUME / 30);
-	Mix_PlayMusic(registry.background_music, -1);
+	Mix_FadeInMusic(registry.background_music, -1, 5000);
 	Mix_VolumeChunk(registry.hit_enemy_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.fireball_explosion_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.death_enemy_sound, MIX_MAX_VOLUME / 10);
@@ -1839,10 +1839,11 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 31) {
 		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
 
-		//// Shut down game after last enemy defeated
-		// closeWindow = 1;
+		// Shut down game after last enemy defeated
+		closeWindow = 1;
+
 		story = 32;
-		canStep = 0;
+		canStep = 1;
 		restart_game();
 	}
 

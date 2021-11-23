@@ -474,7 +474,7 @@ void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* rendere
 
 void SkillSystem::launchNecroBarrier(Entity target, RenderSystem* renderer) {
 	vec2 targetp = registry.motions.get(target).position;
-	createBarrier(renderer, { targetp.x - 300 , targetp.y + 100 });
+	createBarrier(renderer, { targetp.x - 300 , targetp.y + 75 });
 
 	if (!registry.shield.has(target)) {
 		registry.shield.emplace(target);
