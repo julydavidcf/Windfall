@@ -949,7 +949,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					printf("Not attacking anymore in idle\n");
 					registry.attackers.remove(attacker);
 					if(create_minion){
-						necromancer_minion = createNecromancerMinion(renderer, { 750, 600 });
+						necromancer_minion = createNecromancerMinion(renderer, { 750, 575 });
 					}
 				}
 			}

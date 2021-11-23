@@ -273,8 +273,13 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		uint size_before_adding_new = (uint)motion_container.components.size();
 		for (uint i = 0; i < size_before_adding_new; i++)
 		{
+
 			Motion& motion_i = motion_container.components[i];
 			Entity entity_i = motion_container.entities[i];
+
+			if (!registry.companions.has(entity_i) && !registry.enemies.has(entity_i) && !registry.projectiles.has(entity_i)) {
+				continue;
+			}
 
 			vec3 point0 	= {0.f, 0.f, 1.f};
 			vec3 pointy 	= {0.f, 1.f, 1.f};
@@ -319,7 +324,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				}
 			}
 
-			float line_thickness = 3.f;
+			float line_thickness = 6.f;
 
 			vec2 line1_pos = {(max_x+min_x)/2, min_y};
 			vec2 line2_pos = {(max_x+min_x)/2, max_y};
