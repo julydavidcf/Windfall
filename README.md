@@ -1,6 +1,6 @@
-# Milestone 2 game
+# Milestone 3 game
 
-The game is now a turn-based RPG, where the player can choose to use different abilities during the battle. To complete the game, the player has to go through a 2v1 followed by a 2v2 battle scenario. The enemy has AI and will react based on what the player chooses to do.
+The game is a turn-based RPG, where the player can choose to use different abilities during the battle. There is a tutorial at the beginning to teach the player how to play, and there are dialogues throughout the game to describe the background and lore of the game. After the tutorial, the player has to command his companions and fight through 3 levels to defeat the necromancer boss, who has 2 phases. The player can save the game and come back to it later.
 
 
 # Features to meet Milestone 1 goals (100 points total)
@@ -37,6 +37,22 @@ The game is now a turn-based RPG, where the player can choose to use different a
 * Crash free (5): The game does not crash.
 * Bug and feature fixes (5): Fixed numerous bugs.
 
+# Features to meet Milestone 3 goals (105 points total)
+
+* Gameplay II (10): Added two more levels, added a tutorial, added 3 more enemy types and the necromancer boss for the final level. Added introduction and dialogue between levels to describe the story.
+* Level loading (10): Added JSON files that can be loaded by the game as different levels, using a JSON loader.
+* Save and reload (10): Added feature to save and load the game, so that the player can save the current state of the game. The player can close the game and still be able to re-load.
+* External integration (10): Used nlohmann library to process JSON files.
+* Mouse gestures (10): Integrated 3 types of mouse gesture abilities, the player can use them by holding down right-click and drawing the correct path. The correct path for the three abilities are straight-vertical, straight-horizontal, and circular.
+* Advanced geometry shader (10): Added a shield ability that would deform upon collision with a projectile, added background objects that can also be deformed by projectiles.
+* Tutorial (10): Added a textbox-based tutorial that introduces the on-screen objects and teaches the player how to use the abilities.
+* Story (10): Added an introduction and dialogues in-between levels to inform the player of the background and lore.
+* Graphics assets (5): Added many new sprites for abilities and enemy characters.
+* Lag mitigation (5): The game does not lag.
+* Crash free (5): The game does not crash.
+* Memory management (5): Memory usage is fairly low and dynamically-allocated memory are released properly.
+* Bug and feature fixes (5): Fixed numerous bugs.
+
 
 # Audio References
 
@@ -47,6 +63,14 @@ The game is now a turn-based RPG, where the player can choose to use different a
 5. https://freesound.org/people/theuncertainman/sounds/402645/
 6. https://freesound.org/people/wobesound/sounds/488382/
 7. https://freesound.org/people/InspectorJ/sounds/416179/
+8. https://freesound.org/people/alonsotm/sounds/396500/
+9. https://freesound.org/people/18hiltc/sounds/186048/
+10. https://freesound.org/people/MATRIXXX_/sounds/403297/
+11. https://freesound.org/people/Breviceps/sounds/453391/
+12. https://freesound.org/people/plasterbrain/sounds/423169/
+13. https://freesound.org/people/SilverIllusionist/sounds/580814/
+14. https://freesound.org/people/humanoide9000/sounds/329029/
+15. https://freesound.org/people/Aleks41/sounds/406063/
 
 # Image references
 
@@ -62,3 +86,5 @@ The game is now a turn-based RPG, where the player can choose to use different a
 10. https://dribbble.com/shots/4325775-Shard-of-ice
 11. https://www.istockphoto.com/illustrations/fantasy-battle
 12. https://www.artstation.com/artwork/Vd5444
+13. https://sanctumpixel.itch.io/angel-of-death-pixel-art-character
+14. https://samuellee.itch.io/reaper-animated-pixel-art
