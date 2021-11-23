@@ -162,13 +162,13 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number);
 
 //Game Stats
 
-const int enemy_mage_hp = 1;
-const int enemy_swordsman_hp = 1;
+const int enemy_mage_hp = 90;
+const int enemy_swordsman_hp = 130;
 
 const int player_mage_hp = 60;
 const int player_swordsman_hp = 85;
-const int necro_minion_health = 1;
-const int necro_1_health = 1;
+const int necro_minion_health = 30;
+const int necro_1_health = 200;
 const int necro_2_health = 150;
 
 
