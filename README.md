@@ -51,7 +51,7 @@ The game is a turn-based RPG, where the player can choose to use different abili
 * Lag mitigation (5): The game does not lag.
 * Crash free (5): The game does not crash.
 * Memory management (5): Memory usage is fairly low and dynamically-allocated memory are released properly.
-* Bug and feature fixes (5): Fixed numerous bugs.
+* Bug and feature fixes (5): Fixed numerous bugs such as the camera trail and the debugging boxes. Moreover removed the magenta boarder.
 
 
 # Audio References
