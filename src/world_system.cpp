@@ -308,7 +308,7 @@ void WorldSystem::init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem
 	this->ai = ai_arg;
 	this->sk = skill_arg;
 
-	Mix_VolumeMusic(0);
+	Mix_VolumeMusic(MIX_MAX_VOLUME / 30);
 	Mix_PlayMusic(registry.background_music, -1);
 	Mix_VolumeChunk(registry.hit_enemy_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.fireball_explosion_sound, MIX_MAX_VOLUME / 10);
@@ -1625,10 +1625,10 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	// Volume control (z = Decrease BGM vol., x = Increase BGM vol., c = Decrease effects vol., v = Increase effects vol.)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_Z) {
-		Mix_VolumeMusic(Mix_VolumeMusic(-1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeMusic(Mix_VolumeMusic(-1) - MIX_MAX_VOLUME / 30);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_X) {
-		Mix_VolumeMusic(Mix_VolumeMusic(-1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeMusic(Mix_VolumeMusic(-1) + MIX_MAX_VOLUME / 30);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_C) {
 		Mix_VolumeChunk(registry.hit_enemy_sound, Mix_VolumeChunk(registry.hit_enemy_sound, -1) - MIX_MAX_VOLUME / 10);
@@ -1838,8 +1838,11 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		story = 31;
 	} else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 31) {
 		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
+
+		//// Shut down game after last enemy defeated
+		// closeWindow = 1;
 		story = 32;
-		canStep = 1;
+		canStep = 0;
 		restart_game();
 	}
 
