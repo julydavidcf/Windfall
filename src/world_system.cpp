@@ -1283,6 +1283,10 @@ void WorldSystem::restart_game(bool force_restart)
 				tutorial_enabled = 0;
 			}
 		}
+		if(isFreeRoam){
+			printf("incrementing free roam level\n");
+			freeRoamLevel++;
+		}
 		if(gameLevel > 1){
 			std::cout << "Old free roam " <<isFreeRoam << std::endl;
 			isFreeRoam = !isFreeRoam;
