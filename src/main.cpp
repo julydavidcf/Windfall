@@ -64,7 +64,11 @@ int main()
 		if (world.canStep) {
 			world.step(elapsed_ms);
 			// ai.step(elapsed_ms);
-			physics.step(elapsed_ms, window_width_px, window_height_px);
+			if(isFreeRoam){
+				physics.step_freeRoam(elapsed_ms, window_width_px, window_height_px);
+			} else {
+				physics.step(elapsed_ms, window_width_px, window_height_px);
+			}
 			world.handle_collisions();
 			world.handle_boundary_collision();
 		}

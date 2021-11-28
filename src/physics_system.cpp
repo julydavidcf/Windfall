@@ -143,6 +143,31 @@ bool collides(const Entity entity_i, const Entity entity_j)
 	return false;
 }
 
+void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float window_height_px)
+{
+	auto& motion_registry = registry.motions;
+	for(uint i = 0; i< motion_registry.size(); i++)
+	{
+		Motion* motion = &motion_registry.components[i];
+		Entity entity = motion_registry.entities[i];
+		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+
+		//normal movement
+		motion->velocity.x += step_seconds * motion->acceleration.x;
+		motion->velocity.y += step_seconds * motion->acceleration.y;
+		motion->position.x += step_seconds * motion->velocity.x;
+		motion->position.y += step_seconds * motion->velocity.y;
+		if (registry.gravities.has(entity)) {
+			float angle = atan(motion->velocity.y / motion->velocity.x);
+			if (motion->velocity.x < 0) {
+				angle += M_PI;
+			}
+			motion->angle = angle;
+
+		}
+	}
+}
+
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
 {
 

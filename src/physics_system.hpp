@@ -10,6 +10,7 @@ class PhysicsSystem
 {
 public:
 	void step(float elapsed_ms, float window_width_px, float window_height_px);
+	void step_freeRoam(float elapsed_ms, float window_width_px, float window_height_px);
 	vec2 get_custom_position(Entity entity);
 	vec2 get_custom_bounding_box(Entity entity);
 	PhysicsSystem()

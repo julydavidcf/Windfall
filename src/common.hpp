@@ -46,10 +46,6 @@ struct Transform {
 
 bool gl_has_errors();
 
-
-extern int16 gameLevel;
-extern int16 loadedLevel;
-
 extern Entity currPlayer;
 extern Entity prevPlayer;
 // Players + Enemies
@@ -80,3 +76,9 @@ extern int window_width_px;
 extern int window_height_px;
 
 extern int story;
+extern int16 gameLevel;
+extern int16 loadedLevel;
+
+// Free roam variables
+extern bool isFreeRoam;
+extern int freeRoamLevel;
