@@ -454,6 +454,54 @@ void RenderSystem::initializeGlGeometryBuffers()
 	necro_minion_death_ertices[3].texcoord = { 0.f, 0.f };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::NECRO_MINION_DEATH, necro_minion_death_ertices, textured_indices);
 
+	// archer_idle sprite row
+	std::vector<TexturedVertex> archer_idle_vertices(4);
+	archer_idle_vertices[0].position = { -1.f, +1.f, 0.f };
+	archer_idle_vertices[1].position = { +1.f, +1.f, 0.f };
+	archer_idle_vertices[2].position = { +1.f, -1.f, 0.f };
+	archer_idle_vertices[3].position = { -1.f, -1.f, 0.f };
+	archer_idle_vertices[0].texcoord = { 0.f, 0.750 };           // Bottom left
+	archer_idle_vertices[1].texcoord = { 0.125, 0.750 };        // Bottom right
+	archer_idle_vertices[2].texcoord = { 0.125, 0.625 };        // Top right
+	archer_idle_vertices[3].texcoord = { 0.f, 0.625 };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::ARCHER_IDLE, archer_idle_vertices, textured_indices);
+
+	// archer_walking sprite row
+	std::vector<TexturedVertex> archer_walking_vertices(4);
+	archer_walking_vertices[0].position = { -1.f, +1.f, 0.f };
+	archer_walking_vertices[1].position = { +1.f, +1.f, 0.f };
+	archer_walking_vertices[2].position = { +1.f, -1.f, 0.f };
+	archer_walking_vertices[3].position = { -1.f, -1.f, 0.f };
+	archer_walking_vertices[0].texcoord = { 0.f, 0.125 };           // Bottom left
+	archer_walking_vertices[1].texcoord = { 0.125, 0.125 };        // Bottom right
+	archer_walking_vertices[2].texcoord = { 0.125, 0.f };        // Top right
+	archer_walking_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::ARCHER_WALKING, archer_walking_vertices, textured_indices);
+
+	// archer_jumping sprite row
+	std::vector<TexturedVertex> archer_jumping_vertices(4);
+	archer_jumping_vertices[0].position = { -1.f, +1.f, 0.f };
+	archer_jumping_vertices[1].position = { +1.f, +1.f, 0.f };
+	archer_jumping_vertices[2].position = { +1.f, -1.f, 0.f };
+	archer_jumping_vertices[3].position = { -1.f, -1.f, 0.f };
+	archer_jumping_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	archer_jumping_vertices[1].texcoord = { 0.125, 1.f };        // Bottom right
+	archer_jumping_vertices[2].texcoord = { 0.125, 0.875 };        // Top right
+	archer_jumping_vertices[3].texcoord = { 0.f, 0.875 };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::ARCHER_JUMPING, archer_jumping_vertices, textured_indices);
+
+	// archer_attacking sprite row
+	std::vector<TexturedVertex> archer_attacking_vertices(4);
+	archer_attacking_vertices[0].position = { -1.f, +1.f, 0.f };
+	archer_attacking_vertices[1].position = { +1.f, +1.f, 0.f };
+	archer_attacking_vertices[2].position = { +1.f, -1.f, 0.f };
+	archer_attacking_vertices[3].position = { -1.f, -1.f, 0.f };
+	archer_attacking_vertices[0].texcoord = { 0.f, 0.500 };           // Bottom left
+	archer_attacking_vertices[1].texcoord = { 0.125, 0.500 };        // Bottom right
+	archer_attacking_vertices[2].texcoord = { 0.125, 0.375 };        // Top right
+	archer_attacking_vertices[3].texcoord = { 0.f, 0.375 };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::ARCHER_ATTACKING, archer_attacking_vertices, textured_indices);
+
 	////////////////////////
 	// Initialize pebble
 	std::vector<ColoredVertex> pebble_vertices;

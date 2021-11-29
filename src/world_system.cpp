@@ -202,7 +202,7 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(width, height, "Windfall Milestone 2", nullptr, nullptr);
+	window = glfwCreateWindow(width, height, "Windfall Milestone 3", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		fprintf(stderr, "Failed to glfwCreateWindow");
@@ -1248,6 +1248,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			return true;
 		}
 	}
+
+	if (isFreeRoam) {
+		Motion& archerMotion = registry.motions.get(player_archer);
+		Companion& archerComp = registry.companions.get(player_archer);
+	}
+
 	return true;
 }
 
@@ -1381,7 +1387,15 @@ void WorldSystem::restart_game(bool force_restart)
 	{
 		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		printf("Loading free roam 0\n");
-		player_mage = createPlayerMage(renderer, {700, 600});
+
+		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
+
+		// Create these for testing, can remove unneeded assets
+		createFirefly(renderer, { 300, 500 });
+		createPlatform(renderer, { 400, 600 });
+		createArrowMesh(renderer, { 700, 600 });
+		createRockMesh(renderer, { 900, 600 });
+		createTreasureChest(renderer, { 1100, 600 });
 		renderer->gameLevel = 1;
 	}
 	else
@@ -1831,11 +1845,23 @@ void WorldSystem::handle_boundary_collision()
 		}
 	}
 	if(isFreeRoam){
-		Motion& motion = registry.motions.get(player_mage);
+		Motion& motion = registry.motions.get(player_archer);
 		if(motion.position.x >= window_width_px + 20){
 			restart_game();
 		} else if(motion.position.x - (motion.scale.x/2) <= 0){
 			motion.position.x = (motion.scale.x/2);
+		}
+		// The base floor collision, so archer doesn't fall through the ground
+		if (motion.position.y > window_height_px - ARCHER_HEIGHT) {
+			motion.velocity.y = 0.f;
+			motion.acceleration.y = 0.f;
+			motion.position.y = window_height_px - ARCHER_HEIGHT;
+			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
+				if (motion.velocity.x != 0) {
+					registry.companions.get(player_archer).curr_anim_type = WALKING;
+				}
+				else registry.companions.get(player_archer).curr_anim_type = IDLE;
+			}
 		}
 	}
 }
@@ -1866,25 +1892,55 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
 	//	sk->launchSpike(player_mage, renderer);
 	// }
-	if(isFreeRoam){
-		if(key == GLFW_KEY_D){
-			if(action == GLFW_RELEASE){
-				Motion& motion = registry.motions.get(player_mage);
-				motion.velocity.x = 0.f;
+	if (isFreeRoam) {
+		// Move right
+		if (key == GLFW_KEY_D) {
+			if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
+				Motion& motion = registry.motions.get(player_archer);
+				motion.velocity.x = 300.f;
+				// Turn archer right
+				motion.scale.x = abs(motion.scale.x);
+				if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+					registry.companions.get(player_archer).curr_anim_type = WALKING;
+				}
 			}
-			if((action == GLFW_PRESS) || (action == GLFW_REPEAT)){
-				Motion& motion = registry.motions.get(player_mage);
-				motion.velocity.x = 200.f;
+			if (action == GLFW_RELEASE) {
+				Motion& motion = registry.motions.get(player_archer);
+				if (motion.velocity.x != -300.f) {
+					motion.velocity.x = 0;
+					if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+						registry.companions.get(player_archer).curr_anim_type = IDLE;
+					}
+				}
 			}
 		}
-		if(key == GLFW_KEY_A){
-			if(action == GLFW_RELEASE){
-				Motion& motion = registry.motions.get(player_mage);
-				motion.velocity.x = 0.f;
+		// Move left
+		if (key == GLFW_KEY_A) {
+			if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
+				Motion& motion = registry.motions.get(player_archer);
+				motion.velocity.x = -300.f;
+				// Turn archer left
+				motion.scale.x = -abs(motion.scale.x);
+				if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+					registry.companions.get(player_archer).curr_anim_type = WALKING;
+				}	
 			}
-			if((action == GLFW_PRESS) || (action == GLFW_REPEAT)){
-				Motion& motion = registry.motions.get(player_mage);
-				motion.velocity.x = -200.f;
+			if (action == GLFW_RELEASE) {
+				Motion& motion = registry.motions.get(player_archer);
+				if (motion.velocity.x != 300.f) {
+					motion.velocity.x = 0;
+					if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+						registry.companions.get(player_archer).curr_anim_type = IDLE;
+					}
+				}
+			}
+		}
+		// Jump up
+		if (key == GLFW_KEY_W && registry.companions.get(player_archer).curr_anim_type != JUMPING){
+			if (action == GLFW_RELEASE) {
+				Motion& motion = registry.motions.get(player_archer);
+				motion.velocity.y = -300.f;
+				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}
 	}
