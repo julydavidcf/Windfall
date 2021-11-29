@@ -42,6 +42,7 @@ Entity fireBall_icon;
 Entity taunt_icon;
 Entity heal_icon;
 Entity rock_icon;
+Entity arrow_icon;
 
 int16 gameLevel;
 int16 loadedLevel;
@@ -1227,17 +1228,12 @@ void WorldSystem::restart_game(bool force_restart) {
 			tutorial_enabled = 1;
 			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
 			curr_tutorial_box_num = 0;
-
 		}
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
 			json_loader.get_level("level_1.json");
 			story = 8;
-
-
-
-
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
 			renderer->gameLevel = gameLevel;
@@ -1251,6 +1247,8 @@ void WorldSystem::restart_game(bool force_restart) {
 		} else{
 			printf("Incorrect level\n");
 		}
+
+		arrow_icon = createArrowIcon(renderer, {200, 700});
 		roundVec.clear();	// empty vector roundVec to create a new round
 		createRound();
 		checkRound();
