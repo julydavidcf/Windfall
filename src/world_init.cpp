@@ -302,6 +302,40 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	return entity;
 }
 
+Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& gravity = registry.gravities.emplace(entity);
+	gravity.gravity = 30;
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.position = position;
+	motion.scale = vec2({ ARROW_WIDTH, ARROW_HEIGHT });
+
+	// Set damage here--------------------------------
+	Damage& damage = registry.damages.emplace(entity);
+	damage.isFriendly = isFriendly;
+	damage.minDamage = arrow_dmg;
+	damage.range = 10;
+	//------------------------------------------------
+
+	registry.projectiles.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		//currently using fireball
+		{ TEXTURE_ASSET_ID::ARROW,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();

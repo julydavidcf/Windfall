@@ -108,6 +108,7 @@ Entity createParticleBeamCharge(RenderSystem* renderer, vec2 position);
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 
 Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
+Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 // the icons
 Entity createMeleeIcon(RenderSystem* renderer, vec2 position);
 Entity createIceShardIcon(RenderSystem* renderer, vec2 position);
@@ -133,6 +134,7 @@ Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly)
 Entity createDot(RenderSystem* renderer, vec2 position);
 
 Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
+
 Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);
 
@@ -180,5 +182,5 @@ const int melee_dmg = 15;
 const int bleed_dmg = 5;
 const int spike_dmg = 10;
 const int lightning_dmg = 25;
-
+const int arrow_dmg = 10;
 

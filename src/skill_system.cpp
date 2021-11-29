@@ -547,6 +547,32 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	return  resultEntity;
 }
 
+Entity SkillSystem::launchArrow(Entity start, vec2 ms_pos, RenderSystem* renderer) {
+
+	vec2 startPos = registry.motions.get(start).position;
+
+	float proj_x = startPos.x + 50;
+	float proj_y = startPos.y;
+	float mouse_x = ms_pos.x;
+	float mouse_y = ms_pos.y;
+
+	float dx = mouse_x - proj_x;
+	float dy = mouse_y - proj_y;
+	float dxdy = sqrt((dx * dx) + (dy * dy));
+	float vx = ARROWSPEED * dx / dxdy;
+	float vy = ARROWSPEED * dy / dxdy;
+
+	float angle = atan(dy / dx);
+	if (dx < 0) {
+		angle += M_PI;
+	}
+	Entity resultEntity = createArrow(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
+	Motion* arrowacc = &registry.motions.get(resultEntity);
+	arrowacc->acceleration = vec2(200 * vx / ARROWSPEED, 200 * vy / ARROWSPEED);
+
+	return  resultEntity;
+}
+
 Entity SkillSystem::launchRock(Entity target, RenderSystem* renderer) {
 	int isFriendly = 1;
 	vec2 targetp = registry.motions.get(target).position;
