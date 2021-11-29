@@ -113,6 +113,7 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 Entity createMeleeIcon(RenderSystem* renderer, vec2 position);
 Entity createIceShardIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIcon(RenderSystem* renderer, vec2 position);
+Entity createArrowIcon(RenderSystem* renderer, vec2 position);
 Entity createFireballIconSelected(RenderSystem* renderer, vec2 position);
 
 // the silence icon

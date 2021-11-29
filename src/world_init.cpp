@@ -435,6 +435,29 @@ Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
 
 	return entity;
 }
+//arrow icon
+Entity createArrowIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ARROWICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
 
 //taunt icon
 Entity createTauntIcon(RenderSystem* renderer, vec2 position)
