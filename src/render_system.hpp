@@ -189,7 +189,8 @@ class RenderSystem {
 		shader_path("textured"),
 		shader_path("water"),
 		shader_path("particle"),
-		shader_path("basicEnemy")};
+		shader_path("basicEnemy"),
+		shader_path("light")};	// NEW
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -366,6 +367,8 @@ private:
 	void drawDeathParticles(Entity entity, const mat3& projection);
 	// void initParticlesBuffer();
 	void drawToScreen();
+
+	void drawLight();
 
 	// Window handle
 	GLFWwindow* window;

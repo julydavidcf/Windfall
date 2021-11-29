@@ -7,6 +7,43 @@
 
 #include "tiny_ecs_registry.hpp"
 
+void RenderSystem::drawLight()
+{
+	//if (registry.light.has(entity)) {
+		//auto& light = registry.light.get(entity);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+		const GLuint used_effect_enum = (GLuint)EFFECT_ASSET_ID::LIGHT;
+		const GLuint program = (GLuint)effects[used_effect_enum];
+
+		// Setting shaders
+		glUseProgram(program);
+		gl_has_errors();
+
+		const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+		const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+
+		// Setting vertex and index buffers
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		gl_has_errors();
+
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // note the stride to skip the preceeding vertex position
+		gl_has_errors();
+	//}	
+}
+
 void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 {
 	auto& pool = registry.particlePools.get(entity);
@@ -433,6 +470,8 @@ void RenderSystem::draw(float elapsed_ms)
 	int hasTravellingProjectile = 0;
 
 	std::vector<Entity> dialogues;
+
+	drawLight();
 
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {

@@ -1382,6 +1382,7 @@ void WorldSystem::restart_game(bool force_restart)
 		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		printf("Loading free roam 0\n");
 		player_mage = createPlayerMage(renderer, {700, 600});
+		registry.light.emplace(player_mage); // NEW
 		renderer->gameLevel = 1;
 	}
 	else
