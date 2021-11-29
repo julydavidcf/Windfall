@@ -363,7 +363,10 @@ struct toolTip
 // Light
 struct Light
 {
-	
+	// light has position, color, size
+	vec2 position;
+	vec4 color;
+	float size;
 };
 
 /**

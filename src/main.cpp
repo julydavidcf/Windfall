@@ -46,7 +46,6 @@ int main()
 	//world.createRound();
 	//world.checkRound();
 	//world.displayPlayerTurn();	// display player turn when world renders
-	isFreeRoam = 1;
 
 	// variable timestep loop
 	auto t = Clock::now();

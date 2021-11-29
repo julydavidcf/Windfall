@@ -1388,7 +1388,15 @@ void WorldSystem::restart_game(bool force_restart)
 		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		printf("Loading free roam 0\n");
 
-		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
+		player_archer = createPlayerArcher(renderer, {700, 600}, 1);	// NEW
+		if (!registry.light.has(player_archer)) {
+			registry.light.emplace(player_archer);	// center light on archer
+			auto& lightProperties = registry.light.get(player_archer);
+			lightProperties.color = { 255, 255, 255, 255 };
+			lightProperties.position = registry.motions.get(player_archer).position;
+			lightProperties.size = 10.0f;
+		}
+
 
 		// Create these for testing, can remove unneeded assets
 		createFirefly(renderer, { 300, 500 });

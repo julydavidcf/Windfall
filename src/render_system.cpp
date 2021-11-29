@@ -9,6 +9,9 @@
 
 void RenderSystem::drawLight()
 {
+	// I have lightProperties color, position, and size, need to pass to vertex shader.
+	// HOW?
+	
 	//if (registry.light.has(entity)) {
 		//auto& light = registry.light.get(entity);
 		glEnable(GL_BLEND);
@@ -39,7 +42,7 @@ void RenderSystem::drawLight()
 		gl_has_errors();
 
 		glEnableVertexAttribArray(in_texcoord_loc);
-		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // note the stride to skip the preceeding vertex position
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3));
 		gl_has_errors();
 	//}	
 }
@@ -468,10 +471,7 @@ void RenderSystem::draw(float elapsed_ms)
 	mat3 projection_2D = createProjectionMatrix();
 	std::vector<Entity> needParticleEffects;
 	int hasTravellingProjectile = 0;
-
 	std::vector<Entity> dialogues;
-
-	drawLight();
 
 	mat3 projectionMat = createProjectionMatrix();
 	for (Entity entity : registry.renderRequests.entities) {
@@ -513,6 +513,11 @@ void RenderSystem::draw(float elapsed_ms)
 		mat3 projectionToUse = projectionMat;
 		if (!registry.motions.has(entity))
 			continue;
+
+		if (registry.light.has(entity)) {
+			drawLight();	// only transparency effect??
+		}
+
 		if (registry.particlePools.has(entity)) {
 			needParticleEffects.push_back(entity);
 		}
@@ -969,9 +974,9 @@ void RenderSystem::draw(float elapsed_ms)
 		}
 
 	}
-
 	// Truely render to the screen
 	drawToScreen();
+
 
 	// render particles at the end
 	for (auto& entity : needParticleEffects) {

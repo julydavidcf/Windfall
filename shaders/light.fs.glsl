@@ -10,7 +10,7 @@ layout(location = 0) out  vec4 color;
 
 void main()
 {
-	float distance = length(fragmentUV);	// compute float distance, to look at video again
+	float distance = length(fragmentUV);	// compute float distance
 
-	color = vec4(fragmentColor.rgb, fragmentColor.a * (pow(0.01, distance) - 0.01));
+	color = vec4(fragmentColor.rgb * (fragmentColor.a * (1.0 - distance)), fragmentColor.a * (1.0 - distance));
 }
