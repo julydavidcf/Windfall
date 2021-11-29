@@ -61,6 +61,9 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
+		// FOR TESTING: REMOVE LATER
+		isFreeRoam = 1;
+
 		if (world.canStep) {
 			world.step(elapsed_ms);
 			// ai.step(elapsed_ms);

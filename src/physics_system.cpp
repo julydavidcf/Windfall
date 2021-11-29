@@ -157,13 +157,20 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 		motion->velocity.y += step_seconds * motion->acceleration.y;
 		motion->position.x += step_seconds * motion->velocity.x;
 		motion->position.y += step_seconds * motion->velocity.y;
-		if (registry.gravities.has(entity)) {
-			float angle = atan(motion->velocity.y / motion->velocity.x);
-			if (motion->velocity.x < 0) {
-				angle += M_PI;
-			}
-			motion->angle = angle;
 
+		//gravity effect
+		if (registry.gravities.has(entity)) {
+
+			if (registry.companions.has(entity) && registry.companions.get(entity).companionType == ARCHER) {
+				if (registry.companions.get(entity).curr_anim_type == JUMPING) {
+					motion->acceleration.y += registry.gravities.get(entity).gravity;
+				}
+			}
+			//float angle = atan(motion->velocity.y / motion->velocity.x);
+			//if (motion->velocity.x < 0) {
+			//	angle += M_PI;
+			//}
+			//motion->angle = angle;
 		}
 	}
 }

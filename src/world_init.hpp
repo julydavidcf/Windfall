@@ -9,6 +9,8 @@ const float MAGE_WIDTH = 175.f;
 const float MAGE_HEIGHT = 190.f;
 const float SWORDSMAN_WIDTH = 250.f;
 const float SWORDSMAN_HEIGHT = 290.f;
+const float ARCHER_WIDTH = 160.f;
+const float ARCHER_HEIGHT = 180.f;
 const float NECRO_ONE_WIDTH = 240.f;
 const float NECRO_ONE_HEIGHT = 270.f;
 const float NECRO_TWO_WIDTH = 350.f;
@@ -34,6 +36,16 @@ const float ICON_WIDTH = 80.f;
 const float ICON_HEIGHT = 80.f;
 const float BARRIER_WIDTH = 50.f;
 const float BARRIER_HEIGHT = 425.f;
+const float FIREFLY_WIDTH = 50.f;
+const float FIREFLY_HEIGHT = 50.f;
+const float PLATFORM_WIDTH = 250.f;
+const float PLATFORM_HEIGHT = 110.f;
+const float ROCK_MESH_WIDTH = 180.f;
+const float ROCK_MESH_HEIGHT = 180.f;
+const float ARROW_MESH_WIDTH = 90.f;
+const float ARROW_MESH_HEIGHT = 15.f;
+const float TREASURE_CHEST_WIDTH = 100.f;
+const float TREASURE_CHEST_HEIGHT = 80.f;
 
 const float PLAYERTURN_WIDTH = 300.f;
 const float PLAYERTURN_HEIGHT = 100.f;
@@ -83,6 +95,8 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
 Entity createEnemyMage(RenderSystem* renderer, vec2 position);
 // the player swordsman
 Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos);
+// the player archer
+Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher);
 // the enemy swordsman
 Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos);
 // the necromancer's phase one
@@ -127,6 +141,12 @@ Entity createEnemyTurn(RenderSystem* renderer, vec2 position);
 // barrier
 Entity createBarrier(RenderSystem* renderer, vec2 position);
 
+Entity createFirefly(RenderSystem* renderer, vec2 position);
+Entity createPlatform(RenderSystem* renderer, vec2 position);
+Entity createRockMesh(RenderSystem* renderer, vec2 position);
+Entity createArrowMesh(RenderSystem* renderer, vec2 position);
+Entity createTreasureChest(RenderSystem* renderer, vec2 position);
+
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
 Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly);
 
@@ -167,6 +187,7 @@ const int enemy_swordsman_hp = 130;
 
 const int player_mage_hp = 60;
 const int player_swordsman_hp = 85;
+const int player_archer_hp = 50;
 const int necro_minion_health = 15;
 const int necro_1_health = 175;
 const int necro_2_health = 125;

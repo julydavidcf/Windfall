@@ -862,7 +862,49 @@ void RenderSystem::draw(float elapsed_ms)
 					}
 					break;
 				}
-					// TODO: Implement healer, archer later
+				case ARCHER: {
+					frame_width = ARCHER_FRAME_WIDTH;
+					switch (animType) {
+						case IDLE: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_IDLE) {
+								*currFrame = 0;
+							}
+							currGeometry = GEOMETRY_BUFFER_ID::ARCHER_IDLE;
+							numFrames = ARCHER_IDLE_FRAMES; timePerFrame = ARCHER_IDLE_FRAME_TIME; break;
+						}
+						case WALKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_WALKING) {
+								*currFrame = 0;
+							}
+							currGeometry = GEOMETRY_BUFFER_ID::ARCHER_WALKING;
+							numFrames = ARCHER_WALKING_FRAMES; timePerFrame = ARCHER_WALKING_FRAME_TIME; break;
+						}
+						case JUMPING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_JUMPING) {
+								*currFrame = 0;
+							}
+							currGeometry = GEOMETRY_BUFFER_ID::ARCHER_JUMPING;
+
+							// Only one frame for falling
+							if (registry.motions.get(entity).velocity.y > 0.f) {
+								numFrames = 1;
+							}
+							else {
+								numFrames = ARCHER_JUMPING_FRAMES;
+							}
+							timePerFrame = ARCHER_JUMPING_FRAME_TIME; break;
+						}
+						case ATTACKING: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_ATTACKING) {
+								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_ATTACKING;
+								*currFrame = 0;
+							}
+							numFrames = ARCHER_ATTACKING_FRAMES; timePerFrame = ARCHER_ATTACKING_FRAME_TIME; break;
+						}
+						default: break;
+					}
+					break;
+				}
 				default: break;
 			}
 

@@ -129,6 +129,53 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
+Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ARCHER_IDLE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = isFreeRoamArcher ? vec2(ARCHER_WIDTH, window_height_px - ARCHER_HEIGHT) : pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ ARCHER_WIDTH, ARCHER_HEIGHT });
+
+	if (!isFreeRoamArcher) {
+		// Add battle-system related stats
+		Statistics& stat = registry.stats.emplace(entity);
+		stat.health = player_archer_hp;
+		stat.max_health = player_archer_hp;
+		stat.speed = 9;
+		stat.classID = 1;
+
+		// Add a healthbar
+		Companion& companion = registry.companions.emplace(entity);
+		companion.healthbar = createHealthBar(renderer, { pos.x, pos.y - 20 });
+		companion.companionType = ARCHER;
+		companion.curr_anim_type = IDLE;
+	}
+	else {
+		// No heathbar for free-roam archer
+		Companion& companion = registry.companions.emplace(entity);
+		companion.companionType = ARCHER;
+		companion.curr_anim_type = IDLE;
+
+		// Add gravity for jumping
+		auto& gravity = registry.gravities.emplace(entity);
+		gravity.gravity = 15;
+	}
+
+	auto& abc = registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ARCHER_ANIMS,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::ARCHER_IDLE });
+
+	return entity;
+}
+
 Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
@@ -624,6 +671,107 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 			GEOMETRY_BUFFER_ID::SHIELD_MESH });
 
 	registry.deformableEntities.insert(entity, {});
+
+	return entity;
+}
+
+
+Entity createFirefly(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::FIREFLY_MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ FIREFLY_WIDTH, -FIREFLY_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::PEBBLE,
+			GEOMETRY_BUFFER_ID::FIREFLY_MESH });
+
+	return entity;
+}
+
+Entity createPlatform(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::PLATFORM_MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ PLATFORM_WIDTH, -PLATFORM_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::PEBBLE,
+			GEOMETRY_BUFFER_ID::PLATFORM_MESH });
+
+	return entity;
+}
+
+Entity createRockMesh(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ROCK_MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ ROCK_MESH_WIDTH, -ROCK_MESH_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::PEBBLE,
+			GEOMETRY_BUFFER_ID::ROCK_MESH });
+
+	return entity;
+}
+
+Entity createArrowMesh(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ARROW_MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ ARROW_MESH_WIDTH, -ARROW_MESH_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::PEBBLE,
+			GEOMETRY_BUFFER_ID::ARROW_MESH });
+
+	return entity;
+}
+
+Entity createTreasureChest(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREASURE_CHEST_MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ TREASURE_CHEST_WIDTH, -TREASURE_CHEST_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::PEBBLE,
+			GEOMETRY_BUFFER_ID::TREASURE_CHEST_MESH });
 
 	return entity;
 }
