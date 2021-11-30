@@ -1593,17 +1593,17 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// david test
-	if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-		sk->launchArrow(registry.companions.entities[0],msPos,renderer);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
+	//}
 
 	//if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
 	//	sk->launchSpike(player_mage, renderer);
 	//}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
-		sk->launchNecroBarrier(necromancer_phase_two, renderer);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
+	//	sk->launchNecroBarrier(necromancer_phase_two, renderer);
+	//}
 
 	// Debugging
 	if (key == GLFW_KEY_D) {
