@@ -13,10 +13,7 @@
 #include "skill_system.hpp"
 
 // Game configuration
-const size_t MAX_TURTLES = 15;
-const size_t MAX_FISH = 5;
-const size_t TURTLE_DELAY_MS = 2000 * 3;
-const size_t FISH_DELAY_MS = 5000 * 3;
+const size_t BOULDER_DELAY_MS = 1000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = {600, 150};
@@ -69,8 +66,10 @@ bool loaded_game = false;
 int selected_skill = -1;
 
 // Free roam variables
-bool isFreeRoam = false;
+bool isFreeRoam = true;
 int freeRoamLevel = 1;
+
+const size_t MAX_BOULDERS = 5;
 
 // mouse gesture skills related=============
 int startMousePosCollect = 0;
@@ -91,6 +90,7 @@ using namespace std;
 
 WorldSystem::WorldSystem()
 	: points(0)
+	, next_boulder_spawn(0.f)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -1159,6 +1159,24 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	if(isFreeRoam && (freeRoamLevel == 1)){
+		next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
+		if (registry.rollables.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+			// Reset timer
+			next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
+			// Create boulder
+			Entity entity = createBoulder(renderer, {window_width_px+50, 600});
+			// Setting random initial position and constant velocity
+			Motion& motion = registry.motions.get(entity);
+			motion.velocity = vec2(-100.f, 0.f);
+		}
+		// move it to physics
+		for(Entity rollable: registry.rollables.entities){
+			Motion& motion = registry.motions.get(rollable);
+			motion.angle = motion.angle - 0.03;
+		}
+	}
+
 	float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities)
 	{
@@ -1391,11 +1409,13 @@ void WorldSystem::restart_game(bool force_restart)
 		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
 
 		// Create these for testing, can remove unneeded assets
+		/*
 		createFirefly(renderer, { 300, 500 });
 		createPlatform(renderer, { 400, 600 });
 		createArrowMesh(renderer, { 700, 600 });
 		createRockMesh(renderer, { 900, 600 });
 		createTreasureChest(renderer, { 1100, 600 });
+		*/
 		renderer->gameLevel = 1;
 	}
 	else

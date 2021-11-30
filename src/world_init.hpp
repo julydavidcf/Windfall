@@ -156,6 +156,9 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);
 
+
+Entity createBoulder(RenderSystem* renderer, vec2 position);
+
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly);
 // a basic, textured enemy
 Entity createEnemyMage(RenderSystem* renderer, vec2 position);

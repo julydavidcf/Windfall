@@ -946,6 +946,33 @@ Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly)
 	return entity;
 }
 
+Entity createBoulder(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ROCK_MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+
+	registry.rollables.emplace(entity);
+	motion.scale = vec2({ ROCK_MESH_WIDTH, -ROCK_MESH_HEIGHT });
+	motion.angle = 1.f;
+	
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::PEBBLE,
+			GEOMETRY_BUFFER_ID::ROCK_MESH });
+
+	return entity;
+}
+
 //https://pngtree.com/freepng/lightning-design-lightning-effect-natural-phenomenon-lightning-source_3916935.html
 // create lightning
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly)

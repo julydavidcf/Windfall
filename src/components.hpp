@@ -218,6 +218,13 @@ struct Silence
 
 };
 
+
+// Make the boulders roll
+struct Rollable
+{
+
+};
+
 struct StatIndicator
 {
 	Entity owner;
