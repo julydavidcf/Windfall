@@ -298,11 +298,12 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	return window;
 }
 
-void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem *skill_arg)
+void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem *skill_arg, SwarmSystem *swarm_arg)
 {
 	this->renderer = renderer_arg;
 	this->ai = ai_arg;
 	this->sk = skill_arg;
+	this->swarmSys = swarm_arg;
 
 	Mix_VolumeMusic(MIX_MAX_VOLUME / 30);
 	Mix_FadeInMusic(registry.background_music, -1, 5000);
@@ -1072,6 +1073,27 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	// Update swarm timers here, use fireflySwarm[0] to track time
+	//float& swarm_reset_timer = registry.fireflySwarm.components[0].reset_timer;
+	float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
+	
+	//if (swarm_reset_timer < 0.f && registry.fireflySwarm.components[0].shouldFlipVelocityX) {
+	//	swarmSys->startSwarm();
+	//	registry.fireflySwarm.components[0].shouldFlipVelocityX = 0;
+	//	registry.fireflySwarm.components[0].reset_timer = 5000.f;
+	//}
+	//else {
+	//	swarm_reset_timer -= elapsed_ms_since_last_update;
+	//}
+
+	if (swarm_update_timer < 0.f) {
+		swarmSys->updateSwarm();
+		registry.fireflySwarm.components[0].update_timer = 100.f;
+	}
+	else {
+		swarm_update_timer -= elapsed_ms_since_last_update;
+	}
+
 	if (player_turn == 1)
 	{
 		displayPlayerTurn();
@@ -1406,6 +1428,10 @@ void WorldSystem::restart_game(bool force_restart)
 		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
 		//createRockMesh(renderer, { 900, 600 });
 		//createTreasureChest(renderer, { 1100, 600 });
+
+		swarmSys->initializeSwarmEntities(renderer);
+		swarmSys->startSwarm();
+
 		renderer->gameLevel = 1;
 	}
 	else

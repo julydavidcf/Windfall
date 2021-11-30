@@ -152,6 +152,32 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 
+		// Handle fireflies that approach the screen boundaries
+		if (registry.fireflySwarm.has(entity)) {
+			float posX = motion->position.x;
+			float posY = motion->position.y;
+			auto& fireflyComoponent = registry.fireflySwarm.get(entity);
+
+			if (fireflyComoponent.shouldFlipVelocityX == 1) {
+				motion->position.x += 2;
+			}
+			else {
+				motion->position.x -= 2;
+			}
+
+			if (posX - xBorderLimitDist < 0.f) {
+				fireflyComoponent.shouldFlipVelocityX = 1;
+			}
+
+			if (posX + xBorderLimitDist >= window_width_px) {
+				fireflyComoponent.shouldFlipVelocityX = 2;
+			}
+			if (  posY - yBorderLimitDist < 0.f
+			   || posY + yBorderLimitDist >= window_height_px) {
+				fireflyComoponent.shouldFlipVelocityY = 1;
+			}
+		}
+
 		//normal movement
 		motion->velocity.x += step_seconds * motion->acceleration.x;
 		motion->velocity.y += step_seconds * motion->acceleration.y;

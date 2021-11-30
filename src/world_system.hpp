@@ -14,6 +14,7 @@
 #include "ai_system.hpp"
 #include "render_system.hpp"
 #include "skill_system.hpp"
+#include "swarm_system.hpp"
 
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
@@ -26,7 +27,7 @@ public:
 	GLFWwindow* create_window(int width, int height);
 
 	// starts the game
-	void init(RenderSystem* renderer, AISystem* ai_arg, SkillSystem* skill_arg);
+	void init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem* skill_arg, SwarmSystem* swarm_arg);
 
 	// Displays the start screen and buttons
 	void render_startscreen();
@@ -134,6 +135,7 @@ private:
 	RenderSystem* renderer;
 	AISystem* ai;
 	SkillSystem* sk;
+	SwarmSystem* swarmSys;
 
 	float current_speed;
 	Entity player_mage;

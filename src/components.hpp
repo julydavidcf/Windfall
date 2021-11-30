@@ -78,6 +78,14 @@ struct HealthBar
 
 };
 
+// Swarm particle (Firefly)
+struct SwarmParticle
+{
+	float update_timer = 0.f;
+	int shouldFlipVelocityX = 0;
+	int shouldFlipVelocityY = 0;
+};
+
 struct Dot
 {
 

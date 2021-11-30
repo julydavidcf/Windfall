@@ -758,6 +758,9 @@ Entity createFirefly(RenderSystem* renderer, vec2 position)
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
 	motion.scale = vec2({ FIREFLY_WIDTH, -FIREFLY_HEIGHT });
+	motion.velocity = vec2(0.f, 0.f);
+
+	auto& firefly = registry.fireflySwarm.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,

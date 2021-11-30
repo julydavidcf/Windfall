@@ -16,4 +16,8 @@ public:
 	PhysicsSystem()
 	{
 	}
+
+private:
+	float xBorderLimitDist = 50;
+	float yBorderLimitDist = 50;
 };

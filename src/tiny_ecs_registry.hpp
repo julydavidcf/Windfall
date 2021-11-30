@@ -17,6 +17,7 @@ public:
 	// Manually created list of all components this game has
 	ComponentContainer<BackgroundObj> deformableEntities;
 	ComponentContainer<ParticlePool> particlePools;
+	ComponentContainer<SwarmParticle> fireflySwarm;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
