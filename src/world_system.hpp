@@ -140,6 +140,7 @@ private:
 	Entity enemy_mage;
 	Entity player_swordsman;
 	Entity enemy_swordsman;
+	Entity player_archer;
 
 	Entity fireball;
 	Entity silence_icon;
