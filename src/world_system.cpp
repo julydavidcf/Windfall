@@ -1388,21 +1388,24 @@ void WorldSystem::restart_game(bool force_restart)
 		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		printf("Loading free roam 0\n");
 
-		player_archer = createPlayerArcher(renderer, {700, 600}, 1);	// NEW
+		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
 		renderer->archer = player_archer;
-		if (!registry.light.has(player_archer)) {
-			registry.light.emplace(player_archer);	// center light on archer
-			auto& lightProperties = registry.light.get(player_archer);
-			lightProperties.color = { 255, 255, 255, 255 };
-			lightProperties.position = registry.motions.get(player_archer).position;
-			lightProperties.size = 10.0f;
-		}
+		//if (!registry.light.has(player_archer)) {
+		//	registry.light.emplace(player_archer);	// center light on archer
+		//	auto& lightProperties = registry.light.get(player_archer);
+		//	lightProperties.color = { 255, 255, 255, 255 };
+		//	lightProperties.position = registry.motions.get(player_archer).position;
+		//	lightProperties.size = 10.0f;
+		//}
 
 
 		// Create these for testing, can remove unneeded assets
 		createFirefly(renderer, { 300, 500 });
 		createPlatform(renderer, { 400, 600 });
-		createArrowMesh(renderer, { 700, 600 });
+		arrow_mesh = createArrowMesh(renderer, { 700, 600 });
+		if (!registry.light.has(arrow_mesh)) {
+			registry.light.emplace(arrow_mesh);
+		}
 		createRockMesh(renderer, { 900, 600 });
 		createTreasureChest(renderer, { 1100, 600 });
 		renderer->gameLevel = 1;
