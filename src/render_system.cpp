@@ -14,21 +14,64 @@ void RenderSystem::drawLight()
 
 	const GLuint light_program = effects[(GLuint)EFFECT_ASSET_ID::LIGHT];
 
-	//GLuint time_uloc = glGetUniformLocation(light_program, "time");
+	// Clearing backbuffer
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, w, h);
+	glDepthRange(0, 10);
+	glClearColor(1.f, 0, 0, 1.0);
+	glClearDepth(1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	gl_has_errors();
+	// Enabling alpha channel for textures
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+
+	// Draw the screen texture on the quad geometry
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
+	glBindBuffer(
+		GL_ELEMENT_ARRAY_BUFFER,
+		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
+																	 // indices to the bound GL_ARRAY_BUFFER
+	gl_has_errors();
+
+	GLuint resoltion_x_loc = glGetUniformLocation(light_program, "resolutionX");
+	GLuint resoltion_y_loc = glGetUniformLocation(light_program, "resolutionY");
+	glUniform1f(resoltion_x_loc, (float)w);
+	glUniform1f(resoltion_y_loc, (float)h);
+
 
 	for (int i = 0; i < lightBallsXcoords.size(); i++) {
-		std::string s1("thing.xCoordinates[");
-		std::string s2("thing.yCoordinates[");
+		std::string s1("thingie.xCoordinates[");
+		std::string s2("thingie.yCoordinates[");
 		std::string iInS = std::to_string(i);
 		s1 += iInS + "]";
 		s2 += iInS + "]";
 
-		// printf("%f %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
 		GLuint locX = glGetUniformLocation(light_program, s1.c_str());
 		GLuint locY = glGetUniformLocation(light_program, s2.c_str());
 		glUniform1f(locX, lightBallsXcoords[i]);
 		glUniform1f(locY, lightBallsYcoords[i]);
 	}
+
+	gl_has_errors();
+	// Set the vertex position and vertex texture coordinates (both stored in the
+	// same VBO)
+	GLint in_position_loc = glGetAttribLocation(light_program, "in_position");
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void*)0);
+	gl_has_errors();
+
+	// Bind our texture in Texture Unit 0
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
+	gl_has_errors();
+	// Draw
+	glDrawElements(
+		GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
+		nullptr); // one triangle = 3 vertices; nullptr indicates that there is
+				  // no offset from the bound index buffer
 	gl_has_errors();
 
 	// HOW?
@@ -997,8 +1040,8 @@ void RenderSystem::draw(float elapsed_ms)
 	}
 	// Truely render to the screen
 
-	drawLight();
 	drawToScreen();
+	drawLight();
 
 
 	// render particles at the end
