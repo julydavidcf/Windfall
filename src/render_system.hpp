@@ -352,6 +352,7 @@ public:
 	int gameLevel = 1;
 	int shouldDeform = 0;
 	bool implode = false;
+	Entity archer;
 
 	// Initialize the window
 	bool init(int width, int height, GLFWwindow* window);
@@ -391,7 +392,7 @@ private:
 	// void initParticlesBuffer();
 	void drawToScreen();
 
-	void drawLight();
+	void drawLight(Entity entity);
 
 	// Window handle
 	GLFWwindow* window;
