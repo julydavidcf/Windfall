@@ -1041,7 +1041,14 @@ void RenderSystem::draw(float elapsed_ms)
 	// Truely render to the screen
 
 	drawToScreen();
-	drawLight();
+	// drawLight();
+	// want to render light only when the entity has light component
+	for (Entity entity : registry.renderRequests.entities)
+	{
+		if (registry.light.has(entity)) {
+			drawLight();
+		}
+	}
 
 
 	// render particles at the end
