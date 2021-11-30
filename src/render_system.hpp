@@ -237,7 +237,7 @@ class RenderSystem {
 	float ARCHER_IDLE_FRAME_TIME = 250;
 	float ARCHER_WALKING_FRAME_TIME = 100;
 	float ARCHER_JUMPING_FRAME_TIME = 750;
-	float ARCHER_ATTACKING_FRAME_TIME = 150;
+	float ARCHER_ATTACKING_FRAME_TIME = 75;
 
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;

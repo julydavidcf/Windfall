@@ -39,7 +39,7 @@ public:
 	// launch skills
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
-	Entity launchArrow(Entity start, vec2 ms_pos, RenderSystem* renderer);
+	Entity launchArrow(Entity start, vec2 ms_pos, RenderSystem* renderer, int isFreeRoam);
 	Entity launchRock(Entity target, RenderSystem* renderer);
 	Entity launchSpike(Entity target, RenderSystem* renderer);
 	Entity launchLightning(Entity target, RenderSystem* renderer);

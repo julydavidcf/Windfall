@@ -502,6 +502,18 @@ void RenderSystem::initializeGlGeometryBuffers()
 	archer_attacking_vertices[3].texcoord = { 0.f, 0.375 };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::ARCHER_ATTACKING, archer_attacking_vertices, textured_indices);
 
+	// archer_walk_attacking sprite row
+	std::vector<TexturedVertex> archer_walk_attacking_vertices(4);
+	archer_walk_attacking_vertices[0].position = { -1.f, +1.f, 0.f };
+	archer_walk_attacking_vertices[1].position = { +1.f, +1.f, 0.f };
+	archer_walk_attacking_vertices[2].position = { +1.f, -1.f, 0.f };
+	archer_walk_attacking_vertices[3].position = { -1.f, -1.f, 0.f };
+	archer_walk_attacking_vertices[0].texcoord = { 0.f, 0.375 };           // Bottom left
+	archer_walk_attacking_vertices[1].texcoord = { 0.125, 0.375 };        // Bottom right
+	archer_walk_attacking_vertices[2].texcoord = { 0.125, 0.250 };        // Top right
+	archer_walk_attacking_vertices[3].texcoord = { 0.f, 0.250 };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::ARCHER_WALK_ATTACKING, archer_walk_attacking_vertices, textured_indices);
+
 	////////////////////////
 	// Initialize pebble
 	std::vector<ColoredVertex> pebble_vertices;

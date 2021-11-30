@@ -162,7 +162,7 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 		if (registry.gravities.has(entity)) {
 
 			if (registry.companions.has(entity) && registry.companions.get(entity).companionType == ARCHER) {
-				if (registry.companions.get(entity).curr_anim_type == JUMPING) {
+				if (motion->velocity.y != 0) {
 					motion->acceleration.y += registry.gravities.get(entity).gravity;
 				}
 			}

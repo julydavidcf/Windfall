@@ -42,8 +42,8 @@ const float PLATFORM_WIDTH = 250.f;
 const float PLATFORM_HEIGHT = 110.f;
 const float ROCK_MESH_WIDTH = 180.f;
 const float ROCK_MESH_HEIGHT = 180.f;
-const float ARROW_MESH_WIDTH = 90.f;
-const float ARROW_MESH_HEIGHT = 15.f;
+const float ARROW_MESH_WIDTH = 120.f;
+const float ARROW_MESH_HEIGHT = 20.f;
 const float TREASURE_CHEST_WIDTH = 100.f;
 const float TREASURE_CHEST_HEIGHT = 80.f;
 
@@ -122,7 +122,7 @@ Entity createParticleBeamCharge(RenderSystem* renderer, vec2 position);
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
 
 Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
-Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly);
+Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly, int isFreeRoam);
 // the icons
 Entity createMeleeIcon(RenderSystem* renderer, vec2 position);
 Entity createIceShardIcon(RenderSystem* renderer, vec2 position);
@@ -146,7 +146,6 @@ Entity createBarrier(RenderSystem* renderer, vec2 position);
 Entity createFirefly(RenderSystem* renderer, vec2 position);
 Entity createPlatform(RenderSystem* renderer, vec2 position);
 Entity createRockMesh(RenderSystem* renderer, vec2 position);
-Entity createArrowMesh(RenderSystem* renderer, vec2 position);
 Entity createTreasureChest(RenderSystem* renderer, vec2 position);
 
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
