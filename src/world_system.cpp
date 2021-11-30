@@ -1389,7 +1389,7 @@ void WorldSystem::restart_game(bool force_restart)
 		printf("Loading free roam 0\n");
 
 		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
-		renderer->archer = player_archer;
+		//renderer->archer = player_archer;
 		//if (!registry.light.has(player_archer)) {
 		//	registry.light.emplace(player_archer);	// center light on archer
 		//	auto& lightProperties = registry.light.get(player_archer);
