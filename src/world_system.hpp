@@ -189,6 +189,11 @@ private:
 //swordsman
 		{ false, false, false, false, true, true}
 	};
+
+	std::vector<vec3> spline;
+	Entity free_roam_bird;
+	int birdNextPostionTracker = 1;
+	int birdPositionDivisor = 1;
 };
 // Can't use diretly somehow so just for reference
 enum class SKILL_ID {
