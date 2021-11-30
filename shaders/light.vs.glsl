@@ -11,12 +11,6 @@ out vec2 texcoord;
 // out vec4 fragmentColor;
 // out vec2 fragmentUV;
 
-
-// Application data
-// uniform mat3 transform;
-// uniform mat3 projection;
-// uniform mat4 P;
-
 void main()
 {
 	// fragmentPosition = vec2(in_position);	// is it right to change to vec2?

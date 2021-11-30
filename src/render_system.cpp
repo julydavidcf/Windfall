@@ -40,7 +40,7 @@ void RenderSystem::drawLight()
 	GLuint resoltion_y_loc = glGetUniformLocation(light_program, "resolutionY");
 	glUniform1f(resoltion_x_loc, (float)w);
 	glUniform1f(resoltion_y_loc, (float)h);
-
+	glUniform2f(glGetUniformLocation(light_program, "lightSourcePos"), 632.f, 600.f);
 
 	for (int i = 0; i < lightBallsXcoords.size(); i++) {
 		std::string s1("thingie.xCoordinates[");
