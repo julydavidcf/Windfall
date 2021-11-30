@@ -9,41 +9,62 @@
 
 void RenderSystem::drawLight()
 {
-	// I have lightProperties color, position, and size, need to pass to vertex shader.
+	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::LIGHT]);
+	gl_has_errors();
+
+	const GLuint light_program = effects[(GLuint)EFFECT_ASSET_ID::LIGHT];
+
+	//GLuint time_uloc = glGetUniformLocation(light_program, "time");
+
+	for (int i = 0; i < lightBallsXcoords.size(); i++) {
+		std::string s1("thing.xCoordinates[");
+		std::string s2("thing.yCoordinates[");
+		std::string iInS = std::to_string(i);
+		s1 += iInS + "]";
+		s2 += iInS + "]";
+
+		// printf("%f %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
+		GLuint locX = glGetUniformLocation(light_program, s1.c_str());
+		GLuint locY = glGetUniformLocation(light_program, s2.c_str());
+		glUniform1f(locX, lightBallsXcoords[i]);
+		glUniform1f(locY, lightBallsYcoords[i]);
+	}
+	gl_has_errors();
+
 	// HOW?
 	
 	//if (registry.light.has(entity)) {
 		//auto& light = registry.light.get(entity);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-		const GLuint used_effect_enum = (GLuint)EFFECT_ASSET_ID::LIGHT;
-		const GLuint program = (GLuint)effects[used_effect_enum];
+		//const GLuint used_effect_enum = (GLuint)EFFECT_ASSET_ID::LIGHT;
+		//const GLuint program = (GLuint)effects[used_effect_enum];
 
-		// Setting shaders
-		glUseProgram(program);
-		gl_has_errors();
+		//// Setting shaders
+		//glUseProgram(program);
+		//gl_has_errors();
 
-		const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
-		const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+		//const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+		//const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
 
-		// Setting vertex and index buffers
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		gl_has_errors();
+		//// Setting vertex and index buffers
+		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		//gl_has_errors();
 
-		GLint in_position_loc = glGetAttribLocation(program, "in_position");
-		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
-		gl_has_errors();
-		assert(in_texcoord_loc >= 0);
+		//GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		//GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		//gl_has_errors();
+		//assert(in_texcoord_loc >= 0);
 
-		glEnableVertexAttribArray(in_position_loc);
-		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
-		gl_has_errors();
+		//glEnableVertexAttribArray(in_position_loc);
+		//glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+		//gl_has_errors();
 
-		glEnableVertexAttribArray(in_texcoord_loc);
-		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3));
-		gl_has_errors();
+		//glEnableVertexAttribArray(in_texcoord_loc);
+		//glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3));
+		//gl_has_errors();
 	//}	
 }
 
@@ -422,7 +443,6 @@ void RenderSystem::drawToScreen()
 		glUniform1f(locY, lightBallsYcoords[i]);
 	}
 
-
 	gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)
@@ -500,6 +520,7 @@ void RenderSystem::draw(float elapsed_ms)
 		}
 	}
 
+	// drawLight();
 
 	// Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
@@ -514,9 +535,9 @@ void RenderSystem::draw(float elapsed_ms)
 		if (!registry.motions.has(entity))
 			continue;
 
-		if (registry.light.has(entity)) {
-			drawLight();	// only transparency effect??
-		}
+		//if (registry.light.has(entity)) {
+		//	drawLight();	// only transparency effect??
+		//}
 
 		if (registry.particlePools.has(entity)) {
 			needParticleEffects.push_back(entity);
@@ -975,6 +996,8 @@ void RenderSystem::draw(float elapsed_ms)
 
 	}
 	// Truely render to the screen
+
+	drawLight();
 	drawToScreen();
 
 
