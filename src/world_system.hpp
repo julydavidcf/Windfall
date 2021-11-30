@@ -184,9 +184,9 @@ private:
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee
 //mage
-		{ true, true, true, true, false, false},
+		{ true, true, true, true, false, false, true},
 //swordsman
-		{ false, false, false, false, true, true}
+		{ false, false, false, false, true, true,false}
 	};
 };
 // Can't use diretly somehow so just for reference
@@ -197,5 +197,6 @@ enum class SKILL_ID {
 	SK_HEAL = SK_ROCK + 1, //3
 	SK_TAUNT = SK_HEAL+1,//4
 	SK_MELEE = SK_TAUNT +1,//5
-	SKILL_COUNT = SK_MELEE + 1,
+	SK_ARROW = SK_MELEE +1, // 6
+	SKILL_COUNT = SK_ARROW + 1,
 };

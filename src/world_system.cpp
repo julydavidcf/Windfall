@@ -2017,7 +2017,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		if (selected_skill != 5) {
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
-
+		if (selected_skill != 6) {
+			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
+		}
 		showCorrectSkills();
 
 		if (player_turn == 1 && registry.checkRoundTimer.entities.size() == 0) {
@@ -2096,6 +2098,18 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 						selected_skill = -1;
 					}
 				}
+				//arrow
+				else if (inButton(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 6)) {
+					if (selected_skill == -1) {
+						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICONSELECTED;
+						selected_skill = 6;
+					}
+					else {
+						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
+						selected_skill = -1;
+					}
+				}
 				else {
 					//iceshard
 					if (selected_skill == 0) {
@@ -2165,6 +2179,13 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
 							}
 						}
+					}
+					//arrow
+					if (selected_skill == 6) {
+						sk->launchArrow(currPlayer,msPos,renderer);
+						selected_skill = -1;
+						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+						playerUseMelee = 0;
 					}
 				}
 			}
