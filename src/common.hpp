@@ -35,7 +35,7 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 #endif
 
 #ifndef NUM_SWARM_PARTICLES
-#define NUM_SWARM_PARTICLES 30
+#define NUM_SWARM_PARTICLES 50
 #endif
 
 // The 'Transform' component handles transformations passed to the Vertex shader

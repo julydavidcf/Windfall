@@ -14,7 +14,6 @@ public:
 	void updateSwarm();
 	void initializeSwarmEntities(RenderSystem* renderer);
 
-
 private:
 
 	// Initialization of the parameters:
@@ -22,8 +21,8 @@ private:
 	const int N = NUM_SWARM_PARTICLES; const int D = 2;
 	int i, j, k;
 	int TheBest = 0;
-	float c1 = 2; float c2 = 2;
 	float Pmin[2]; float Pmax[2];
+
 
 	// all data structures which are needed by PSO
 	float P[NUM_SWARM_PARTICLES][2]; float Pbest[NUM_SWARM_PARTICLES][2];

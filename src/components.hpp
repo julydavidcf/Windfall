@@ -82,6 +82,13 @@ struct HealthBar
 struct SwarmParticle
 {
 	float update_timer = 0.f;
+	float reset_timer = 0.f;
+	float dodge_timer = 0.f;
+	int isDodging = 0;
+
+	float beforeDodgeVelX = 0.f;
+	float beforeDodgeVelY = 0.f;
+
 	int shouldFlipVelocityX = 0;
 	int shouldFlipVelocityY = 0;
 };

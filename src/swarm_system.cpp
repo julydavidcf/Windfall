@@ -8,8 +8,8 @@ void SwarmSystem::initializeSwarmEntities(RenderSystem* renderer) {
 	float initialYPos = window_height_px / 2;
 	float posGap = FIREFLY_WIDTH + 10;
 
-	// Max 6 fireflies per column
-	int maxYPerColumn = 5;
+	// Max fireflies per column - 1
+	int maxYPerColumn = 9;
 	int xRowCounter = 0; int yRowCounter = 0;
 	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
 
@@ -19,7 +19,7 @@ void SwarmSystem::initializeSwarmEntities(RenderSystem* renderer) {
 		createFirefly(renderer, vec2(xPos, yPos));
 		
 		yRowCounter++;
-		if (yRowCounter == maxYPerColumn) {
+		if (yRowCounter > maxYPerColumn) {
 			yRowCounter = 0;
 			xRowCounter++;
 		}
@@ -38,9 +38,6 @@ float OF(float x[], int size_array) {
 
 // generate pseudo random values from the range [0 , 1)
 float r() {
-	//std::default_random_engine generator(std::random_device{}());
-	//std::uniform_int_distribution<int> distribution(0, 1);
-	//return distribution(generator);
 	return (float) (rand() % 1000) / 1000;
 }
 
@@ -49,8 +46,8 @@ float r() {
 int SwarmSystem::startSwarm() {
 	// Random number generator
 	srand(time(NULL));
-	// Pmin and Pmax determine the closeness between fireflies, lower tightness value = tighter swarm behaviour
-	const int tightness = 20;
+	// Pmin and Pmax determine the search space for the fireflies, in pixels
+	const int tightness = 100;
 
 	for (int j = 0; j < D; j++) {
 		Pmin[j] = -tightness; Pmax[j] = tightness;
@@ -83,45 +80,25 @@ void SwarmSystem::updateSwarm() {
 	TheBest = 0;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < D; j++) {
+			Motion& fireflyMotion = registry.motions.get(registry.fireflySwarm.entities[i]);
+
+			// fetch the current velocity from motions
+			float vel = (j == 0) ? fireflyMotion.velocity.x : fireflyMotion.velocity.y;
+
 			// for each particle compute the velocity vector
-			V[i][j] = V[i][j] + c1 * r() * (Pbest[i][j] - P[i][j]) + c2 * r() * (
+			V[i][j] = registry.convergenceValue * vel + registry.c1 * r() * (Pbest[i][j] - P[i][j]) + registry.c2 * r() * (
 				Gbest[j] - P[i][j]);
 
 			auto& fireflyComponent = registry.fireflySwarm.components[i];
-			//// flip x-velocity to avoid going out of border
-			//if (j == 0 && fireflyComponent.shouldFlipVelocityX) {
-			//	V[i][j] = -V[i][j];
-			//	fireflyComponent.shouldFlipVelocityX = 0;
-			//}
-			//// flip y-velocity to avoid going out of border
-			//if (j == 1 && fireflyComponent.shouldFlipVelocityY) {
-			//	V[i][j] = -V[i][j];
-			//	fireflyComponent.shouldFlipVelocityY = 0;
-			//}
 
-			// update the corresponding firefly velocity
-			Motion& fireflyMotion = registry.motions.get(registry.fireflySwarm.entities[i]);
+
 			if (j == 0) {
 				// Update the firefly's x-velocity
 				fireflyMotion.velocity.x = V[i][j];
-				// Give it a boost to fly faster in that direction
-				//if (V[i][j] < 0) {
-				//	fireflyMotion.velocity.x -= velocityBoost;
-				//}
-				//else if (V[i][j] > 0) {
-				//	fireflyMotion.velocity.x += velocityBoost;
-				//}
 			}
 			else {
 				// Update the firefly's y-velocity
 				fireflyMotion.velocity.y = V[i][j];
-				// Give it a boost to fly faster in that direction
-				//if (V[i][j] < 0) {
-				//	fireflyMotion.velocity.y -= velocityBoost;
-				//}
-				//else if (V[i][j] > 0) {
-				//	fireflyMotion.velocity.y += velocityBoost;
-				//}
 			}
 
 			// update each particle using velocity vector

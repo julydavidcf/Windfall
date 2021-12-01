@@ -146,36 +146,147 @@ bool collides(const Entity entity_i, const Entity entity_j)
 void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float window_height_px)
 {
 	auto& motion_registry = registry.motions;
+	Entity arrow_entity;
+	int hasArrow = 0;
+
+	for (int i = 0; i < registry.renderRequests.components.size(); i++) {
+		if (registry.renderRequests.components[i].used_geometry == GEOMETRY_BUFFER_ID::ARROW_MESH) {
+			arrow_entity = registry.renderRequests.entities[i];
+			hasArrow = 1;
+		}
+	}
+
+	Motion arrowMotion;
+	float arrowPosX;
+	float arrowPosY;
+	float arrowScaleX;
+	float arrowScaleY;
+	vec2 topLeftPoint;
+	vec2 topRightPoint;
+	vec2 bottomLeftPoint;
+	vec2 bottomRightPoint;
+	if (hasArrow) {
+		arrowMotion = registry.motions.get(arrow_entity);
+		arrowPosX = arrowMotion.position.x;
+		arrowPosY = arrowMotion.position.y;
+		arrowScaleX = arrowMotion.scale.x;
+		arrowScaleY = arrowMotion.scale.y;
+		topLeftPoint = vec2(arrowPosX - arrowScaleX / 2, arrowPosY - arrowScaleY / 2);
+		topRightPoint = vec2(arrowPosX + arrowScaleX / 2, arrowPosY - arrowScaleY / 2);
+		bottomLeftPoint = vec2(arrowPosX - arrowScaleX / 2, arrowPosY + arrowScaleY / 2);
+		bottomRightPoint = vec2(arrowPosX + arrowScaleX / 2, arrowPosY + arrowScaleY / 2);
+	}
+
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{
 		Motion* motion = &motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 
-		// Handle fireflies that approach the screen boundaries
+		// Handle firefly movement:
 		if (registry.fireflySwarm.has(entity)) {
-			float posX = motion->position.x;
-			float posY = motion->position.y;
-			auto& fireflyComoponent = registry.fireflySwarm.get(entity);
 
-			if (fireflyComoponent.shouldFlipVelocityX == 1) {
-				motion->position.x += 2;
-			}
-			else {
-				motion->position.x -= 2;
+			// 1. Avoidance movement: Separate from the incoming arrow
+			if (hasArrow && collides(entity, arrow_entity)) {
+				vec2 fireflyPos = motion->position;
+				float moveValue = 200;
+				float timerValue = 200.f;
+				auto& firefly = registry.fireflySwarm.get(entity);
+
+				if (firefly.dodge_timer > 0.f) continue;
+
+				if (firefly.isDodging) {
+					motion->velocity.x = firefly.beforeDodgeVelX;
+					motion->velocity.y = firefly.beforeDodgeVelY;
+					firefly.isDodging = 0;
+				}
+
+				// Separate the arrow's collision box into four cases
+
+				// First case: Within top-left collision box of arrow
+				if (topLeftPoint.x <= fireflyPos.x
+					&& fireflyPos.x <= arrowPosX
+					&& topLeftPoint.y <= fireflyPos.y
+					&& fireflyPos.y <= arrowPosY && !firefly.isDodging) {
+					firefly.beforeDodgeVelX = motion->velocity.x;
+					firefly.beforeDodgeVelY = motion->velocity.y;
+					motion->velocity.x -= moveValue;
+					motion->velocity.y -= moveValue;
+					firefly.dodge_timer = timerValue;
+					firefly.isDodging = 1;
+				}
+
+				// Second case: Within top-right collision box of arrow
+				else if (arrowPosX < fireflyPos.x
+					   && fireflyPos.x <= topRightPoint.x
+					   && topRightPoint.y <= fireflyPos.y
+					   && fireflyPos.y < arrowPosY) {
+					firefly.beforeDodgeVelX = motion->velocity.x;
+					firefly.beforeDodgeVelY = motion->velocity.y;
+					motion->velocity.x += moveValue;
+					motion->velocity.y -= moveValue;
+					firefly.dodge_timer = timerValue;
+					firefly.isDodging = 1;
+				}
+
+				// Third case: Within bottom-left collision box of arrow
+				else if (bottomLeftPoint.x <= fireflyPos.x
+					   && fireflyPos.x < arrowPosX
+					   && arrowPosY < fireflyPos.y
+					   && fireflyPos.y <= bottomLeftPoint.y) {
+					firefly.beforeDodgeVelX = motion->velocity.x;
+					firefly.beforeDodgeVelY = motion->velocity.y;
+					motion->velocity.x -= moveValue;
+					motion->velocity.y += moveValue;
+					firefly.dodge_timer = timerValue;
+					firefly.isDodging = 1;
+				}
+
+				// Fourth case: Within bottom-right collision box of arrow
+				else if (arrowPosX <= fireflyPos.x
+					   && fireflyPos.x <= bottomRightPoint.x
+					   && arrowPosY <= fireflyPos.y
+					   && fireflyPos.y <= bottomRightPoint.y) {
+					firefly.beforeDodgeVelX = motion->velocity.x;
+					firefly.beforeDodgeVelY = motion->velocity.y;
+					motion->velocity.x += moveValue;
+					motion->velocity.y += moveValue;
+					firefly.dodge_timer = timerValue;
+					firefly.isDodging = 1;
+				}
+				//continue;
 			}
 
-			if (posX - xBorderLimitDist < 0.f) {
-				fireflyComoponent.shouldFlipVelocityX = 1;
-			}
+			// 2. Standard movement: Moves towards a boundary and bounces back after approaching
+			//float posX = motion->position.x;
+			//float posY = motion->position.y;
+			//auto& fireflyComoponent = registry.fireflySwarm.get(entity);
 
-			if (posX + xBorderLimitDist >= window_width_px) {
-				fireflyComoponent.shouldFlipVelocityX = 2;
-			}
-			if (  posY - yBorderLimitDist < 0.f
-			   || posY + yBorderLimitDist >= window_height_px) {
-				fireflyComoponent.shouldFlipVelocityY = 1;
-			}
+			//if (fireflyComoponent.shouldFlipVelocityX == 1) {
+			//	motion->position.x += 1.5;
+			//}
+			//else {
+			//	motion->position.x -= 1.5;
+			//}
+			//if (fireflyComoponent.shouldFlipVelocityY == 1) {
+			//	motion->position.y += 1.5;
+			//}
+			//else {
+			//	motion->position.y -= 1.5;
+			//}
+
+			//if (posX - xBorderLimitDist < 0.f) {
+			//	fireflyComoponent.shouldFlipVelocityX = 1;
+			//}
+			//if (posX + xBorderLimitDist >= window_width_px) {
+			//	fireflyComoponent.shouldFlipVelocityX = 2;
+			//}
+			//if (posY - yBorderLimitDist < 0.f) {
+			//	fireflyComoponent.shouldFlipVelocityY = 1;
+			//}
+			//if (posY + yBorderLimitDist >= window_height_px) {
+			//	fireflyComoponent.shouldFlipVelocityY = 2;
+			//}
 		}
 
 		//normal movement
@@ -191,12 +302,14 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 				if (motion->velocity.y != 0) {
 					motion->acceleration.y += registry.gravities.get(entity).gravity;
 				}
+				continue;
 			}
-			//float angle = atan(motion->velocity.y / motion->velocity.x);
-			//if (motion->velocity.x < 0) {
-			//	angle += M_PI;
-			//}
-			//motion->angle = angle;
+			motion->acceleration.y += registry.gravities.get(entity).gravity;
+			float angle = atan(motion->velocity.y / motion->velocity.x);
+			if (motion->velocity.x < 0) {
+				angle += M_PI;
+			}
+			motion->angle = angle;
 		}
 	}
 }
