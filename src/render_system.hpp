@@ -50,6 +50,8 @@ class RenderSystem {
 			textures_path("playerTurn.png"),
 			textures_path("enemyTurn.png"),
 			textures_path("arrow.png"),
+			textures_path("arrowIcon.png"),
+			textures_path("arrowIconSelected.png"),
 			textures_path("rock.png"),
 			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
@@ -236,7 +238,7 @@ class RenderSystem {
 	float ARCHER_IDLE_FRAME_TIME = 250;
 	float ARCHER_WALKING_FRAME_TIME = 100;
 	float ARCHER_JUMPING_FRAME_TIME = 750;
-	float ARCHER_ATTACKING_FRAME_TIME = 150;
+	float ARCHER_ATTACKING_FRAME_TIME = 75;
 
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;

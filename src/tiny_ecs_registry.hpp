@@ -17,6 +17,7 @@ public:
 	// Manually created list of all components this game has
 	ComponentContainer<BackgroundObj> deformableEntities;
 	ComponentContainer<ParticlePool> particlePools;
+	ComponentContainer<SwarmParticle> fireflySwarm;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
@@ -79,6 +80,10 @@ public:
 	Mix_Chunk* gesture_heal_sound;
 	Mix_Chunk* gesture_aoe_sound;
 	Mix_Chunk* gesture_turn_sound;
+
+	// Values for swarm behaviour calculations
+	float convergenceValue = 0.5; float c1 = 2; float c2 = 2;
+
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()

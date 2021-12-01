@@ -916,6 +916,7 @@ void RenderSystem::draw(float elapsed_ms)
 							numFrames = ARCHER_WALKING_FRAMES; timePerFrame = ARCHER_WALKING_FRAME_TIME; break;
 						}
 						case JUMPING: {
+							timePerFrame = ARCHER_JUMPING_FRAME_TIME; numFrames = ARCHER_JUMPING_FRAMES;
 							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_JUMPING) {
 								*currFrame = 0;
 							}
@@ -925,17 +926,37 @@ void RenderSystem::draw(float elapsed_ms)
 							if (registry.motions.get(entity).velocity.y > 0.f) {
 								numFrames = 1;
 							}
-							else {
-								numFrames = ARCHER_JUMPING_FRAMES;
-							}
-							timePerFrame = ARCHER_JUMPING_FRAME_TIME; break;
+							break;
 						}
 						case ATTACKING: {
+							numFrames = ARCHER_ATTACKING_FRAMES; timePerFrame = ARCHER_ATTACKING_FRAME_TIME;
 							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_ATTACKING) {
 								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_ATTACKING;
 								*currFrame = 0;
 							}
-							numFrames = ARCHER_ATTACKING_FRAMES; timePerFrame = ARCHER_ATTACKING_FRAME_TIME; break;
+							// Switch to IDLE after one full cycle of shooting anim
+							else if (currGeometry == GEOMETRY_BUFFER_ID::ARCHER_ATTACKING && *currFrame == ARCHER_ATTACKING_FRAMES - 1) {
+								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_IDLE;
+								registry.companions.get(entity).curr_anim_type = IDLE;
+								*currFrame = 0;
+								numFrames = ARCHER_IDLE_FRAMES; timePerFrame = ARCHER_IDLE_FRAME_TIME;
+							}
+							break;
+						}
+						case WALK_ATTACKING: {
+							numFrames = ARCHER_ATTACKING_FRAMES; timePerFrame = ARCHER_ATTACKING_FRAME_TIME;
+							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_WALK_ATTACKING) {
+								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_WALK_ATTACKING;
+								*currFrame = 0;
+							}
+							// Switch to IDLE after one full cycle of shooting anim
+							else if (currGeometry == GEOMETRY_BUFFER_ID::ARCHER_WALK_ATTACKING && *currFrame == ARCHER_ATTACKING_FRAMES - 1) {
+								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_IDLE;
+								registry.companions.get(entity).curr_anim_type = IDLE;
+								*currFrame = 0;
+								numFrames = ARCHER_IDLE_FRAMES; timePerFrame = ARCHER_IDLE_FRAME_TIME;
+							}
+							break;
 						}
 						default: break;
 					}

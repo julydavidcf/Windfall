@@ -22,7 +22,8 @@ enum AnimType {
 	DEAD = 3,
 	WALKING = 4,
 	APPEARING = 5,
-	JUMPING = 6
+	JUMPING = 6,
+	WALK_ATTACKING = 7,
 };
 
 enum AttackType {
@@ -42,6 +43,8 @@ enum AttackType {
 	AOEMELEE = 13,
 	BLEEDMELEE = 14,
 	SHIELD = 15,
+	BATTLE_ARROW = 16,
+	FREE_ROAM_ARROW = 17,
 };
 
 enum ButtonType {
@@ -73,6 +76,21 @@ struct storyTellingBackground {
 struct HealthBar
 {
 
+};
+
+// Swarm particle (Firefly)
+struct SwarmParticle
+{
+	float update_timer = 0.f;
+	float reset_timer = 0.f;
+	float dodge_timer = 0.f;
+	int isDodging = 0;
+
+	float beforeDodgeVelX = 0.f;
+	float beforeDodgeVelY = 0.f;
+
+	int shouldFlipVelocityX = 0;
+	int shouldFlipVelocityY = 0;
 };
 
 struct Dot
@@ -407,7 +425,9 @@ enum class TEXTURE_ASSET_ID {
 	PLAYER_TURN = DEATH_PARTICLE + 1,
 	ENEMY_TURN = PLAYER_TURN + 1,
 	ARROW = ENEMY_TURN + 1,
-	ROCK = ARROW + 1,
+	ARROWICON = ARROW +1,
+	ARROWICONSELECTED = ARROWICON+1,
+	ROCK = ARROWICONSELECTED + 1,
 	LIGHTNING = ROCK + 1,
 	GREENCROSS = LIGHTNING + 1,
 	METEOR = GREENCROSS + 1,
@@ -601,8 +621,9 @@ enum class GEOMETRY_BUFFER_ID {
 	ARCHER_WALKING = ARCHER_IDLE + 1,
 	ARCHER_JUMPING = ARCHER_WALKING + 1,
 	ARCHER_ATTACKING = ARCHER_JUMPING + 1,
+	ARCHER_WALK_ATTACKING = ARCHER_ATTACKING + 1,
 	// --------------------------
-	BACKGROUND = ARCHER_ATTACKING + 1,
+	BACKGROUND = ARCHER_WALK_ATTACKING + 1,
 
 	BACKGROUND_OBJ = BACKGROUND + 1,
 	SHIELD_MESH = BACKGROUND_OBJ + 1,

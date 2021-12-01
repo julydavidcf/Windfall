@@ -43,6 +43,7 @@ Entity fireBall_icon;
 Entity taunt_icon;
 Entity heal_icon;
 Entity rock_icon;
+Entity arrow_icon;
 
 int16 gameLevel;
 int16 loadedLevel;
@@ -297,11 +298,12 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	return window;
 }
 
-void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem *skill_arg)
+void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem *skill_arg, SwarmSystem *swarm_arg)
 {
 	this->renderer = renderer_arg;
 	this->ai = ai_arg;
 	this->sk = skill_arg;
+	this->swarmSys = swarm_arg;
 
 	Mix_VolumeMusic(MIX_MAX_VOLUME / 30);
 	Mix_FadeInMusic(registry.background_music, -1, 5000);
@@ -854,13 +856,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	for (Entity attacker : registry.attackers.entities)
 	{
 		Attack &attack = registry.attackers.get(attacker);
+
 		// Updating animation time
 		attack.counter_ms -= elapsed_ms_since_last_update;
+
 		printf("Updating time : %f\n", attack.counter_ms);
 		if (!registry.deathTimers.has(attacker))
 		{
 			if (attack.counter_ms <= 0.f || attack.attack_type == SUMMON)
 			{
+
 				// Attack
 				if (registry.companions.has(attacker))
 				{
@@ -924,10 +929,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 						projm->acceleration = {-100, 0};
 						break;
 					}
+					case FREE_ROAM_ARROW: {
+						// For free-roam archer arrow-shooting
+						sk->launchArrow(player_archer, msPos, renderer, 1);
+					}
 					default:
 						break;
 					}
-					companion.curr_anim_type = IDLE;
+					if (attack.attack_type != FREE_ROAM_ARROW) {
+						companion.curr_anim_type = IDLE;
+					}
 					printf("Not attacking anymore in idle\n");
 					registry.attackers.remove(attacker);
 				}
@@ -1060,6 +1071,20 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				}
 			}
 		}
+	}
+
+	// Update swarm timer here, use fireflySwarm[0] to track time
+	float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
+	if (swarm_update_timer < 0.f) {
+		swarmSys->updateSwarm();
+		registry.fireflySwarm.components[0].update_timer = 500.f;
+	}
+	else {
+		swarm_update_timer -= elapsed_ms_since_last_update;
+	}
+
+	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+		registry.fireflySwarm.components[i].dodge_timer -= elapsed_ms_since_last_update;
 	}
 
 	if (player_turn == 1)
@@ -1400,14 +1425,15 @@ void WorldSystem::restart_game(bool force_restart)
 
 
 		// Create these for testing, can remove unneeded assets
-		createFirefly(renderer, { 300, 500 });
-		createPlatform(renderer, { 400, 600 });
-		arrow_mesh = createArrowMesh(renderer, { 700, 600 });
-		if (!registry.light.has(arrow_mesh)) {
-			registry.light.emplace(arrow_mesh);
-		}
-		createRockMesh(renderer, { 900, 600 });
-		createTreasureChest(renderer, { 1100, 600 });
+		//createFirefly(renderer, { 300, 500 });
+		//createPlatform(renderer, { 400, 600 });
+		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
+		//createRockMesh(renderer, { 900, 600 });
+		//createTreasureChest(renderer, { 1100, 600 });
+
+		swarmSys->initializeSwarmEntities(renderer);
+		swarmSys->startSwarm();
+
 		renderer->gameLevel = 1;
 	}
 	else
@@ -1441,43 +1467,36 @@ void WorldSystem::restart_game(bool force_restart)
 				renderer->gameLevel = 1;
 				json_loader.get_level("level_0.json");
 
-				tutorial_enabled = 1;
-				curr_tutorial_box = createTutorialBox(renderer, {600, 300});
-				curr_tutorial_box_num = 0;
-			}
-			if (gameLevel == 1)
-			{
-				printf("Loading level 1\n");
-				renderer->gameLevel = gameLevel;
-				json_loader.get_level("level_1.json");
-				story = 8;
-			}
-			else if (gameLevel == 2)
-			{
-				printf("Loading level 2\n");
-				renderer->gameLevel = gameLevel;
-				json_loader.get_level("level_2.json");
-				story = 15;
-			}
-			else if (gameLevel == 3)
-			{
-				printf("Loading level 3 phase 1\n");
-				renderer->gameLevel = 1;
-				json_loader.get_level("level_3.json");
-				story = 20;
-			}
-			else
-			{
-				printf("Incorrect level\n");
-			}
-			roundVec.clear(); // empty vector roundVec to create a new round
-			createRound();
-			checkRound();
+			tutorial_enabled = 1;
+			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
+			curr_tutorial_box_num = 0;
 		}
-		else
-		{
-			loaded_game = false;
+		if(gameLevel == 1){
+			printf("Loading level 1\n");
+			renderer->gameLevel = gameLevel;
+			json_loader.get_level("level_1.json");
+			story = 8;
+		} else if(gameLevel == 2){
+			printf("Loading level 2\n");
+			renderer->gameLevel = gameLevel;
+			json_loader.get_level("level_2.json");
+			story = 15;
+		} else if(gameLevel == 3){
+			printf("Loading level 3 phase 1\n");
+			renderer->gameLevel = 1;
+			json_loader.get_level("level_3.json");
+			story = 20;
+		} else{
+			printf("Incorrect level\n");
 		}
+
+		arrow_icon = createArrowIcon(renderer, {200, 700});
+		roundVec.clear();	// empty vector roundVec to create a new round
+		createRound();
+		checkRound();
+	} else {
+		loaded_game = false;
+	}
 
 		// Create a tooltip
 		tooltip;
@@ -1897,8 +1916,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// david test
-	// if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-	//	sk->luanchNecroCompanionTeamBleed(renderer);
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
 	//}
 
 	// if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
@@ -1909,18 +1928,25 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		if (key == GLFW_KEY_D) {
 			if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.x = 300.f;
+				motion.velocity.x = 400.f;
 				// Turn archer right
-				motion.scale.x = abs(motion.scale.x);
-				if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+				if (registry.companions.get(player_archer).curr_anim_type != ATTACKING
+					&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
+					motion.scale.x = abs(motion.scale.x);
+				}
+				if (registry.companions.get(player_archer).curr_anim_type != JUMPING
+					&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+					&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 					registry.companions.get(player_archer).curr_anim_type = WALKING;
 				}
 			}
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				if (motion.velocity.x != -300.f) {
+				if (motion.velocity.x != -400.f) {
 					motion.velocity.x = 0;
-					if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+					if (registry.companions.get(player_archer).curr_anim_type != JUMPING
+						&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+						&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 						registry.companions.get(player_archer).curr_anim_type = IDLE;
 					}
 				}
@@ -1930,37 +1956,45 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		if (key == GLFW_KEY_A) {
 			if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.x = -300.f;
+				motion.velocity.x = -400.f;
 				// Turn archer left
-				motion.scale.x = -abs(motion.scale.x);
-				if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+				if (registry.companions.get(player_archer).curr_anim_type != ATTACKING
+					&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
+					motion.scale.x = -abs(motion.scale.x);
+				}
+				if (registry.companions.get(player_archer).curr_anim_type != JUMPING
+					&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+					&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 					registry.companions.get(player_archer).curr_anim_type = WALKING;
 				}	
 			}
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				if (motion.velocity.x != 300.f) {
+				if (motion.velocity.x != 400.f) {
 					motion.velocity.x = 0;
-					if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+					if (registry.companions.get(player_archer).curr_anim_type != JUMPING
+						&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+						&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 						registry.companions.get(player_archer).curr_anim_type = IDLE;
 					}
 				}
 			}
 		}
 		// Jump up
-		if (key == GLFW_KEY_W && registry.companions.get(player_archer).curr_anim_type != JUMPING){
+		if (key == GLFW_KEY_W && registry.companions.get(player_archer).curr_anim_type != JUMPING
+			&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+			&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.y = -300.f;
+				motion.velocity.y = -500.f;
 				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}
 	}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_E)
-	{
-		sk->launchNecroBarrier(necromancer_phase_two, renderer);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
+	//	sk->launchNecroBarrier(necromancer_phase_two, renderer);
+	//}
 
 	// Debugging
 	if (key == GLFW_KEY_B)
@@ -2454,6 +2488,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
+		if (selected_skill != 6 && (!isFreeRoam)) {
+			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
+		}
 		if(!isFreeRoam){
 			showCorrectSkills();
 		}
@@ -2548,11 +2585,21 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 						selected_skill = -1;
 					}
 				}
-				else
-				{
-					// iceshard
-					if (selected_skill == 0)
-					{
+				//arrow
+				else if (inButton(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 6)) {
+					if (selected_skill == -1) {
+						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICONSELECTED;
+						selected_skill = 6;
+					}
+					else {
+						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
+						selected_skill = -1;
+					}
+				}
+				else {
+					//iceshard
+					if (selected_skill == 0) {
 						sk->startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
 						tutorial_ability_fired = 1;
@@ -2633,6 +2680,13 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							}
 						}
 					}
+					//arrow
+					if (selected_skill == 6) {
+						sk->launchArrow(currPlayer,msPos,renderer, 0);
+						selected_skill = -1;
+						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+						playerUseMelee = 0;
+					}
 				}
 			}
 			else
@@ -2676,6 +2730,31 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			// Do case 6 from advanceTutorial here
 			advanceTutorial(curr_tutorial_box, vec2(600, 300));
 			showCorrectSkills();
+		}
+
+		// Handle free-roam arrow launching
+		if (isFreeRoam) {
+			if (!registry.attackers.has(player_archer) && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+				auto& arrow = registry.attackers.emplace(player_archer);
+				arrow.attack_type = FREE_ROAM_ARROW;
+				arrow.counter_ms = 525.f;
+				
+				auto& motion = registry.motions.get(player_archer);
+
+				if (motion.velocity.x != 0 && motion.velocity.y == 0) {
+					registry.companions.get(player_archer).curr_anim_type = WALK_ATTACKING;
+				}
+				else {
+					registry.companions.get(player_archer).curr_anim_type = ATTACKING;
+				}
+
+				if (motion.position.x <= msPos.x) {
+					motion.scale.x = abs(motion.scale.x);
+				}
+				else {
+					motion.scale.x = - abs(motion.scale.x);
+				}
+			}
 		}
 	}
 }

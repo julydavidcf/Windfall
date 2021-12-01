@@ -164,7 +164,7 @@ Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher
 
 		// Add gravity for jumping
 		auto& gravity = registry.gravities.emplace(entity);
-		gravity.gravity = 15;
+		gravity.gravity = 30;
 	}
 
 	auto& abc = registry.renderRequests.insert(
@@ -349,6 +349,55 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	return entity;
 }
 
+Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly, int isFreeRoam)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = (isFreeRoam) ? renderer->getMesh(GEOMETRY_BUFFER_ID::ARROW_MESH) : renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& gravity = registry.gravities.emplace(entity);
+	gravity.gravity = 30;
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.position = position;
+	
+	registry.projectiles.emplace(entity);
+
+	if (isFreeRoam) {
+		motion.scale = vec2({ ARROW_MESH_WIDTH, ARROW_MESH_HEIGHT });
+
+		registry.renderRequests.insert(
+			entity,
+			//currently using fireball
+			{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			 EFFECT_ASSET_ID::PEBBLE,
+			 GEOMETRY_BUFFER_ID::ARROW_MESH });
+	}
+	else {
+		motion.scale = vec2({ ARROW_WIDTH, ARROW_HEIGHT });
+
+		// Set damage here--------------------------------
+		Damage& damage = registry.damages.emplace(entity);
+		damage.isFriendly = isFriendly;
+		damage.minDamage = arrow_dmg;
+		damage.range = 10;
+		//------------------------------------------------
+
+		registry.renderRequests.insert(
+			entity,
+			//currently using fireball
+			{ TEXTURE_ASSET_ID::ARROW,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+
+
+	return entity;
+}
+
+
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
@@ -443,6 +492,29 @@ Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::MELEEICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+//arrow icon
+Entity createArrowIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ARROWICON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -686,6 +758,9 @@ Entity createFirefly(RenderSystem* renderer, vec2 position)
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
 	motion.scale = vec2({ FIREFLY_WIDTH, -FIREFLY_HEIGHT });
+	motion.velocity = vec2(0.f, 0.f);
+
+	auto& firefly = registry.fireflySwarm.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,
@@ -732,26 +807,6 @@ Entity createRockMesh(RenderSystem* renderer, vec2 position)
 		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
 			EFFECT_ASSET_ID::PEBBLE,
 			GEOMETRY_BUFFER_ID::ROCK_MESH });
-
-	return entity;
-}
-
-Entity createArrowMesh(RenderSystem* renderer, vec2 position)
-{
-	auto entity = Entity();
-
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ARROW_MESH);
-	registry.meshPtrs.emplace(entity, &mesh);
-
-	auto& motion = registry.motions.emplace(entity);
-	motion.position = position;
-	motion.scale = vec2({ ARROW_MESH_WIDTH, -ARROW_MESH_HEIGHT });
-
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::PEBBLE,
-			GEOMETRY_BUFFER_ID::ARROW_MESH });
 
 	return entity;
 }
