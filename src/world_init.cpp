@@ -364,6 +364,7 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	motion.position = position;
 	
 	registry.projectiles.emplace(entity);
+	registry.light.emplace(entity);
 
 	if (isFreeRoam) {
 		motion.scale = vec2({ ARROW_MESH_WIDTH, ARROW_MESH_HEIGHT });
@@ -761,6 +762,7 @@ Entity createFirefly(RenderSystem* renderer, vec2 position)
 	motion.velocity = vec2(0.f, 0.f);
 
 	auto& firefly = registry.fireflySwarm.emplace(entity);
+	registry.light.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,
