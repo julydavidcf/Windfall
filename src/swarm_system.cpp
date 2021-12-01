@@ -16,7 +16,10 @@ void SwarmSystem::initializeSwarmEntities(RenderSystem* renderer) {
 		float xPos = initialXPos + posGap * xRowCounter;
 		float yPos = initialYPos + posGap * yRowCounter;
 
-		createFirefly(renderer, vec2(xPos, yPos));
+		auto e = createFirefly(renderer, vec2(xPos, yPos));
+		if (i == 0) {
+			registry.light.emplace(e);
+		}
 		
 		yRowCounter++;
 		if (yRowCounter > maxYPerColumn) {

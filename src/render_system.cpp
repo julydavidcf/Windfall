@@ -45,7 +45,14 @@ void RenderSystem::drawLight(Entity entity)
 
 	glUniform2f(glGetUniformLocation(light_program, "lightSourcePos"), entityPos.x, (float)h - entityPos.y);
 
-	for (int i = 0; i < lightBallsXcoords.size(); i++) {
+	if (!registry.fireflySwarm.has(entity)) {
+		glUniform1f(glGetUniformLocation(light_program, "arrow"), 1.f);
+	}
+	else {
+		glUniform1f(glGetUniformLocation(light_program, "arrow"), 0.f);
+	}
+
+	for (int i = 0; i < fireFlyPosX.size(); i++) {
 		std::string s1("thingie.xCoordinates[");
 		std::string s2("thingie.yCoordinates[");
 		std::string iInS = std::to_string(i);
@@ -54,8 +61,8 @@ void RenderSystem::drawLight(Entity entity)
 
 		GLuint locX = glGetUniformLocation(light_program, s1.c_str());
 		GLuint locY = glGetUniformLocation(light_program, s2.c_str());
-		glUniform1f(locX, lightBallsXcoords[i]);
-		glUniform1f(locY, lightBallsYcoords[i]);
+		glUniform1f(locX, fireFlyPosX[i]);
+		glUniform1f(locY, (float) h - fireFlyPosY[i]);
 	}
 	gl_has_errors();
 
@@ -1029,6 +1036,14 @@ void RenderSystem::draw(float elapsed_ms)
 	// Truely render to the screen
 
 	drawToScreen();
+
+	// update positions of fireflies in the buffer
+	for (Entity e : registry.fireflySwarm.entities) {
+		auto& fireFlyMotion = registry.motions.get(e);
+		fireFlyPosX.push_back(fireFlyMotion.position.x);
+		fireFlyPosY.push_back(fireFlyMotion.position.y);
+	}
+
 	for (int i = 0; i < registry.motions.components.size(); i++) {
 		Entity e = registry.motions.entities[i];
 		if (registry.light.has(e)) {
@@ -1052,6 +1067,9 @@ void RenderSystem::draw(float elapsed_ms)
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
+
+	fireFlyPosX.clear();
+	fireFlyPosY.clear();
 }
 
 mat3 RenderSystem::createProjectionMatrix()

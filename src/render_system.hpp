@@ -244,6 +244,9 @@ class RenderSystem {
 	std::vector<float> lightBallsXcoords;
 	std::vector<float> lightBallsYcoords;
 
+	std::vector<float> fireFlyPosX;
+	std::vector<float> fireFlyPosY;
+
 	// Time per frame in ms
 	float TIME_PER_FRAME = 100;
 	
