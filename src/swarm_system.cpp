@@ -74,12 +74,29 @@ int SwarmSystem::startSwarm() {
 	return 0;
 }
 
+void SwarmSystem::resetSwarm() {
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < D; j++) {
+			P[i][j] = (Pmax[j] - Pmin[j]) * r() + Pmin[j];
+			Pbest[i][j] = P[i][j];
+		}
+		//// evaluate all particles in the swarm P using the objective function (OF)
+		//Eval[i] = OF(P[i], D);
+		//EvalPbest[i] = Eval[i];
+		//// find the best particle in the swarm P according to OF
+		//if (Eval[i] < Eval[TheBest]) TheBest = i;
+	}
+}
+
 void SwarmSystem::updateSwarm() {
 
 	// update the fireflies (particles) here
 	TheBest = 0;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < D; j++) {
+
+			if (!registry.motions.has(registry.fireflySwarm.entities[i])) continue;
+
 			Motion& fireflyMotion = registry.motions.get(registry.fireflySwarm.entities[i]);
 
 			// fetch the current velocity from motions

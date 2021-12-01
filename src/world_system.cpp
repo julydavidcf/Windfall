@@ -1074,6 +1074,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	}
 
 	// Update swarm timer here, use fireflySwarm[0] to track time
+	float& swarm_reset_timer = registry.fireflySwarm.components[0].reset_timer;
+	if (registry.fireflySwarm.components[0].shouldReset && swarm_reset_timer < 0.f) {
+		swarmSys->startSwarm();
+		registry.fireflySwarm.components[0].shouldReset = 0;
+		registry.fireflySwarm.components[0].reset_timer = 5000.f;
+	}
+	else {
+		swarm_reset_timer -= elapsed_ms_since_last_update;
+	}
+	// Update swarm timer here, use fireflySwarm[0] to track time
 	float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
 	if (swarm_update_timer < 0.f) {
 		swarmSys->updateSwarm();

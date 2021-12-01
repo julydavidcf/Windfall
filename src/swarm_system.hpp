@@ -12,6 +12,7 @@ class SwarmSystem {
 public:
 	int startSwarm();
 	void updateSwarm();
+	void resetSwarm();
 	void initializeSwarmEntities(RenderSystem* renderer);
 
 private:

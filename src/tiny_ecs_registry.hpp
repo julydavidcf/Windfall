@@ -81,7 +81,7 @@ public:
 	Mix_Chunk* gesture_turn_sound;
 
 	// Values for swarm behaviour calculations
-	float convergenceValue = 0.5; float c1 = 2; float c2 = 2;
+	float convergenceValue = 0.7; float c1 = 1; float c2 = 3;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
