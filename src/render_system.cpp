@@ -1037,16 +1037,19 @@ void RenderSystem::draw(float elapsed_ms)
 
 	drawToScreen();
 
-	// update positions of fireflies in the buffer
-	for (Entity e : registry.fireflySwarm.entities) {
-		auto& fireFlyMotion = registry.motions.get(e);
-		fireFlyPosX.push_back(fireFlyMotion.position.x);
-		fireFlyPosY.push_back(fireFlyMotion.position.y);
-	}
-
 	for (int i = 0; i < registry.motions.components.size(); i++) {
 		Entity e = registry.motions.entities[i];
 		if (registry.light.has(e)) {
+			if (registry.fireflySwarm.has(e)) {
+				// update positions of fireflies in the buffer
+				for (Entity e : registry.fireflySwarm.entities) {
+					if (registry.motions.has(e)) {
+						auto& fireFlyMotion = registry.motions.get(e);
+						fireFlyPosX.push_back(fireFlyMotion.position.x);
+						fireFlyPosY.push_back(fireFlyMotion.position.y);
+					}
+				}
+			}
 			drawLight(e);
 		}
 	}
