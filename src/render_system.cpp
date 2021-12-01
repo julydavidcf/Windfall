@@ -42,6 +42,7 @@ void RenderSystem::drawLight(Entity entity)
 	GLuint resoltion_y_loc = glGetUniformLocation(light_program, "resolutionY");
 	glUniform1f(resoltion_x_loc, (float)w);
 	glUniform1f(resoltion_y_loc, (float)h);
+
 	glUniform2f(glGetUniformLocation(light_program, "lightSourcePos"), entityPos.x, (float)h - entityPos.y);
 
 	for (int i = 0; i < lightBallsXcoords.size(); i++) {
@@ -56,8 +57,8 @@ void RenderSystem::drawLight(Entity entity)
 		glUniform1f(locX, lightBallsXcoords[i]);
 		glUniform1f(locY, lightBallsYcoords[i]);
 	}
-
 	gl_has_errors();
+
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)
 	GLint in_position_loc = glGetAttribLocation(light_program, "in_position");
