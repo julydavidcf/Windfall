@@ -214,6 +214,10 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y -= moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
+
+					if (registry.fireflySwarm.components[0].reset_timer < 0.f) {
+						registry.fireflySwarm.components[0].shouldReset = 1;
+					}
 				}
 
 				// Second case: Within top-right collision box of arrow
@@ -227,6 +231,10 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y -= moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
+
+					if (registry.fireflySwarm.components[0].reset_timer < 0.f) {
+						registry.fireflySwarm.components[0].shouldReset = 1;
+					}
 				}
 
 				// Third case: Within bottom-left collision box of arrow
@@ -240,6 +248,10 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y += moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
+
+					if (registry.fireflySwarm.components[0].reset_timer < 0.f) {
+						registry.fireflySwarm.components[0].shouldReset = 1;
+					}
 				}
 
 				// Fourth case: Within bottom-right collision box of arrow
@@ -253,40 +265,42 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y += moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
+
+					if (registry.fireflySwarm.components[0].reset_timer < 0.f) {
+						registry.fireflySwarm.components[0].shouldReset = 1;
+					}
 				}
 				//continue;
 			}
 
 			// 2. Standard movement: Moves towards a boundary and bounces back after approaching
-			//float posX = motion->position.x;
-			//float posY = motion->position.y;
-			//auto& fireflyComoponent = registry.fireflySwarm.get(entity);
-
-			//if (fireflyComoponent.shouldFlipVelocityX == 1) {
-			//	motion->position.x += 1.5;
-			//}
-			//else {
-			//	motion->position.x -= 1.5;
-			//}
-			//if (fireflyComoponent.shouldFlipVelocityY == 1) {
-			//	motion->position.y += 1.5;
-			//}
-			//else {
-			//	motion->position.y -= 1.5;
-			//}
-
-			//if (posX - xBorderLimitDist < 0.f) {
-			//	fireflyComoponent.shouldFlipVelocityX = 1;
-			//}
-			//if (posX + xBorderLimitDist >= window_width_px) {
-			//	fireflyComoponent.shouldFlipVelocityX = 2;
-			//}
-			//if (posY - yBorderLimitDist < 0.f) {
-			//	fireflyComoponent.shouldFlipVelocityY = 1;
-			//}
-			//if (posY + yBorderLimitDist >= window_height_px) {
-			//	fireflyComoponent.shouldFlipVelocityY = 2;
-			//}
+			float posX = motion->position.x;
+			float posY = motion->position.y;
+			auto& fireflyComoponent = registry.fireflySwarm.get(entity);
+			if (fireflyComoponent.shouldFlipVelocityX == 1) {
+				motion->position.x += 1.5;
+			}
+			else {
+				motion->position.x -= 1.5;
+			}
+			if (fireflyComoponent.shouldFlipVelocityY == 1) {
+				motion->position.y += 1.5;
+			}
+			else {
+				motion->position.y -= 1.5;
+			}
+			if (posX - xBorderLimitDist < 0.f) {
+				fireflyComoponent.shouldFlipVelocityX = 1;
+			}
+			if (posX + xBorderLimitDist >= window_width_px) {
+				fireflyComoponent.shouldFlipVelocityX = 2;
+			}
+			if (posY - yBorderLimitDist < 0.f) {
+				fireflyComoponent.shouldFlipVelocityY = 1;
+			}
+			if (posY + yBorderLimitDist >= window_height_px) {
+				fireflyComoponent.shouldFlipVelocityY = 2;
+			}
 		}
 
 		//normal movement
