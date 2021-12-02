@@ -10,8 +10,11 @@
 class SwarmSystem {
 
 public:
-	void updateSwarm();
 	void initializeSwarmEntities(RenderSystem* renderer);
+	void updateSwarm();
+	void resetSwarm();
+
+	int swarmInitialized = 0;
 
 private:
 	float INITIAL_BASE_VELOCITY = 75;

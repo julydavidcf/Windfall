@@ -143,6 +143,24 @@ bool collides(const Entity entity_i, const Entity entity_j)
 	return false;
 }
 
+bool fireflyCollides(const Entity entity_i, const Entity entity_j) {
+	PhysicsSystem ps;
+	vec2 custom_pos_i = ps.get_custom_position(entity_i);
+	vec2 custom_pos_j = ps.get_custom_position(entity_j);
+	vec2 dp = custom_pos_i - custom_pos_j;
+	float dist_squared = dot(dp, dp);
+	const vec2 other_bonding_box = ps.get_custom_bounding_box(entity_i) * 1.5f;
+	const float other_r_squared = dot(other_bonding_box, other_bonding_box);
+	const vec2 my_bonding_box = ps.get_custom_bounding_box(entity_j) * 1.5f;
+	const float my_r_squared = dot(my_bonding_box, my_bonding_box);
+	const float r_squared = max(other_r_squared, my_r_squared);
+
+	if (dist_squared < r_squared) {
+		return true;
+	}
+	return false;
+}
+
 void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float window_height_px)
 {
 	auto& motion_registry = registry.motions;
@@ -171,10 +189,10 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 		arrowPosY = arrowMotion.position.y;
 		arrowScaleX = arrowMotion.scale.x;
 		arrowScaleY = arrowMotion.scale.y;
-		topLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 50, arrowPosY - arrowScaleY / 2 + 50);
-		topRightPoint = vec2(arrowPosX + arrowScaleX / 2 - 50, arrowPosY - arrowScaleY / 2 + 50);
-		bottomLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 50, arrowPosY + arrowScaleY / 2 + 50);
-		bottomRightPoint = vec2(arrowPosX + arrowScaleX / 2 - 50, arrowPosY + arrowScaleY / 2 + 50);
+		topLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 100, arrowPosY - arrowScaleY / 2 + 100);
+		topRightPoint = vec2(arrowPosX + arrowScaleX / 2 - 100, arrowPosY - arrowScaleY / 2 + 100);
+		bottomLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 100, arrowPosY + arrowScaleY / 2 + 100);
+		bottomRightPoint = vec2(arrowPosX + arrowScaleX / 2 - 100, arrowPosY + arrowScaleY / 2 + 100);
 	}
 
 	for(uint i = 0; i< motion_registry.size(); i++)
@@ -187,10 +205,10 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 		if (registry.fireflySwarm.has(entity)) {
 
 			// 1. Avoidance movement: Separate from the incoming arrow
-			if (hasArrow && collides(entity, arrow_entity)) {
+			if (hasArrow && fireflyCollides(entity, arrow_entity)) {
 				vec2 fireflyPos = motion->position;
-				float moveValue = 200;
-				float timerValue = 1000.f;
+				float moveValue = 300;
+				float timerValue = 100.f;
 				auto& firefly = registry.fireflySwarm.get(entity);
 
 				if (firefly.dodge_timer > 0.f) continue;

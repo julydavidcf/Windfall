@@ -1090,7 +1090,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
 	if (swarm_update_timer < 0.f) {
 		swarmSys->updateSwarm();
-		registry.fireflySwarm.components[0].update_timer = 200.f;
+		registry.fireflySwarm.components[0].update_timer = 100.f;
 	}
 	else {
 		swarm_update_timer -= elapsed_ms_since_last_update;
@@ -1444,7 +1444,12 @@ void WorldSystem::restart_game(bool force_restart)
 		//createRockMesh(renderer, { 900, 600 });
 		//createTreasureChest(renderer, { 1100, 600 });
 
-		swarmSys->initializeSwarmEntities(renderer);
+		if (swarmSys->swarmInitialized) {
+			swarmSys->resetSwarm();
+		}
+		else {
+			swarmSys->initializeSwarmEntities(renderer);
+		}
 
 		renderer->gameLevel = 1;
 

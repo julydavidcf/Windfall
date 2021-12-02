@@ -7,6 +7,7 @@ void SwarmSystem::initializeSwarmEntities(RenderSystem* renderer) {
 	float initialXPos = window_width_px / 2;
 	float initialYPos = window_height_px / 2;
 	float posGap = FIREFLY_WIDTH + 10;
+	swarmInitialized = 1;
 
 	// Max fireflies per column - 1
 	int maxYPerColumn = 9;
@@ -29,6 +30,30 @@ void SwarmSystem::initializeSwarmEntities(RenderSystem* renderer) {
 	}
 }
 
+void SwarmSystem::resetSwarm() {
+	float initialXPos = window_width_px / 2;
+	float initialYPos = window_height_px / 2;
+	float posGap = FIREFLY_WIDTH + 10;
+
+	// Max fireflies per column - 1
+	int maxYPerColumn = 9;
+	int xRowCounter = 0; int yRowCounter = 0;
+	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+		float xPos = initialXPos + posGap * xRowCounter;
+		float yPos = initialYPos + posGap * yRowCounter;
+
+		auto& motion = registry.motions.emplace(registry.fireflySwarm.entities[i]);
+		motion.position = vec2(xPos, yPos);
+		motion.velocity = vec2(0.f, 0.f);
+
+		yRowCounter++;
+		if (yRowCounter > maxYPerColumn) {
+			yRowCounter = 0;
+			xRowCounter++;
+		}
+	}
+}
+
 // generate pseudo random values from the range [0 , 1)
 float r() {
 	return (float) (rand() % 1000) / 1000;
@@ -36,6 +61,8 @@ float r() {
 
 void SwarmSystem::updateSwarm() {
 	auto& fireflyEntities = registry.fireflySwarm.entities;
+
+	if (!registry.motions.has(fireflyEntities[0])) return;
 
 	float N = NUM_SWARM_PARTICLES;
 
@@ -52,6 +79,9 @@ void SwarmSystem::updateSwarm() {
 	float minY = registry.motions.get(fireflyEntities[0]).position.y;
 
 	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+
+		if (!registry.motions.has(fireflyEntities[i])) continue;
+
 		Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
 		// Set the initial velocity for current step
@@ -84,6 +114,7 @@ void SwarmSystem::updateSwarm() {
 	}
 
 	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+		if (!registry.motions.has(fireflyEntities[i])) continue;
 		Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
 		// Add to sumSquaresX for current particle
@@ -97,11 +128,12 @@ void SwarmSystem::updateSwarm() {
 	SD_Y = sqrt(sumSquaresY / N);
 	
 	// Case: X-spread is too large
-	if (SD_X > 60000) {
+	if (SD_X > 30000) {
 
 		float midpointX = (minX + maxX) / 2;
 
 		for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+			if (!registry.motions.has(fireflyEntities[i])) continue;
 			Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
 			// Particle is closer to the left edge than center, move right
@@ -117,11 +149,12 @@ void SwarmSystem::updateSwarm() {
 	}
 
 	// Case: Y-spread is too large
-	if (SD_Y > 60000) {
+	if (SD_Y > 30000) {
 
 		float midpointY = (minY + maxY) / 2;
 
 		for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+			if (!registry.motions.has(fireflyEntities[i])) continue;
 			Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
 			// Particle is closer to the top edge than center, move down
