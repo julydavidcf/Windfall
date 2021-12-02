@@ -378,6 +378,15 @@ struct toolTip
 
 };
 
+// Light
+struct Light
+{
+	// light has position, color, size
+	vec2 position;
+	vec4 color;
+	float size;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -573,7 +582,8 @@ enum class EFFECT_ASSET_ID {
 	WATER = TEXTURED + 1,
 	PARTICLE = WATER + 1,
 	BACKGROUND_OBJ = PARTICLE + 1,
-	EFFECT_COUNT = BACKGROUND_OBJ + 1
+	LIGHT = BACKGROUND_OBJ + 1,	// NEW
+	EFFECT_COUNT = LIGHT + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 

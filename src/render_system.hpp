@@ -199,7 +199,8 @@ class RenderSystem {
 		shader_path("textured"),
 		shader_path("water"),
 		shader_path("particle"),
-		shader_path("basicEnemy")};
+		shader_path("basicEnemy"),
+		shader_path("light")};	// NEW
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -242,6 +243,9 @@ class RenderSystem {
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
 	std::vector<float> lightBallsYcoords;
+
+	std::vector<float> fireFlyPosX;
+	std::vector<float> fireFlyPosY;
 
 	// Time per frame in ms
 	float TIME_PER_FRAME = 100;
@@ -391,6 +395,8 @@ private:
 	void drawDeathParticles(Entity entity, const mat3& projection);
 	// void initParticlesBuffer();
 	void drawToScreen();
+
+	void drawLight(Entity entity);
 
 	// Window handle
 	GLFWwindow* window;
