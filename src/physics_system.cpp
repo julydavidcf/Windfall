@@ -171,10 +171,10 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 		arrowPosY = arrowMotion.position.y;
 		arrowScaleX = arrowMotion.scale.x;
 		arrowScaleY = arrowMotion.scale.y;
-		topLeftPoint = vec2(arrowPosX - arrowScaleX / 2, arrowPosY - arrowScaleY / 2);
-		topRightPoint = vec2(arrowPosX + arrowScaleX / 2, arrowPosY - arrowScaleY / 2);
-		bottomLeftPoint = vec2(arrowPosX - arrowScaleX / 2, arrowPosY + arrowScaleY / 2);
-		bottomRightPoint = vec2(arrowPosX + arrowScaleX / 2, arrowPosY + arrowScaleY / 2);
+		topLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 50, arrowPosY - arrowScaleY / 2 + 50);
+		topRightPoint = vec2(arrowPosX + arrowScaleX / 2 - 50, arrowPosY - arrowScaleY / 2 + 50);
+		bottomLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 50, arrowPosY + arrowScaleY / 2 + 50);
+		bottomRightPoint = vec2(arrowPosX + arrowScaleX / 2 - 50, arrowPosY + arrowScaleY / 2 + 50);
 	}
 
 	for(uint i = 0; i< motion_registry.size(); i++)
@@ -190,7 +190,7 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 			if (hasArrow && collides(entity, arrow_entity)) {
 				vec2 fireflyPos = motion->position;
 				float moveValue = 200;
-				float timerValue = 200.f;
+				float timerValue = 1000.f;
 				auto& firefly = registry.fireflySwarm.get(entity);
 
 				if (firefly.dodge_timer > 0.f) continue;
@@ -214,61 +214,45 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y -= moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
-
-					if (registry.fireflySwarm.components[0].reset_timer < 0.f) {
-						registry.fireflySwarm.components[0].shouldReset = 1;
-					}
 				}
 
 				// Second case: Within top-right collision box of arrow
 				else if (arrowPosX < fireflyPos.x
 					   && fireflyPos.x <= topRightPoint.x
 					   && topRightPoint.y <= fireflyPos.y
-					   && fireflyPos.y < arrowPosY) {
+					   && fireflyPos.y < arrowPosY && !firefly.isDodging) {
 					firefly.beforeDodgeVelX = motion->velocity.x;
 					firefly.beforeDodgeVelY = motion->velocity.y;
 					motion->velocity.x += moveValue;
 					motion->velocity.y -= moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
-
-					if (registry.fireflySwarm.components[0].reset_timer < 0.f) {
-						registry.fireflySwarm.components[0].shouldReset = 1;
-					}
 				}
 
 				// Third case: Within bottom-left collision box of arrow
 				else if (bottomLeftPoint.x <= fireflyPos.x
 					   && fireflyPos.x < arrowPosX
 					   && arrowPosY < fireflyPos.y
-					   && fireflyPos.y <= bottomLeftPoint.y) {
+					   && fireflyPos.y <= bottomLeftPoint.y && !firefly.isDodging) {
 					firefly.beforeDodgeVelX = motion->velocity.x;
 					firefly.beforeDodgeVelY = motion->velocity.y;
 					motion->velocity.x -= moveValue;
 					motion->velocity.y += moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
-
-					if (registry.fireflySwarm.components[0].reset_timer < 0.f) {
-						registry.fireflySwarm.components[0].shouldReset = 1;
-					}
 				}
 
 				// Fourth case: Within bottom-right collision box of arrow
 				else if (arrowPosX <= fireflyPos.x
 					   && fireflyPos.x <= bottomRightPoint.x
 					   && arrowPosY <= fireflyPos.y
-					   && fireflyPos.y <= bottomRightPoint.y) {
+					   && fireflyPos.y <= bottomRightPoint.y && !firefly.isDodging) {
 					firefly.beforeDodgeVelX = motion->velocity.x;
 					firefly.beforeDodgeVelY = motion->velocity.y;
 					motion->velocity.x += moveValue;
 					motion->velocity.y += moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
-
-					if (registry.fireflySwarm.components[0].reset_timer < 0.f) {
-						registry.fireflySwarm.components[0].shouldReset = 1;
-					}
 				}
 				//continue;
 			}

@@ -26,119 +26,110 @@ void SwarmSystem::initializeSwarmEntities(RenderSystem* renderer) {
 	}
 }
 
-// definition of the objective function OF(.)
-// Reference: Particle Swarm Optimization algorithm (PSO) from Swarm Intelligence Algorithms: A Tutorial: Slowik, Adam
-float OF(float x[], int size_array) {
-	float t = 0;
-	for (int i = 0; i < size_array; i++) {
-		t = t + x[i] * x[i];
-	}
-	return t;
-}
-
 // generate pseudo random values from the range [0 , 1)
 float r() {
 	return (float) (rand() % 1000) / 1000;
 }
 
-// main program function
-// Reference: Particle Swarm Optimization (PSO) algorithm from Swarm Intelligence Algorithms: A Tutorial: Slowik, Adam
-int SwarmSystem::startSwarm() {
-	// Random number generator
-	srand(time(NULL));
-	// Pmin and Pmax determine the search space for the fireflies, in pixels
-	const int tightness = 100;
-
-	for (int j = 0; j < D; j++) {
-		Pmin[j] = -tightness; Pmax[j] = tightness;
-	}
-
-	// randomly initialize swarm P and Pbest; initialize velocity vectors V as 0
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < D; j++) {
-			P[i][j] = (Pmax[j] - Pmin[j]) * r() + Pmin[j];
-			Pbest[i][j] = P[i][j];
-			V[i][j] = 0;
-		}
-		// evaluate all particles in the swarm P using the objective function (OF)
-		Eval[i] = OF(P[i], D);
-		EvalPbest[i] = Eval[i];
-		// find the best particle in the swarm P according to OF
-		if (Eval[i] < Eval[TheBest]) TheBest = i;
-	}
-
-	// assign the best particle to Gbest
-	for (j = 0; j < D; j++) Gbest[j] = P[TheBest][j];
-	EvalGbest = Eval[TheBest];
-
-	return 0;
-}
-
-void SwarmSystem::resetSwarm() {
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < D; j++) {
-			P[i][j] = (Pmax[j] - Pmin[j]) * r() + Pmin[j];
-			Pbest[i][j] = P[i][j];
-		}
-		//// evaluate all particles in the swarm P using the objective function (OF)
-		//Eval[i] = OF(P[i], D);
-		//EvalPbest[i] = Eval[i];
-		//// find the best particle in the swarm P according to OF
-		//if (Eval[i] < Eval[TheBest]) TheBest = i;
-	}
-}
-
 void SwarmSystem::updateSwarm() {
+	auto& fireflyEntities = registry.fireflySwarm.entities;
 
-	// update the fireflies (particles) here
-	TheBest = 0;
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < D; j++) {
+	float N = NUM_SWARM_PARTICLES;
 
-			if (!registry.motions.has(registry.fireflySwarm.entities[i])) continue;
+	float SD_X = 0.f;
+	float mu_X = 0.f;
+	float sumSquaresX = 0.f;
+	float maxX = registry.motions.get(fireflyEntities[0]).position.x;
+	float minX = registry.motions.get(fireflyEntities[0]).position.x;
+	
+	float SD_Y = 0.f;
+	float mu_Y = 0.f;
+	float sumSquaresY = 0.f;
+	float maxY = registry.motions.get(fireflyEntities[0]).position.y;
+	float minY = registry.motions.get(fireflyEntities[0]).position.y;
 
-			Motion& fireflyMotion = registry.motions.get(registry.fireflySwarm.entities[i]);
+	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+		Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
-			// fetch the current velocity from motions
-			float vel = (j == 0) ? fireflyMotion.velocity.x : fireflyMotion.velocity.y;
+		// Set the initial velocity for current step
+		float randomSeedX = -1 + 2 * ((float)rand()) / RAND_MAX; // From -1 to 1
+		float randomSeedY = -1 + 2 * ((float)rand()) / RAND_MAX; // From -1 to 1
+		float initialVelocityX = INITIAL_BASE_VELOCITY * randomSeedX;
+		float initialVelocityY = INITIAL_BASE_VELOCITY * randomSeedY;
 
-			// for each particle compute the velocity vector
-			V[i][j] = registry.convergenceValue * vel + registry.c1 * r() * (Pbest[i][j] - P[i][j]) + registry.c2 * r() * (
-				Gbest[j] - P[i][j]);
+		particleMotion.velocity = vec2(initialVelocityX, initialVelocityY);
 
-			auto& fireflyComponent = registry.fireflySwarm.components[i];
-
-
-			if (j == 0) {
-				// Update the firefly's x-velocity
-				fireflyMotion.velocity.x = V[i][j];
-			}
-			else {
-				// Update the firefly's y-velocity
-				fireflyMotion.velocity.y = V[i][j];
-			}
-
-			// update each particle using velocity vector
-			P[i][j] = P[i][j] + V[i][j];
-
-			// check the constraints for each dimension
-			if (P[i][j] < Pmin[j]) P[i][j] = Pmin[j];
-			if (P[i][j] > Pmax[j]) P[i][j] = Pmax[j];
+		// Add to mu_X for current particle
+		mu_X += particleMotion.position.x;
+		
+		if (particleMotion.position.x < minX) {
+			minX = particleMotion.position.x;
+		}
+		if (particleMotion.position.x > maxX) {
+			maxX = particleMotion.position.x;
 		}
 
-		// evaluate each particle from the swarm P
-		Eval[i] = OF(P[i], D);
-		if (Eval[i] < EvalPbest[i]) {
-			// for each particle update its PBest vector
-			for (int j = 0; j < D; j++) Pbest[i][j] = P[i][j];
+		// Add to mu_Y for current particle
+		mu_Y += particleMotion.position.y;
+		
+		if (particleMotion.position.y < minY) {
+			minY = particleMotion.position.y;
 		}
-		if (Eval[i] < Eval[TheBest]) TheBest = i;
+		if (particleMotion.position.y > maxY) {
+			maxY = particleMotion.position.y;
+		}
 	}
 
-	// update Gbest vector if better particle is found
-	if (Eval[TheBest] < EvalGbest) {
-		for (int j = 0; j < D; j++) Gbest[j] = P[TheBest][j];
-		EvalGbest = Eval[TheBest];
+	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+		Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
+
+		// Add to sumSquaresX for current particle
+		sumSquaresX += ((particleMotion.position.x - mu_X) * (particleMotion.position.x - mu_X));
+		// Add to sumSquaresY for current particle
+		sumSquaresY += ((particleMotion.position.y - mu_Y) * (particleMotion.position.y - mu_Y));
 	}
-	//cout << "EvalGbest = " << EvalGbest << endl;
+
+	// Compute the standard deviation for all particle pos.x
+	SD_X = sqrt(sumSquaresX / N);
+	SD_Y = sqrt(sumSquaresY / N);
+	
+	// Case: X-spread is too large
+	if (SD_X > 60000) {
+
+		float midpointX = (minX + maxX) / 2;
+
+		for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+			Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
+
+			// Particle is closer to the left edge than center, move right
+			if (abs(particleMotion.position.x - midpointX) >= abs(particleMotion.position.x - minX)) {
+				particleMotion.velocity.x = abs(particleMotion.velocity.x);
+			}
+			// Particle is closer to the right edge than center, move left
+			else if ((abs(particleMotion.position.x - midpointX) >= abs(particleMotion.position.x - maxX))){
+				particleMotion.velocity.x = -abs(particleMotion.velocity.x);
+			}
+
+		}
+	}
+
+	// Case: Y-spread is too large
+	if (SD_Y > 60000) {
+
+		float midpointY = (minY + maxY) / 2;
+
+		for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+			Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
+
+			// Particle is closer to the top edge than center, move down
+			if (abs(particleMotion.position.y - midpointY) >= abs(particleMotion.position.y - minY)) {
+				particleMotion.velocity.y = abs(particleMotion.velocity.y);
+			}
+			// Particle is closer to the bottom edge than center, move up
+			else if ((abs(particleMotion.position.y - midpointY) >= abs(particleMotion.position.y - maxY))) {
+				particleMotion.velocity.y = -abs(particleMotion.velocity.y);
+			}
+
+		}
+	}
 }
