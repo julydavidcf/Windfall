@@ -21,20 +21,8 @@ void main()
     vec4 in_color = texture(screen_texture, texcoord);
     color = in_color * 0.2;
     //color = vec4(0.0, 0.0, 0.0, 0.0);
-
-    // for the fireflies
     vec2 uv = gl_FragCoord.xy / resolutionY;
-    for(int i = 0; i < 50; i++) {
-        vec2 lightSource = vec2(thingie.xCoordinates[i], thingie.yCoordinates[i]);    
-        lightSource = lightSource / resolutionY;
-        vec2 lightBall = uv - lightSource;
-        float lightBallLuminance = max( 0.0, 1.0 - dot( lightBall, lightBall ) );
-        vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 900.0 );
-        color += vec4(col * 1.2, 1.0);
-        color += vec4(vec3(0.1, 0.8, 1.0) * 0.7 * pow( lightBallLuminance, 9000 ), 1.0);
-        // color += in_color;
-    }
-
+   
     // for the archer arrow
     if (arrow == 1.0) {
         vec2 lightSource = lightSourcePos / resolutionY;
@@ -66,6 +54,19 @@ void main()
             color = in_color * 0.1; // multiplied to reduce brightness of color 
         }
     }
+   
+   // for the fireflies
+    for(int i = 0; i < 50; i++) {
+        vec2 lightSource = vec2(thingie.xCoordinates[i], thingie.yCoordinates[i]);    
+        lightSource = lightSource / resolutionY;
+        vec2 lightBall = uv - lightSource;
+        float lightBallLuminance = max( 0.0, 1.0 - dot( lightBall, lightBall ) );
+        vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 900.0 );
+        color += vec4(col * 1.2, 1.0);
+        color += vec4(vec3(0.1, 0.8, 1.0) * 0.7 * pow( lightBallLuminance, 9000 ), 1.0);
+        // color += in_color;
+    }
+
     
 //    if (lightBallLuminance < 0.95) {
 //        float input = 0.95;
