@@ -189,10 +189,10 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 		arrowPosY = arrowMotion.position.y;
 		arrowScaleX = arrowMotion.scale.x;
 		arrowScaleY = arrowMotion.scale.y;
-		topLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 50, arrowPosY - arrowScaleY / 2 + 50);
-		topRightPoint = vec2(arrowPosX + arrowScaleX / 2 - 50, arrowPosY - arrowScaleY / 2 + 50);
+		topLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 50, arrowPosY - arrowScaleY / 2 - 50);
+		topRightPoint = vec2(arrowPosX + arrowScaleX / 2 + 50, arrowPosY - arrowScaleY / 2 - 50);
 		bottomLeftPoint = vec2(arrowPosX - arrowScaleX / 2 - 50, arrowPosY + arrowScaleY / 2 + 50);
-		bottomRightPoint = vec2(arrowPosX + arrowScaleX / 2 - 50, arrowPosY + arrowScaleY / 2 + 50);
+		bottomRightPoint = vec2(arrowPosX + arrowScaleX / 2 + 50, arrowPosY + arrowScaleY / 2 + 50);
 	}
 
 	for(uint i = 0; i< motion_registry.size(); i++)
@@ -207,9 +207,13 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 			// 1. Avoidance movement: Separate from the incoming arrow
 			if (hasArrow && fireflyCollides(entity, arrow_entity)) {
 				vec2 fireflyPos = motion->position;
-				float moveValue = 200;
+				float moveValue = 100;
 				float timerValue = 100.f;
 				auto& firefly = registry.fireflySwarm.get(entity);
+
+				if (firefly.dodge_timer < 0.f) {
+					firefly.isDodging = 0;
+				}
 
 				// Separate the arrow's collision box into four cases
 
@@ -224,7 +228,6 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y = moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
-					registry.projectiles.get(arrow_entity).empoweredArrow = 1;
 				}
 
 				// Second case: Within top-right collision box of arrow
@@ -238,7 +241,6 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y = moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
-					registry.projectiles.get(arrow_entity).empoweredArrow = 1;
 				}
 
 				// Third case: Within bottom-left collision box of arrow
@@ -252,7 +254,6 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y = moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
-					registry.projectiles.get(arrow_entity).empoweredArrow = 1;
 				}
 
 				// Fourth case: Within bottom-right collision box of arrow
@@ -266,7 +267,6 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					motion->velocity.y = moveValue;
 					firefly.dodge_timer = timerValue;
 					firefly.isDodging = 1;
-					registry.projectiles.get(arrow_entity).empoweredArrow = 1;
 				}
 				//continue;
 			}
@@ -276,27 +276,31 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 			float posY = motion->position.y;
 			auto& fireflyComoponent = registry.fireflySwarm.get(entity);
 			if (fireflyComoponent.shouldFlipVelocityX == 1) {
-				motion->velocity.x = abs(motion->velocity.x);
+				motion->position.x += 1.5;
 			}
 			else {
-				motion->velocity.x = -abs(motion->velocity.x);
+				motion->position.x -= 1.5;
 			}
 			if (fireflyComoponent.shouldFlipVelocityY == 1) {
-				motion->velocity.y = abs(motion->velocity.y);
+				motion->position.y += 1.5;
 			}
 			else {
-				motion->velocity.y = -abs(motion->velocity.y);
+				motion->position.y -= 1.5;
 			}
 			if (posX - xBorderLimitDist < 0.f) {
+				motion->position.x = motion->scale.x;
 				fireflyComoponent.shouldFlipVelocityX = 1;
 			}
 			if (posX + xBorderLimitDist >= window_width_px) {
+				motion->position.x = window_width_px - motion->scale.x;
 				fireflyComoponent.shouldFlipVelocityX = 2;
 			}
 			if (posY - yBorderLimitDist < 0.f) {
+				motion->position.y = motion->scale.y;
 				fireflyComoponent.shouldFlipVelocityY = 1;
 			}
 			if (posY + yBorderLimitDist >= window_height_px) {
+				motion->position.y = window_height_px - motion->scale.y;
 				fireflyComoponent.shouldFlipVelocityY = 2;
 			}
 		}

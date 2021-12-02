@@ -1097,9 +1097,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	}
 
 	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
-		auto& timer = registry.fireflySwarm.components[i].dodge_timer;
-		timer -= elapsed_ms_since_last_update;
-		if (timer < 0.f) registry.fireflySwarm.components[i].isDodging = 0;
+		registry.fireflySwarm.components[i].dodge_timer -= elapsed_ms_since_last_update;
 	}
 
 	if (player_turn == 1)

@@ -1,8 +1,8 @@
 #version 330
 
 struct glowCoordinates{
-    float xCoordinates[50];
-    float yCoordinates[50];
+    float xCoordinates[40];
+    float yCoordinates[40];
 };
 uniform sampler2D screen_texture;
 uniform float resolutionX;
@@ -56,14 +56,14 @@ void main()
     }
    
    // for the fireflies
-    for(int i = 0; i < 50; i++) {
+    for(int i = 0; i < 40; i++) {
         vec2 lightSource = vec2(thingie.xCoordinates[i], thingie.yCoordinates[i]);    
         lightSource = lightSource / resolutionY;
         vec2 lightBall = uv - lightSource;
         float lightBallLuminance = max( 0.0, 1.0 - dot( lightBall, lightBall ) );
         vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 900.0 );
         color += vec4(col * 1.2, 1.0);
-        color += vec4(vec3(0.1, 0.8, 1.0) * 0.7 * pow( lightBallLuminance, 9000 ), 1.0);
+        color += vec4(vec3(0.1, 0.8, 1.0) * 0.7 * pow( lightBallLuminance, 5000 ), 1.0);
         // color += in_color;
     }
 

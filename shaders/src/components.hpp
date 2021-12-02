@@ -164,7 +164,6 @@ struct Projectile
 {
 	float flyingTimer = 0.f;
 	int enableCameraTracking = 1;
-	int empoweredArrow = 0;
 };
 
 //Special effect : Taunt

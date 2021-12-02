@@ -18,6 +18,6 @@ public:
 
 private:
 	float INITIAL_BASE_VELOCITY = 75;
-	float SEPARATION_DIST = 27;
-	float SEPARATION_MOVE_VALUE = 0.1;
+	float SEPARATE_DIST = 20;
+	float SEPARATE_POS_VALUE = 5;
 };

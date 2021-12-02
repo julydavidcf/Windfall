@@ -62,7 +62,57 @@ float r() {
 void SwarmSystem::updateSwarm() {
 	auto& fireflyEntities = registry.fireflySwarm.entities;
 
-	if (!registry.motions.has(fireflyEntities[0])) return;
+	// First check if any two fireflies are too close to each other
+	//for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+	//	if (!registry.motions.has(fireflyEntities[i])) return;
+	//	Motion& firefly_i = registry.motions.get(fireflyEntities[i]);
+
+	//	for (int j = 0; j < NUM_SWARM_PARTICLES; j++) {
+	//		if (i == j) continue;
+
+	//		if (!registry.motions.has(fireflyEntities[j])) return;
+	//		Motion& firefly_j = registry.motions.get(fireflyEntities[j]);
+	//		int hasChangedX = 0;
+	//		int hasChangedY = 0;
+	//		
+	//		// Adjust x-pos if needed
+	//		if (firefly_i.position.x < firefly_j.position.x && firefly_i.position.x > firefly_j.position.x - SEPARATE_DIST) {
+	//			firefly_i.position.x -= SEPARATE_POS_VALUE;
+	//			hasChangedX = 1;
+	//		}
+	//		else if (firefly_i.position.x > firefly_j.position.x && firefly_i.position.x < firefly_j.position.x + SEPARATE_DIST) {
+	//			firefly_i.position.x += SEPARATE_POS_VALUE;
+	//			hasChangedX = 1;
+	//		}
+
+	//		if (firefly_j.position.x < firefly_i.position.x && firefly_j.position.x > firefly_i.position.x - SEPARATE_DIST && !hasChangedX) {
+	//			firefly_j.position.x -= SEPARATE_POS_VALUE;
+	//		}
+	//		else if (firefly_j.position.x > firefly_i.position.x && firefly_j.position.x < firefly_i.position.x + SEPARATE_DIST && !hasChangedX) {
+	//			firefly_j.position.x += SEPARATE_POS_VALUE;
+	//		}
+
+	//		// Adjust y-pos if needed
+	//		if (firefly_i.position.y < firefly_j.position.y && firefly_i.position.y > firefly_j.position.y - SEPARATE_DIST) {
+	//			firefly_i.position.y -= SEPARATE_POS_VALUE;
+	//			hasChangedY = 1;
+	//		}
+	//		else if (firefly_i.position.y > firefly_j.position.y && firefly_i.position.y < firefly_j.position.y + SEPARATE_DIST) {
+	//			firefly_i.position.y += SEPARATE_POS_VALUE;
+	//			hasChangedY = 1;
+	//		}
+
+	//		if (firefly_j.position.y < firefly_i.position.y && firefly_j.position.y > firefly_i.position.y - SEPARATE_DIST && !hasChangedY) {
+	//			firefly_j.position.y -= SEPARATE_POS_VALUE;
+	//		}
+	//		else if (firefly_j.position.y > firefly_i.position.y && firefly_j.position.y < firefly_i.position.y + SEPARATE_DIST && !hasChangedY) {
+	//			firefly_j.position.y += SEPARATE_POS_VALUE;
+	//		}
+
+	//		if (hasChangedX || hasChangedY) return;
+	//	}
+	//}
+
 
 	float N = NUM_SWARM_PARTICLES;
 
@@ -79,36 +129,12 @@ void SwarmSystem::updateSwarm() {
 	float minY = registry.motions.get(fireflyEntities[0]).position.y;
 
 	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+
 		if (!registry.motions.has(fireflyEntities[i])) continue;
+
 		Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
-		// Check if any two fireflies are too close to each other
-		for (int j = 0; j < NUM_SWARM_PARTICLES; j++) {
-			if (!registry.motions.has(fireflyEntities[j])) continue;
-			Motion& otherParticleMotion = registry.motions.get(fireflyEntities[j]);
-
-			// x-pos is too close
-			if (particleMotion.position.x < otherParticleMotion.position.x && particleMotion.position.x > otherParticleMotion.position.x - SEPARATION_DIST) {
-				particleMotion.position.x -= SEPARATION_MOVE_VALUE;
-				otherParticleMotion.position.x += SEPARATION_MOVE_VALUE;
-			}
-			else if (particleMotion.position.x > otherParticleMotion.position.x && particleMotion.position.x < otherParticleMotion.position.x + SEPARATION_DIST) {
-				particleMotion.position.x += SEPARATION_MOVE_VALUE;
-				otherParticleMotion.position.x -= SEPARATION_MOVE_VALUE;
-			}
-
-			// y-pos is too close
-			if (particleMotion.position.y < otherParticleMotion.position.y && particleMotion.position.y > otherParticleMotion.position.y - SEPARATION_DIST) {
-				particleMotion.position.y -= SEPARATION_MOVE_VALUE;
-				otherParticleMotion.position.y += SEPARATION_MOVE_VALUE;
-			}
-			else if (particleMotion.position.y > otherParticleMotion.position.y && particleMotion.position.y < otherParticleMotion.position.y + SEPARATION_DIST) {
-				particleMotion.position.y += SEPARATION_MOVE_VALUE;
-				otherParticleMotion.position.y -= SEPARATION_MOVE_VALUE;
-			}
-		}
-
-		if (!registry.fireflySwarm.components[i].isDodging) {
+		if (!registry.fireflySwarm.get(fireflyEntities[i]).isDodging) {
 			// Set the initial velocity for current step
 			float randomSeedX = -1 + 2 * ((float)rand()) / RAND_MAX; // From -1 to 1
 			float randomSeedY = -1 + 2 * ((float)rand()) / RAND_MAX; // From -1 to 1
@@ -141,6 +167,7 @@ void SwarmSystem::updateSwarm() {
 
 	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
 		if (!registry.motions.has(fireflyEntities[i])) continue;
+
 		Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
 		// Add to sumSquaresX for current particle
@@ -154,12 +181,12 @@ void SwarmSystem::updateSwarm() {
 	SD_Y = sqrt(sumSquaresY / N);
 	
 	// Case: X-spread is too large
-	if (SD_X > 10000 || (maxX - minX) > 400) {
+	if (SD_X > 30000) {
 
 		float midpointX = (minX + maxX) / 2;
 
 		for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
-			if (!registry.motions.has(fireflyEntities[i]) || registry.fireflySwarm.components[i].isDodging) continue;
+			if (!registry.motions.has(fireflyEntities[i]) || registry.fireflySwarm.get(fireflyEntities[i]).isDodging) continue;
 			Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
 			// Particle is closer to the left edge than center, move right
@@ -167,21 +194,20 @@ void SwarmSystem::updateSwarm() {
 				particleMotion.velocity.x = abs(particleMotion.velocity.x);
 			}
 			// Particle is closer to the right edge than center, move left
-			else if ((abs(particleMotion.position.x - midpointX) >= abs(particleMotion.position.x - maxX))) {
+			else if ((abs(particleMotion.position.x - midpointX) >= abs(particleMotion.position.x - maxX))){
 				particleMotion.velocity.x = -abs(particleMotion.velocity.x);
 			}
-			else particleMotion.velocity.x = particleMotion.velocity.x / 2;
 
 		}
 	}
 
 	// Case: Y-spread is too large
-	if (SD_Y > 10000 || (maxY - minY) > 400) {
+	if (SD_Y > 30000) {
 
 		float midpointY = (minY + maxY) / 2;
 
 		for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
-			if (!registry.motions.has(fireflyEntities[i]) || registry.fireflySwarm.components[i].isDodging) continue;
+			if (!registry.motions.has(fireflyEntities[i]) || registry.fireflySwarm.get(fireflyEntities[i]).isDodging) continue;
 			Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
 			// Particle is closer to the top edge than center, move down
@@ -192,7 +218,6 @@ void SwarmSystem::updateSwarm() {
 			else if ((abs(particleMotion.position.y - midpointY) >= abs(particleMotion.position.y - maxY))) {
 				particleMotion.velocity.y = -abs(particleMotion.velocity.y);
 			}
-			else particleMotion.velocity.y = particleMotion.velocity.y / 2;
 
 		}
 	}
