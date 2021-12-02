@@ -352,6 +352,7 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
+	registry.bouncingArrows.emplace(entity);
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);

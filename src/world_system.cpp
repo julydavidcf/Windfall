@@ -792,6 +792,66 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	//check bouncing arrow
+	for (int i = (int)registry.bouncingArrows.components.size() - 1; i >= 0; --i) {
+		BouncingArrow* ba = &registry.bouncingArrows.components[i];
+		Motion* baM = &registry.motions.get(registry.bouncingArrows.entities[i]);
+		float baXPos = baM->position.x;
+		float baYPos = baM->position.y;
+		//check if collide side
+		if (baXPos - baM->scale.x < 0 && baM->velocity.x <= 0 && baM->acceleration.x <=0 &&  ba->bounce_time>0) {
+
+			baM->velocity.x = baM->velocity.x * -1;
+			baM->acceleration.x = baM->acceleration.x * -1;
+			baM->position.x = baXPos - baM->scale.x;
+			ba->bounce_time--;
+			printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baXPos + baM->scale.x > screen_width && baM->velocity.x >= 0 && baM->acceleration.x>=0 && ba->bounce_time>0) {
+
+			baM->velocity.x = baM->velocity.x * -1;
+			baM->acceleration.x = baM->acceleration.x * -1;
+			baM->position.x = baXPos + baM->scale.x;
+			ba->bounce_time--;
+			printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baYPos - baM->scale.y < 0 && baM->velocity.y <= 0 && baM->acceleration.y >= 0 && ba->bounce_time>0) {
+
+			baM->velocity.y = baM->velocity.y * -1;
+			//baM->acceleration.y = baM->acceleration.y * -1;
+			baM->position.y = baYPos - baM->scale.y;
+			ba->bounce_time--;
+			printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baYPos + baM->scale.y > screen_height && baM->velocity.y >= 0 && baM->acceleration.y >= 0 && ba->bounce_time > 0) {
+
+			baM->velocity.y = baM->velocity.y * -1;
+			//baM->acceleration.y = baM->acceleration.y * -1;
+			baM->position.y = baYPos + baM->scale.y;
+			ba->bounce_time--;
+			printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		//stops arrow when it have bounced
+
+		if (ba->bounce_time <= 0) {
+			baM->velocity.x = baM->velocity.x * 0.9;
+			baM->velocity.y = baM->velocity.y * 0.9;
+			baM->acceleration.x = baM->acceleration.x * 0.9;
+			baM->acceleration.y = baM->acceleration.y * 0.9;
+			ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
+		}
+		if (ba->ai_trigger <= 0) {
+			registry.gravities.remove(registry.bouncingArrows.entities[i]);
+		}
+
+
+	}
+
+
+
+
+
+
 	// Walk
 	for (Entity runner : registry.runners.entities)
 	{
@@ -1883,9 +1943,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
 	//}
 
-	// if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-	//	sk->launchSpike(player_mage, renderer);
-	// }
+	 if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
+	 }
 	if (isFreeRoam) {
 		// Move right
 		if (key == GLFW_KEY_D) {
@@ -2908,6 +2968,7 @@ bool WorldSystem::inEntity(const Entity entity)
 	}
 	return false;
 }
+
 
 void WorldSystem::deselectButton()
 {

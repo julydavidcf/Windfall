@@ -127,6 +127,7 @@ private:
 	void displayTurnIndicator(int isPlayerTurn);
 	void advanceTutorial(Entity currTutorial, vec2 pos);
 
+
 	// Story telling
 	void backgroundTelling();
 
