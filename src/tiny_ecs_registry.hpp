@@ -80,6 +80,9 @@ public:
 	Mix_Chunk* gesture_heal_sound;
 	Mix_Chunk* gesture_aoe_sound;
 	Mix_Chunk* gesture_turn_sound;
+	Mix_Music* menu_music;
+	Mix_Music* wintervale_music;
+	Mix_Music* cestershire_music;
 
 	// Values for swarm behaviour calculations
 	float convergenceValue = 0.7; float c1 = 1; float c2 = 3;

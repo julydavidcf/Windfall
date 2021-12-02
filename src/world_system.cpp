@@ -148,6 +148,12 @@ WorldSystem::~WorldSystem()
 		Mix_FreeChunk(registry.gesture_aoe_sound);
 	if (registry.gesture_turn_sound != nullptr)
 		Mix_FreeChunk(registry.gesture_turn_sound);
+	if (registry.menu_music != nullptr)	// only this is playing, got replaced
+		Mix_FreeMusic(registry.menu_music);
+	if (registry.wintervale_music != nullptr)
+		Mix_FreeMusic(registry.wintervale_music);
+	if (registry.cestershire_music != nullptr)
+		Mix_FreeMusic(registry.cestershire_music);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -246,27 +252,31 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	registry.hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
 	registry.fireball_explosion_sound = Mix_LoadWAV(audio_path("fireball_explosion_short.wav").c_str());
 	registry.death_enemy_sound = Mix_LoadWAV(audio_path("death_enemy.wav").c_str());
-	registry.fire_spell_sound = Mix_LoadWAV(audio_path("fireball_spell.wav").c_str());		 // https://mixkit.co/free-sound-effects/spell/
-	registry.rock_spell_sound = Mix_LoadWAV(audio_path("rock_spell.wav").c_str());			 // https://mixkit.co/free-sound-effects/spell/
-	registry.heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str());			 // https://mixkit.co/free-sound-effects/spell/
-	registry.taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());		 // https://mixkit.co/free-sound-effects/spell/
-	registry.melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str());		 // https://mixkit.co/free-sound-effects/spell/
-	registry.silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	 // https://freesound.org/people/Vicces1212/sounds/123757/
-	registry.lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); // https://freesound.org/people/Puerta118m/sounds/471691/
-	registry.ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str());			 // https://freesound.org/people/EminYILDIRIM/sounds/550267/
-	registry.summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str());		 // https://freesound.org/people/alonsotm/sounds/396500/
-	registry.button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str());		 // https://freesound.org/people/wobesound/sounds/488382/
-	registry.turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());				 // https://freesound.org/people/InspectorJ/sounds/416179/
-	registry.charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str());		 // https://freesound.org/people/18hiltc/sounds/186048/
-	registry.beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str());			 // https://freesound.org/people/MATRIXXX_/sounds/403297/
-	registry.minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str());		 // https://freesound.org/people/Breviceps/sounds/453391/
-	registry.error_sound = Mix_LoadWAV(audio_path("error.wav").c_str());					 // https://freesound.org/people/plasterbrain/sounds/423169/
-	registry.gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str());		 // https://freesound.org/people/SilverIllusionist/sounds/580814/
-	registry.gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str());		 // https://freesound.org/people/humanoide9000/sounds/329029/
-	registry.gesture_turn_sound = Mix_LoadWAV(audio_path("gesture_turn.wav").c_str());		 // https://freesound.org/people/Aleks41/sounds/406063/
+	registry.fire_spell_sound = Mix_LoadWAV(audio_path("fireball_spell.wav").c_str());			// https://mixkit.co/free-sound-effects/spell/
+	registry.rock_spell_sound = Mix_LoadWAV(audio_path("rock_spell.wav").c_str());				// https://mixkit.co/free-sound-effects/spell/
+	registry.heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str());				// https://mixkit.co/free-sound-effects/spell/
+	registry.taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());			// https://mixkit.co/free-sound-effects/spell/
+	registry.melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str());			// https://mixkit.co/free-sound-effects/spell/
+	registry.silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());		// https://freesound.org/people/Vicces1212/sounds/123757/
+	registry.lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str());	// https://freesound.org/people/Puerta118m/sounds/471691/
+	registry.ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str());				// https://freesound.org/people/EminYILDIRIM/sounds/550267/
+	registry.summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str());			// https://freesound.org/people/alonsotm/sounds/396500/
+	registry.button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str());			// https://freesound.org/people/wobesound/sounds/488382/
+	registry.turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());					// https://freesound.org/people/InspectorJ/sounds/416179/
+	registry.charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str());			// https://freesound.org/people/18hiltc/sounds/186048/
+	registry.beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str());				// https://freesound.org/people/MATRIXXX_/sounds/403297/
+	registry.minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str());			// https://freesound.org/people/Breviceps/sounds/453391/
+	registry.error_sound = Mix_LoadWAV(audio_path("error.wav").c_str());						// https://freesound.org/people/plasterbrain/sounds/423169/
+	registry.gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str());			// https://freesound.org/people/SilverIllusionist/sounds/580814/
+	registry.gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str());			// https://freesound.org/people/humanoide9000/sounds/329029/
+	registry.gesture_turn_sound = Mix_LoadWAV(audio_path("gesture_turn.wav").c_str());			// https://freesound.org/people/Aleks41/sounds/406063/
+	registry.menu_music = Mix_LoadMUS(audio_path("menuMusic.wav").c_str());						// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
+	registry.wintervale_music = Mix_LoadMUS(audio_path("wintervaleMusic.wav").c_str());			// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
+	registry.cestershire_music = Mix_LoadMUS(audio_path("cestershireMusic.wav").c_str());		// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
 
-	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr)
+	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr || registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr)
 	{
+		//|| registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 				audio_path("combatMusic.wav").c_str(),
 				audio_path("salmon_dead.wav").c_str(),
@@ -306,7 +316,7 @@ void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem
 	this->swarmSys = swarm_arg;
 
 	Mix_VolumeMusic(MIX_MAX_VOLUME / 30);
-	Mix_FadeInMusic(registry.background_music, -1, 5000);
+	//Mix_FadeInMusic(registry.background_music, -1, 5000);
 	Mix_VolumeChunk(registry.hit_enemy_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.fireball_explosion_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.death_enemy_sound, MIX_MAX_VOLUME / 10);
@@ -327,6 +337,9 @@ void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem
 	Mix_VolumeChunk(registry.gesture_heal_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_aoe_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_turn_sound, MIX_MAX_VOLUME / 10);
+	Mix_FadeInMusic(registry.menu_music, -1, 3000);
+	//Mix_FadeInMusic(registry.wintervale_music, -1, 5000);
+	//Mix_FadeInMusic(registry.cestershire_music, -1, 5000);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -1445,6 +1458,8 @@ void WorldSystem::restart_game(bool force_restart)
 		swarmSys->startSwarm();
 
 		renderer->gameLevel = 1;
+
+		Mix_FadeInMusic(registry.wintervale_music, -1, 500);
 	}
 	else
 	{
