@@ -115,11 +115,18 @@ void SwarmSystem::updateSwarm() {
 			float initialVelocityX = INITIAL_BASE_VELOCITY * randomSeedX;
 			float initialVelocityY = INITIAL_BASE_VELOCITY * randomSeedY;
 
-			particleMotion.velocity = vec2(initialVelocityX, initialVelocityY);
+			if (i > 0) {
+				vec2 leaderVelocity = registry.motions.get(fireflyEntities[0]).velocity;
+				particleMotion.velocity = vec2(initialVelocityX + leaderVelocity.x, initialVelocityY + leaderVelocity.y);
+			}
+			else {
+				particleMotion.velocity = vec2(initialVelocityX, initialVelocityY);
+			}
+
 		}
 
 		// Add to mu_X for current particle
-		mu_X += particleMotion.position.x;
+		mu_X += particleMotion.position.x / window_width_px;
 		
 		if (particleMotion.position.x < minX) {
 			minX = particleMotion.position.x;
@@ -129,7 +136,7 @@ void SwarmSystem::updateSwarm() {
 		}
 
 		// Add to mu_Y for current particle
-		mu_Y += particleMotion.position.y;
+		mu_Y += particleMotion.position.y / window_height_px;
 		
 		if (particleMotion.position.y < minY) {
 			minY = particleMotion.position.y;
@@ -144,17 +151,17 @@ void SwarmSystem::updateSwarm() {
 		Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
 
 		// Add to sumSquaresX for current particle
-		sumSquaresX += ((particleMotion.position.x - mu_X) * (particleMotion.position.x - mu_X));
+		sumSquaresX += ((particleMotion.position.x / window_width_px) - mu_X) * ((particleMotion.position.x / window_width_px) - mu_X);
 		// Add to sumSquaresY for current particle
-		sumSquaresY += ((particleMotion.position.y - mu_Y) * (particleMotion.position.y - mu_Y));
+		sumSquaresY += ((particleMotion.position.y / window_height_px) - mu_Y) * ((particleMotion.position.y / window_height_px) - mu_Y);
 	}
 
 	// Compute the standard deviation for all particle pos.x
 	SD_X = sqrt(sumSquaresX / N);
 	SD_Y = sqrt(sumSquaresY / N);
-	
+
 	// Case: X-spread is too large
-	if (SD_X > 10000 || (maxX - minX) > 400) {
+	if (maxX - minX > 300) {
 
 		float midpointX = (minX + maxX) / 2;
 
@@ -170,13 +177,13 @@ void SwarmSystem::updateSwarm() {
 			else if ((abs(particleMotion.position.x - midpointX) >= abs(particleMotion.position.x - maxX))) {
 				particleMotion.velocity.x = -abs(particleMotion.velocity.x);
 			}
-			else particleMotion.velocity.x = particleMotion.velocity.x / 2;
+			else particleMotion.velocity.x = particleMotion.velocity.x;
 
 		}
 	}
 
 	// Case: Y-spread is too large
-	if (SD_Y > 10000 || (maxY - minY) > 400) {
+	if (maxY - minY > 300) {
 
 		float midpointY = (minY + maxY) / 2;
 
@@ -192,7 +199,7 @@ void SwarmSystem::updateSwarm() {
 			else if ((abs(particleMotion.position.y - midpointY) >= abs(particleMotion.position.y - maxY))) {
 				particleMotion.velocity.y = -abs(particleMotion.velocity.y);
 			}
-			else particleMotion.velocity.y = particleMotion.velocity.y / 2;
+			else particleMotion.velocity.y = particleMotion.velocity.y;
 
 		}
 	}

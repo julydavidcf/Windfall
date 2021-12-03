@@ -17,7 +17,7 @@ public:
 	int swarmInitialized = 0;
 
 private:
-	float INITIAL_BASE_VELOCITY = 75;
-	float SEPARATION_DIST = 27;
+	float INITIAL_BASE_VELOCITY = 100;
+	float SEPARATION_DIST = 15;
 	float SEPARATION_MOVE_VALUE = 0.1;
 };

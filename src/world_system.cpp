@@ -1090,7 +1090,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
 	if (swarm_update_timer < 0.f) {
 		swarmSys->updateSwarm();
-		registry.fireflySwarm.components[0].update_timer = 200.f;
+		registry.fireflySwarm.components[0].update_timer = 750.f;
 	}
 	else {
 		swarm_update_timer -= elapsed_ms_since_last_update;
@@ -1099,7 +1099,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
 		auto& timer = registry.fireflySwarm.components[i].dodge_timer;
 		timer -= elapsed_ms_since_last_update;
-		if (timer < 0.f) registry.fireflySwarm.components[i].isDodging = 0;
+		if (timer < 0.f) { 
+			registry.fireflySwarm.components[i].isDodging = 0; 
+		}
 	}
 
 	if (player_turn == 1)

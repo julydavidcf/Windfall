@@ -211,7 +211,7 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 				float timerValue = 100.f;
 				auto& firefly = registry.fireflySwarm.get(entity);
 
-				// Separate the arrow's collision box into four cases
+				// Separate the arrow's collision box into four cases as below
 
 				// First case: Within top-left collision box of arrow
 				if (topLeftPoint.x <= fireflyPos.x
@@ -268,36 +268,46 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 					firefly.isDodging = 1;
 					registry.projectiles.get(arrow_entity).empoweredArrow = 1;
 				}
-				//continue;
 			}
 
 			// 2. Standard movement: Moves towards a boundary and bounces back after approaching
 			float posX = motion->position.x;
 			float posY = motion->position.y;
 			auto& fireflyComoponent = registry.fireflySwarm.get(entity);
+
+			// Bounce x
 			if (fireflyComoponent.shouldFlipVelocityX == 1) {
 				motion->velocity.x = abs(motion->velocity.x);
 			}
-			else {
+			else if (fireflyComoponent.shouldFlipVelocityX == 2) {
 				motion->velocity.x = -abs(motion->velocity.x);
 			}
+
+			// Bounce y
 			if (fireflyComoponent.shouldFlipVelocityY == 1) {
 				motion->velocity.y = abs(motion->velocity.y);
 			}
-			else {
+			else if (fireflyComoponent.shouldFlipVelocityY == 2) {
 				motion->velocity.y = -abs(motion->velocity.y);
 			}
+
 			if (posX - xBorderLimitDist < 0.f) {
 				fireflyComoponent.shouldFlipVelocityX = 1;
 			}
-			if (posX + xBorderLimitDist >= window_width_px) {
+			else if (posX + xBorderLimitDist >= window_width_px) {
 				fireflyComoponent.shouldFlipVelocityX = 2;
+			}
+			else {
+				fireflyComoponent.shouldFlipVelocityX = 0;
 			}
 			if (posY - yBorderLimitDist < 0.f) {
 				fireflyComoponent.shouldFlipVelocityY = 1;
 			}
-			if (posY + yBorderLimitDist >= window_height_px) {
+			else if (posY + yBorderLimitDist >= window_height_px) {
 				fireflyComoponent.shouldFlipVelocityY = 2;
+			}
+			else {
+				fireflyComoponent.shouldFlipVelocityY = 0;
 			}
 		}
 
@@ -333,10 +343,6 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 	auto& motion_registry = registry.motions;
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{
-
-
-		// !!! TODO: Calculate newest fireball position based on step_seconds and motion.velocity
-
 		Motion* motion = &motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
@@ -352,10 +358,6 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		motion->velocity.y += step_seconds * motion->acceleration.y;
 		motion->position.x += step_seconds * motion->velocity.x;
 		motion->position.y += step_seconds * motion->velocity.y;
-		//printf("acc:%f %f\n", motion->acceleration.x, motion->acceleration.y);
-		//printf("v:%f %f\n", motion->velocity.x, motion->velocity.y);
-
-		// assume gravity effected object need to adjest angels
 
 		if (registry.gravities.has(entity)) {
 			float angle = atan(motion->velocity.y / motion->velocity.x);
