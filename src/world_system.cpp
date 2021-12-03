@@ -792,6 +792,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	//printf("%f %f\n",msPos.x, msPos.y);
+
 	//check bouncing arrow
 	for (int i = (int)registry.bouncingArrows.components.size() - 1; i >= 0; --i) {
 		BouncingArrow* ba = &registry.bouncingArrows.components[i];
@@ -859,7 +861,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				visited.push_back(tempv);
 			}
 
-		//	//initilaze map
+			//initilaze map
 			vector<vector<int>> map;
 			for (int i = 0; i < screen_width/10; i++)
 			{
@@ -870,13 +872,23 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				}
 				map.push_back(tempv1);
 			}
+			//if barrier exist
+			if (registry.shield.size() != 0) {
+				for (int i = 72-1-8; i <= 78-1+8; i++) {
+					for (int j = 35-1-8; j <= 75-1; j++) {
+						map[i][j] = -1;
+					}
+				}
+			}
+
+			//print map
 			for (int i = 0; i < screen_width / 10; i++) {
 				for (int j = 0; j < screen_height / 10; j++) {
 					printf("%d ", map[i][j]);
 				}
 				printf("\n");
 			}
-
+			//printf("%d x %d matrix",map.size(),map[0].size());
 
 
 		}
