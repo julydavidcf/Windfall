@@ -836,6 +836,103 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	//check bouncing arrow
+	for (int i = (int)registry.bouncingArrows.components.size() - 1; i >= 0; --i) {
+		BouncingArrow* ba = &registry.bouncingArrows.components[i];
+		Motion* baM = &registry.motions.get(registry.bouncingArrows.entities[i]);
+		float baXPos = baM->position.x;
+		float baYPos = baM->position.y;
+		//printf("arrowPos: %f %f\n", baXPos, baYPos);
+		//check if collide side
+		if (baXPos - baM->scale.x < 0 && baM->velocity.x <= 0 && baM->acceleration.x <=0 &&  ba->bounce_time>0) {
+
+			baM->velocity.x = baM->velocity.x * -1;
+			baM->acceleration.x = baM->acceleration.x * -1;
+			baM->position.x = baXPos - baM->scale.x;
+			ba->bounce_time--;
+			//printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baXPos + baM->scale.x > screen_width && baM->velocity.x >= 0 && baM->acceleration.x>=0 && ba->bounce_time>0) {
+
+			baM->velocity.x = baM->velocity.x * -1;
+			baM->acceleration.x = baM->acceleration.x * -1;
+			baM->position.x = baXPos + baM->scale.x;
+			ba->bounce_time--;
+			//printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baYPos - baM->scale.y < 0 && baM->velocity.y <= 0 && baM->acceleration.y >= 0 && ba->bounce_time>0) {
+
+			baM->velocity.y = baM->velocity.y * -1;
+			//baM->acceleration.y = baM->acceleration.y * -1;
+			baM->position.y = baYPos - baM->scale.y;
+			ba->bounce_time--;
+			//printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baYPos + baM->scale.y > screen_height && baM->velocity.y >= 0 && baM->acceleration.y >= 0 && ba->bounce_time > 0) {
+
+			baM->velocity.y = baM->velocity.y * -1;
+			//baM->acceleration.y = baM->acceleration.y * -1;
+			baM->position.y = baYPos + baM->scale.y;
+			ba->bounce_time--;
+			//printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		//stops arrow when it have bounced
+
+		if (ba->bounce_time <= 0 && ba->ai_runned == 0) {
+			baM->velocity.x = baM->velocity.x * 0.6;
+			baM->velocity.y = baM->velocity.y * 0.6;
+			baM->acceleration.x = baM->acceleration.x * 0.6;
+			baM->acceleration.y = baM->acceleration.y * 0.6;
+			ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
+		}
+		////trigger BFS
+		if (ba->ai_trigger <= 0 && ba->ai_runned==0) {
+			registry.gravities.remove(registry.bouncingArrows.entities[i]);
+			ba->ai_runned = 1;
+			//initilaze visited
+			printf("initilizing grid\n");
+			//printf("ai_runned is: %d\n", ba->ai_runned);
+			vector<vector<bool>> visited;
+			for (int i = 0; i < screen_width/10; i++)
+			{
+				vector<bool> tempv;
+				for (int j = 0; j < screen_height/10; j++)
+				{
+					tempv.push_back(false);
+				}
+				visited.push_back(tempv);
+			}
+
+		//	//initilaze map
+			vector<vector<int>> map;
+			for (int i = 0; i < screen_width/10; i++)
+			{
+				vector<int> tempv1;
+				for (int j = 0; j < screen_height/10; j++)
+				{
+					tempv1.push_back(1);
+				}
+				map.push_back(tempv1);
+			}
+			for (int i = 0; i < screen_width / 10; i++) {
+				for (int j = 0; j < screen_height / 10; j++) {
+					printf("%d ", map[i][j]);
+				}
+				printf("\n");
+			}
+
+
+
+		}
+
+
+	}
+
+
+
+
+
+
 	// Walk
 	for (Entity runner : registry.runners.entities)
 	{
@@ -903,7 +1000,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		// Updating animation time
 		attack.counter_ms -= elapsed_ms_since_last_update;
 
-		printf("Updating time : %f\n", attack.counter_ms);
 		if (!registry.deathTimers.has(attacker))
 		{
 			if (attack.counter_ms <= 0.f || attack.attack_type == SUMMON)
@@ -1145,8 +1241,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// this area is to check for edge cases for enemy to attack during their turn
 	if (player_turn == 0)
 	{
-		// printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
-		// printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
 
 		if ((registry.checkRoundTimer.size() <= 0) && (registry.companions.size() > 0))
 		{
@@ -1312,8 +1406,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			min_counter_ms_3 = timerCounter.counter_ms;
 		}
 
-		// check round once the timer expired
-		printf("TIMER IS %g \n", float(timerCounter.counter_ms));
 		if (timerCounter.counter_ms < 0)
 		{
 			registry.checkRoundTimer.remove(entity);
@@ -1935,15 +2027,12 @@ void WorldSystem::handle_collisions()
 
 					reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
 					reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
-					printf("before %f\n", reflectEM->angle);
 					float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
 					if (registry.motions.get(entity).velocity.x < 0)
 					{
 						reflectE += M_PI;
 					}
 					reflectEM->angle = reflectE;
-					printf("calculated %f\n", reflectE);
-					printf("actual %f\n", reflectEM->angle);
 				}
 			}
 		}
@@ -2016,9 +2105,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
 	//}
 
-	// if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-	//	sk->launchSpike(player_mage, renderer);
-	// }
+	 if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
+	 }
 	if (isFreeRoam) {
 		// Move right
 		if (key == GLFW_KEY_D) {
@@ -2418,7 +2507,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		for (int i = 0; i < mouseGestures.size(); i++)
 		{
 			// print out conditions
-			printf("collected mousePos: X=%f Y=%f\n", mouseGestures[i].x, mouseGestures[i].y);
+			//printf("collected mousePos: X=%f Y=%f\n", mouseGestures[i].x, mouseGestures[i].y);
 			totalX += mouseGestures[i].x;
 			totalY += mouseGestures[i].y;
 			if (mouseGestures[i].x > maxX)
@@ -2454,11 +2543,11 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				minY = mouseGestures[i].y;
 			}
 		}
-		printf("gesture skill collecting deactive!\n");
+		//printf("gesture skill collecting deactive!\n");
 		aveX = totalX / mouseGestures.size();
 		aveY = totalY / mouseGestures.size();
-		printf("Ave X is %f, Ave Y is %f, MaxminX is %f %f, MixminY is %f %f\n", aveX, aveY, maxX, minX, maxY, minY);
-		printf("X inc:%f X dec:%f Yinc:%f Y dec:%f\n", Xincreasing_switch, Xdecreasing_switch, Yincreasing_switch, Ydecreasing_switch);
+		//printf("Ave X is %f, Ave Y is %f, MaxminX is %f %f, MixminY is %f %f\n", aveX, aveY, maxX, minX, maxY, minY);
+		//printf("X inc:%f X dec:%f Yinc:%f Y dec:%f\n", Xincreasing_switch, Xdecreasing_switch, Yincreasing_switch, Ydecreasing_switch);
 
 		// horisontal line - skill 1: heal
 		if (gestureSkillRemaining > 0)
@@ -3083,6 +3172,7 @@ bool WorldSystem::inEntity(const Entity entity)
 	}
 	return false;
 }
+
 
 void WorldSystem::deselectButton()
 {

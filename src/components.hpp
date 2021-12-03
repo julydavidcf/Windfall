@@ -272,6 +272,14 @@ struct ScreenState
 	float darken_screen_factor = -1;
 };
 
+// Bouncing arrow
+struct BouncingArrow
+{
+	int bounce_time = 1;
+	float ai_trigger = 500;
+	int ai_runned = 0;
+};
+
 // A struct to refer to debugging graphics in the ECS
 struct DebugComponent
 {

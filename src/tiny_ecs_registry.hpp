@@ -54,6 +54,7 @@ public:
 	ComponentContainer<BleedIndicator> bleedIndicators;
 	ComponentContainer<ShieldIcon> shieldIcons;
 	ComponentContainer<Light> light;
+	ComponentContainer<BouncingArrow> bouncingArrows;
 
 	// Sounds
 	Mix_Music* background_music;
@@ -123,6 +124,7 @@ public:
 		registry_list.push_back(&bleedIndicators);
 		registry_list.push_back(&shieldIcons);
 		registry_list.push_back(&light);
+		registry_list.push_back(&bouncingArrows);
 	}
 
 	void clear_all_components() {
