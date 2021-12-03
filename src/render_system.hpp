@@ -179,6 +179,7 @@ class RenderSystem {
 			textures_path("levelFourDialogueThree.png"),
 
 			textures_path("particlered.png"),
+			textures_path("smoke_particle.png")
   };
   
 	std::array<GLuint, effect_count> effects;

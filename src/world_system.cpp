@@ -591,8 +591,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			canStep = 0;
 			story = 16;
 		}
-
-
 		//restart_game();
 	} else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0)){
 		if (story == 20) {

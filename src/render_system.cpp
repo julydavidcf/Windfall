@@ -74,8 +74,10 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 		// textures
 		GLint blueTexLoc = glGetUniformLocation(program, "particleTextureBlue");
 		GLint redTexLoc = glGetUniformLocation(program, "particleTextureRed");
+		GLint smokeTexLoc = glGetUniformLocation(program, "particleTextureSmoke");
 		glUniform1i(blueTexLoc, 0);
 		glUniform1i(redTexLoc, 1);
+		glUniform1i(smokeTexLoc, 2);
 		gl_has_errors();
 
 		glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
@@ -84,6 +86,10 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 
 		glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
 		glBindTexture(GL_TEXTURE_2D, texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::RED_PARTICLE]);
+		gl_has_errors();
+
+		glActiveTexture(GL_TEXTURE0 + 2); // Texture unit 2
+		glBindTexture(GL_TEXTURE_2D, texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::SMOKE_PARTICLE]);
 		gl_has_errors();
 
 		GLint currProgram;
@@ -96,8 +102,11 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 		if (pool.areTypeDeath) {
 			glUniform1f(glGetUniformLocation(currProgram, "particleType"), 1.f);
 		}
-		else {
+		else if (!pool.areTypeDeath) {
 			glUniform1f(glGetUniformLocation(currProgram, "particleType"), 2.f);
+		}
+		else {
+			glUniform1f(glGetUniformLocation(currProgram, "particleType"), 3.f);
 		}
 		
 		// particle scales
