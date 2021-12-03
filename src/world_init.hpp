@@ -89,6 +89,9 @@ const float TITLE_HEIGHT = 100.f;
 const float SPIKE_WIDTH = 40.f;
 const float SPIKE_HEIGHT = 100.f;
 
+
+Entity createBird(RenderSystem* renderer, vec2 pos);
+void createSpline(RenderSystem* renderer, std::vector<vec3> points);
 // the player mage
 Entity createPlayerMage(RenderSystem* renderer, vec2 pos);
 // the enemy mage

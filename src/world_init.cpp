@@ -36,6 +36,50 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
+Entity createBird(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ 40, 40 });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::RED_PARTICLE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+void createSpline(RenderSystem* renderer, std::vector<vec3> points)
+{
+	for (auto& point : points) {
+		auto entity = Entity();
+
+		Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+		registry.meshPtrs.emplace(entity, &mesh);
+
+		Motion& motion = registry.motions.emplace(entity);
+		motion.position = vec2(point.x, point.y);
+		motion.angle = 0.f;
+		motion.velocity = { 0.f, 0.f };
+		motion.scale = vec2({ 10, 10 });
+
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::RED_PARTICLE,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+}
+
 Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();

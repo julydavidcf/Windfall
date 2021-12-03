@@ -149,13 +149,6 @@ void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
 		glVertexAttribDivisor(4, 1);
 		gl_has_errors();
 
-		// Enabling and binding texture to slot 0
-		//glActiveTexture(GL_TEXTURE0);
-		//gl_has_errors();
-		//GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::DEATH_PARTICLE];
-		//glBindTexture(GL_TEXTURE_2D, texture_id);
-		//gl_has_errors();
-
 		// textures
 		GLint blueTexLoc = glGetUniformLocation(program, "particleTextureBlue");
 		GLint redTexLoc = glGetUniformLocation(program, "particleTextureRed");
@@ -322,32 +315,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 				// reaching here implies that we've got a render request but 
 				// the entity is missing from the background objects container.
 				// Indicates asynchronous behavior. Not very serious, so just log warning.
-				printf("WARNING: recieved renderRequest for background object but object is missing from backgroundObject container\n");
 				glUniform1i(glGetUniformLocation(program, "shouldDeform"), false);
 				glUniform1f(glGetUniformLocation(program, "time"), 0.f);
 			}
-			//glUniform1f(glGetUniformLocation(program, "time"), deformTime);
-			//if (!implode) {
-			//	deformTime += elapsed_ms;
-			//}
-			//if (deformTime >= 2200 && !implode) {
-			//	implode = true;
-			//	// shouldDeform = 0;
-			//	// deformTime = 0;
-			//}
-
-			//if (implode) {
-			//	deformTime -= elapsed_ms;
-			//}
-
-			//if (implode && deformTime <= 0) {
-			//	implode = false;
-			//	shouldDeform = 0.;
-			//	deformTime = 0;
-			//}
-
-			//glUniform1i(glGetUniformLocation(program, "shouldDeform"), shouldDeform);
-			//gl_has_errors();
 		}
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,

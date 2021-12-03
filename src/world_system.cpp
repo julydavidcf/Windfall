@@ -180,6 +180,36 @@ namespace
 		glBufferData(GL_ARRAY_BUFFER, pool.size * 3 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 		pool.positions = new float[pool.size * 3];
 	}
+
+	std::vector<vec3> GenerateSpline(std::vector<vec3> points, int stepsPerCurve = 30, float tension = 1.5)
+	{
+		std::vector<vec3> result;
+
+		for (int i = 0; i < points.size() - 1; i++)
+		{
+			vec3 prev = i == 0 ? points[i] : points[i - 1];
+			vec3 currStart = points[i];
+			vec3 currEnd = points[i + 1];
+			vec3 next = i == points.size() - 2 ? points[i + 1] : points[i + 2];
+
+			for (int step = 0; step <= stepsPerCurve; step++)
+			{
+				float t = (float)step / stepsPerCurve;
+				float tSquared = t * t;
+				float tCubed = tSquared * t;
+
+				vec3 interpolatedPoint =
+					(-.5f * tension * tCubed + tension * tSquared - .5f * tension * t) * prev +
+					(1 + .5f * tSquared * (tension - 6) + .5f * tCubed * (4 - tension)) * currStart +
+					(.5f * tCubed * (tension - 4) + .5f * tension * t - (tension - 3) * tSquared) * currEnd +
+					(-.5f * tension * tSquared + .5f * tension * tCubed) * next;
+
+				result.push_back(interpolatedPoint);
+			}
+		}
+
+		return result;
+	}
 }
 
 // World initialization
@@ -1298,6 +1328,28 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		Companion& archerComp = registry.companions.get(player_archer);
 	}
 
+	// update state of free_roam_bird
+	if (registry.motions.has(free_roam_bird)) {
+		auto& birdMotion = registry.motions.get(free_roam_bird);
+		
+		if (birdPositionDivisor == 1 || birdPositionDivisor == 2) {
+			float offsetX = (spline[birdNextPostionTracker].x - spline[birdNextPostionTracker - 1].x) / 2.f;
+			float offsetY = (spline[birdNextPostionTracker].y - spline[birdNextPostionTracker - 1].y) / 2.f;
+			birdMotion.position += vec2(offsetX, offsetY);
+			birdPositionDivisor++;
+		}
+		else {
+			birdNextPostionTracker++;
+			if (birdNextPostionTracker == spline.size()) {
+				birdNextPostionTracker = 1;
+			}
+			float offsetX = (spline[birdNextPostionTracker].x - spline[birdNextPostionTracker - 1].x) / 2.f;
+			float offsetY = (spline[birdNextPostionTracker].y - spline[birdNextPostionTracker - 1].y) / 2.f;
+			birdMotion.position += vec2(offsetX, offsetY);
+			birdPositionDivisor = 2;
+		}
+	}
+
 	return true;
 }
 
@@ -1426,6 +1478,25 @@ void WorldSystem::restart_game(bool force_restart)
 	createBackgroundLayerTwo(renderer, {w / 2, h / 2});
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, {w / 2, h / 2});
+
+	std::vector<vec3> controlPoints;
+	controlPoints.push_back(vec3(227, 160, 0));
+	controlPoints.push_back(vec3(382, 341, 0));
+	controlPoints.push_back(vec3(632, 281, 0));
+	controlPoints.push_back(vec3(758, 367, 0));
+	controlPoints.push_back(vec3(1105, 242, 0));
+	controlPoints.push_back(vec3(1008, 59, 0));
+	controlPoints.push_back(vec3(733, 148, 0));
+	controlPoints.push_back(vec3(446, 75, 0));
+	controlPoints.push_back(vec3(227, 160, 0));
+	auto result = GenerateSpline(controlPoints, 20);
+	// Keeping these for debugging purposes
+	// printf("spline points: %i\n", result.size());
+	// createSpline(renderer, controlPoints);
+	spline = result;
+	free_roam_bird = createBird(renderer, vec2(227, 160));
+	birdNextPostionTracker = 1;
+	birdPositionDivisor = 1;
 
 	if (isFreeRoam)
 	{
@@ -2877,6 +2948,7 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
 {
+	// printf("x: %f, y: %f\n", mouse_position.x, mouse_position.y);
 	msPos = mouse_position;
 	sk->mousePos = mouse_position;
 	if (!canStep && !story)
