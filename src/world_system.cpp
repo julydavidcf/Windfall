@@ -886,45 +886,41 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
 		}
 		////trigger BFS
-		if (ba->ai_trigger <= 0 && ba->ai_runned==0) {
-			registry.gravities.remove(registry.bouncingArrows.entities[i]);
-			ba->ai_runned = 1;
-			//initilaze visited
-			printf("initilizing grid\n");
-			//printf("ai_runned is: %d\n", ba->ai_runned);
-			vector<vector<bool>> visited;
-			for (int i = 0; i < screen_width/10; i++)
-			{
-				vector<bool> tempv;
-				for (int j = 0; j < screen_height/10; j++)
-				{
-					tempv.push_back(false);
-				}
-				visited.push_back(tempv);
-			}
+		//if (ba->ai_trigger <= 0 && ba->ai_runned==0) {
+		//	registry.gravities.remove(registry.bouncingArrows.entities[i]);
+		//	ba->ai_runned = 1;
+		//	//initilaze visited
+		//	printf("initilizing grid\n");
+		//	//printf("ai_runned is: %d\n", ba->ai_runned);
+		//	vector<vector<bool>> visited;
+		//	for (int i = 0; i < screen_width/10; i++)
+		//	{
+		//		vector<bool> tempv;
+		//		for (int j = 0; j < screen_height/10; j++)
+		//		{
+		//			tempv.push_back(false);
+		//		}
+		//		visited.push_back(tempv);
+		//	}
 
-		//	//initilaze map
-			vector<vector<int>> map;
-			for (int i = 0; i < screen_width/10; i++)
-			{
-				vector<int> tempv1;
-				for (int j = 0; j < screen_height/10; j++)
-				{
-					tempv1.push_back(1);
-				}
-				map.push_back(tempv1);
-			}
-			for (int i = 0; i < screen_width / 10; i++) {
-				for (int j = 0; j < screen_height / 10; j++) {
-					printf("%d ", map[i][j]);
-				}
-				printf("\n");
-			}
-
-
-
-		}
-
+		////	//initilaze map
+		//	vector<vector<int>> map;
+		//	for (int i = 0; i < screen_width/10; i++)
+		//	{
+		//		vector<int> tempv1;
+		//		for (int j = 0; j < screen_height/10; j++)
+		//		{
+		//			tempv1.push_back(1);
+		//		}
+		//		map.push_back(tempv1);
+		//	}
+		//	for (int i = 0; i < screen_width / 10; i++) {
+		//		for (int j = 0; j < screen_height / 10; j++) {
+		//			printf("%d ", map[i][j]);
+		//		}
+		//		printf("\n");
+		//	}
+		//}
 
 	}
 
