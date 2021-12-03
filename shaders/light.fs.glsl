@@ -10,7 +10,7 @@ uniform float resolutionY;
 uniform glowCoordinates thingie;
 uniform vec2 lightSourcePos;
 uniform float arrow;
-
+uniform float collidesWithFirefly;
 in vec2 texcoord;
 
 // Output color
@@ -31,28 +31,32 @@ void main()
 //        color = in_color;
 //      }
         float lightBallLuminance = max( 0.0, 1.0 - dot( lightBall, lightBall ) );
-        vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 900.0 );
-        color += vec4(col * 1.2, 1.0);
-        color += vec4(vec3(0.1, 0.8, 1.0) * 0.7 * pow( lightBallLuminance, 60 ), 1.0);
-        color += in_color;
+        // vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 900000.0 );
+        // color += vec4(col * 1.2, 1.0);
+        float arrowSize = 200;
+        if (collidesWithFirefly == 1.0) {
+            arrowSize = 10;
+        }
+        color += vec4(vec3(0.6, 0.1, 0.4) * 0.7 * pow( lightBallLuminance, arrowSize), 1.0);
+        // color += in_color;
 
         float output_start = 0.1;
         float output_end = 1.0;
         float input_start = 0.8;
         float input_end = 1.0;   
 
-        for (float i = 0.81; i < 1.0; i+=0.01) {
-            float ip = i;
-            float prevInput = i - 0.01;
-            float op = output_start + ((output_end - output_start) / (input_end - input_start)) * (ip - input_start);               
-            if (lightBallLuminance < i && lightBallLuminance > prevInput) {
-                color = in_color * op;
-            }
-        }
+        // for (float i = 0.81; i < 1.0; i+=0.01) {
+        //    float ip = i;
+        //    float prevInput = i - 0.01;
+        //    float op = output_start + ((output_end - output_start) / (input_end - input_start)) * (ip - input_start);               
+        //    if (lightBallLuminance < i && lightBallLuminance > prevInput) {
+        //        color = in_color * op;
+        //    }
+        // }
 
-        if (lightBallLuminance < 0.8) { // increase this value to reduce size of torchlight  
-            color = in_color * 0.1; // multiplied to reduce brightness of color 
-        }
+        // if (lightBallLuminance < 0.80) { // increase this value to reduce size of torchlight  
+        //     color = in_color * 0.1; // multiplied to reduce brightness of color 
+        // }
     }
    
    // for the fireflies
@@ -61,9 +65,9 @@ void main()
         lightSource = lightSource / resolutionY;
         vec2 lightBall = uv - lightSource;
         float lightBallLuminance = max( 0.0, 1.0 - dot( lightBall, lightBall ) );
-        vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 900.0 );
+        vec3 col = vec3(0.9, 0.8, 0.4) * 0.4 * pow( lightBallLuminance, 9000.0 );
         color += vec4(col * 1.2, 1.0);
-        color += vec4(vec3(0.1, 0.8, 1.0) * 0.7 * pow( lightBallLuminance, 5000 ), 1.0);
+        color += vec4(vec3(0.1, 0.8, 1.0) * 0.7 * pow( lightBallLuminance, 1000 ), 1.0);
         // color += in_color;
     }
 

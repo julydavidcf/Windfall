@@ -45,6 +45,13 @@ void RenderSystem::drawLight(Entity entity)
 
 	glUniform2f(glGetUniformLocation(light_program, "lightSourcePos"), entityPos.x, (float)h - entityPos.y);
 
+	if (registry.projectiles.has(entity) && registry.projectiles.get(entity).empoweredArrow == 1) {
+		glUniform1f(glGetUniformLocation(light_program, "collidesWithFirefly"), 1.f);
+	}
+	else {
+		glUniform1f(glGetUniformLocation(light_program, "collidesWithFirefly"), 0.f);
+	}
+	
 	if (!registry.fireflySwarm.has(entity)) {
 		glUniform1f(glGetUniformLocation(light_program, "arrow"), 1.f);
 	}
