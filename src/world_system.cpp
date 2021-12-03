@@ -11,6 +11,8 @@
 
 #include "ai_system.hpp"
 #include "skill_system.hpp"
+#include <queue>
+#include "BFS.hpp"
 
 // Game configuration
 const size_t MAX_TURTLES = 15;
@@ -843,7 +845,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			baM->acceleration.y = baM->acceleration.y * 0.6;
 			ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
 		}
-		////trigger BFS
+
+		////trigger BFS============================
 		if (ba->ai_trigger <= 0 && ba->ai_runned==0) {
 			registry.gravities.remove(registry.bouncingArrows.entities[i]);
 			ba->ai_runned = 1;
@@ -877,22 +880,35 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				for (int i = 72-1-8; i <= 78-1+8; i++) {
 					for (int j = 35-1-8; j <= 75-1; j++) {
 						map[i][j] = -1;
+						visited[i][j] = true;
 					}
 				}
 			}
+			//start BFS
+			vec2 startPos = baM->position;
+			vector<pair<int, int>> path;
+			path.push_back(make_pair(static_cast<int>(startPos.x), static_cast<int>(startPos.y)));
+			BFS bfs = BFS(static_cast<int>(startPos.x), static_cast<int>(startPos.y),0, path);
+			vector<pair<int, int>> result = bfs.arrowBFS(map,bfs,visited);
+			printf("result path is:\n ");
+			
+			//print path
+			for (int i = 0; i < result.size(); i++) {
+				printf("%d, %d\n",result[i].first, result[i].second);
+			}
 
 			//print map
-			for (int i = 0; i < screen_width / 10; i++) {
-				for (int j = 0; j < screen_height / 10; j++) {
-					printf("%d ", map[i][j]);
-				}
-				printf("\n");
-			}
+			//for (int i = 0; i < screen_width / 10; i++) {
+			//	for (int j = 0; j < screen_height / 10; j++) {
+			//		printf("%d ", map[i][j]);
+			//	}
+			//	printf("\n");
+			//}
 			//printf("%d x %d matrix",map.size(),map[0].size());
 
 
 		}
-
+		//======================================================================
 
 	}
 
