@@ -1446,8 +1446,9 @@ void WorldSystem::restart_game(bool force_restart)
 	controlPoints.push_back(vec3(446, 75, 0));
 	controlPoints.push_back(vec3(227, 160, 0));
 	auto result = GenerateSpline(controlPoints, 20);
-	printf("spline points: %i\n", result.size());
-	createSpline(renderer, controlPoints);
+	// Keeping these for debugging purposes
+	// printf("spline points: %i\n", result.size());
+	// createSpline(renderer, controlPoints);
 	spline = result;
 	free_roam_bird = createBird(renderer, vec2(227, 160));
 	birdNextPostionTracker = 1;
