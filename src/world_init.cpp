@@ -49,6 +49,8 @@ Entity createBird(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 40, 40 });
 
+	registry.bird.emplace(entity);
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::RED_PARTICLE,

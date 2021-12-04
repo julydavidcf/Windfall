@@ -55,6 +55,7 @@ public:
 	ComponentContainer<ShieldIcon> shieldIcons;
 	ComponentContainer<Light> light;
 	ComponentContainer<BouncingArrow> bouncingArrows;
+	ComponentContainer<Bird> bird;
 
 	// Sounds
 	Mix_Music* background_music;
@@ -84,6 +85,7 @@ public:
 	Mix_Music* menu_music;
 	Mix_Music* wintervale_music;
 	Mix_Music* cestershire_music;
+	Mix_Music* boss_music;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -125,6 +127,7 @@ public:
 		registry_list.push_back(&shieldIcons);
 		registry_list.push_back(&light);
 		registry_list.push_back(&bouncingArrows);
+		registry_list.push_back(&bird);
 	}
 
 	void clear_all_components() {

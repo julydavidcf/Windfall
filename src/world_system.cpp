@@ -1850,10 +1850,20 @@ void WorldSystem::handle_collisions()
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
+		// Deal with arrow - bird collisions
+		if (registry.projectiles.has(entity))	// not working in free roam
+		{
+			// Checking bird
+			if (registry.bird.has(entity_other))
+			{
+				registry.remove_all_components_of(entity_other);
+				Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+			}
+		}
+		
 		// Deal with fireball - Companion collisions
 		if (registry.companions.has(entity))
 		{
-
 			// Checking Projectile - Companion collisions
 			if (registry.projectiles.has(entity_other))
 			{
@@ -1866,7 +1876,6 @@ void WorldSystem::handle_collisions()
 					{
 						if (!registry.buttons.has(entity))
 						{
-
 							update_health(entity_other, entity);
 							registry.remove_all_components_of(entity_other);
 							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
@@ -1924,7 +1933,6 @@ void WorldSystem::handle_collisions()
 					{
 						if (!registry.buttons.has(entity))
 						{
-
 							update_health(entity_other, entity);
 							registry.remove_all_components_of(entity_other);
 							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
@@ -1936,7 +1944,6 @@ void WorldSystem::handle_collisions()
 								sk->removeBleed(entity);
 								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
 							}
-
 							else
 							{
 								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
@@ -1947,7 +1954,6 @@ void WorldSystem::handle_collisions()
 								registry.motions.get(entity).position.x += 20; // character shifts backwards
 								registry.hit_timer.emplace(entity);			   // to move character back to original position
 							}
-
 							// enemy turn start
 						}
 					}
