@@ -148,7 +148,7 @@ WorldSystem::~WorldSystem()
 		Mix_FreeChunk(registry.gesture_aoe_sound);
 	if (registry.gesture_turn_sound != nullptr)
 		Mix_FreeChunk(registry.gesture_turn_sound);
-	if (registry.menu_music != nullptr)	// only this is playing, got replaced
+	if (registry.menu_music != nullptr)
 		Mix_FreeMusic(registry.menu_music);
 	if (registry.wintervale_music != nullptr)
 		Mix_FreeMusic(registry.wintervale_music);
@@ -156,6 +156,8 @@ WorldSystem::~WorldSystem()
 		Mix_FreeMusic(registry.cestershire_music);
 	if (registry.boss_music != nullptr)
 		Mix_FreeMusic(registry.boss_music);
+	if (registry.crow_sound != nullptr)
+		Mix_FreeChunk(registry.crow_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -305,10 +307,10 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	registry.menu_music = Mix_LoadMUS(audio_path("menuMusic.wav").c_str());						// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
 	registry.wintervale_music = Mix_LoadMUS(audio_path("wintervaleMusic.wav").c_str());			// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
 	registry.cestershire_music = Mix_LoadMUS(audio_path("cestershireMusic.wav").c_str());		// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
-	registry.boss_music = Mix_LoadMUS(audio_path("cestershireMusic.wav").c_str());				// https://downloads.khinsider.com/game-soundtracks/album/darkest-dungeon-ost
+	registry.boss_music = Mix_LoadMUS(audio_path("bossMusic.wav").c_str());						// https://downloads.khinsider.com/game-soundtracks/album/darkest-dungeon-ost
+	registry.crow_sound = Mix_LoadWAV(audio_path("crow.wav").c_str());							// https://freesound.org/people/vixuxx/sounds/9874/
 
-
-	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr || registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr || registry.boss_music == nullptr)
+	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr || registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr || registry.boss_music == nullptr || registry.crow_sound == nullptr)
 	{
 		//|| registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
@@ -336,7 +338,12 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 				audio_path("error.wav").c_str(),
 				audio_path("gesture_heal.wav").c_str(),
 				audio_path("gesture_aoe.wav").c_str(),
-				audio_path("gesture_turn.wav").c_str());
+				audio_path("gesture_turn.wav").c_str(),
+				audio_path("menuMusic.wav").c_str(), 
+				audio_path("wintervaleMusic.wav").c_str(), 
+				audio_path("cestershireMusic.wav").c_str(), 
+				audio_path("bossMusic.wav").c_str(),
+				audio_path("crow.wav").c_str());
 		return nullptr;
 	}
 	return window;
@@ -1857,8 +1864,19 @@ void WorldSystem::handle_collisions()
 			{
 				if (registry.platform.has(entity_other))
 				{
-					registry.remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+					Motion& platform_motion = registry.motions.get(entity_other);
+					float platform_position_x = platform_motion.position.x;
+					float platform_position_y = platform_motion.position.y;
+					float platform_width = platform_motion.scale.x;
+					float platform_height = platform_motion.scale.y;
+
+					// make archer walk on width
+					Motion& archer_motion = registry.motions.get(player_archer);
+					archer_motion.position.x = platform_position_x; // cannot have x value be fixed
+					archer_motion.position.y = platform_position_y - platform_height - 20;	// cannot have y value be fixed
+
+					// solve gravity issue
+					
 				}
 			}
 
@@ -1869,7 +1887,7 @@ void WorldSystem::handle_collisions()
 				if (registry.bird.has(entity_other))
 				{
 					registry.remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+					Mix_PlayChannel(-1, registry.crow_sound, 0);
 				}
 			}
 		}		
@@ -1883,7 +1901,7 @@ void WorldSystem::handle_collisions()
 				if (registry.bird.has(entity_other))
 				{
 					registry.remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+					Mix_PlayChannel(-1, registry.crow_sound, 0);
 				}
 			}
 			// Deal with fireball - Companion collisions
@@ -2258,6 +2276,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		Mix_VolumeChunk(registry.gesture_heal_sound, Mix_VolumeChunk(registry.gesture_heal_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.crow_sound, Mix_VolumeChunk(registry.crow_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V)
 	{
@@ -2281,6 +2300,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		Mix_VolumeChunk(registry.gesture_heal_sound, Mix_VolumeChunk(registry.gesture_heal_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.crow_sound, Mix_VolumeChunk(registry.crow_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 

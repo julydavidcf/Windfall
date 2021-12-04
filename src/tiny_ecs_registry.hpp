@@ -87,6 +87,7 @@ public:
 	Mix_Music* wintervale_music;
 	Mix_Music* cestershire_music;
 	Mix_Music* boss_music;
+	Mix_Chunk* crow_sound;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
