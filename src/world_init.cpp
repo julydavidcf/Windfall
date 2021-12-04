@@ -82,6 +82,7 @@ void createSpline(RenderSystem* renderer, std::vector<vec3> points)
 
 Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 {
+	Mix_FadeInMusic(registry.background_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MAGE_IDLE);
@@ -156,7 +157,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = player_swordsman_hp;
 	stat.max_health = player_swordsman_hp;
-	stat.speed = 12;
+	stat.speed = 11;
 	stat.classID = 1;
 
 	// Add a healthbar
@@ -191,7 +192,7 @@ Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher
 		Statistics& stat = registry.stats.emplace(entity);
 		stat.health = player_archer_hp;
 		stat.max_health = player_archer_hp;
-		stat.speed = 9;
+		stat.speed = 12;
 		stat.classID = 1;
 
 		// Add a healthbar
@@ -237,7 +238,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = enemy_swordsman_hp;
 	stat.max_health = enemy_swordsman_hp;
-	stat.speed = 11;
+	stat.speed = 10;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -270,7 +271,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = necro_minion_health;
 	stat.max_health = necro_minion_health;
-	stat.speed = 1;
+	stat.speed = 0;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -292,6 +293,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 {
+	Mix_FadeInMusic(registry.background_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE);
@@ -307,7 +309,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = necro_1_health;
 	stat.max_health = necro_1_health;
-	stat.speed = 0;
+	stat.speed = 1;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -325,6 +327,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 {
+	Mix_FadeInMusic(registry.boss_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE);

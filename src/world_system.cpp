@@ -154,6 +154,8 @@ WorldSystem::~WorldSystem()
 		Mix_FreeMusic(registry.wintervale_music);
 	if (registry.cestershire_music != nullptr)
 		Mix_FreeMusic(registry.cestershire_music);
+	if (registry.boss_music != nullptr)
+		Mix_FreeMusic(registry.boss_music);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -303,8 +305,10 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	registry.menu_music = Mix_LoadMUS(audio_path("menuMusic.wav").c_str());						// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
 	registry.wintervale_music = Mix_LoadMUS(audio_path("wintervaleMusic.wav").c_str());			// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
 	registry.cestershire_music = Mix_LoadMUS(audio_path("cestershireMusic.wav").c_str());		// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
+	registry.boss_music = Mix_LoadMUS(audio_path("cestershireMusic.wav").c_str());				// https://downloads.khinsider.com/game-soundtracks/album/darkest-dungeon-ost
 
-	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr || registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr)
+
+	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr || registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr || registry.boss_music == nullptr)
 	{
 		//|| registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
@@ -442,7 +446,7 @@ void WorldSystem::iceShardAttack(Entity currPlayer)
 std::vector<Entity> roundVec;
 void WorldSystem::createRound()
 {
-
+	
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++)
 	{ // iterate through all enemies to get speed stats
@@ -1593,18 +1597,10 @@ void WorldSystem::restart_game(bool force_restart)
 
 		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
 		//renderer->archer = player_archer;
-		//if (!registry.light.has(player_archer)) {
-		//	registry.light.emplace(player_archer);	// center light on archer
-		//	auto& lightProperties = registry.light.get(player_archer);
-		//	lightProperties.color = { 255, 255, 255, 255 };
-		//	lightProperties.position = registry.motions.get(player_archer).position;
-		//	lightProperties.size = 10.0f;
-		//}
-
 
 		// Create these for testing, can remove unneeded assets
 		//createFirefly(renderer, { 300, 500 });
-		//createPlatform(renderer, { 400, 600 });
+		//createPlatform(renderer, { 300, 600 });
 		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
 		//createRockMesh(renderer, { 900, 600 });
 		//createTreasureChest(renderer, { 1100, 600 });
@@ -1618,7 +1614,7 @@ void WorldSystem::restart_game(bool force_restart)
 
 		renderer->gameLevel = 1;
 
-		Mix_FadeInMusic(registry.wintervale_music, -1, 500);
+		Mix_FadeInMusic(registry.wintervale_music, -1, 500);	// change to free roam level 1 music
 	}
 	else
 	{
