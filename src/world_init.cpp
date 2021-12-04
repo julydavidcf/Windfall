@@ -803,7 +803,7 @@ Entity createFirefly(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::FIREFLY_MESH);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	auto& motion = registry.motions.emplace(entity);
@@ -816,9 +816,9 @@ Entity createFirefly(RenderSystem* renderer, vec2 position)
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::PEBBLE,
-			GEOMETRY_BUFFER_ID::FIREFLY_MESH });
+		{ TEXTURE_ASSET_ID::FIREFLY_PNG,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -827,18 +827,18 @@ Entity createPlatform(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::PLATFORM_MESH);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
-	motion.scale = vec2({ PLATFORM_WIDTH, -PLATFORM_HEIGHT });
+	motion.scale = vec2({ PLATFORM_WIDTH, PLATFORM_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::PEBBLE,
-			GEOMETRY_BUFFER_ID::PLATFORM_MESH });
+		{ TEXTURE_ASSET_ID::PLATFORM,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -867,18 +867,18 @@ Entity createTreasureChest(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREASURE_CHEST_MESH);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREASURE_CHEST_CLOSED);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
-	motion.scale = vec2({ TREASURE_CHEST_WIDTH, -TREASURE_CHEST_HEIGHT });
+	motion.scale = vec2({ TREASURE_CHEST_WIDTH, TREASURE_CHEST_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::PEBBLE,
-			GEOMETRY_BUFFER_ID::TREASURE_CHEST_MESH });
+		{ TEXTURE_ASSET_ID::TREASURE_CHEST_SHEET,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::TREASURE_CHEST_CLOSED });
 
 	return entity;
 }

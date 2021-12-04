@@ -186,6 +186,8 @@ class RenderSystem {
 
 			textures_path("particlered.png"),
 			textures_path("firefly.png"),
+			textures_path("platform.png"),
+			textures_path("treasure_chest_sheet.png"),
   };
   
 	std::array<GLuint, effect_count> effects;
