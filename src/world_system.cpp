@@ -1600,7 +1600,7 @@ void WorldSystem::restart_game(bool force_restart)
 
 		// Create these for testing, can remove unneeded assets
 		//createFirefly(renderer, { 300, 500 });
-		//createPlatform(renderer, { 300, 600 });
+		createPlatform(renderer, { 700, 600 });
 		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
 		//createRockMesh(renderer, { 900, 600 });
 		//createTreasureChest(renderer, { 1100, 600 });
@@ -1850,190 +1850,216 @@ void WorldSystem::handle_collisions()
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// Deal with arrow - bird collisions
-		if (registry.projectiles.has(entity))	// not working in free roam
-		{
-			// Checking bird
-			if (registry.bird.has(entity_other))
+		// deal with collisions in free roam
+		if (isFreeRoam) {
+			// Deal with archer - platform collisions
+			if (registry.companions.has(entity))
 			{
-				registry.remove_all_components_of(entity_other);
-				Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+				if (registry.platform.has(entity_other))
+				{
+					registry.remove_all_components_of(entity_other);
+					Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+				}
 			}
-		}
+
+			// Deal with arrow - bird collisions
+			if (registry.projectiles.has(entity))	// not working in free roam
+			{
+				// Checking bird
+				if (registry.bird.has(entity_other))
+				{
+					registry.remove_all_components_of(entity_other);
+					Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+				}
+			}
+		}		
 		
-		// Deal with fireball - Companion collisions
-		if (registry.companions.has(entity))
-		{
-			// Checking Projectile - Companion collisions
-			if (registry.projectiles.has(entity_other))
+		// deal with collisions in battles
+		else {
+			// Deal with arrow - bird collisions
+			if (registry.projectiles.has(entity))	// not working in free roam
 			{
+				// Checking bird
+				if (registry.bird.has(entity_other))
+				{
+					registry.remove_all_components_of(entity_other);
+					Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+				}
+			}
+			// Deal with fireball - Companion collisions
+			if (registry.companions.has(entity))
+			{
+				// Checking Projectile - Companion collisions
+				if (registry.projectiles.has(entity_other))
+				{
 
-				Damage &projDamage = registry.damages.get(entity_other);
-				if (projDamage.isFriendly == 0)
-				{ // check if isFriendly = 0 which hits companion
-					// initiate death unless already dying
-					if (!registry.deathTimers.has(entity))
-					{
-						if (!registry.buttons.has(entity))
+					Damage& projDamage = registry.damages.get(entity_other);
+					if (projDamage.isFriendly == 0)
+					{ // check if isFriendly = 0 which hits companion
+						// initiate death unless already dying
+						if (!registry.deathTimers.has(entity))
 						{
-							update_health(entity_other, entity);
-							registry.remove_all_components_of(entity_other);
-							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
-							showCorrectSkills();
-							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+							if (!registry.buttons.has(entity))
 							{
-								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								update_health(entity_other, entity);
+								registry.remove_all_components_of(entity_other);
+								Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
+								showCorrectSkills();
+								if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+								{
+									Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								}
+								else
+								{
+									Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								}
+								// update only if hit_timer for entity does not already exist
+								if (!registry.hit_timer.has(entity))
+								{
+									registry.motions.get(entity).position.x -= 20; // character shifts backwards
+									registry.hit_timer.emplace(entity);			   // to move character back to original position
+								}
+								// displayPlayerTurn();	// displays player turn when enemy hits collide
 							}
-							else
+						}
+					}
+				}
+				if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+				{
+					// get rid of dead entity's healthbar.
+					Entity entityHealthbar = registry.companions.get(entity).healthbar;
+					registry.motions.remove(entityHealthbar);
+					registry.deathTimers.emplace(entity);
+					if (registry.companions.has(entity))
+					{
+						printf("Companion is dead\n");
+						Companion& companion = registry.companions.get(entity);
+						companion.curr_anim_type = DEAD;
+					}
+					else if (registry.enemies.has(entity))
+					{
+						printf("Enemy is dead\n");
+						Enemy& enemy = registry.enemies.get(entity);
+						enemy.curr_anim_type = DEAD;
+					}
+				}
+			}
+			// Deal with fireball - Enemy collisions
+			else if (registry.enemies.has(entity))
+			{
+				// Checking Projectile - Enemy collisions
+				if (registry.projectiles.has(entity_other))
+				{
+					Damage& projDamage = registry.damages.get(entity_other);
+					if (projDamage.isFriendly == 1)
+					{ // check if isFriendly = 1 which hits enemy
+						// initiate death unless already dying
+						if (!registry.deathTimers.has(entity))
+						{
+							if (!registry.buttons.has(entity))
 							{
-								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								update_health(entity_other, entity);
+								registry.remove_all_components_of(entity_other);
+								Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
+								if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+								{
+									// get rid of dead entity's stats indicators
+									sk->removeTaunt(entity);
+									sk->removeSilence(entity);
+									sk->removeBleed(entity);
+									Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								}
+								else
+								{
+									Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								}
+								// update only if hit_timer for entity does not already exist
+								if (!registry.hit_timer.has(entity))
+								{
+									registry.motions.get(entity).position.x += 20; // character shifts backwards
+									registry.hit_timer.emplace(entity);			   // to move character back to original position
+								}
+								// enemy turn start
 							}
-							// update only if hit_timer for entity does not already exist
-							if (!registry.hit_timer.has(entity))
+						}
+					}
+				}
+				if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+				{
+					// get rid of dead entity's healthbar.
+					Entity entityHealthbar = registry.enemies.get(entity).healthbar;
+					registry.motions.remove(entityHealthbar);
+					registry.deathTimers.emplace(entity);
+					if (registry.companions.has(entity))
+					{
+						printf("Companion is dead\n");
+						Companion& companion = registry.companions.get(entity);
+						companion.curr_anim_type = DEAD;
+					}
+					else if (registry.enemies.has(entity))
+					{
+						printf("Enemy is dead\n");
+						Enemy& enemy = registry.enemies.get(entity);
+						enemy.curr_anim_type = DEAD;
+					}
+				}
+			}
+			// handle collisions with background objects
+			if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other) && !registry.reflects.has(entity))
+			{
+				auto& backgroundObj = registry.deformableEntities.get(entity);
+				backgroundObj.shouldDeform = true;
+				Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+				registry.remove_all_components_of(entity_other);
+				// enemy turn start
+				if (player_turn == 0)
+				{
+					if (!registry.checkRoundTimer.has(currPlayer))
+					{
+						displayEnemyTurn();
+						if (registry.enemies.has(currPlayer))
+						{ // check if enemies have currPlayer
+							ai->callTree(currPlayer);
+						}
+						else
+						{
+							if (roundVec.empty())
 							{
-								registry.motions.get(entity).position.x -= 20; // character shifts backwards
-								registry.hit_timer.emplace(entity);			   // to move character back to original position
+								printf("roundVec is empty at enemy turn, createRound now \n");
+								createRound();
 							}
-							// displayPlayerTurn();	// displays player turn when enemy hits collide
 						}
 					}
 				}
 			}
-			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+			// barrier collection
+			else if (registry.projectiles.has(entity))
 			{
-				// get rid of dead entity's healthbar.
-				Entity entityHealthbar = registry.companions.get(entity).healthbar;
-				registry.motions.remove(entityHealthbar);
-				registry.deathTimers.emplace(entity);
-				if (registry.companions.has(entity))
+				if (registry.reflects.has(entity_other))
 				{
-					printf("Companion is dead\n");
-					Companion &companion = registry.companions.get(entity);
-					companion.curr_anim_type = DEAD;
-				}
-				else if (registry.enemies.has(entity))
-				{
-					printf("Enemy is dead\n");
-					Enemy &enemy = registry.enemies.get(entity);
-					enemy.curr_anim_type = DEAD;
-				}
-			}
-		}
-		// Deal with fireball - Enemy collisions
-		else if (registry.enemies.has(entity))
-		{
-			// Checking Projectile - Enemy collisions
-			if (registry.projectiles.has(entity_other))
-			{
-				Damage &projDamage = registry.damages.get(entity_other);
-				if (projDamage.isFriendly == 1)
-				{ // check if isFriendly = 1 which hits enemy
-					// initiate death unless already dying
-					if (!registry.deathTimers.has(entity))
+					// printf("colleds\n");
+					// printf("%f\n", registry.motions.get(entity).velocity.x);
+					if (registry.motions.get(entity).velocity.x > 0.f)
 					{
-						if (!registry.buttons.has(entity))
-						{
-							update_health(entity_other, entity);
-							registry.remove_all_components_of(entity_other);
-							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
-							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
-							{
-								// get rid of dead entity's stats indicators
-								sk->removeTaunt(entity);
-								sk->removeSilence(entity);
-								sk->removeBleed(entity);
-								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
-							}
-							else
-							{
-								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
-							}
-							// update only if hit_timer for entity does not already exist
-							if (!registry.hit_timer.has(entity))
-							{
-								registry.motions.get(entity).position.x += 20; // character shifts backwards
-								registry.hit_timer.emplace(entity);			   // to move character back to original position
-							}
-							// enemy turn start
-						}
-					}
-				}
-			}
-			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
-			{
-				// get rid of dead entity's healthbar.
-				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
-				registry.motions.remove(entityHealthbar);
-				registry.deathTimers.emplace(entity);
-				if (registry.companions.has(entity))
-				{
-					printf("Companion is dead\n");
-					Companion &companion = registry.companions.get(entity);
-					companion.curr_anim_type = DEAD;
-				}
-				else if (registry.enemies.has(entity))
-				{
-					printf("Enemy is dead\n");
-					Enemy &enemy = registry.enemies.get(entity);
-					enemy.curr_anim_type = DEAD;
-				}
-			}
-		}
-		// handle collisions with background objects
-		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other) && !registry.reflects.has(entity))
-		{
-			auto &backgroundObj = registry.deformableEntities.get(entity);
-			backgroundObj.shouldDeform = true;
-			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
-			registry.remove_all_components_of(entity_other);
-			// enemy turn start
-			if (player_turn == 0)
-			{
-				if (!registry.checkRoundTimer.has(currPlayer))
-				{
-					displayEnemyTurn();
-					if (registry.enemies.has(currPlayer))
-					{ // check if enemies have currPlayer
-						ai->callTree(currPlayer);
-					}
-					else
-					{
-						if (roundVec.empty())
-						{
-							printf("roundVec is empty at enemy turn, createRound now \n");
-							createRound();
-						}
-					}
-				}
-			}
-		}
-		// barrier collection
-		else if (registry.projectiles.has(entity))
-		{
-			if (registry.reflects.has(entity_other))
-			{
-				// printf("colleds\n");
-				// printf("%f\n", registry.motions.get(entity).velocity.x);
-				if (registry.motions.get(entity).velocity.x > 0.f)
-				{
-					// printf("colleds1");
-					auto &shieldMesh = registry.deformableEntities.get(entity_other);
-					shieldMesh.shouldDeform = true;
-					shieldMesh.deformType2 = true;
+						// printf("colleds1");
+						auto& shieldMesh = registry.deformableEntities.get(entity_other);
+						shieldMesh.shouldDeform = true;
+						shieldMesh.deformType2 = true;
 
-					Motion *reflectEM = &registry.motions.get(entity);
+						Motion* reflectEM = &registry.motions.get(entity);
 
-					reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
-					reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
-					float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
-					if (registry.motions.get(entity).velocity.x < 0)
-					{
-						reflectE += M_PI;
+						reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
+						reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
+						float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
+						if (registry.motions.get(entity).velocity.x < 0)
+						{
+							reflectE += M_PI;
+						}
+						reflectEM->angle = reflectE;
 					}
-					reflectEM->angle = reflectE;
 				}
 			}
-		}
+		}		
 	}
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
@@ -2103,9 +2129,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
 	//}
 
-	 if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-		sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
-	 }
+	 //if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		//sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
+	 //}
 	if (isFreeRoam) {
 		// Move right
 		if (key == GLFW_KEY_D) {

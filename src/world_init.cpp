@@ -834,6 +834,8 @@ Entity createPlatform(RenderSystem* renderer, vec2 position)
 	motion.position = position;
 	motion.scale = vec2({ PLATFORM_WIDTH, PLATFORM_HEIGHT });
 
+	registry.platform.emplace(entity);
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::PLATFORM,

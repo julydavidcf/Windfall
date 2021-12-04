@@ -334,6 +334,40 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 			motion->angle = angle;
 		}
 	}
+
+	// Check for collisions between all moving entities
+	ComponentContainer<Motion>& motion_container = registry.motions;
+	for (uint i = 0; i < motion_container.components.size(); i++)
+	{
+		Motion& motion_i = motion_container.components[i];
+		Entity entity_i = motion_container.entities[i];
+		for (uint j = 0; j < motion_container.components.size(); j++) // i+1
+		{
+			if (i == j)
+				continue;
+
+			Motion& motion_j = motion_container.components[j];
+			Entity entity_j = motion_container.entities[j];
+
+			// Handle charIndicator following the character here
+			if (registry.charIndicator.has(entity_i) && registry.charIndicator.get(entity_i).owner == entity_j) {
+				motion_i.position = vec2(motion_j.position.x, motion_i.position.y);
+			}
+			else if (registry.charIndicator.has(entity_j) && registry.charIndicator.get(entity_j).owner == entity_i) {
+				motion_j.position = vec2(motion_i.position.x, motion_j.position.y);
+			}
+
+
+			//if (collides(motion_i, motion_j))
+			if (collides(entity_i, entity_j))
+			{
+				// Create a collisions event
+				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+			}
+		}
+	}
 }
 
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
@@ -350,7 +384,6 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		//gravity effect
 		if (registry.gravities.has(entity)){
 			motion->acceleration.y += registry.gravities.get(entity).gravity;
-
 		}
 
 		//normal movement
@@ -365,11 +398,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				angle += M_PI;
 			}
 			motion->angle = angle;
-
 		}
-
-
-
 	}
 
 	// make sure each stat indicator is with their owner

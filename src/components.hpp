@@ -402,6 +402,12 @@ struct Bird
 	// shoot down bird
 };
 
+// Platform
+struct Platform
+{
+	// to get on platform
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture

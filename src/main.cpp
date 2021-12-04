@@ -62,6 +62,9 @@ int main()
 
 		// FOR TESTING: REMOVE LATER
 		isFreeRoam = 0;
+		//if (isFreeRoam == 1) {
+		//	world.handle_collisions();
+		//}
 
 		if (world.canStep) {
 			world.step(elapsed_ms);

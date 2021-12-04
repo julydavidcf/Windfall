@@ -56,6 +56,7 @@ public:
 	ComponentContainer<Light> light;
 	ComponentContainer<BouncingArrow> bouncingArrows;
 	ComponentContainer<Bird> bird;
+	ComponentContainer<Platform> platform;
 
 	// Sounds
 	Mix_Music* background_music;
@@ -128,6 +129,7 @@ public:
 		registry_list.push_back(&light);
 		registry_list.push_back(&bouncingArrows);
 		registry_list.push_back(&bird);
+		registry_list.push_back(&platform);
 	}
 
 	void clear_all_components() {
