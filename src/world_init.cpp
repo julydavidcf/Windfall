@@ -16,8 +16,8 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to companion mage
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = player_mage_hp;
-	stat.max_health = player_mage_hp;
+	stat.health = registry.player_mage_hp;
+	stat.max_health = registry.player_mage_hp;
 	stat.speed = 14;
 	stat.classID = 0;
 	
@@ -102,8 +102,8 @@ Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to enemy mage
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.max_health = enemy_mage_hp;
-	stat.health = enemy_mage_hp;
+	stat.max_health = registry.enemy_mage_hp;
+	stat.health = registry.enemy_mage_hp;
 	stat.speed = 13;
 
 	// Add a healthbar
@@ -161,8 +161,8 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to companion swordsman
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = player_swordsman_hp;
-	stat.max_health = player_swordsman_hp;
+	stat.health = registry.player_swordsman_hp;
+	stat.max_health = registry.player_swordsman_hp;
 	stat.speed = 11;
 	stat.classID = 1;
 
@@ -196,8 +196,8 @@ Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher
 	if (!isFreeRoamArcher) {
 		// Add battle-system related stats
 		Statistics& stat = registry.stats.emplace(entity);
-		stat.health = player_archer_hp;
-		stat.max_health = player_archer_hp;
+		stat.health = registry.player_archer_hp;
+		stat.max_health = registry.player_archer_hp;
 		stat.speed = 12;
 		stat.classID = 1;
 
@@ -245,8 +245,8 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to enemy swordsman
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = enemy_swordsman_hp;
-	stat.max_health = enemy_swordsman_hp;
+	stat.health = registry.enemy_swordsman_hp;
+	stat.max_health = registry.enemy_swordsman_hp;
 	stat.speed = 10;
 
 	// Add a healthbar
@@ -278,8 +278,8 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to necromancer minion
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = necro_minion_health;
-	stat.max_health = necro_minion_health;
+	stat.health = registry.necro_minion_health;
+	stat.max_health = registry.necro_minion_health;
 	stat.speed = 0;
 
 	// Add a healthbar
@@ -316,8 +316,8 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to necromancer phase one
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = necro_1_health;
-	stat.max_health = necro_1_health;
+	stat.health = registry.necro_1_health;
+	stat.max_health = registry.necro_1_health;
 	stat.speed = 1;
 
 	// Add a healthbar
@@ -350,8 +350,8 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 
 	// Give statistics to necromancer phase two
 	Statistics& stat = registry.stats.emplace(entity);
-	stat.health = necro_2_health;
-	stat.max_health = necro_2_health;
+	stat.health = registry.necro_2_health;
+	stat.max_health = registry.necro_2_health;
 	stat.speed = 2;
 
 	// Add a healthbar
@@ -390,7 +390,7 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = fireball_dmg;
+	damage.minDamage = registry.fireball_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -439,7 +439,7 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 		// Set damage here--------------------------------
 		Damage& damage = registry.damages.emplace(entity);
 		damage.isFriendly = isFriendly;
-		damage.minDamage = arrow_dmg;
+		damage.minDamage = registry.arrow_dmg;
 		damage.range = 10;
 		//------------------------------------------------
 		registry.bouncingArrows.emplace(entity);
@@ -473,7 +473,7 @@ Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = iceshard_dmg;
+	damage.minDamage = registry.iceshard_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -873,7 +873,7 @@ Entity createRockMesh(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createTreasureChest(RenderSystem* renderer, vec2 position)
+Entity createTreasureChest(RenderSystem* renderer, vec2 position, int chestType)
 {
 	auto entity = Entity();
 
@@ -883,6 +883,9 @@ Entity createTreasureChest(RenderSystem* renderer, vec2 position)
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
 	motion.scale = vec2({ TREASURE_CHEST_WIDTH, TREASURE_CHEST_HEIGHT });
+
+	auto& chest = registry.chests.emplace(entity);
+	chest.chestType = chestType;
 
 	registry.renderRequests.insert(
 		entity,
@@ -910,6 +913,33 @@ Entity createGreenCross(RenderSystem* renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::GREENCROSS,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBoostMessage(RenderSystem* renderer, vec2 position, int boostType)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, -150.f };
+	motion.acceleration = { 0.f, 0.f };
+	motion.position = position;
+	motion.scale = vec2({ BOOST_MSG_WIDTH, BOOST_MSG_HEIGHT });
+
+	registry.light.emplace(entity);
+
+	TEXTURE_ASSET_ID id = (boostType == HEALTH_BOOST) ? TEXTURE_ASSET_ID::HEALTH_INCREASE : TEXTURE_ASSET_ID::DAMAGE_INCREASE;
+
+	registry.renderRequests.insert(
+		entity,
+		{ id,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -1016,7 +1046,7 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = rock_dmg;
+	damage.minDamage = registry.rock_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -1050,7 +1080,7 @@ Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = spike_dmg;
+	damage.minDamage = registry.spike_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -1087,7 +1117,7 @@ Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = lightning_dmg;
+	damage.minDamage = registry.lightning_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -1117,7 +1147,7 @@ Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = melee_dmg;
+	damage.minDamage = registry.melee_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 
@@ -1148,7 +1178,7 @@ Entity createBleedDMG(RenderSystem* renderer, vec2 position, int isFriendly)
 	// Set damage here--------------------------------
 	Damage& damage = registry.damages.emplace(entity);
 	damage.isFriendly = isFriendly;
-	damage.minDamage = bleed_dmg;
+	damage.minDamage = registry.bleed_dmg;
 	damage.range = 10;
 	//------------------------------------------------
 

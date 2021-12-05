@@ -1852,9 +1852,10 @@ void WorldSystem::handle_collisions()
 		// deal with collisions in free roam
 		if (isFreeRoam) {
 
-			// Deal with archer - platform collisions
+			
 			if (registry.companions.has(entity))
 			{
+				// Deal with archer - platform collisions
 				if (registry.platform.has(entity_other))
 				{
 					Motion& platform_motion = registry.motions.get(entity_other);
@@ -1890,6 +1891,30 @@ void WorldSystem::handle_collisions()
 						&& !onTopOrBelow) {
 						archer_motion.position.x += 2;
 					}
+				}
+				// Deal with archer - treasure chest collisions
+				else if (registry.chests.has(entity_other)) {;
+					TreasureChest chest = registry.chests.get(entity_other);
+					RenderRequest& renderedChest = registry.renderRequests.get(entity_other);
+					Motion chestMotion = registry.motions.get(entity_other);
+					if (renderedChest.used_geometry != GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN && chest.chestType == HEALTH_BOOST) {
+						// Boost all companion HP permanently
+						registry.player_mage_hp *= 1.25;
+						registry.player_swordsman_hp *= 1.25;
+						registry.player_archer_hp *= 1.25;
+						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
+						createBoostMessage(renderer, chestMotion.position, HEALTH_BOOST);
+					}
+					else if (renderedChest.used_geometry != GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN && chest.chestType == DAMAGE_BOOST) {
+						// Boost all ability damages permanently
+						registry.fireball_dmg *= 1.25;
+						registry.iceshard_dmg *= 1.25;
+						registry.arrow_dmg *= 1.25;
+						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
+						createBoostMessage(renderer, chestMotion.position, DAMAGE_BOOST);
+					}
+					// Switch to open chest image
+					renderedChest.used_geometry = GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN;
 				}
 
 			}
@@ -2265,7 +2290,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.y = -500.f;
+				motion.velocity.y = -350.f;
 				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}
@@ -3368,8 +3393,8 @@ void WorldSystem::initializeFreeRoamTwo() {
 	createPlatform(renderer, { 300, 350 });
 	createPlatform(renderer, { 1100, 225 });
 	createPlatform(renderer, { 675, 225 });
-	createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT });
-	createTreasureChest(renderer, { 1150, 225 - PLATFORM_HEIGHT });
+	createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT }, HEALTH_BOOST);
+	createTreasureChest(renderer, { 1100, 225 - PLATFORM_HEIGHT }, DAMAGE_BOOST);
 
 	if (swarmSys->swarmInitialized) {
 		swarmSys->resetSwarm();

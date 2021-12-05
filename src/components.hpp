@@ -58,6 +58,11 @@ enum ButtonType {
 	CLOSE_MENU = 7,
 };
 
+enum ChestType {
+	HEALTH_BOOST = 1,
+	DAMAGE_BOOST = 2,
+};
+
 struct UIButton {
 	int button_type = 0;
 	int isDialogue = 0;
@@ -96,7 +101,7 @@ struct SwarmParticle
 
 struct TreasureChest 
 {
-
+	int chestType = 0;
 };
 
 struct Dot
@@ -601,8 +606,10 @@ enum class TEXTURE_ASSET_ID {
 	FIREFLY_PNG = RED_PARTICLE + 1,
 	PLATFORM = FIREFLY_PNG + 1,
 	TREASURE_CHEST_SHEET = PLATFORM + 1,
+	DAMAGE_INCREASE = TREASURE_CHEST_SHEET + 1,
+	HEALTH_INCREASE = DAMAGE_INCREASE + 1,
 
-	TEXTURE_COUNT = TREASURE_CHEST_SHEET + 1,
+	TEXTURE_COUNT = HEALTH_INCREASE + 1,
 	//-----------------------------
 	
 };

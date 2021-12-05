@@ -71,6 +71,8 @@ const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
 const float METEOR_WIDTH = 500.f;
 const float METEOR_HEIGHT = 500.f;
+const float BOOST_MSG_WIDTH = 150.f;
+const float BOOST_MSG_HEIGHT = 80.f;
 
 const float BACKGROUND_OBJ_WIDTH = 60;
 const float BACKGROUND_OBJ_HEIGHT = 60.f;
@@ -153,7 +155,8 @@ Entity createBarrier(RenderSystem* renderer, vec2 position);
 Entity createFirefly(RenderSystem* renderer, vec2 position);
 Entity createPlatform(RenderSystem* renderer, vec2 position);
 Entity createRockMesh(RenderSystem* renderer, vec2 position);
-Entity createTreasureChest(RenderSystem* renderer, vec2 position);
+Entity createTreasureChest(RenderSystem* renderer, vec2 position, int chestType);
+Entity createBoostMessage(RenderSystem* renderer, vec2 position, int boostType);
 
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
 Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly);
@@ -188,27 +191,3 @@ Entity createUIButton(RenderSystem* renderer, vec2 position, int buttonType);
 Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number);
 // create dialogue image
 Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number);
-
-//Game Stats
-
-const int enemy_mage_hp = 90;
-const int enemy_swordsman_hp = 130;
-
-const int player_mage_hp = 60;
-const int player_swordsman_hp = 85;
-const int player_archer_hp = 50;
-const int necro_minion_health = 15;
-const int necro_1_health = 175;
-const int necro_2_health = 125;
-
-
-//skill dmg
-const int rock_dmg = 10;
-const int fireball_dmg = 30;
-const int iceshard_dmg = 20;
-const int melee_dmg = 15;
-const int bleed_dmg = 5;
-const int spike_dmg = 10;
-const int lightning_dmg = 25;
-const int arrow_dmg = 10;
-
