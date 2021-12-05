@@ -145,7 +145,7 @@ void main()
             vec3 col = vec3(0.1, 0.2, 0.5) * 0.7 * pow( fMoonDot, 8000.0 );
             if (gameLevel > 1) {
             color += vec4(col, 1.0);
-            color += vec4(vec3(0.1, 0.2, 0.5) * pow( fMoonDot, 3000.0 ), 1.0);
+            color += vec4(vec3(0.1, 0.2, 0.5) * pow( fMoonDot, 3000. ), 1.0);
             }
 
        //  } 

@@ -438,7 +438,7 @@ Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	if (dx < 0) {
 		angle += M_PI;
 	}
-	//printf(" % f", angle);
+
 	Entity resultEntity = createIceShard(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx / ICESHARDSPEED, 1000 * vy / ICESHARDSPEED);
@@ -455,6 +455,9 @@ Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 
 void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* renderer) {
 	vec2 targetp = registry.motions.get(target).position;
+	if ((gameLevel == 0) && registry.enemies.has(target)){
+		amount = 0.5;
+	}
 	createGreenCross(renderer, targetp);
 	if (registry.stats.has(target)) {
 		Statistics* tStats = &registry.stats.get(target);
@@ -471,7 +474,7 @@ void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* rendere
 
 void SkillSystem::launchNecroBarrier(Entity target, RenderSystem* renderer) {
 	vec2 targetp = registry.motions.get(target).position;
-	createBarrier(renderer, { targetp.x - 300 , targetp.y });
+	createBarrier(renderer, { targetp.x - 300 , targetp.y + 75 });
 
 	if (!registry.shield.has(target)) {
 		registry.shield.emplace(target);
@@ -540,6 +543,32 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
 	Motion* arrowacc = &registry.motions.get(resultEntity);
 	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
+
+	return  resultEntity;
+}
+
+Entity SkillSystem::launchArrow(Entity start, vec2 ms_pos, RenderSystem* renderer, int isFreeRoam) {
+
+	vec2 startPos = registry.motions.get(start).position;
+
+	float proj_x = startPos.x + 50;
+	float proj_y = startPos.y;
+	float mouse_x = ms_pos.x;
+	float mouse_y = ms_pos.y;
+
+	float dx = mouse_x - proj_x;
+	float dy = mouse_y - proj_y;
+	float dxdy = sqrt((dx * dx) + (dy * dy));
+	float vx = isFreeRoam ? (ARROWSPEED / 1.5) * dx / dxdy : ARROWSPEED * dx / dxdy;
+	float vy = isFreeRoam ? (ARROWSPEED / 1.5) * dy / dxdy : ARROWSPEED * dy / dxdy;
+
+	float angle = atan(dy / dx);
+	if (dx < 0) {
+		angle += M_PI;
+	}
+	Entity resultEntity = createArrow(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1, isFreeRoam);
+	Motion* arrowacc = &registry.motions.get(resultEntity);
+	arrowacc->acceleration = vec2(200 * vx / ARROWSPEED, 200 * vy / ARROWSPEED);
 
 	return  resultEntity;
 }

@@ -27,6 +27,8 @@ class RenderSystem {
 	{
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ, mesh_path("basicEnemy.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SHIELD_MESH, mesh_path("necroBarrier.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::ROCK_MESH, mesh_path("rock.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::ARROW_MESH, mesh_path("arrow.obj")),
 		  // specify meshes of other assets here
 	};
 
@@ -45,6 +47,8 @@ class RenderSystem {
 			textures_path("playerTurn.png"),
 			textures_path("enemyTurn.png"),
 			textures_path("arrow.png"),
+			textures_path("arrowIcon.png"),
+			textures_path("arrowIconSelected.png"),
 			textures_path("rock.png"),
 			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
@@ -96,6 +100,8 @@ class RenderSystem {
 			textures_path("necro_minion_walk.png"),
 			textures_path("necro_minion_melee.png"),
 			textures_path("necro_minion_death.png"),
+			textures_path("archerAnims.png"),
+			textures_path("archerArrow.png"),
 
 			// Background layers
 			textures_path("backgroundLayerOne.png"),
@@ -179,6 +185,9 @@ class RenderSystem {
 			textures_path("levelFourDialogueThree.png"),
 
 			textures_path("particlered.png"),
+			textures_path("firefly.png"),
+			textures_path("platform.png"),
+			textures_path("treasure_chest_sheet.png"),
 			textures_path("smoke_particle.png")
   };
   
@@ -190,7 +199,8 @@ class RenderSystem {
 		shader_path("textured"),
 		shader_path("water"),
 		shader_path("particle"),
-		shader_path("basicEnemy")};
+		shader_path("basicEnemy"),
+		shader_path("light")};	// NEW
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -225,9 +235,17 @@ class RenderSystem {
 	float NECRO_MINION_MELEE_FRAME_TIME = 75;
 	float NECRO_MINION_DEATH_FRAME_TIME = 200;
 
+	float ARCHER_IDLE_FRAME_TIME = 250;
+	float ARCHER_WALKING_FRAME_TIME = 100;
+	float ARCHER_JUMPING_FRAME_TIME = 750;
+	float ARCHER_ATTACKING_FRAME_TIME = 75;
+
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
 	std::vector<float> lightBallsYcoords;
+
+	std::vector<float> fireFlyPosX;
+	std::vector<float> fireFlyPosY;
 
 	// Time per frame in ms
 	float TIME_PER_FRAME = 100;
@@ -308,6 +326,16 @@ class RenderSystem {
 	const int NECRO_MINION_DEATH_FRAMES = 10;
 	const GLfloat NECRO_MINION_DEATH_FRAME_WIDTH = 0.10;
 
+	// Archer frame stats
+	const GLfloat ARCHER_FRAME_WIDTH = 0.125;
+	const int ARCHER_IDLE_FRAMES = 3;
+
+	const int ARCHER_WALKING_FRAMES = 8;
+
+	const int ARCHER_JUMPING_FRAMES = 2;
+
+	const int ARCHER_ATTACKING_FRAMES = 7;
+
 	// Camera/scrolling constants
 	float CAMERA_OFFSET_LEFT = 400;
 	float CAMERA_OFFSET_TOP = 400;
@@ -367,6 +395,8 @@ private:
 	void drawDeathParticles(Entity entity, const mat3& projection);
 	// void initParticlesBuffer();
 	void drawToScreen();
+
+	void drawLight(Entity entity);
 
 	// Window handle
 	GLFWwindow* window;

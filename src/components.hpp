@@ -21,7 +21,9 @@ enum AnimType {
 	ATTACKING = 2,
 	DEAD = 3,
 	WALKING = 4,
-	APPEARING = 5
+	APPEARING = 5,
+	JUMPING = 6,
+	WALK_ATTACKING = 7,
 };
 
 enum AttackType {
@@ -41,6 +43,8 @@ enum AttackType {
 	AOEMELEE = 13,
 	BLEEDMELEE = 14,
 	SHIELD = 15,
+	BATTLE_ARROW = 16,
+	FREE_ROAM_ARROW = 17,
 };
 
 enum ButtonType {
@@ -55,6 +59,7 @@ enum ButtonType {
 
 struct UIButton {
 	int button_type = 0;
+	int isDialogue = 0;
 };
 
 struct BackgroundObj
@@ -71,6 +76,21 @@ struct storyTellingBackground {
 struct HealthBar
 {
 
+};
+
+// Swarm particle (Firefly)
+struct SwarmParticle
+{
+	float update_timer = 0.f;
+	float dodge_timer = 0.f;
+
+	int isDodging = 0;
+
+	float beforeDodgeVelX = 0.f;
+	float beforeDodgeVelY = 0.f;
+
+	int shouldFlipVelocityX = 0;
+	int shouldFlipVelocityY = 0;
 };
 
 struct Dot
@@ -144,6 +164,7 @@ struct Projectile
 {
 	float flyingTimer = 0.f;
 	int enableCameraTracking = 1;
+	int empoweredArrow = 0;
 };
 
 //Special effect : Taunt
@@ -251,6 +272,14 @@ struct ScreenState
 	float darken_screen_factor = -1;
 };
 
+// Bouncing arrow
+struct BouncingArrow
+{
+	int bounce_time = 1;
+	float ai_trigger = 500;
+	int ai_runned = 0;
+};
+
 // A struct to refer to debugging graphics in the ECS
 struct DebugComponent
 {
@@ -334,6 +363,7 @@ struct ParticlePool
 	GLuint particles_position_buffer;
 	float poolLife;
 	bool areTypeDeath = true;
+	bool areTypeSmoke = false;
 	Motion motion;
 	bool faded = false;
 	float angle = 0;
@@ -356,6 +386,15 @@ struct CheckRoundTimer
 struct toolTip
 {
 
+};
+
+// Light
+struct Light
+{
+	// light has position, color, size
+	vec2 position;
+	vec4 color;
+	float size;
 };
 
 /**
@@ -396,7 +435,9 @@ enum class TEXTURE_ASSET_ID {
 	PLAYER_TURN = DEATH_PARTICLE + 1,
 	ENEMY_TURN = PLAYER_TURN + 1,
 	ARROW = ENEMY_TURN + 1,
-	ROCK = ARROW + 1,
+	ARROWICON = ARROW +1,
+	ARROWICONSELECTED = ARROWICON+1,
+	ROCK = ARROWICONSELECTED + 1,
 	LIGHTNING = ROCK + 1,
 	GREENCROSS = LIGHTNING + 1,
 	METEOR = GREENCROSS + 1,
@@ -450,8 +491,10 @@ enum class TEXTURE_ASSET_ID {
 	NECRO_MINION_WALK = NECRO_MINION_IDLE + 1,
 	NECRO_MINION_MELEE = NECRO_MINION_WALK + 1,
 	NECRO_MINION_DEATH = NECRO_MINION_MELEE + 1,
+	ARCHER_ANIMS = NECRO_MINION_DEATH + 1,
+	ARCHER_ARROW_TEXTURE = ARCHER_ANIMS + 1,
 	// ------- Background layers ------
-	BACKGROUNDLAYERONE = NECRO_MINION_DEATH + 1,
+	BACKGROUNDLAYERONE = ARCHER_ARROW_TEXTURE + 1,
 	BACKGROUNDLAYERTWO = BACKGROUNDLAYERONE + 1,
 	BACKGROUNDLAYERTHREE = BACKGROUNDLAYERTWO + 1,
 	BACKGROUNDLAYERFOUR = BACKGROUNDLAYERTHREE + 1,
@@ -535,8 +578,14 @@ enum class TEXTURE_ASSET_ID {
 
 
 	RED_PARTICLE = LEVELFOURDIALOGUETHREE + 1,
-	SMOKE_PARTICLE = RED_PARTICLE + 1,
-	TEXTURE_COUNT = SMOKE_PARTICLE + 1
+	FIREFLY_PNG = RED_PARTICLE + 1,
+	PLATFORM = FIREFLY_PNG + 1,
+	TREASURE_CHEST_SHEET = PLATFORM + 1,
+
+
+	//------------------
+	SMOKE_PARTICLE = TREASURE_CHEST_SHEET + 1,
+	TEXTURE_COUNT = SMOKE_PARTICLE + 1,
 	//-----------------------------
 	
 };
@@ -549,7 +598,8 @@ enum class EFFECT_ASSET_ID {
 	WATER = TEXTURED + 1,
 	PARTICLE = WATER + 1,
 	BACKGROUND_OBJ = PARTICLE + 1,
-	EFFECT_COUNT = BACKGROUND_OBJ + 1
+	LIGHT = BACKGROUND_OBJ + 1,	// NEW
+	EFFECT_COUNT = LIGHT + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
@@ -583,12 +633,22 @@ enum class GEOMETRY_BUFFER_ID {
 	NECRO_MINION_WALK = NECRO_MINION_IDLE + 1,
 	NECRO_MINION_MELEE = NECRO_MINION_WALK + 1,
 	NECRO_MINION_DEATH = NECRO_MINION_MELEE + 1,
+	ARCHER_IDLE = NECRO_MINION_DEATH + 1,
+	ARCHER_WALKING = ARCHER_IDLE + 1,
+	ARCHER_JUMPING = ARCHER_WALKING + 1,
+	ARCHER_ATTACKING = ARCHER_JUMPING + 1,
+	ARCHER_WALK_ATTACKING = ARCHER_ATTACKING + 1,
 	// --------------------------
-	BACKGROUND = NECRO_MINION_DEATH + 1,
+	BACKGROUND = ARCHER_WALK_ATTACKING + 1,
 
 	BACKGROUND_OBJ = BACKGROUND + 1,
 	SHIELD_MESH = BACKGROUND_OBJ + 1,
-	GEOMETRY_COUNT = SHIELD_MESH + 1
+	ROCK_MESH = SHIELD_MESH + 1,
+	ARROW_MESH = ROCK_MESH + 1,
+	TREASURE_CHEST_CLOSED = ARROW_MESH + 1,
+	TREASURE_CHEST_OPEN = TREASURE_CHEST_CLOSED + 1,
+
+	GEOMETRY_COUNT = TREASURE_CHEST_OPEN + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

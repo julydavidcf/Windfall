@@ -13,12 +13,14 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "skill_system.hpp"
+#include "swarm_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 using namespace std;
 
-const int window_width_px = 1200;
-const int window_height_px = 750;
+
+int window_width_px = 1200;
+int window_height_px = 750;
 
 // Entry point
 int main()
@@ -29,6 +31,7 @@ int main()
 	PhysicsSystem physics;
 	AISystem ai;
 	SkillSystem sk;
+	SwarmSystem swarmSys;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
@@ -41,14 +44,11 @@ int main()
 
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
-	world.init(&renderer, &ai, &sk);
-	//world.createRound();
-	//world.checkRound();
-	//world.displayPlayerTurn();	// display player turn when world renders
+	world.init(&renderer, &ai, &sk, &swarmSys);
 	
-
 	// variable timestep loop
 	auto t = Clock::now();
+
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become
 		// unresponsive
@@ -60,10 +60,17 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
+		// FOR TESTING: REMOVE LATER
+		isFreeRoam = 0;
+
 		if (world.canStep) {
 			world.step(elapsed_ms);
 			// ai.step(elapsed_ms);
-			physics.step(elapsed_ms, window_width_px, window_height_px);
+			if(isFreeRoam){
+				physics.step_freeRoam(elapsed_ms, window_width_px, window_height_px);
+			} else {
+				physics.step(elapsed_ms, window_width_px, window_height_px);
+			}
 			world.handle_collisions();
 			world.handle_boundary_collision();
 		}

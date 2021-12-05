@@ -36,6 +36,50 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
+Entity createBird(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ 40, 40 });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::RED_PARTICLE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+void createSpline(RenderSystem* renderer, std::vector<vec3> points)
+{
+	for (auto& point : points) {
+		auto entity = Entity();
+
+		Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+		registry.meshPtrs.emplace(entity, &mesh);
+
+		Motion& motion = registry.motions.emplace(entity);
+		motion.position = vec2(point.x, point.y);
+		motion.angle = 0.f;
+		motion.velocity = { 0.f, 0.f };
+		motion.scale = vec2({ 10, 10 });
+
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::RED_PARTICLE,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+}
+
 Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
@@ -125,6 +169,53 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 		{ TEXTURE_ASSET_ID::SWORDSMAN_IDLE,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SWORDSMAN_IDLE });
+
+	return entity;
+}
+
+Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ARCHER_IDLE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = isFreeRoamArcher ? vec2(ARCHER_WIDTH, window_height_px - ARCHER_HEIGHT) : pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ ARCHER_WIDTH, ARCHER_HEIGHT });
+
+	if (!isFreeRoamArcher) {
+		// Add battle-system related stats
+		Statistics& stat = registry.stats.emplace(entity);
+		stat.health = player_archer_hp;
+		stat.max_health = player_archer_hp;
+		stat.speed = 9;
+		stat.classID = 1;
+
+		// Add a healthbar
+		Companion& companion = registry.companions.emplace(entity);
+		companion.healthbar = createHealthBar(renderer, { pos.x, pos.y - 20 });
+		companion.companionType = ARCHER;
+		companion.curr_anim_type = IDLE;
+	}
+	else {
+		// No heathbar for free-roam archer
+		Companion& companion = registry.companions.emplace(entity);
+		companion.companionType = ARCHER;
+		companion.curr_anim_type = IDLE;
+
+		// Add gravity for jumping
+		auto& gravity = registry.gravities.emplace(entity);
+		gravity.gravity = 30;
+	}
+
+	auto& abc = registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ARCHER_ANIMS,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::ARCHER_IDLE });
 
 	return entity;
 }
@@ -302,6 +393,57 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	return entity;
 }
 
+Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly, int isFreeRoam)
+{
+	auto entity = Entity();
+	registry.bouncingArrows.emplace(entity);
+
+	Mesh& mesh = (isFreeRoam) ? renderer->getMesh(GEOMETRY_BUFFER_ID::ARROW_MESH) : renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& gravity = registry.gravities.emplace(entity);
+	gravity.gravity = 30;
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.position = position;
+	
+	registry.projectiles.emplace(entity);
+	registry.light.emplace(entity);
+
+	if (isFreeRoam) {
+		motion.scale = vec2({ ARROW_MESH_WIDTH, ARROW_MESH_HEIGHT });
+
+		registry.renderRequests.insert(
+			entity,
+			//currently using fireball
+			{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			 EFFECT_ASSET_ID::PEBBLE,
+			 GEOMETRY_BUFFER_ID::ARROW_MESH });
+	}
+	else {
+		motion.scale = vec2({ ARROW_WIDTH, ARROW_HEIGHT });
+
+		// Set damage here--------------------------------
+		Damage& damage = registry.damages.emplace(entity);
+		damage.isFriendly = isFriendly;
+		damage.minDamage = arrow_dmg;
+		damage.range = 10;
+		//------------------------------------------------
+
+		registry.renderRequests.insert(
+			entity,
+			//currently using fireball
+			{ TEXTURE_ASSET_ID::ARROW,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+
+
+	return entity;
+}
+
+
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
 	auto entity = Entity();
@@ -396,6 +538,29 @@ Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::MELEEICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+//arrow icon
+Entity createArrowIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ARROWICON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -624,6 +789,91 @@ Entity createBarrier(RenderSystem* renderer, vec2 position)
 			GEOMETRY_BUFFER_ID::SHIELD_MESH });
 
 	registry.deformableEntities.insert(entity, {});
+
+	return entity;
+}
+
+
+Entity createFirefly(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ FIREFLY_WIDTH, -FIREFLY_HEIGHT });
+	motion.velocity = vec2(0.f, 0.f);
+
+	auto& firefly = registry.fireflySwarm.emplace(entity);
+	// registry.light.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::FIREFLY_PNG,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createPlatform(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ PLATFORM_WIDTH, PLATFORM_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::PLATFORM,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createRockMesh(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ROCK_MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ ROCK_MESH_WIDTH, -ROCK_MESH_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::PEBBLE,
+			GEOMETRY_BUFFER_ID::ROCK_MESH });
+
+	return entity;
+}
+
+Entity createTreasureChest(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREASURE_CHEST_CLOSED);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.scale = vec2({ TREASURE_CHEST_WIDTH, TREASURE_CHEST_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TREASURE_CHEST_SHEET,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::TREASURE_CHEST_CLOSED });
 
 	return entity;
 }
@@ -1255,7 +1505,8 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number)
 
 	TEXTURE_ASSET_ID dialogue = TEXTURE_ASSET_ID::GAME_TITLE;
 
-	registry.uiButtons.emplace(entity);
+	auto& ui = registry.uiButtons.emplace(entity);
+	ui.isDialogue = 1;
 
 	switch (number) {
 	case 1: dialogue = TEXTURE_ASSET_ID::BACKGROUNDONE; break;
