@@ -154,6 +154,25 @@ void SkillSystem::startFireballAttack(Entity origin) {
 	}
 }
 
+void SkillSystem::startArrowAttack(Entity origin) {
+	printf("Started the arrow attack\n");
+	if (registry.enemies.has(origin)) {
+		//TODO
+	}
+	else if (registry.companions.has(origin)) {
+		Companion& companion = registry.companions.get(origin);
+		companion.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = BATTLE_ARROW;
+		attack.counter_ms += 800.f;	// attack.counter_ms is 250, animation_timer is 500
+		attack.old_pos = mousePos;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
+		}
+	}
+}
+
 void SkillSystem::startRockAttack(Entity origin, Entity target) {
 	printf("Started the rock attack\n");
 	if (registry.enemies.has(origin)) {

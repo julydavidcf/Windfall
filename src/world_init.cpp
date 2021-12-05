@@ -199,7 +199,7 @@ Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher
 		stat.health = registry.player_archer_hp;
 		stat.max_health = registry.player_archer_hp;
 		stat.speed = 12;
-		stat.classID = 1;
+		stat.classID = 2;
 
 		// Add a healthbar
 		Companion& companion = registry.companions.emplace(entity);
@@ -421,10 +421,10 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	motion.position = position;
 	
 	registry.projectiles.emplace(entity);
-	registry.light.emplace(entity);
 
 	if (isFreeRoam) {
 		motion.scale = vec2({ ARROW_MESH_WIDTH, ARROW_MESH_HEIGHT });
+		registry.light.emplace(entity);
 
 		registry.renderRequests.insert(
 			entity,

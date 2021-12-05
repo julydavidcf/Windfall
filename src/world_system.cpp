@@ -1075,9 +1075,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 						projm->acceleration = {-100, 0};
 						break;
 					}
+					case BATTLE_ARROW: {
+						sk->launchArrow(attacker, msPos, renderer, 0);
+						break;
+					}
 					case FREE_ROAM_ARROW: {
 						// For free-roam archer arrow-shooting
 						sk->launchArrow(player_archer, msPos, renderer, 1);
+						break;
 					}
 					default:
 						break;
@@ -1637,9 +1642,12 @@ void WorldSystem::restart_game(bool force_restart)
 			printf("Loading a file\n");
 			if (gameLevel == 0)
 			{
-				printf("Loading level 0\n");
-				renderer->gameLevel = 1;
-				json_loader.get_level("level_0.json");
+			printf("Loading level 0\n");
+			renderer->gameLevel = 1;
+
+			// Kept this to load icons, but commented out createMage in load_level()
+			json_loader.get_level("level_0.json");
+			player_archer = createPlayerArcher(renderer, vec2(100, 575), 0);
 
 			tutorial_enabled = 1;
 			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
@@ -2813,7 +2821,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					{
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
 						selected_skill = 0;
-						tutorial_icon_selected = 1;
 					}
 					else
 					{
@@ -2891,12 +2898,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 						selected_skill = -1;
 					}
 				}
-				//arrow (Tutorial ability)
-				else if (inButton(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT)
-					&& canUseSkill(currPlayer, 6)) {
+				// arrow (Tutorial ability)
+				else if (inButton(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 6) && !(tutorial_enabled && curr_tutorial_box_num < 5)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICONSELECTED;
 						selected_skill = 6;
+						tutorial_icon_selected = 1;
 					}
 					else {
 						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
@@ -2908,7 +2915,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					if (selected_skill == 0) {
 						sk->startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
-						tutorial_ability_fired = 1;
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						playerUseMelee = 0; // added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
@@ -2988,8 +2994,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 					//arrow
 					if (selected_skill == 6) {
-						sk->launchArrow(currPlayer,msPos,renderer, 0);
+						sk->startArrowAttack(currPlayer);
 						selected_skill = -1;
+						tutorial_ability_fired = 1;
 						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
 						playerUseMelee = 0;
 					}
@@ -3083,7 +3090,7 @@ void WorldSystem::advanceTutorial(Entity currTutorial, vec2 pos)
 		next_box_pos = vec2(350, 100);
 		break; // Menu
 	case 4:
-		next_box_pos = vec2(800, 550);
+		next_box_pos = vec2(200, 550);
 		tutorial_icon_selected = 0;
 		break; // Ability intro
 	// case 5: next_box_pos = vec2(700, 300); tutorial_ability_fired = 0; break;  // Ability targeting
@@ -3374,6 +3381,14 @@ void WorldSystem::showCorrectSkills()
 		else
 		{
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
+		}
+		if (!skill_character_aviability[pStat.classID][6] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 5))
+		{
+			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+		}
+		else
+		{
+			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
 		}
 	}
 }

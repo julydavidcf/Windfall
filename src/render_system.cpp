@@ -914,6 +914,17 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						case ATTACKING: {
 							numFrames = ARCHER_ATTACKING_FRAMES; timePerFrame = ARCHER_ATTACKING_FRAME_TIME;
+
+							if (registry.motions.get(entity).scale.x == 160.f) {
+								// Slower attack frames for turn-based battle
+								timePerFrame = ARCHER_TURN_ATTACKING_FRAME_TIME;
+								if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_ATTACKING) {
+									currGeometry = GEOMETRY_BUFFER_ID::ARCHER_ATTACKING;
+									*currFrame = 0;
+								}
+								break;
+							}
+
 							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_ATTACKING) {
 								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_ATTACKING;
 								*currFrame = 0;
