@@ -1815,7 +1815,7 @@ void WorldSystem::activate_deathParticles(Entity entity)
 	// pool.size = 1000;
 	initParticlesBuffer(pool);
 	pool.poolLife = 2000.f;
-	pool.motion.scale = vec2(3.f, 3.f);
+	pool.motion.scale = vec2(10.f, 10.f);
 
 	for (int p = 0; p < pool.size; p++)
 	{
@@ -1840,7 +1840,38 @@ void WorldSystem::activate_deathParticles(Entity entity)
 		registry.particlePools.insert(entity, pool);
 	}
 }
+void WorldSystem::activate_smokeParticles(Entity entity)
+{
+	ParticlePool pool(1000);
+	pool.areTypeSmoke = true;
+	// pool.size = 1000;
+	initParticlesBuffer(pool);
+	pool.poolLife = 2000.f;
+	pool.motion.scale = vec2(3.f, 3.f);
 
+	for (int p = 0; p < pool.size; p++)
+	{
+		auto& motion = registry.motions.get(entity);
+		Particle particle;
+		float random1 = ((rand() % 100) - 50) / 10.0f;
+		float random2 = ((rand() % 200) - 100) / 10.0f;
+		float rColor = 0.5f + ((rand() % 100) / 100.0f);
+		// particle.motion.position = motion.position + random + vec2({ 20,20 });
+		particle.motion.position.x = motion.position.x + random1 + 20.f;
+		particle.motion.position.y = motion.position.y + random2 + 40.f;
+		particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+		particle.motion.velocity *= 0.1f;
+		particle.motion.scale = vec2({ 10, 10 });
+		pool.particles.push_back(particle);
+		pool.positions[p * 3 + 0] = particle.motion.position.x;
+		pool.positions[p * 3 + 1] = particle.motion.position.y;
+		pool.positions[p * 3 + 2] = particle.Life / pool.poolLife;
+	}
+	if (!registry.particlePools.has(entity))
+	{
+		registry.particlePools.insert(entity, pool);
+	}
+}
 // Compute collisions between entities
 void WorldSystem::handle_collisions()
 {
@@ -2539,7 +2570,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				minY = mouseGestures[i].y;
 			}
 		}
-		//printf("gesture skill collecting deactive!\n");
+		//printf("gesture skill collecting de	!\n");
 		aveX = totalX / mouseGestures.size();
 		aveY = totalY / mouseGestures.size();
 		//printf("Ave X is %f, Ave Y is %f, MaxminX is %f %f, MixminY is %f %f\n", aveX, aveY, maxX, minX, maxY, minY);
