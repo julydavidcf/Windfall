@@ -90,6 +90,29 @@ public:
 	Mix_Music* boss_music;
 	Mix_Chunk* crow_sound;
 
+	//Game Stats
+
+	int enemy_mage_hp = 90;
+	int enemy_swordsman_hp = 130;
+
+	int player_mage_hp = 60;
+	int player_swordsman_hp = 85;
+	int player_archer_hp = 50;
+	int necro_minion_health = 15;
+	int necro_1_health = 175;
+	int necro_2_health = 125;
+
+
+	//skill dmg
+	int rock_dmg = 10;
+	int fireball_dmg = 30;
+	int iceshard_dmg = 20;
+	int melee_dmg = 15;
+	int bleed_dmg = 5;
+	int spike_dmg = 10;
+	int lightning_dmg = 25;
+	int arrow_dmg = 10;
+
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()

@@ -100,8 +100,8 @@ void load_level(json j){
             // Mage
             if(entity["skill"] == "Mage"){
                 printf("Loading the player mage\n");
-                player_mage = createPlayerMage(renderer_load, vec2(entity["position"]["x"], 
-                                                                entity["position"]["y"]));
+                //player_mage = createPlayerMage(renderer_load, vec2(entity["position"]["x"], 
+                                                                //entity["position"]["y"]));
                 create_entity = player_mage;
             } 
             // Swordsman

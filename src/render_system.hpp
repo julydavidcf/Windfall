@@ -102,6 +102,7 @@ class RenderSystem {
 			textures_path("necro_minion_death.png"),
 			textures_path("archerAnims.png"),
 			textures_path("archerArrow.png"),
+			textures_path("dragon_flying.png"),
 
 			// Background layers
 			textures_path("backgroundLayerOne.png"),
@@ -188,6 +189,8 @@ class RenderSystem {
 			textures_path("firefly.png"),
 			textures_path("platform.png"),
 			textures_path("treasure_chest_sheet.png"),
+			textures_path("damage_increase_msg.png"),
+			textures_path("health_increase_msg.png"),
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -238,6 +241,9 @@ class RenderSystem {
 	float ARCHER_WALKING_FRAME_TIME = 100;
 	float ARCHER_JUMPING_FRAME_TIME = 750;
 	float ARCHER_ATTACKING_FRAME_TIME = 75;
+	float ARCHER_TURN_ATTACKING_FRAME_TIME = 150;
+
+	float DRAGON_FLYING_FRAME_TIME = 225;
 
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
@@ -334,6 +340,10 @@ class RenderSystem {
 	const int ARCHER_JUMPING_FRAMES = 2;
 
 	const int ARCHER_ATTACKING_FRAMES = 7;
+
+	// Dragon frame stats
+	const GLfloat DRAGON_FLYING_FRAME_WIDTH = 0.11111111111;
+	const int DRAGON_FLYING_FRAMES = 9;
 
 	// Camera/scrolling constants
 	float CAMERA_OFFSET_LEFT = 400;

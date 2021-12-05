@@ -35,6 +35,7 @@ public:
 	void startParticleBeamCharge(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target, int bleedOrAOE);
 	void startShieldAttack(Entity origin);
+	void startArrowAttack(Entity origin);
 
 	// launch skills
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);

@@ -132,6 +132,8 @@ private:
 	// Story telling
 	void backgroundTelling();
 
+	void initializeFreeRoamTwo();
+
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;
@@ -195,7 +197,9 @@ private:
 //mage
 		{ true, true, true, true, false, false, true},
 //swordsman
-		{ false, false, false, false, true, true,false}
+		{ false, false, false, false, true, true,false},
+// archer
+	{ false, false, false, false, false, false, true}
 	};
 
 	std::vector<vec3> spline;

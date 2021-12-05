@@ -514,6 +514,18 @@ void RenderSystem::initializeGlGeometryBuffers()
 	archer_walk_attacking_vertices[3].texcoord = { 0.f, 0.250 };           // Top left
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::ARCHER_WALK_ATTACKING, archer_walk_attacking_vertices, textured_indices);
 
+	// dragon_flying sprite row
+	std::vector<TexturedVertex> dragon_flying_vertices(4);
+	dragon_flying_vertices[0].position = { -1.f, +1.f, 0.f };
+	dragon_flying_vertices[1].position = { +1.f, +1.f, 0.f };
+	dragon_flying_vertices[2].position = { +1.f, -1.f, 0.f };
+	dragon_flying_vertices[3].position = { -1.f, -1.f, 0.f };
+	dragon_flying_vertices[0].texcoord = { 0.f, 1.f };           // Bottom left
+	dragon_flying_vertices[1].texcoord = { 0.11111111111, 1.f };        // Bottom right
+	dragon_flying_vertices[2].texcoord = { 0.11111111111, 0.f };        // Top right
+	dragon_flying_vertices[3].texcoord = { 0.f, 0.f };           // Top left
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::DRAGON_FLYING, dragon_flying_vertices, textured_indices);
+
 	// treasure chest closed
 	std::vector<TexturedVertex> treasure_chest_closed_vertices(4);
 	treasure_chest_closed_vertices[0].position = { -1.f, +1.f, 0.f };
