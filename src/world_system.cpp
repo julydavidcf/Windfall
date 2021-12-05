@@ -1607,7 +1607,9 @@ void WorldSystem::restart_game(bool force_restart)
 
 		// Create these for testing, can remove unneeded assets
 		//createFirefly(renderer, { 300, 500 });
-		createPlatform(renderer, { 700, 600 });
+		createPlatform(renderer, { 300, 400 });
+		createPlatform(renderer, { 800, 200 });
+		createPlatform(renderer, { 700, 500 });
 		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
 		//createRockMesh(renderer, { 900, 600 });
 		//createTreasureChest(renderer, { 1100, 600 });
@@ -1850,6 +1852,11 @@ void WorldSystem::handle_collisions()
 	// reduce turn
 	// Loop over all collisions detected by the physics system
 
+
+	// Reset the ceiling and floor (For free-roam archer physics)
+	currCeilingPos = 0.f;
+	currFloorPos = window_height_px - ARCHER_HEIGHT;
+
 	auto &collisionsRegistry = registry.collisions;
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++)
 	{
@@ -1859,6 +1866,7 @@ void WorldSystem::handle_collisions()
 
 		// deal with collisions in free roam
 		if (isFreeRoam) {
+
 			// Deal with archer - platform collisions
 			if (registry.companions.has(entity))
 			{
@@ -1870,13 +1878,33 @@ void WorldSystem::handle_collisions()
 					float platform_width = platform_motion.scale.x;
 					float platform_height = platform_motion.scale.y;
 
-					// make archer walk on width
 					Motion& archer_motion = registry.motions.get(player_archer);
-					archer_motion.position.x = platform_position_x; // cannot have x value be fixed
-					archer_motion.position.y = platform_position_y - platform_height - 20;	// cannot have y value be fixed
+					float archer_pos_x = archer_motion.position.x;
+					float archer_pos_y = archer_motion.position.y;
 
-					// solve gravity issue
-					
+					int onTopOrBelow = 0;
+
+					// Platform is on top of archer
+					if (archer_motion.position.y > platform_position_y + platform_height) {
+						currCeilingPos = platform_position_y + platform_height + 5;
+						onTopOrBelow = 1;
+					}
+					// Archer is on top of a platform
+					if (archer_motion.position.y < platform_position_y - platform_height) {
+						currFloorPos = platform_position_y - platform_height - 5;
+						onTopOrBelow = 1;
+					}
+
+					// Bounce back archer to the left, if not on top or directly below
+					if (archer_pos_x > platform_position_x - platform_width && archer_pos_x < platform_position_x - 25 - ARCHER_FREEROAM_WIDTH
+						&& !onTopOrBelow) {
+						archer_motion.position.x -= 2;
+					}
+					// Bounce back archer to the right, if not on top or directly below
+					if (archer_pos_x < platform_position_x + platform_width && archer_pos_x > platform_position_x + 25 + ARCHER_FREEROAM_WIDTH
+						&& !onTopOrBelow) {
+						archer_motion.position.x += 2;
+					}
 				}
 			}
 
@@ -2079,6 +2107,38 @@ void WorldSystem::handle_collisions()
 			}
 		}		
 	}
+
+	Motion& archerMotion = registry.motions.get(player_archer);
+	if (archerMotion.position.x >= window_width_px + ARCHER_FREEROAM_WIDTH) {
+		restart_game();
+	}
+	else if (archerMotion.position.x - (archerMotion.scale.x / 2) <= 0) {
+		archerMotion.position.x = (archerMotion.scale.x / 2);
+	}
+
+	// Check if archer is above ceiling
+	if (archerMotion.position.y < currCeilingPos) {
+		archerMotion.position.y = currCeilingPos;
+		archerMotion.velocity.y = 400.f;
+	}
+
+	// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
+	if (archerMotion.position.y > currFloorPos) {
+		archerMotion.velocity.y = 0.f;
+		archerMotion.acceleration.y = 0.f;
+		archerMotion.position.y = currFloorPos;
+		if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
+			if (archerMotion.velocity.x != 0) {
+				registry.companions.get(player_archer).curr_anim_type = WALKING;
+			}
+			else registry.companions.get(player_archer).curr_anim_type = IDLE;
+		}
+	}
+	// If archer is not on currFloorPos and falling from above (No jump)
+	else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+		archerMotion.velocity.y = 400.f;
+	}
+
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
@@ -2100,26 +2160,6 @@ void WorldSystem::handle_boundary_collision()
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
 			// enemy turn start
-		}
-	}
-	if(isFreeRoam){
-		Motion& motion = registry.motions.get(player_archer);
-		if(motion.position.x >= window_width_px + 20){
-			restart_game();
-		} else if(motion.position.x - (motion.scale.x/2) <= 0){
-			motion.position.x = (motion.scale.x/2);
-		}
-		// The base floor collision, so archer doesn't fall through the ground
-		if (motion.position.y > window_height_px - ARCHER_HEIGHT) {
-			motion.velocity.y = 0.f;
-			motion.acceleration.y = 0.f;
-			motion.position.y = window_height_px - ARCHER_HEIGHT;
-			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
-				if (motion.velocity.x != 0) {
-					registry.companions.get(player_archer).curr_anim_type = WALKING;
-				}
-				else registry.companions.get(player_archer).curr_anim_type = IDLE;
-			}
 		}
 	}
 }
@@ -2213,7 +2253,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.y = -500.f;
+				motion.velocity.y = -600.f;
 				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}

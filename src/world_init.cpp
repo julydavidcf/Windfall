@@ -212,6 +212,9 @@ Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher
 		// Add gravity for jumping
 		auto& gravity = registry.gravities.emplace(entity);
 		gravity.gravity = 30;
+
+		// Smaller
+		motion.scale = vec2({ ARCHER_FREEROAM_WIDTH, ARCHER_FREEROAM_HEIGHT });
 	}
 
 	auto& abc = registry.renderRequests.insert(

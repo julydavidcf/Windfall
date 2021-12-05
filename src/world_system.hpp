@@ -159,6 +159,10 @@ private:
 	int tutorial_ability_fired = 1;
 	int tutorial_enabled = 0;
 
+	// Platform collision detection
+	float currCeilingPos = 0.f;
+	float currFloorPos = window_height_px - ARCHER_HEIGHT;
+
 	// UI buttons
 	Entity new_game_button;
 	Entity load_game_button;

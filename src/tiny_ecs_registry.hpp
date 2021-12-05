@@ -18,6 +18,7 @@ public:
 	ComponentContainer<BackgroundObj> deformableEntities;
 	ComponentContainer<ParticlePool> particlePools;
 	ComponentContainer<SwarmParticle> fireflySwarm;
+	ComponentContainer<TreasureChest> chests;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
@@ -131,6 +132,7 @@ public:
 		registry_list.push_back(&bouncingArrows);
 		registry_list.push_back(&bird);
 		registry_list.push_back(&platform);
+		registry_list.push_back(&chests);
 	}
 
 	void clear_all_components() {

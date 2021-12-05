@@ -93,6 +93,11 @@ struct SwarmParticle
 	int shouldFlipVelocityY = 0;
 };
 
+struct TreasureChest 
+{
+
+};
+
 struct Dot
 {
 
