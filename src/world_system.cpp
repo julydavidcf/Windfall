@@ -2113,39 +2113,42 @@ void WorldSystem::handle_collisions()
 		}		
 	}
 
-	Motion& archerMotion = registry.motions.get(player_archer);
 
-	// Check for left & right boundaries
-	if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
-		archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
-	}
-	else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH / 2) {
-		archerMotion.position.x = window_width_px - ARCHER_FREEROAM_WIDTH / 2;
-	}
+	if (isFreeRoam) {
+		Motion& archerMotion = registry.motions.get(player_archer);
 
-	// Check if archer is above ceiling
-	if (archerMotion.position.y < currCeilingPos) {
-		archerMotion.position.y = currCeilingPos;
-		archerMotion.velocity.y = 400.f;
-		registry.companions.get(player_archer).curr_anim_type = JUMPING;
-	}
-
-	// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
-	if (archerMotion.position.y > currFloorPos) {
-		archerMotion.velocity.y = 0.f;
-		archerMotion.acceleration.y = 0.f;
-		archerMotion.position.y = currFloorPos;
-		if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
-			if (archerMotion.velocity.x != 0) {
-				registry.companions.get(player_archer).curr_anim_type = WALKING;
-			}
-			else registry.companions.get(player_archer).curr_anim_type = IDLE;
+		// Check for left & right boundaries
+		if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
+			archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
 		}
-	}
-	// If archer is not on currFloorPos and falling from above (No jump)
-	else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
-		archerMotion.velocity.y = 400.f;
-		registry.companions.get(player_archer).curr_anim_type = JUMPING;
+		else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH / 2) {
+			archerMotion.position.x = window_width_px - ARCHER_FREEROAM_WIDTH / 2;
+		}
+
+		// Check if archer is above ceiling
+		if (archerMotion.position.y < currCeilingPos) {
+			archerMotion.position.y = currCeilingPos;
+			archerMotion.velocity.y = 400.f;
+			registry.companions.get(player_archer).curr_anim_type = JUMPING;
+		}
+
+		// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
+		if (archerMotion.position.y > currFloorPos) {
+			archerMotion.velocity.y = 0.f;
+			archerMotion.acceleration.y = 0.f;
+			archerMotion.position.y = currFloorPos;
+			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
+				if (archerMotion.velocity.x != 0) {
+					registry.companions.get(player_archer).curr_anim_type = WALKING;
+				}
+				else registry.companions.get(player_archer).curr_anim_type = IDLE;
+			}
+		}
+		// If archer is not on currFloorPos and falling from above (No jump)
+		else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+			archerMotion.velocity.y = 400.f;
+			registry.companions.get(player_archer).curr_anim_type = JUMPING;
+		}
 	}
 
 	// Remove all collisions from this simulation step
@@ -2779,7 +2782,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			{
 
 				// iceshard
-				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 0))
+				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 0) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2794,7 +2797,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// fireball
-				else if (inButton(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 1))
+				else if (inButton(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 1) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2808,7 +2811,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// rock
-				else if (inButton(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 2))
+				else if (inButton(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 2) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2822,7 +2825,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// heal
-				else if (inButton(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 3))
+				else if (inButton(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 3) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2836,7 +2839,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// taunt
-				else if (inButton(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 4))
+				else if (inButton(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 4) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2850,7 +2853,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// melee
-				else if (inButton(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 5))
+				else if (inButton(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 5) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2863,7 +2866,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 						selected_skill = -1;
 					}
 				}
-				//arrow
+				//arrow (Tutorial ability)
 				else if (inButton(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT)
 					&& canUseSkill(currPlayer, 6)) {
 					if (selected_skill == -1) {
@@ -2954,7 +2957,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j], -1);
 								playerUseMelee = 1;
 								selected_skill = -1;
-								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+								registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 							}
 						}
 					}
@@ -2962,7 +2965,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					if (selected_skill == 6) {
 						sk->launchArrow(currPlayer,msPos,renderer, 0);
 						selected_skill = -1;
-						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
 						playerUseMelee = 0;
 					}
 				}
@@ -3294,7 +3297,7 @@ void WorldSystem::showCorrectSkills()
 	if (currPlayer != NULL && registry.companions.has(currPlayer))
 	{
 		Statistics pStat = registry.stats.get(currPlayer);
-		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 5))
+		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7))
 		{
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
