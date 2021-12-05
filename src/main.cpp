@@ -61,7 +61,7 @@ int main()
 		t = now;
 
 		// FOR TESTING: REMOVE LATER
-		isFreeRoam = 1;
+		isFreeRoam = 0;
 		//if (isFreeRoam == 1) {
 		//	world.handle_collisions();
 		//}

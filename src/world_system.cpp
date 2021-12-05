@@ -374,7 +374,7 @@ void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem
 	Mix_VolumeChunk(registry.charge_spell_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.beam_spell_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.minion_spawn_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(registry.error_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.error_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(registry.gesture_heal_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_aoe_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_turn_sound, MIX_MAX_VOLUME / 10);
@@ -2108,35 +2108,38 @@ void WorldSystem::handle_collisions()
 		}		
 	}
 
-	Motion& archerMotion = registry.motions.get(player_archer);
-	if (archerMotion.position.x >= window_width_px + ARCHER_FREEROAM_WIDTH) {
-		restart_game();
-	}
-	else if (archerMotion.position.x - (archerMotion.scale.x / 2) <= 0) {
-		archerMotion.position.x = (archerMotion.scale.x / 2);
-	}
-
-	// Check if archer is above ceiling
-	if (archerMotion.position.y < currCeilingPos) {
-		archerMotion.position.y = currCeilingPos;
-		archerMotion.velocity.y = 400.f;
-	}
-
-	// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
-	if (archerMotion.position.y > currFloorPos) {
-		archerMotion.velocity.y = 0.f;
-		archerMotion.acceleration.y = 0.f;
-		archerMotion.position.y = currFloorPos;
-		if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
-			if (archerMotion.velocity.x != 0) {
-				registry.companions.get(player_archer).curr_anim_type = WALKING;
-			}
-			else registry.companions.get(player_archer).curr_anim_type = IDLE;
+	// check for archer
+	if (registry.motions.has(player_archer)) {
+		Motion& archerMotion = registry.motions.get(player_archer);
+		if (archerMotion.position.x >= window_width_px + ARCHER_FREEROAM_WIDTH) {
+			restart_game();
 		}
-	}
-	// If archer is not on currFloorPos and falling from above (No jump)
-	else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
-		archerMotion.velocity.y = 400.f;
+		else if (archerMotion.position.x - (archerMotion.scale.x / 2) <= 0) {
+			archerMotion.position.x = (archerMotion.scale.x / 2);
+		}
+
+		// Check if archer is above ceiling
+		if (archerMotion.position.y < currCeilingPos) {
+			archerMotion.position.y = currCeilingPos;
+			archerMotion.velocity.y = 400.f;
+		}
+
+		// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
+		if (archerMotion.position.y > currFloorPos) {
+			archerMotion.velocity.y = 0.f;
+			archerMotion.acceleration.y = 0.f;
+			archerMotion.position.y = currFloorPos;
+			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
+				if (archerMotion.velocity.x != 0) {
+					registry.companions.get(player_archer).curr_anim_type = WALKING;
+				}
+				else registry.companions.get(player_archer).curr_anim_type = IDLE;
+			}
+		}
+		// If archer is not on currFloorPos and falling from above (No jump)
+		else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+			archerMotion.velocity.y = 400.f;
+		}
 	}
 
 	// Remove all collisions from this simulation step
