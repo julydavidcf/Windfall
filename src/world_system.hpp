@@ -132,6 +132,8 @@ private:
 	// Story telling
 	void backgroundTelling();
 
+	void initializeFreeRoamTwo();
+
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;

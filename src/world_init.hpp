@@ -19,6 +19,8 @@ const float NECRO_TWO_WIDTH = 350.f;
 const float NECRO_TWO_HEIGHT = 500.f;
 const float NECRO_MINION_WIDTH = 90.f;
 const float NECRO_MINION_HEIGHT = 110.f;
+const float DRAGON_WIDTH = 128.f;
+const float DRAGON_HEIGHT = 117.333333333f;
 
 const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 15.f;
@@ -44,8 +46,8 @@ const float PLATFORM_WIDTH = 200.f;
 const float PLATFORM_HEIGHT = 50.f;
 const float ROCK_MESH_WIDTH = 180.f;
 const float ROCK_MESH_HEIGHT = 180.f;
-const float ARROW_MESH_WIDTH = ARROW_WIDTH / 2;
-const float ARROW_MESH_HEIGHT = ARROW_HEIGHT / 2;
+const float ARROW_MESH_WIDTH = ARROW_WIDTH / 1.5;
+const float ARROW_MESH_HEIGHT = ARROW_HEIGHT / 1.5;
 const float TREASURE_CHEST_WIDTH = 32.f;
 const float TREASURE_CHEST_HEIGHT = 38.4f;
 

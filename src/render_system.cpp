@@ -946,6 +946,29 @@ void RenderSystem::draw(float elapsed_ms)
 					}
 					break;
 				}
+				case DRAGON: {
+					switch (animType) {
+					case IDLE: {
+						if (currGeometry != GEOMETRY_BUFFER_ID::DRAGON_FLYING) {
+							*currFrame = 0;
+						}
+						currGeometry = GEOMETRY_BUFFER_ID::DRAGON_FLYING;
+						numFrames = DRAGON_FLYING_FRAMES;  frame_width = DRAGON_FLYING_FRAME_WIDTH; timePerFrame = DRAGON_FLYING_FRAME_TIME; 
+						
+						// Flip dragon when reaching edge
+						if (registry.bird.components[0].birdNextPostionTracker == 84) {
+							registry.motions.get(entity).scale.x = abs(registry.motions.get(entity).scale.x);
+						}
+						else if (registry.bird.components[0].birdNextPostionTracker == 1) {
+							registry.motions.get(entity).scale.x = -abs(registry.motions.get(entity).scale.x);
+						}
+
+						break;
+					}
+					default: break;
+					}
+					break;
+				}
 				default: break;
 			}
 

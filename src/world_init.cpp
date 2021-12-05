@@ -40,22 +40,26 @@ Entity createBird(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::DRAGON_FLYING);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ 40, 40 });
+	motion.scale = vec2({ -DRAGON_WIDTH, DRAGON_HEIGHT });
 
 	registry.bird.emplace(entity);
 
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.enemyType = DRAGON;
+	enemy.curr_anim_type = IDLE;
+
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::RED_PARTICLE,
+		{ TEXTURE_ASSET_ID::DRAGON_FLYING,
 			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+			GEOMETRY_BUFFER_ID::DRAGON_FLYING });
 
 	return entity;
 }

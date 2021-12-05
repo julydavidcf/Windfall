@@ -1430,6 +1430,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// update state of free_roam_bird
 	if (registry.motions.has(free_roam_bird)) {
 		auto& birdMotion = registry.motions.get(free_roam_bird);
+		registry.bird.get(free_roam_bird).birdNextPostionTracker = birdNextPostionTracker;
 		
 		if (birdPositionDivisor == 1 || birdPositionDivisor == 2) {
 			float offsetX = (spline[birdNextPostionTracker].x - spline[birdNextPostionTracker - 1].x) / 2.f;
@@ -1578,53 +1579,33 @@ void WorldSystem::restart_game(bool force_restart)
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, {w / 2, h / 2});
 
-	std::vector<vec3> controlPoints;
-	controlPoints.push_back(vec3(227, 160, 0));
-	controlPoints.push_back(vec3(382, 341, 0));
-	controlPoints.push_back(vec3(632, 281, 0));
-	controlPoints.push_back(vec3(758, 367, 0));
-	controlPoints.push_back(vec3(1105, 242, 0));
-	controlPoints.push_back(vec3(1008, 59, 0));
-	controlPoints.push_back(vec3(733, 148, 0));
-	controlPoints.push_back(vec3(446, 75, 0));
-	controlPoints.push_back(vec3(227, 160, 0));
-	auto result = GenerateSpline(controlPoints, 20);
-	// Keeping these for debugging purposes
-	// printf("spline points: %i\n", result.size());
-	// createSpline(renderer, controlPoints);
-	spline = result;
-	free_roam_bird = createBird(renderer, vec2(227, 160));
-	birdNextPostionTracker = 1;
-	birdPositionDivisor = 1;
 
 	if (isFreeRoam)
 	{
 		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		printf("Loading free roam 0\n");
 
-		player_archer = createPlayerArcher(renderer, {700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25}, 1);
-		//renderer->archer = player_archer;
+		std::vector<vec3> controlPoints;
+		controlPoints.push_back(vec3(227, 160, 0));
+		controlPoints.push_back(vec3(382, 341, 0));
+		controlPoints.push_back(vec3(632, 281, 0));
+		controlPoints.push_back(vec3(758, 367, 0));
+		controlPoints.push_back(vec3(1070, 242, 0));
+		controlPoints.push_back(vec3(1008, 59, 0));
+		controlPoints.push_back(vec3(733, 148, 0));
+		controlPoints.push_back(vec3(446, 75, 0));
+		controlPoints.push_back(vec3(227, 160, 0));
+		auto result = GenerateSpline(controlPoints, 20);
+		// Keeping these for debugging purposes
+		// printf("spline points: %i\n", result.size());
+		// createSpline(renderer, controlPoints);
+		spline = result;
+		birdNextPostionTracker = 1;
+		birdPositionDivisor = 1;
+		free_roam_bird = createBird(renderer, vec2(227, 160));
 
-		// Create these for testing, can remove unneeded assets
-		//createFirefly(renderer, { 300, 500 });
-		createPlatform(renderer, { 550, 600 });
-		createPlatform(renderer, { 650, 450 });
-		createPlatform(renderer, { 100, 350 });
-		createPlatform(renderer, { 300, 350 });
-		createPlatform(renderer, { 1100, 225 });
-		createPlatform(renderer, { 675, 225 });
-		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
-		//createRockMesh(renderer, { 900, 600 });
-		createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT });
-		createTreasureChest(renderer, { 1150, 225 - PLATFORM_HEIGHT });
 
-		if (swarmSys->swarmInitialized) {
-			swarmSys->resetSwarm();
-		}
-		else {
-			swarmSys->initializeSwarmEntities(renderer);
-		}
-
+		initializeFreeRoamTwo();
 		renderer->gameLevel = 1;
 
 		Mix_FadeInMusic(registry.wintervale_music, -1, 500);	// change to free roam level 1 music
@@ -3369,6 +3350,28 @@ void WorldSystem::showCorrectSkills()
 	}
 }
 
-void WorldSystem::backgroundTelling()
+void WorldSystem::backgroundTelling() 
 {
+
+}
+
+void WorldSystem::initializeFreeRoamTwo() {
+
+	player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
+
+	createPlatform(renderer, { 550, 600 });
+	createPlatform(renderer, { 650, 450 });
+	createPlatform(renderer, { 100, 350 });
+	createPlatform(renderer, { 300, 350 });
+	createPlatform(renderer, { 1100, 225 });
+	createPlatform(renderer, { 675, 225 });
+	createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT });
+	createTreasureChest(renderer, { 1150, 225 - PLATFORM_HEIGHT });
+
+	if (swarmSys->swarmInitialized) {
+		swarmSys->resetSwarm();
+	}
+	else {
+		swarmSys->initializeSwarmEntities(renderer);
+	}
 }

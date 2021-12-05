@@ -64,17 +64,9 @@ void SwarmSystem::updateSwarm() {
 
 	if (!registry.motions.has(fireflyEntities[0])) return;
 
-	float N = NUM_SWARM_PARTICLES;
-
-	float SD_X = 0.f;
-	float mu_X = 0.f;
-	float sumSquaresX = 0.f;
 	float maxX = registry.motions.get(fireflyEntities[0]).position.x;
 	float minX = registry.motions.get(fireflyEntities[0]).position.x;
-	
-	float SD_Y = 0.f;
-	float mu_Y = 0.f;
-	float sumSquaresY = 0.f;
+
 	float maxY = registry.motions.get(fireflyEntities[0]).position.y;
 	float minY = registry.motions.get(fireflyEntities[0]).position.y;
 
@@ -124,9 +116,6 @@ void SwarmSystem::updateSwarm() {
 			}
 
 		}
-
-		// Add to mu_X for current particle
-		mu_X += particleMotion.position.x / window_width_px;
 		
 		if (particleMotion.position.x < minX) {
 			minX = particleMotion.position.x;
@@ -134,9 +123,6 @@ void SwarmSystem::updateSwarm() {
 		if (particleMotion.position.x > maxX) {
 			maxX = particleMotion.position.x;
 		}
-
-		// Add to mu_Y for current particle
-		mu_Y += particleMotion.position.y / window_height_px;
 		
 		if (particleMotion.position.y < minY) {
 			minY = particleMotion.position.y;
@@ -146,22 +132,8 @@ void SwarmSystem::updateSwarm() {
 		}
 	}
 
-	for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
-		if (!registry.motions.has(fireflyEntities[i])) continue;
-		Motion& particleMotion = registry.motions.get(fireflyEntities[i]);
-
-		// Add to sumSquaresX for current particle
-		sumSquaresX += ((particleMotion.position.x / window_width_px) - mu_X) * ((particleMotion.position.x / window_width_px) - mu_X);
-		// Add to sumSquaresY for current particle
-		sumSquaresY += ((particleMotion.position.y / window_height_px) - mu_Y) * ((particleMotion.position.y / window_height_px) - mu_Y);
-	}
-
-	// Compute the standard deviation for all particle pos.x
-	SD_X = sqrt(sumSquaresX / N);
-	SD_Y = sqrt(sumSquaresY / N);
-
 	// Case: X-spread is too large
-	if (maxX - minX > 300) {
+	if (maxX - minX > 200) {
 
 		float midpointX = (minX + maxX) / 2;
 
@@ -183,7 +155,7 @@ void SwarmSystem::updateSwarm() {
 	}
 
 	// Case: Y-spread is too large
-	if (maxY - minY > 300) {
+	if (maxY - minY > 200) {
 
 		float midpointY = (minY + maxY) / 2;
 
