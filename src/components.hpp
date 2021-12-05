@@ -257,7 +257,7 @@ struct ScreenState
 struct BouncingArrow
 {
 	int bounce_time = 1;
-	float ai_trigger = 500;
+	float ai_trigger = 1000;
 	int ai_runned = 0;
 };
 

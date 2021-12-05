@@ -27,6 +27,9 @@ vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
+//arrow BFS
+vector<pair<int, int>> ArrowResult;
+Entity currentArrow;
 
 Entity player_mage;
 Entity enemy_mage;
@@ -836,82 +839,106 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			ba->bounce_time--;
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
-		//stops arrow when it have bounced
 
-		if (ba->bounce_time <= 0 && ba->ai_runned == 0) {
-			baM->velocity.x = baM->velocity.x * 0.6;
-			baM->velocity.y = baM->velocity.y * 0.6;
-			baM->acceleration.x = baM->acceleration.x * 0.6;
-			baM->acceleration.y = baM->acceleration.y * 0.6;
-			ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
-		}
+		//check if enemy exist
+		if (registry.enemies.size() > 0) {
+			//stops arrow when it have bounced
 
-		////trigger BFS============================
-		if (ba->ai_trigger <= 0 && ba->ai_runned==0) {
-			registry.gravities.remove(registry.bouncingArrows.entities[i]);
-			ba->ai_runned = 1;
-			//initilaze visited
-			printf("initilizing grid\n");
-			//printf("ai_runned is: %d\n", ba->ai_runned);
-			vector<vector<bool>> visited;
-			for (int i = 0; i < screen_width/10; i++)
-			{
-				vector<bool> tempv;
-				for (int j = 0; j < screen_height/10; j++)
-				{
-					tempv.push_back(false);
-				}
-				visited.push_back(tempv);
+			if (ba->bounce_time <= 0 && ba->ai_runned == 0) {
+				baM->velocity.x = baM->velocity.x * 0.9;
+				baM->velocity.y = baM->velocity.y * 0.9;
+				baM->acceleration.x = baM->acceleration.x * 0.9;
+				baM->acceleration.y = baM->acceleration.y * 0.9;
+				ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
 			}
 
-			//initilaze map
-			vector<vector<int>> map;
-			for (int i = 0; i < screen_width/10; i++)
-			{
-				vector<int> tempv1;
-				for (int j = 0; j < screen_height/10; j++)
+			////trigger BFS============================
+			if (ba->ai_trigger <= 0 && ba->ai_runned == 0) {
+				registry.gravities.remove(registry.bouncingArrows.entities[i]);
+				baM->velocity.x = 0;
+				baM->velocity.y = 0;
+				baM->acceleration.x = 0;
+				baM->acceleration.y = 0;
+				ba->ai_runned = 1;
+				//initilaze visited
+				printf("initilizing grid\n");
+				//printf("ai_runned is: %d\n", ba->ai_runned);
+				vector<vector<bool>> visited;
+				for (int i = 0; i < screen_width / 10; i++)
 				{
-					tempv1.push_back(1);
+					vector<bool> tempv;
+					for (int j = 0; j < screen_height / 10; j++)
+					{
+						tempv.push_back(false);
+					}
+					visited.push_back(tempv);
 				}
-				map.push_back(tempv1);
-			}
-			//if barrier exist
-			if (registry.shield.size() != 0) {
-				for (int i = 72-1-8; i <= 78-1+8; i++) {
-					for (int j = 35-1-8; j <= 75-1; j++) {
-						map[i][j] = -1;
-						visited[i][j] = true;
+
+				//initilaze map
+				vector<vector<int>> map;
+				for (int i = 0; i < screen_width / 10; i++)
+				{
+					vector<int> tempv1;
+					for (int j = 0; j < screen_height / 10; j++)
+					{
+						tempv1.push_back(1);
+					}
+					map.push_back(tempv1);
+				}
+				//if barrier exist
+				if (registry.shield.size() != 0) {
+					for (int i = 72 - 1 - 8; i <= 78 - 1 + 8; i++) {
+						for (int j = 35 - 1 - 8; j <= 75 - 1; j++) {
+							map[i][j] = -1;
+							visited[i][j] = true;
+						}
 					}
 				}
-			}
-			//start BFS
-			vec2 startPos = baM->position;
-			vector<pair<int, int>> path;
-			path.push_back(make_pair(static_cast<int>(startPos.x), static_cast<int>(startPos.y)));
-			BFS bfs = BFS(static_cast<int>(startPos.x), static_cast<int>(startPos.y),0, path);
-			vector<pair<int, int>> result = bfs.arrowBFS(map,bfs,visited);
-			printf("result path is:\n ");
-			
-			//print path
-			for (int i = 0; i < result.size(); i++) {
-				printf("%d, %d\n",result[i].first, result[i].second);
-			}
+				// mark enemy
+				Motion markedEnemyM = registry.motions.get(registry.enemies.entities[0]);
+				pair<int, int> mark = make_pair(static_cast<int>(markedEnemyM.position.x)/10, static_cast<int>(markedEnemyM.position.y)/10);
+				map[mark.first][mark.second]=9;
 
-			//print map
-			//for (int i = 0; i < screen_width / 10; i++) {
-			//	for (int j = 0; j < screen_height / 10; j++) {
-			//		printf("%d ", map[i][j]);
-			//	}
-			//	printf("\n");
-			//}
-			//printf("%d x %d matrix",map.size(),map[0].size());
+				//start BFS
+				vec2 startPos = baM->position;
+				vector<pair<int, int>> path;
+				path.push_back(make_pair(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10));
+				BFS bfs = BFS(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10, 0, path);
+				ArrowResult = bfs.arrowBFS(map, bfs, visited);
+				currentArrow = registry.bouncingArrows.entities[i];
+				printf("result path is:\n ");
+
+				//print path
+				for (int i = 0; i < ArrowResult.size(); i++) {
+					printf("%d, %d\n", ArrowResult[i].first, ArrowResult[i].second);
+				}
+
+				//print map
+				//for (int i = 0; i < screen_width / 10; i++) {
+				//	for (int j = 0; j < screen_height / 10; j++) {
+				//		printf("%d ", map[i][j]);
+				//	}
+				//	printf("\n");
+				//}
+				//printf("%d x %d matrix",map.size(),map[0].size());
+
+
+			}
+			//======================================================================
 
 
 		}
-		//======================================================================
-
+		
 	}
 
+	// move arrow
+	if (!ArrowResult.empty()) {
+		if (registry.motions.has(currentArrow)) {;
+			Motion* arrowM = &registry.motions.get(currentArrow);
+			arrowM->position = { ArrowResult[0].first*10,ArrowResult[0].second*10 };
+			ArrowResult.erase(ArrowResult.begin());
+		}
+	}
 
 
 
