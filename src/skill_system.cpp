@@ -566,7 +566,7 @@ Entity SkillSystem::launchArrow(Entity start, vec2 ms_pos, RenderSystem* rendere
 	if (dx < 0) {
 		angle += M_PI;
 	}
-	Entity resultEntity = createArrow(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1, isFreeRoam);
+	Entity resultEntity = createArrow(renderer, { startPos.x, startPos.y }, angle, { vx,vy }, 1, isFreeRoam);
 	Motion* arrowacc = &registry.motions.get(resultEntity);
 	arrowacc->acceleration = vec2(200 * vx / ARROWSPEED, 200 * vy / ARROWSPEED);
 

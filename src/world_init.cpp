@@ -404,7 +404,7 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly, int isFreeRoam)
 {
 	auto entity = Entity();
-	registry.bouncingArrows.emplace(entity);
+	
 
 	Mesh& mesh = (isFreeRoam) ? renderer->getMesh(GEOMETRY_BUFFER_ID::ARROW_MESH) : renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
@@ -438,6 +438,7 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 		damage.minDamage = arrow_dmg;
 		damage.range = 10;
 		//------------------------------------------------
+		registry.bouncingArrows.emplace(entity);
 
 		registry.renderRequests.insert(
 			entity,

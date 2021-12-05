@@ -1602,17 +1602,21 @@ void WorldSystem::restart_game(bool force_restart)
 		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		printf("Loading free roam 0\n");
 
-		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
+		player_archer = createPlayerArcher(renderer, {700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25}, 1);
 		//renderer->archer = player_archer;
 
 		// Create these for testing, can remove unneeded assets
 		//createFirefly(renderer, { 300, 500 });
-		createPlatform(renderer, { 300, 400 });
-		createPlatform(renderer, { 800, 200 });
-		createPlatform(renderer, { 700, 500 });
+		createPlatform(renderer, { 550, 600 });
+		createPlatform(renderer, { 650, 450 });
+		createPlatform(renderer, { 100, 350 });
+		createPlatform(renderer, { 300, 350 });
+		createPlatform(renderer, { 1100, 225 });
+		createPlatform(renderer, { 675, 225 });
 		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
 		//createRockMesh(renderer, { 900, 600 });
-		//createTreasureChest(renderer, { 1100, 600 });
+		createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT });
+		createTreasureChest(renderer, { 1150, 225 - PLATFORM_HEIGHT });
 
 		if (swarmSys->swarmInitialized) {
 			swarmSys->resetSwarm();
@@ -1855,7 +1859,7 @@ void WorldSystem::handle_collisions()
 
 	// Reset the ceiling and floor (For free-roam archer physics)
 	currCeilingPos = 0.f;
-	currFloorPos = window_height_px - ARCHER_HEIGHT;
+	currFloorPos = window_height_px - ARCHER_FREEROAM_HEIGHT + 25;
 
 	auto &collisionsRegistry = registry.collisions;
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++)
@@ -1885,27 +1889,28 @@ void WorldSystem::handle_collisions()
 					int onTopOrBelow = 0;
 
 					// Platform is on top of archer
-					if (archer_motion.position.y > platform_position_y + platform_height) {
-						currCeilingPos = platform_position_y + platform_height + 5;
+					if (archer_motion.position.y > platform_position_y + platform_height / 2) {
+						currCeilingPos = platform_position_y + platform_height + 15;
 						onTopOrBelow = 1;
 					}
 					// Archer is on top of a platform
-					if (archer_motion.position.y < platform_position_y - platform_height) {
-						currFloorPos = platform_position_y - platform_height - 5;
+					if (archer_motion.position.y < platform_position_y - platform_height / 2) {
+						currFloorPos = platform_position_y - platform_height - 15;
 						onTopOrBelow = 1;
 					}
 
 					// Bounce back archer to the left, if not on top or directly below
-					if (archer_pos_x > platform_position_x - platform_width && archer_pos_x < platform_position_x - 25 - ARCHER_FREEROAM_WIDTH
+					if (archer_pos_x > platform_position_x - platform_width && archer_pos_x < platform_position_x + 25 - ARCHER_FREEROAM_WIDTH
 						&& !onTopOrBelow) {
 						archer_motion.position.x -= 2;
 					}
 					// Bounce back archer to the right, if not on top or directly below
-					if (archer_pos_x < platform_position_x + platform_width && archer_pos_x > platform_position_x + 25 + ARCHER_FREEROAM_WIDTH
+					if (archer_pos_x < platform_position_x + platform_width && archer_pos_x > platform_position_x - 25 + ARCHER_FREEROAM_WIDTH
 						&& !onTopOrBelow) {
 						archer_motion.position.x += 2;
 					}
 				}
+
 			}
 
 			// Deal with arrow - bird collisions
@@ -1916,6 +1921,25 @@ void WorldSystem::handle_collisions()
 				{
 					registry.remove_all_components_of(entity_other);
 					Mix_PlayChannel(-1, registry.crow_sound, 0);
+				}
+
+				else if (registry.platform.has(entity_other)) {
+					Motion& arrowMotion = registry.motions.get(entity);
+					float arrow_pos_x = arrowMotion.position.x;
+					Motion& platformMotion = registry.motions.get(entity_other);
+					float platform_position_x = platformMotion.position.x;
+					float platform_position_y = platformMotion.position.y;
+					float platform_width = platformMotion.scale.x;
+					float platform_height = platformMotion.scale.y;
+
+					// Check if arrow collides with platform and stop it
+					if ((arrowMotion.position.y > platform_position_y + platform_height + 100 && arrowMotion.velocity.y < 0)
+						|| (arrowMotion.position.y < platform_position_y - platform_height - 100 && arrowMotion.velocity.y > 0)
+						|| 
+						(arrow_pos_x > platform_position_x - platform_width / 2 && arrow_pos_x < platform_position_x + platform_width / 2
+						&& arrowMotion.position.y < platform_position_y + platform_height && arrowMotion.position.y > platform_position_y - platform_height)) {
+						registry.remove_all_components_of(entity);
+					}
 				}
 			}
 		}		
@@ -2109,17 +2133,20 @@ void WorldSystem::handle_collisions()
 	}
 
 	Motion& archerMotion = registry.motions.get(player_archer);
-	if (archerMotion.position.x >= window_width_px + ARCHER_FREEROAM_WIDTH) {
-		restart_game();
+
+	// Check for left & right boundaries
+	if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
+		archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
 	}
-	else if (archerMotion.position.x - (archerMotion.scale.x / 2) <= 0) {
-		archerMotion.position.x = (archerMotion.scale.x / 2);
+	else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH / 2) {
+		archerMotion.position.x = window_width_px - ARCHER_FREEROAM_WIDTH / 2;
 	}
 
 	// Check if archer is above ceiling
 	if (archerMotion.position.y < currCeilingPos) {
 		archerMotion.position.y = currCeilingPos;
 		archerMotion.velocity.y = 400.f;
+		registry.companions.get(player_archer).curr_anim_type = JUMPING;
 	}
 
 	// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
@@ -2137,6 +2164,7 @@ void WorldSystem::handle_collisions()
 	// If archer is not on currFloorPos and falling from above (No jump)
 	else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
 		archerMotion.velocity.y = 400.f;
+		registry.companions.get(player_archer).curr_anim_type = JUMPING;
 	}
 
 	// Remove all collisions from this simulation step
@@ -2253,7 +2281,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.y = -600.f;
+				motion.velocity.y = -500.f;
 				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}

@@ -33,7 +33,11 @@ vec2 PhysicsSystem::get_custom_bounding_box(Entity entity)
 			return { abs(motion.scale.x), abs(motion.scale.y) };
 		}
 
-	} else {
+	}
+	else if (registry.platform.has(entity)) {
+		return { abs(motion.scale.x) + 50, abs(motion.scale.y) };
+	}
+	else {
 		return { abs(motion.scale.x), abs(motion.scale.y) };
 	}
 }
