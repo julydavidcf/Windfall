@@ -1239,31 +1239,33 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if (player_turn == 1)
-	{
-		displayPlayerTurn();
-		prevPlayer = currPlayer;
-	}
-
-	// this area is to check for edge cases for enemy to attack during their turn
-	if (player_turn == 0)
-	{
-
-		if ((registry.checkRoundTimer.size() <= 0) && (registry.companions.size() > 0))
+	if(!isFreeRoam){
+		if (player_turn == 1)
 		{
-			displayEnemyTurn();
-			if (registry.enemies.has(currPlayer))
-			{ // check if enemies have currPlayer
-				printf("Calling tree here\n");
-				ai->callTree(currPlayer);
-				prevPlayer = currPlayer; // added this line to progress the necromancer phase 2 turn 2 after the first turn's tree is called, not sure if it will affect other things, need more testing
-			}
-			else
+			displayPlayerTurn();
+			prevPlayer = currPlayer;
+		}
+
+		// this area is to check for edge cases for enemy to attack during their turn
+		if (player_turn == 0)
+		{
+
+			if ((registry.checkRoundTimer.size() <= 0) && (registry.companions.size() > 0))
 			{
-				if (roundVec.empty())
+				displayEnemyTurn();
+				if (registry.enemies.has(currPlayer))
+				{ // check if enemies have currPlayer
+					printf("Calling tree here\n");
+					ai->callTree(currPlayer);
+					prevPlayer = currPlayer; // added this line to progress the necromancer phase 2 turn 2 after the first turn's tree is called, not sure if it will affect other things, need more testing
+				}
+				else
 				{
-					printf("roundVec is empty at enemy turn, createRound now \n");
-					createRound();
+					if (roundVec.empty())
+					{
+						printf("roundVec is empty at enemy turn, createRound now \n");
+						createRound();
+					}
 				}
 			}
 		}
