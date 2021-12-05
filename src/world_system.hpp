@@ -14,6 +14,7 @@
 #include "ai_system.hpp"
 #include "render_system.hpp"
 #include "skill_system.hpp"
+#include "swarm_system.hpp"
 
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
@@ -26,7 +27,7 @@ public:
 	GLFWwindow* create_window(int width, int height);
 
 	// starts the game
-	void init(RenderSystem* renderer, AISystem* ai_arg, SkillSystem* skill_arg);
+	void init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem* skill_arg, SwarmSystem* swarm_arg);
 
 	// Displays the start screen and buttons
 	void render_startscreen();
@@ -127,6 +128,7 @@ private:
 	void displayTurnIndicator(int isPlayerTurn);
 	void advanceTutorial(Entity currTutorial, vec2 pos);
 
+
 	// Story telling
 	void backgroundTelling();
 
@@ -134,6 +136,7 @@ private:
 	RenderSystem* renderer;
 	AISystem* ai;
 	SkillSystem* sk;
+	SwarmSystem* swarmSys;
 
 	float current_speed;
 	Entity player_mage;
@@ -141,6 +144,7 @@ private:
 	Entity player_swordsman;
 	Entity enemy_swordsman;
 	Entity player_archer;
+	Entity arrow_mesh;
 
 	Entity fireball;
 	Entity silence_icon;
@@ -154,6 +158,10 @@ private:
 	int tutorial_icon_selected = 1;
 	int tutorial_ability_fired = 1;
 	int tutorial_enabled = 0;
+
+	// Platform collision detection
+	float currCeilingPos = 0.f;
+	float currFloorPos = window_height_px - ARCHER_HEIGHT;
 
 	// UI buttons
 	Entity new_game_button;
@@ -187,10 +195,15 @@ private:
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee
 //mage
-		{ true, true, true, true, false, false},
+		{ true, true, true, true, false, false, true},
 //swordsman
-		{ false, false, false, false, true, true}
+		{ false, false, false, false, true, true,false}
 	};
+
+	std::vector<vec3> spline;
+	Entity free_roam_bird;
+	int birdNextPostionTracker = 1;
+	int birdPositionDivisor = 1;
 };
 // Can't use diretly somehow so just for reference
 enum class SKILL_ID {
@@ -200,5 +213,6 @@ enum class SKILL_ID {
 	SK_HEAL = SK_ROCK + 1, //3
 	SK_TAUNT = SK_HEAL+1,//4
 	SK_MELEE = SK_TAUNT +1,//5
-	SKILL_COUNT = SK_MELEE + 1,
+	SK_ARROW = SK_MELEE +1, // 6
+	SKILL_COUNT = SK_ARROW + 1,
 };

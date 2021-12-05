@@ -13,6 +13,7 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "skill_system.hpp"
+#include "swarm_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 using namespace std;
@@ -30,6 +31,7 @@ int main()
 	PhysicsSystem physics;
 	AISystem ai;
 	SkillSystem sk;
+	SwarmSystem swarmSys;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
@@ -42,14 +44,11 @@ int main()
 
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
-	world.init(&renderer, &ai, &sk);
-	//world.createRound();
-	//world.checkRound();
-	//world.displayPlayerTurn();	// display player turn when world renders
+	world.init(&renderer, &ai, &sk, &swarmSys);
 	
-
 	// variable timestep loop
 	auto t = Clock::now();
+
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become
 		// unresponsive
@@ -60,9 +59,6 @@ int main()
 		float elapsed_ms =
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
-
-		// FOR TESTING: REMOVE LATER
-		isFreeRoam = 1;
 
 		if (world.canStep) {
 			world.step(elapsed_ms);

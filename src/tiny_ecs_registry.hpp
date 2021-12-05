@@ -17,6 +17,8 @@ public:
 	// Manually created list of all components this game has
 	ComponentContainer<BackgroundObj> deformableEntities;
 	ComponentContainer<ParticlePool> particlePools;
+	ComponentContainer<SwarmParticle> fireflySwarm;
+	ComponentContainer<TreasureChest> chests;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
@@ -53,6 +55,12 @@ public:
 	ComponentContainer<BleedIndicator> bleedIndicators;
 	ComponentContainer<ShieldIcon> shieldIcons;
 	ComponentContainer<Rollable> rollables;
+	ComponentContainer<Light> light;
+	ComponentContainer<BouncingArrow> bouncingArrows;
+	ComponentContainer<Bird> bird;
+	ComponentContainer<Platform> platform;
+	ComponentContainer<Boulder> boulders;
+	ComponentContainer<PreciseCollider> preciseColliders;
 
 	// Sounds
 	Mix_Music* background_music;
@@ -79,6 +87,12 @@ public:
 	Mix_Chunk* gesture_heal_sound;
 	Mix_Chunk* gesture_aoe_sound;
 	Mix_Chunk* gesture_turn_sound;
+	Mix_Music* menu_music;
+	Mix_Music* wintervale_music;
+	Mix_Music* cestershire_music;
+	Mix_Music* boss_music;
+	Mix_Chunk* crow_sound;
+
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -118,6 +132,13 @@ public:
 		registry_list.push_back(&bleedIndicators);
 		registry_list.push_back(&shieldIcons);
 		registry_list.push_back(&rollables);
+		registry_list.push_back(&light);
+		registry_list.push_back(&bouncingArrows);
+		registry_list.push_back(&bird);
+		registry_list.push_back(&platform);
+		registry_list.push_back(&chests);
+		registry_list.push_back(&boulders);
+		registry_list.push_back(&preciseColliders);
 	}
 
 	void clear_all_components() {

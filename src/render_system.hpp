@@ -27,11 +27,10 @@ class RenderSystem {
 	{
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ, mesh_path("basicEnemy.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SHIELD_MESH, mesh_path("necroBarrier.obj")),
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::FIREFLY_MESH, mesh_path("firefly.obj")),
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLATFORM_MESH, mesh_path("platform.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::ROCK_MESH, mesh_path("rock.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::ARROW_MESH, mesh_path("arrow.obj")),
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::TREASURE_CHEST_MESH, mesh_path("treasure_chest.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SIMPLIFIED_ROCK_MESH, mesh_path("rock_simplified.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SIMPLIFIED_ARROW_MESH, mesh_path("arrow_simplified.obj")),
 		  // specify meshes of other assets here
 	};
 
@@ -50,6 +49,8 @@ class RenderSystem {
 			textures_path("playerTurn.png"),
 			textures_path("enemyTurn.png"),
 			textures_path("arrow.png"),
+			textures_path("arrowIcon.png"),
+			textures_path("arrowIconSelected.png"),
 			textures_path("rock.png"),
 			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
@@ -187,6 +188,8 @@ class RenderSystem {
 
 			textures_path("particlered.png"),
 			textures_path("firefly.png"),
+			textures_path("platform.png"),
+			textures_path("treasure_chest_sheet.png"),
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -197,7 +200,8 @@ class RenderSystem {
 		shader_path("textured"),
 		shader_path("water"),
 		shader_path("particle"),
-		shader_path("basicEnemy")};
+		shader_path("basicEnemy"),
+		shader_path("light")};	// NEW
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -235,11 +239,14 @@ class RenderSystem {
 	float ARCHER_IDLE_FRAME_TIME = 250;
 	float ARCHER_WALKING_FRAME_TIME = 100;
 	float ARCHER_JUMPING_FRAME_TIME = 750;
-	float ARCHER_ATTACKING_FRAME_TIME = 150;
+	float ARCHER_ATTACKING_FRAME_TIME = 75;
 
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
 	std::vector<float> lightBallsYcoords;
+
+	std::vector<float> fireFlyPosX;
+	std::vector<float> fireFlyPosY;
 
 	// Time per frame in ms
 	float TIME_PER_FRAME = 100;
@@ -389,6 +396,8 @@ private:
 	void drawDeathParticles(Entity entity, const mat3& projection);
 	// void initParticlesBuffer();
 	void drawToScreen();
+
+	void drawLight(Entity entity);
 
 	// Window handle
 	GLFWwindow* window;

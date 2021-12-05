@@ -36,8 +36,55 @@ Entity createPlayerMage(RenderSystem* renderer, vec2 pos)
 	return entity;
 }
 
+Entity createBird(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ 40, 40 });
+
+	registry.bird.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::RED_PARTICLE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+void createSpline(RenderSystem* renderer, std::vector<vec3> points)
+{
+	for (auto& point : points) {
+		auto entity = Entity();
+
+		Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+		registry.meshPtrs.emplace(entity, &mesh);
+
+		Motion& motion = registry.motions.emplace(entity);
+		motion.position = vec2(point.x, point.y);
+		motion.angle = 0.f;
+		motion.velocity = { 0.f, 0.f };
+		motion.scale = vec2({ 10, 10 });
+
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::RED_PARTICLE,
+				EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+	}
+}
+
 Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 {
+	Mix_FadeInMusic(registry.background_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MAGE_IDLE);
@@ -112,7 +159,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = player_swordsman_hp;
 	stat.max_health = player_swordsman_hp;
-	stat.speed = 12;
+	stat.speed = 11;
 	stat.classID = 1;
 
 	// Add a healthbar
@@ -147,7 +194,7 @@ Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher
 		Statistics& stat = registry.stats.emplace(entity);
 		stat.health = player_archer_hp;
 		stat.max_health = player_archer_hp;
-		stat.speed = 9;
+		stat.speed = 12;
 		stat.classID = 1;
 
 		// Add a healthbar
@@ -164,7 +211,10 @@ Entity createPlayerArcher(RenderSystem* renderer, vec2 pos, int isFreeRoamArcher
 
 		// Add gravity for jumping
 		auto& gravity = registry.gravities.emplace(entity);
-		gravity.gravity = 15;
+		gravity.gravity = 30;
+
+		// Smaller
+		motion.scale = vec2({ ARCHER_FREEROAM_WIDTH, ARCHER_FREEROAM_HEIGHT });
 	}
 
 	auto& abc = registry.renderRequests.insert(
@@ -193,7 +243,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = enemy_swordsman_hp;
 	stat.max_health = enemy_swordsman_hp;
-	stat.speed = 11;
+	stat.speed = 10;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -226,7 +276,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = necro_minion_health;
 	stat.max_health = necro_minion_health;
-	stat.speed = 1;
+	stat.speed = 0;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -248,6 +298,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 {
+	Mix_FadeInMusic(registry.background_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE);
@@ -263,7 +314,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 	Statistics& stat = registry.stats.emplace(entity);
 	stat.health = necro_1_health;
 	stat.max_health = necro_1_health;
-	stat.speed = 0;
+	stat.speed = 1;
 
 	// Add a healthbar
 	Enemy& enemy = registry.enemies.emplace(entity);
@@ -281,6 +332,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 {
+	Mix_FadeInMusic(registry.boss_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE);
@@ -348,6 +400,58 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 
 	return entity;
 }
+
+Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly, int isFreeRoam)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = (isFreeRoam) ? renderer->getMesh(GEOMETRY_BUFFER_ID::SIMPLIFIED_ARROW_MESH) : renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& gravity = registry.gravities.emplace(entity);
+	gravity.gravity = 30;
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.position = position;
+	
+	registry.projectiles.emplace(entity);
+	registry.light.emplace(entity);
+	registry.preciseColliders.emplace(entity);
+
+	if (isFreeRoam) {
+		motion.scale = vec2({ ARROW_MESH_WIDTH, ARROW_MESH_HEIGHT });
+
+		registry.renderRequests.insert(
+			entity,
+			//currently using fireball
+			{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			 EFFECT_ASSET_ID::PEBBLE,
+			 GEOMETRY_BUFFER_ID::ARROW_MESH });
+	}
+	else {
+		motion.scale = vec2({ ARROW_WIDTH, ARROW_HEIGHT });
+
+		// Set damage here--------------------------------
+		Damage& damage = registry.damages.emplace(entity);
+		damage.isFriendly = isFriendly;
+		damage.minDamage = arrow_dmg;
+		damage.range = 10;
+		//------------------------------------------------
+		registry.bouncingArrows.emplace(entity);
+
+		registry.renderRequests.insert(
+			entity,
+			//currently using fireball
+			{ TEXTURE_ASSET_ID::ARROW,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
+
+
+	return entity;
+}
+
 
 Entity createIceShard(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly)
 {
@@ -443,6 +547,29 @@ Entity createMeleeIcon(RenderSystem* renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::MELEEICON,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+//arrow icon
+Entity createArrowIcon(RenderSystem* renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.buttons.emplace(entity);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+	motion.scale = vec2({ ICON_WIDTH, ICON_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::ARROWICON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -680,18 +807,22 @@ Entity createFirefly(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::FIREFLY_MESH);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
 	motion.scale = vec2({ FIREFLY_WIDTH, -FIREFLY_HEIGHT });
+	motion.velocity = vec2(0.f, 0.f);
+
+	auto& firefly = registry.fireflySwarm.emplace(entity);
+	// registry.light.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::PEBBLE,
-			GEOMETRY_BUFFER_ID::FIREFLY_MESH });
+		{ TEXTURE_ASSET_ID::FIREFLY_PNG,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -700,18 +831,20 @@ Entity createPlatform(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::PLATFORM_MESH);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
-	motion.scale = vec2({ PLATFORM_WIDTH, -PLATFORM_HEIGHT });
+	motion.scale = vec2({ PLATFORM_WIDTH, PLATFORM_HEIGHT });
+
+	registry.platform.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::PEBBLE,
-			GEOMETRY_BUFFER_ID::PLATFORM_MESH });
+		{ TEXTURE_ASSET_ID::PLATFORM,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -736,42 +869,22 @@ Entity createRockMesh(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createArrowMesh(RenderSystem* renderer, vec2 position)
-{
-	auto entity = Entity();
-
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ARROW_MESH);
-	registry.meshPtrs.emplace(entity, &mesh);
-
-	auto& motion = registry.motions.emplace(entity);
-	motion.position = position;
-	motion.scale = vec2({ ARROW_MESH_WIDTH, -ARROW_MESH_HEIGHT });
-
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::PEBBLE,
-			GEOMETRY_BUFFER_ID::ARROW_MESH });
-
-	return entity;
-}
-
 Entity createTreasureChest(RenderSystem* renderer, vec2 position)
 {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREASURE_CHEST_MESH);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::TREASURE_CHEST_CLOSED);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.position = position;
-	motion.scale = vec2({ TREASURE_CHEST_WIDTH, -TREASURE_CHEST_HEIGHT });
+	motion.scale = vec2({ TREASURE_CHEST_WIDTH, TREASURE_CHEST_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::PEBBLE,
-			GEOMETRY_BUFFER_ID::TREASURE_CHEST_MESH });
+		{ TEXTURE_ASSET_ID::TREASURE_CHEST_SHEET,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::TREASURE_CHEST_CLOSED });
 
 	return entity;
 }
@@ -951,7 +1064,7 @@ Entity createBoulder(RenderSystem* renderer, vec2 pos)
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::ROCK_MESH);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SIMPLIFIED_ROCK_MESH);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Setting initial motion values
@@ -961,6 +1074,9 @@ Entity createBoulder(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 
 	registry.rollables.emplace(entity);
+	registry.boulders.emplace(entity);
+	registry.preciseColliders.emplace(entity);
+
 	motion.scale = vec2({ ROCK_MESH_WIDTH, -ROCK_MESH_HEIGHT });
 	motion.angle = 1.f;
 	

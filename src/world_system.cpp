@@ -40,6 +40,7 @@ Entity fireBall_icon;
 Entity taunt_icon;
 Entity heal_icon;
 Entity rock_icon;
+Entity arrow_icon;
 
 int16 gameLevel;
 int16 loadedLevel;
@@ -66,7 +67,7 @@ bool loaded_game = false;
 int selected_skill = -1;
 
 // Free roam variables
-bool isFreeRoam = true;
+bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
 const size_t MAX_BOULDERS = 5;
@@ -147,6 +148,16 @@ WorldSystem::~WorldSystem()
 		Mix_FreeChunk(registry.gesture_aoe_sound);
 	if (registry.gesture_turn_sound != nullptr)
 		Mix_FreeChunk(registry.gesture_turn_sound);
+	if (registry.menu_music != nullptr)
+		Mix_FreeMusic(registry.menu_music);
+	if (registry.wintervale_music != nullptr)
+		Mix_FreeMusic(registry.wintervale_music);
+	if (registry.cestershire_music != nullptr)
+		Mix_FreeMusic(registry.cestershire_music);
+	if (registry.boss_music != nullptr)
+		Mix_FreeMusic(registry.boss_music);
+	if (registry.crow_sound != nullptr)
+		Mix_FreeChunk(registry.crow_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -172,6 +183,36 @@ namespace
 		glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
 		glBufferData(GL_ARRAY_BUFFER, pool.size * 3 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 		pool.positions = new float[pool.size * 3];
+	}
+
+	std::vector<vec3> GenerateSpline(std::vector<vec3> points, int stepsPerCurve = 30, float tension = 1.5)
+	{
+		std::vector<vec3> result;
+
+		for (int i = 0; i < points.size() - 1; i++)
+		{
+			vec3 prev = i == 0 ? points[i] : points[i - 1];
+			vec3 currStart = points[i];
+			vec3 currEnd = points[i + 1];
+			vec3 next = i == points.size() - 2 ? points[i + 1] : points[i + 2];
+
+			for (int step = 0; step <= stepsPerCurve; step++)
+			{
+				float t = (float)step / stepsPerCurve;
+				float tSquared = t * t;
+				float tCubed = tSquared * t;
+
+				vec3 interpolatedPoint =
+					(-.5f * tension * tCubed + tension * tSquared - .5f * tension * t) * prev +
+					(1 + .5f * tSquared * (tension - 6) + .5f * tCubed * (4 - tension)) * currStart +
+					(.5f * tCubed * (tension - 4) + .5f * tension * t - (tension - 3) * tSquared) * currEnd +
+					(-.5f * tension * tSquared + .5f * tension * tCubed) * next;
+
+				result.push_back(interpolatedPoint);
+			}
+		}
+
+		return result;
 	}
 }
 
@@ -245,27 +286,33 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	registry.hit_enemy_sound = Mix_LoadWAV(audio_path("hit_enemy.wav").c_str());
 	registry.fireball_explosion_sound = Mix_LoadWAV(audio_path("fireball_explosion_short.wav").c_str());
 	registry.death_enemy_sound = Mix_LoadWAV(audio_path("death_enemy.wav").c_str());
-	registry.fire_spell_sound = Mix_LoadWAV(audio_path("fireball_spell.wav").c_str());		 // https://mixkit.co/free-sound-effects/spell/
-	registry.rock_spell_sound = Mix_LoadWAV(audio_path("rock_spell.wav").c_str());			 // https://mixkit.co/free-sound-effects/spell/
-	registry.heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str());			 // https://mixkit.co/free-sound-effects/spell/
-	registry.taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());		 // https://mixkit.co/free-sound-effects/spell/
-	registry.melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str());		 // https://mixkit.co/free-sound-effects/spell/
-	registry.silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());	 // https://freesound.org/people/Vicces1212/sounds/123757/
-	registry.lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str()); // https://freesound.org/people/Puerta118m/sounds/471691/
-	registry.ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str());			 // https://freesound.org/people/EminYILDIRIM/sounds/550267/
-	registry.summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str());		 // https://freesound.org/people/alonsotm/sounds/396500/
-	registry.button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str());		 // https://freesound.org/people/wobesound/sounds/488382/
-	registry.turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());				 // https://freesound.org/people/InspectorJ/sounds/416179/
-	registry.charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str());		 // https://freesound.org/people/18hiltc/sounds/186048/
-	registry.beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str());			 // https://freesound.org/people/MATRIXXX_/sounds/403297/
-	registry.minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str());		 // https://freesound.org/people/Breviceps/sounds/453391/
-	registry.error_sound = Mix_LoadWAV(audio_path("error.wav").c_str());					 // https://freesound.org/people/plasterbrain/sounds/423169/
-	registry.gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str());		 // https://freesound.org/people/SilverIllusionist/sounds/580814/
-	registry.gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str());		 // https://freesound.org/people/humanoide9000/sounds/329029/
-	registry.gesture_turn_sound = Mix_LoadWAV(audio_path("gesture_turn.wav").c_str());		 // https://freesound.org/people/Aleks41/sounds/406063/
+	registry.fire_spell_sound = Mix_LoadWAV(audio_path("fireball_spell.wav").c_str());			// https://mixkit.co/free-sound-effects/spell/
+	registry.rock_spell_sound = Mix_LoadWAV(audio_path("rock_spell.wav").c_str());				// https://mixkit.co/free-sound-effects/spell/
+	registry.heal_spell_sound = Mix_LoadWAV(audio_path("heal_spell.wav").c_str());				// https://mixkit.co/free-sound-effects/spell/
+	registry.taunt_spell_sound = Mix_LoadWAV(audio_path("taunt_spell.wav").c_str());			// https://mixkit.co/free-sound-effects/spell/
+	registry.melee_spell_sound = Mix_LoadWAV(audio_path("melee_spell.wav").c_str());			// https://mixkit.co/free-sound-effects/spell/
+	registry.silence_spell_sound = Mix_LoadWAV(audio_path("silence_spell.wav").c_str());		// https://freesound.org/people/Vicces1212/sounds/123757/
+	registry.lightning_spell_sound = Mix_LoadWAV(audio_path("lightning_spell.wav").c_str());	// https://freesound.org/people/Puerta118m/sounds/471691/
+	registry.ice_spell_sound = Mix_LoadWAV(audio_path("ice_spell.wav").c_str());				// https://freesound.org/people/EminYILDIRIM/sounds/550267/
+	registry.summon_spell_sound = Mix_LoadWAV(audio_path("summon_spell.wav").c_str());			// https://freesound.org/people/alonsotm/sounds/396500/
+	registry.button_hover_sound = Mix_LoadWAV(audio_path("button_hover.wav").c_str());			// https://freesound.org/people/wobesound/sounds/488382/
+	registry.turning_sound = Mix_LoadWAV(audio_path("turning.wav").c_str());					// https://freesound.org/people/InspectorJ/sounds/416179/
+	registry.charge_spell_sound = Mix_LoadWAV(audio_path("charge_spell.wav").c_str());			// https://freesound.org/people/18hiltc/sounds/186048/
+	registry.beam_spell_sound = Mix_LoadWAV(audio_path("beam_spell.wav").c_str());				// https://freesound.org/people/MATRIXXX_/sounds/403297/
+	registry.minion_spawn_sound = Mix_LoadWAV(audio_path("minion_spawn.wav").c_str());			// https://freesound.org/people/Breviceps/sounds/453391/
+	registry.error_sound = Mix_LoadWAV(audio_path("error.wav").c_str());						// https://freesound.org/people/plasterbrain/sounds/423169/
+	registry.gesture_heal_sound = Mix_LoadWAV(audio_path("gesture_heal.wav").c_str());			// https://freesound.org/people/SilverIllusionist/sounds/580814/
+	registry.gesture_aoe_sound = Mix_LoadWAV(audio_path("gesture_aoe.wav").c_str());			// https://freesound.org/people/humanoide9000/sounds/329029/
+	registry.gesture_turn_sound = Mix_LoadWAV(audio_path("gesture_turn.wav").c_str());			// https://freesound.org/people/Aleks41/sounds/406063/
+	registry.menu_music = Mix_LoadMUS(audio_path("menuMusic.wav").c_str());						// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
+	registry.wintervale_music = Mix_LoadMUS(audio_path("wintervaleMusic.wav").c_str());			// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
+	registry.cestershire_music = Mix_LoadMUS(audio_path("cestershireMusic.wav").c_str());		// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
+	registry.boss_music = Mix_LoadMUS(audio_path("bossMusic.wav").c_str());						// https://downloads.khinsider.com/game-soundtracks/album/darkest-dungeon-ost
+	registry.crow_sound = Mix_LoadWAV(audio_path("crow.wav").c_str());							// https://freesound.org/people/vixuxx/sounds/9874/
 
-	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr)
+	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr || registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr || registry.boss_music == nullptr || registry.crow_sound == nullptr)
 	{
+		//|| registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 				audio_path("combatMusic.wav").c_str(),
 				audio_path("salmon_dead.wav").c_str(),
@@ -291,20 +338,26 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 				audio_path("error.wav").c_str(),
 				audio_path("gesture_heal.wav").c_str(),
 				audio_path("gesture_aoe.wav").c_str(),
-				audio_path("gesture_turn.wav").c_str());
+				audio_path("gesture_turn.wav").c_str(),
+				audio_path("menuMusic.wav").c_str(), 
+				audio_path("wintervaleMusic.wav").c_str(), 
+				audio_path("cestershireMusic.wav").c_str(), 
+				audio_path("bossMusic.wav").c_str(),
+				audio_path("crow.wav").c_str());
 		return nullptr;
 	}
 	return window;
 }
 
-void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem *skill_arg)
+void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem *skill_arg, SwarmSystem *swarm_arg)
 {
 	this->renderer = renderer_arg;
 	this->ai = ai_arg;
 	this->sk = skill_arg;
+	this->swarmSys = swarm_arg;
 
 	Mix_VolumeMusic(MIX_MAX_VOLUME / 30);
-	Mix_FadeInMusic(registry.background_music, -1, 5000);
+	//Mix_FadeInMusic(registry.background_music, -1, 5000);
 	Mix_VolumeChunk(registry.hit_enemy_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.fireball_explosion_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.death_enemy_sound, MIX_MAX_VOLUME / 10);
@@ -325,6 +378,9 @@ void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem
 	Mix_VolumeChunk(registry.gesture_heal_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_aoe_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_turn_sound, MIX_MAX_VOLUME / 10);
+	Mix_FadeInMusic(registry.menu_music, -1, 3000);
+	//Mix_FadeInMusic(registry.wintervale_music, -1, 5000);
+	//Mix_FadeInMusic(registry.cestershire_music, -1, 5000);
 
 	fprintf(stderr, "Loaded music\n");
 
@@ -397,7 +453,7 @@ void WorldSystem::iceShardAttack(Entity currPlayer)
 std::vector<Entity> roundVec;
 void WorldSystem::createRound()
 {
-
+	
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++)
 	{ // iterate through all enemies to get speed stats
@@ -791,6 +847,99 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	//check bouncing arrow
+	for (int i = (int)registry.bouncingArrows.components.size() - 1; i >= 0; --i) {
+		BouncingArrow* ba = &registry.bouncingArrows.components[i];
+		Motion* baM = &registry.motions.get(registry.bouncingArrows.entities[i]);
+		float baXPos = baM->position.x;
+		float baYPos = baM->position.y;
+		//printf("arrowPos: %f %f\n", baXPos, baYPos);
+		//check if collide side
+		if (baXPos - baM->scale.x < 0 && baM->velocity.x <= 0 && baM->acceleration.x <=0 &&  ba->bounce_time>0) {
+
+			baM->velocity.x = baM->velocity.x * -1;
+			baM->acceleration.x = baM->acceleration.x * -1;
+			baM->position.x = baXPos - baM->scale.x;
+			ba->bounce_time--;
+			//printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baXPos + baM->scale.x > screen_width && baM->velocity.x >= 0 && baM->acceleration.x>=0 && ba->bounce_time>0) {
+
+			baM->velocity.x = baM->velocity.x * -1;
+			baM->acceleration.x = baM->acceleration.x * -1;
+			baM->position.x = baXPos + baM->scale.x;
+			ba->bounce_time--;
+			//printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baYPos - baM->scale.y < 0 && baM->velocity.y <= 0 && baM->acceleration.y >= 0 && ba->bounce_time>0) {
+
+			baM->velocity.y = baM->velocity.y * -1;
+			//baM->acceleration.y = baM->acceleration.y * -1;
+			baM->position.y = baYPos - baM->scale.y;
+			ba->bounce_time--;
+			//printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		if (baYPos + baM->scale.y > screen_height && baM->velocity.y >= 0 && baM->acceleration.y >= 0 && ba->bounce_time > 0) {
+
+			baM->velocity.y = baM->velocity.y * -1;
+			//baM->acceleration.y = baM->acceleration.y * -1;
+			baM->position.y = baYPos + baM->scale.y;
+			ba->bounce_time--;
+			//printf("bouncetime= %d\n", ba->bounce_time--);
+		}
+		//stops arrow when it have bounced
+
+		if (ba->bounce_time <= 0 && ba->ai_runned == 0) {
+			baM->velocity.x = baM->velocity.x * 0.6;
+			baM->velocity.y = baM->velocity.y * 0.6;
+			baM->acceleration.x = baM->acceleration.x * 0.6;
+			baM->acceleration.y = baM->acceleration.y * 0.6;
+			ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
+		}
+		////trigger BFS
+		//if (ba->ai_trigger <= 0 && ba->ai_runned==0) {
+		//	registry.gravities.remove(registry.bouncingArrows.entities[i]);
+		//	ba->ai_runned = 1;
+		//	//initilaze visited
+		//	printf("initilizing grid\n");
+		//	//printf("ai_runned is: %d\n", ba->ai_runned);
+		//	vector<vector<bool>> visited;
+		//	for (int i = 0; i < screen_width/10; i++)
+		//	{
+		//		vector<bool> tempv;
+		//		for (int j = 0; j < screen_height/10; j++)
+		//		{
+		//			tempv.push_back(false);
+		//		}
+		//		visited.push_back(tempv);
+		//	}
+
+		////	//initilaze map
+		//	vector<vector<int>> map;
+		//	for (int i = 0; i < screen_width/10; i++)
+		//	{
+		//		vector<int> tempv1;
+		//		for (int j = 0; j < screen_height/10; j++)
+		//		{
+		//			tempv1.push_back(1);
+		//		}
+		//		map.push_back(tempv1);
+		//	}
+		//	for (int i = 0; i < screen_width / 10; i++) {
+		//		for (int j = 0; j < screen_height / 10; j++) {
+		//			printf("%d ", map[i][j]);
+		//		}
+		//		printf("\n");
+		//	}
+		//}
+
+	}
+
+
+
+
+
+
 	// Walk
 	for (Entity runner : registry.runners.entities)
 	{
@@ -854,13 +1003,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	for (Entity attacker : registry.attackers.entities)
 	{
 		Attack &attack = registry.attackers.get(attacker);
+
 		// Updating animation time
 		attack.counter_ms -= elapsed_ms_since_last_update;
-		printf("Updating time : %f\n", attack.counter_ms);
+
 		if (!registry.deathTimers.has(attacker))
 		{
 			if (attack.counter_ms <= 0.f || attack.attack_type == SUMMON)
 			{
+
 				// Attack
 				if (registry.companions.has(attacker))
 				{
@@ -924,10 +1075,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 						projm->acceleration = {-100, 0};
 						break;
 					}
+					case FREE_ROAM_ARROW: {
+						// For free-roam archer arrow-shooting
+						sk->launchArrow(player_archer, msPos, renderer, 1);
+					}
 					default:
 						break;
 					}
-					companion.curr_anim_type = IDLE;
+					if (attack.attack_type != FREE_ROAM_ARROW) {
+						companion.curr_anim_type = IDLE;
+					}
 					printf("Not attacking anymore in idle\n");
 					registry.attackers.remove(attacker);
 				}
@@ -1062,6 +1219,26 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	if (isFreeRoam && (freeRoamLevel == 2)) {
+		// Update swarm timer here, use fireflySwarm[0] to track time
+		float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
+		if (swarm_update_timer < 0.f) {
+			swarmSys->updateSwarm();
+			registry.fireflySwarm.components[0].update_timer = 750.f;
+		}
+		else {
+			swarm_update_timer -= elapsed_ms_since_last_update;
+		}
+
+		for (int i = 0; i < NUM_SWARM_PARTICLES; i++) {
+			auto& timer = registry.fireflySwarm.components[i].dodge_timer;
+			timer -= elapsed_ms_since_last_update;
+			if (timer < 0.f) {
+				registry.fireflySwarm.components[i].isDodging = 0;
+			}
+		}
+	}
+
 	if (player_turn == 1)
 	{
 		displayPlayerTurn();
@@ -1071,8 +1248,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// this area is to check for edge cases for enemy to attack during their turn
 	if (player_turn == 0)
 	{
-		// printf("prevPlayer is: %g \n", float(registry.stats.get(prevPlayer).speed));
-		// printf("currPlayer is: %g \n", float(registry.stats.get(currPlayer).speed));
 
 		if ((registry.checkRoundTimer.size() <= 0) && (registry.companions.size() > 0))
 		{
@@ -1161,11 +1336,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 
 	if(isFreeRoam && (freeRoamLevel == 1)){
 		next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
-		if (registry.rollables.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+		if (registry.boulders.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 			// Reset timer
 			next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
 			// Create boulder
-			Entity entity = createBoulder(renderer, {window_width_px+50, 600});
+			Entity entity = createBoulder(renderer, {window_width_px+50, window_height_px - ARCHER_FREEROAM_HEIGHT + 25});
 			// Setting random initial position and constant velocity
 			Motion& motion = registry.motions.get(entity);
 			motion.velocity = vec2(-100.f, 0.f);
@@ -1256,8 +1431,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			min_counter_ms_3 = timerCounter.counter_ms;
 		}
 
-		// check round once the timer expired
-		printf("TIMER IS %g \n", float(timerCounter.counter_ms));
 		if (timerCounter.counter_ms < 0)
 		{
 			registry.checkRoundTimer.remove(entity);
@@ -1270,6 +1443,28 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	if (isFreeRoam) {
 		Motion& archerMotion = registry.motions.get(player_archer);
 		Companion& archerComp = registry.companions.get(player_archer);
+	}
+
+	// update state of free_roam_bird
+	if (registry.motions.has(free_roam_bird)) {
+		auto& birdMotion = registry.motions.get(free_roam_bird);
+		
+		if (birdPositionDivisor == 1 || birdPositionDivisor == 2) {
+			float offsetX = (spline[birdNextPostionTracker].x - spline[birdNextPostionTracker - 1].x) / 2.f;
+			float offsetY = (spline[birdNextPostionTracker].y - spline[birdNextPostionTracker - 1].y) / 2.f;
+			birdMotion.position += vec2(offsetX, offsetY);
+			birdPositionDivisor++;
+		}
+		else {
+			birdNextPostionTracker++;
+			if (birdNextPostionTracker == spline.size()) {
+				birdNextPostionTracker = 1;
+			}
+			float offsetX = (spline[birdNextPostionTracker].x - spline[birdNextPostionTracker - 1].x) / 2.f;
+			float offsetY = (spline[birdNextPostionTracker].y - spline[birdNextPostionTracker - 1].y) / 2.f;
+			birdMotion.position += vec2(offsetX, offsetY);
+			birdPositionDivisor = 2;
+		}
 	}
 
 	return true;
@@ -1401,22 +1596,53 @@ void WorldSystem::restart_game(bool force_restart)
 	// Layer 4 (Foremost layer)
 	createBackgroundLayerFour(renderer, {w / 2, h / 2});
 
+	std::vector<vec3> controlPoints;
+	controlPoints.push_back(vec3(227, 160, 0));
+	controlPoints.push_back(vec3(382, 341, 0));
+	controlPoints.push_back(vec3(632, 281, 0));
+	controlPoints.push_back(vec3(758, 367, 0));
+	controlPoints.push_back(vec3(1105, 242, 0));
+	controlPoints.push_back(vec3(1008, 59, 0));
+	controlPoints.push_back(vec3(733, 148, 0));
+	controlPoints.push_back(vec3(446, 75, 0));
+	controlPoints.push_back(vec3(227, 160, 0));
+	auto result = GenerateSpline(controlPoints, 20);
+	// Keeping these for debugging purposes
+	// printf("spline points: %i\n", result.size());
+	// createSpline(renderer, controlPoints);
+	spline = result;
+	free_roam_bird = createBird(renderer, vec2(227, 160));
+	birdNextPostionTracker = 1;
+	birdPositionDivisor = 1;
+
 	if (isFreeRoam)
 	{
 		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
-		printf("Loading free roam 0\n");
+		printf("Loading free roam level: %d\n", freeRoamLevel);
 
-		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
+		player_archer = createPlayerArcher(renderer, {700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25}, 1);
+		//renderer->archer = player_archer;
+		if(freeRoamLevel == 2){
+			createPlatform(renderer, { 550, 600 });
+			createPlatform(renderer, { 650, 450 });
+			createPlatform(renderer, { 100, 350 });
+			createPlatform(renderer, { 300, 350 });
+			createPlatform(renderer, { 1100, 225 });
+			createPlatform(renderer, { 675, 225 });
+			createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT });
+			createTreasureChest(renderer, { 1150, 225 - PLATFORM_HEIGHT });
 
-		// Create these for testing, can remove unneeded assets
-		/*
-		createFirefly(renderer, { 300, 500 });
-		createPlatform(renderer, { 400, 600 });
-		createArrowMesh(renderer, { 700, 600 });
-		createRockMesh(renderer, { 900, 600 });
-		createTreasureChest(renderer, { 1100, 600 });
-		*/
+			if (swarmSys->swarmInitialized) {
+				swarmSys->resetSwarm();
+			}
+			else {
+				swarmSys->initializeSwarmEntities(renderer);
+			}
+		}
+
 		renderer->gameLevel = 1;
+
+		Mix_FadeInMusic(registry.wintervale_music, -1, 500);	// change to free roam level 1 music
 	}
 	else
 	{
@@ -1449,43 +1675,35 @@ void WorldSystem::restart_game(bool force_restart)
 				renderer->gameLevel = 1;
 				json_loader.get_level("level_0.json");
 
-				tutorial_enabled = 1;
-				curr_tutorial_box = createTutorialBox(renderer, {600, 300});
-				curr_tutorial_box_num = 0;
-			}
-			if (gameLevel == 1)
-			{
-				printf("Loading level 1\n");
-				renderer->gameLevel = gameLevel;
-				json_loader.get_level("level_1.json");
-				story = 8;
-			}
-			else if (gameLevel == 2)
-			{
-				printf("Loading level 2\n");
-				renderer->gameLevel = gameLevel;
-				json_loader.get_level("level_2.json");
-				story = 15;
-			}
-			else if (gameLevel == 3)
-			{
-				printf("Loading level 3 phase 1\n");
-				renderer->gameLevel = 1;
-				json_loader.get_level("level_3.json");
-				story = 20;
-			}
-			else
-			{
-				printf("Incorrect level\n");
-			}
-			roundVec.clear(); // empty vector roundVec to create a new round
-			createRound();
-			checkRound();
+			tutorial_enabled = 1;
+			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
+			curr_tutorial_box_num = 0;
 		}
-		else
-		{
-			loaded_game = false;
+		if(gameLevel == 1){
+			printf("Loading level 1\n");
+			renderer->gameLevel = gameLevel;
+			json_loader.get_level("level_1.json");
+			story = 8;
+		} else if(gameLevel == 2){
+			printf("Loading level 2\n");
+			renderer->gameLevel = gameLevel;
+			json_loader.get_level("level_2.json");
+			story = 15;
+		} else if(gameLevel == 3){
+			printf("Loading level 3 phase 1\n");
+			renderer->gameLevel = 1;
+			json_loader.get_level("level_3.json");
+			story = 20;
+		} else{
+			printf("Incorrect level\n");
 		}
+		arrow_icon = createArrowIcon(renderer, {200, 700});
+		roundVec.clear();	// empty vector roundVec to create a new round
+		createRound();
+		checkRound();
+	} else {
+		loaded_game = false;
+	}
 
 		// Create a tooltip
 		tooltip;
@@ -1494,7 +1712,7 @@ void WorldSystem::restart_game(bool force_restart)
 		showCorrectSkills();
 		displayPlayerTurn(); // display player turn when restart game
 		update_healthBars();
-	}
+	}printf("done with restarting\n");
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity)
@@ -1652,6 +1870,11 @@ void WorldSystem::handle_collisions()
 	// reduce turn
 	// Loop over all collisions detected by the physics system
 
+
+	// Reset the ceiling and floor (For free-roam archer physics)
+	currCeilingPos = 0.f;
+	currFloorPos = window_height_px - ARCHER_FREEROAM_HEIGHT + 25;
+
 	auto &collisionsRegistry = registry.collisions;
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++)
 	{
@@ -1659,188 +1882,316 @@ void WorldSystem::handle_collisions()
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// Deal with fireball - Companion collisions
-		if (registry.companions.has(entity))
-		{
+		// deal with collisions in free roam
+		if (isFreeRoam) {
 
-			// Checking Projectile - Companion collisions
-			if (registry.projectiles.has(entity_other))
+			// Deal with archer - platform collisions
+			if (registry.companions.has(entity))
 			{
+				if (registry.platform.has(entity_other))
+				{
+					printf("platform has other entity\n");
+					Motion& platform_motion = registry.motions.get(entity_other);
+					float platform_position_x = platform_motion.position.x;
+					float platform_position_y = platform_motion.position.y;
+					float platform_width = platform_motion.scale.x;
+					float platform_height = platform_motion.scale.y;
 
-				Damage &projDamage = registry.damages.get(entity_other);
-				if (projDamage.isFriendly == 0)
-				{ // check if isFriendly = 0 which hits companion
-					// initiate death unless already dying
-					if (!registry.deathTimers.has(entity))
-					{
-						if (!registry.buttons.has(entity))
+					Motion& archer_motion = registry.motions.get(player_archer);
+					float archer_pos_x = archer_motion.position.x;
+					float archer_pos_y = archer_motion.position.y;
+
+					int onTopOrBelow = 0;
+
+					// Platform is on top of archer
+					if (archer_motion.position.y > platform_position_y + platform_height / 2) {
+						currCeilingPos = platform_position_y + platform_height + 15;
+						onTopOrBelow = 1;
+					}
+					// Archer is on top of a platform
+					if (archer_motion.position.y < platform_position_y - platform_height / 2) {
+						currFloorPos = platform_position_y - platform_height - 15;
+						onTopOrBelow = 1;
+					}
+
+					// Bounce back archer to the left, if not on top or directly below
+					if (archer_pos_x > platform_position_x - platform_width && archer_pos_x < platform_position_x + 25 - ARCHER_FREEROAM_WIDTH
+						&& !onTopOrBelow) {
+						archer_motion.position.x -= 2;
+					}
+					// Bounce back archer to the right, if not on top or directly below
+					if (archer_pos_x < platform_position_x + platform_width && archer_pos_x > platform_position_x - 25 + ARCHER_FREEROAM_WIDTH
+						&& !onTopOrBelow) {
+						archer_motion.position.x += 2;
+					}
+				} else if (registry.boulders.has(entity_other))
+				{
+					Motion& rollable_motion = registry.motions.get(entity_other);
+					rollable_motion.velocity = {0.f, 0.f};
+					registry.rollables.remove(entity_other);
+
+					Motion& companion_motion = registry.motions.get(entity);
+					if(companion_motion.velocity.x>0){
+						companion_motion.velocity.x = 0.f;
+					}
+				}
+			}
+
+			// Deal with arrow - bird collisions
+			if (registry.projectiles.has(entity))	// not working in free roam
+			{
+				// Checking bird
+				if (registry.bird.has(entity_other))
+				{
+					registry.remove_all_components_of(entity_other);
+					Mix_PlayChannel(-1, registry.crow_sound, 0);
+				}
+
+				else if (registry.platform.has(entity_other)) {
+					Motion& arrowMotion = registry.motions.get(entity);
+					float arrow_pos_x = arrowMotion.position.x;
+					Motion& platformMotion = registry.motions.get(entity_other);
+					float platform_position_x = platformMotion.position.x;
+					float platform_position_y = platformMotion.position.y;
+					float platform_width = platformMotion.scale.x;
+					float platform_height = platformMotion.scale.y;
+
+					// Check if arrow collides with platform and stop it
+					if ((arrowMotion.position.y > platform_position_y + platform_height + 100 && arrowMotion.velocity.y < 0)
+						|| (arrowMotion.position.y < platform_position_y - platform_height - 100 && arrowMotion.velocity.y > 0)
+						|| 
+						(arrow_pos_x > platform_position_x - platform_width / 2 && arrow_pos_x < platform_position_x + platform_width / 2
+						&& arrowMotion.position.y < platform_position_y + platform_height && arrowMotion.position.y > platform_position_y - platform_height)) {
+						registry.remove_all_components_of(entity);
+					}
+				}
+				// Arrow rock collision
+				else if (registry.boulders.has(entity_other)) {
+					activate_deathParticles(entity_other);
+					registry.remove_all_components_of(entity);
+				}
+			}
+		}		
+		
+		// deal with collisions in battles
+		else {
+			printf("Not free world\n");
+			// Deal with arrow - bird collisions
+			if (registry.projectiles.has(entity))	// not working in free roam
+			{
+				// Checking bird
+				if (registry.bird.has(entity_other))
+				{
+					registry.remove_all_components_of(entity_other);
+					Mix_PlayChannel(-1, registry.crow_sound, 0);
+				}
+			}
+			// Deal with fireball - Companion collisions
+			if (registry.companions.has(entity))
+			{
+				// Checking Projectile - Companion collisions
+				if (registry.projectiles.has(entity_other))
+				{
+
+					Damage& projDamage = registry.damages.get(entity_other);
+					if (projDamage.isFriendly == 0)
+					{ // check if isFriendly = 0 which hits companion
+						// initiate death unless already dying
+						if (!registry.deathTimers.has(entity))
 						{
-
-							update_health(entity_other, entity);
-							registry.remove_all_components_of(entity_other);
-							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
-							showCorrectSkills();
-							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+							if (!registry.buttons.has(entity))
 							{
-								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								update_health(entity_other, entity);
+								registry.remove_all_components_of(entity_other);
+								Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
+								showCorrectSkills();
+								if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+								{
+									Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								}
+								else
+								{
+									Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								}
+								// update only if hit_timer for entity does not already exist
+								if (!registry.hit_timer.has(entity))
+								{
+									registry.motions.get(entity).position.x -= 20; // character shifts backwards
+									registry.hit_timer.emplace(entity);			   // to move character back to original position
+								}
+								// displayPlayerTurn();	// displays player turn when enemy hits collide
 							}
-							else
+						}
+					}
+				}
+				if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+				{
+					// get rid of dead entity's healthbar.
+					Entity entityHealthbar = registry.companions.get(entity).healthbar;
+					registry.motions.remove(entityHealthbar);
+					registry.deathTimers.emplace(entity);
+					if (registry.companions.has(entity))
+					{
+						printf("Companion is dead\n");
+						Companion& companion = registry.companions.get(entity);
+						companion.curr_anim_type = DEAD;
+					}
+					else if (registry.enemies.has(entity))
+					{
+						printf("Enemy is dead\n");
+						Enemy& enemy = registry.enemies.get(entity);
+						enemy.curr_anim_type = DEAD;
+					}
+				}
+			}
+			// Deal with fireball - Enemy collisions
+			else if (registry.enemies.has(entity))
+			{
+				// Checking Projectile - Enemy collisions
+				if (registry.projectiles.has(entity_other))
+				{
+					Damage& projDamage = registry.damages.get(entity_other);
+					if (projDamage.isFriendly == 1)
+					{ // check if isFriendly = 1 which hits enemy
+						// initiate death unless already dying
+						if (!registry.deathTimers.has(entity))
+						{
+							if (!registry.buttons.has(entity))
 							{
-								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								update_health(entity_other, entity);
+								registry.remove_all_components_of(entity_other);
+								Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
+								if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+								{
+									// get rid of dead entity's stats indicators
+									sk->removeTaunt(entity);
+									sk->removeSilence(entity);
+									sk->removeBleed(entity);
+									Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								}
+								else
+								{
+									Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								}
+								// update only if hit_timer for entity does not already exist
+								if (!registry.hit_timer.has(entity))
+								{
+									registry.motions.get(entity).position.x += 20; // character shifts backwards
+									registry.hit_timer.emplace(entity);			   // to move character back to original position
+								}
+								// enemy turn start
 							}
-							// update only if hit_timer for entity does not already exist
-							if (!registry.hit_timer.has(entity))
+						}
+					}
+				}
+				if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+				{
+					// get rid of dead entity's healthbar.
+					Entity entityHealthbar = registry.enemies.get(entity).healthbar;
+					registry.motions.remove(entityHealthbar);
+					registry.deathTimers.emplace(entity);
+					if (registry.companions.has(entity))
+					{
+						printf("Companion is dead\n");
+						Companion& companion = registry.companions.get(entity);
+						companion.curr_anim_type = DEAD;
+					}
+					else if (registry.enemies.has(entity))
+					{
+						printf("Enemy is dead\n");
+						Enemy& enemy = registry.enemies.get(entity);
+						enemy.curr_anim_type = DEAD;
+					}
+				}
+			}
+			// handle collisions with background objects
+			if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other) && !registry.reflects.has(entity))
+			{
+				auto& backgroundObj = registry.deformableEntities.get(entity);
+				backgroundObj.shouldDeform = true;
+				Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+				registry.remove_all_components_of(entity_other);
+				// enemy turn start
+				if (player_turn == 0)
+				{
+					if (!registry.checkRoundTimer.has(currPlayer))
+					{
+						displayEnemyTurn();
+						if (registry.enemies.has(currPlayer))
+						{ // check if enemies have currPlayer
+							ai->callTree(currPlayer);
+						}
+						else
+						{
+							if (roundVec.empty())
 							{
-								registry.motions.get(entity).position.x -= 20; // character shifts backwards
-								registry.hit_timer.emplace(entity);			   // to move character back to original position
+								printf("roundVec is empty at enemy turn, createRound now \n");
+								createRound();
 							}
-							// displayPlayerTurn();	// displays player turn when enemy hits collide
 						}
 					}
 				}
 			}
-			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+			// barrier collection
+			else if (registry.projectiles.has(entity))
 			{
-				// get rid of dead entity's healthbar.
-				Entity entityHealthbar = registry.companions.get(entity).healthbar;
-				registry.motions.remove(entityHealthbar);
-				registry.deathTimers.emplace(entity);
-				if (registry.companions.has(entity))
+				if (registry.reflects.has(entity_other))
 				{
-					printf("Companion is dead\n");
-					Companion &companion = registry.companions.get(entity);
-					companion.curr_anim_type = DEAD;
-				}
-				else if (registry.enemies.has(entity))
-				{
-					printf("Enemy is dead\n");
-					Enemy &enemy = registry.enemies.get(entity);
-					enemy.curr_anim_type = DEAD;
-				}
-			}
-		}
-		// Deal with fireball - Enemy collisions
-		else if (registry.enemies.has(entity))
-		{
-			// Checking Projectile - Enemy collisions
-			if (registry.projectiles.has(entity_other))
-			{
-				Damage &projDamage = registry.damages.get(entity_other);
-				if (projDamage.isFriendly == 1)
-				{ // check if isFriendly = 1 which hits enemy
-					// initiate death unless already dying
-					if (!registry.deathTimers.has(entity))
+					// printf("colleds\n");
+					// printf("%f\n", registry.motions.get(entity).velocity.x);
+					if (registry.motions.get(entity).velocity.x > 0.f)
 					{
-						if (!registry.buttons.has(entity))
+						// printf("colleds1");
+						auto& shieldMesh = registry.deformableEntities.get(entity_other);
+						shieldMesh.shouldDeform = true;
+						shieldMesh.deformType2 = true;
+
+						Motion* reflectEM = &registry.motions.get(entity);
+
+						reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
+						reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
+						float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
+						if (registry.motions.get(entity).velocity.x < 0)
 						{
-
-							update_health(entity_other, entity);
-							registry.remove_all_components_of(entity_other);
-							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
-							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
-							{
-								// get rid of dead entity's stats indicators
-								sk->removeTaunt(entity);
-								sk->removeSilence(entity);
-								sk->removeBleed(entity);
-								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
-							}
-
-							else
-							{
-								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
-							}
-							// update only if hit_timer for entity does not already exist
-							if (!registry.hit_timer.has(entity))
-							{
-								registry.motions.get(entity).position.x += 20; // character shifts backwards
-								registry.hit_timer.emplace(entity);			   // to move character back to original position
-							}
-
-							// enemy turn start
+							reflectE += M_PI;
 						}
+						reflectEM->angle = reflectE;
 					}
 				}
 			}
-			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
-			{
-				// get rid of dead entity's healthbar.
-				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
-				registry.motions.remove(entityHealthbar);
-				registry.deathTimers.emplace(entity);
-				if (registry.companions.has(entity))
-				{
-					printf("Companion is dead\n");
-					Companion &companion = registry.companions.get(entity);
-					companion.curr_anim_type = DEAD;
+		}		
+	}
+
+	if(isFreeRoam){
+
+		Motion& archerMotion = registry.motions.get(player_archer);
+
+		// Check if archer is above ceiling
+		if (archerMotion.position.y < currCeilingPos) {
+			archerMotion.position.y = currCeilingPos;
+			archerMotion.velocity.y = 400.f;
+			registry.companions.get(player_archer).curr_anim_type = JUMPING;
+		}
+
+		// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
+		if (archerMotion.position.y > currFloorPos) {
+			archerMotion.velocity.y = 0.f;
+			archerMotion.acceleration.y = 0.f;
+			archerMotion.position.y = currFloorPos;
+			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
+				if (archerMotion.velocity.x != 0) {
+					registry.companions.get(player_archer).curr_anim_type = WALKING;
 				}
-				else if (registry.enemies.has(entity))
-				{
-					printf("Enemy is dead\n");
-					Enemy &enemy = registry.enemies.get(entity);
-					enemy.curr_anim_type = DEAD;
-				}
+				else registry.companions.get(player_archer).curr_anim_type = IDLE;
 			}
 		}
-		// handle collisions with background objects
-		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other) && !registry.reflects.has(entity))
-		{
-			auto &backgroundObj = registry.deformableEntities.get(entity);
-			backgroundObj.shouldDeform = true;
-			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
-			registry.remove_all_components_of(entity_other);
-			// enemy turn start
-			if (player_turn == 0)
-			{
-				if (!registry.checkRoundTimer.has(currPlayer))
-				{
-					displayEnemyTurn();
-					if (registry.enemies.has(currPlayer))
-					{ // check if enemies have currPlayer
-						ai->callTree(currPlayer);
-					}
-					else
-					{
-						if (roundVec.empty())
-						{
-							printf("roundVec is empty at enemy turn, createRound now \n");
-							createRound();
-						}
-					}
-				}
-			}
-		}
-		// barrier collection
-		else if (registry.projectiles.has(entity))
-		{
-			if (registry.reflects.has(entity_other))
-			{
-				// printf("colleds\n");
-				// printf("%f\n", registry.motions.get(entity).velocity.x);
-				if (registry.motions.get(entity).velocity.x > 0.f)
-				{
-					// printf("colleds1");
-					auto &shieldMesh = registry.deformableEntities.get(entity_other);
-					shieldMesh.shouldDeform = true;
-					shieldMesh.deformType2 = true;
-
-					Motion *reflectEM = &registry.motions.get(entity);
-
-					reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
-					reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
-					printf("before %f\n", reflectEM->angle);
-					float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
-					if (registry.motions.get(entity).velocity.x < 0)
-					{
-						reflectE += M_PI;
-					}
-					reflectEM->angle = reflectE;
-					printf("calculated %f\n", reflectE);
-					printf("actual %f\n", reflectEM->angle);
-				}
-			}
+		// If archer is not on currFloorPos and falling from above (No jump)
+		else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+			archerMotion.velocity.y = 400.f;
+			registry.companions.get(player_archer).curr_anim_type = JUMPING;
 		}
 	}
+
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
@@ -1865,23 +2216,15 @@ void WorldSystem::handle_boundary_collision()
 		}
 	}
 	if(isFreeRoam){
-		Motion& motion = registry.motions.get(player_archer);
-		if(motion.position.x >= window_width_px + 20){
-			restart_game();
-		} else if(motion.position.x - (motion.scale.x/2) <= 0){
-			motion.position.x = (motion.scale.x/2);
+
+		Motion& archerMotion = registry.motions.get(player_archer);
+
+		// Check for left & right boundaries
+		if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
+			archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
 		}
-		// The base floor collision, so archer doesn't fall through the ground
-		if (motion.position.y > window_height_px - ARCHER_HEIGHT) {
-			motion.velocity.y = 0.f;
-			motion.acceleration.y = 0.f;
-			motion.position.y = window_height_px - ARCHER_HEIGHT;
-			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
-				if (motion.velocity.x != 0) {
-					registry.companions.get(player_archer).curr_anim_type = WALKING;
-				}
-				else registry.companions.get(player_archer).curr_anim_type = IDLE;
-			}
+		else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH) {
+			restart_game(false);
 		}
 	}
 }
@@ -1905,30 +2248,37 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// david test
-	// if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-	//	sk->luanchNecroCompanionTeamBleed(renderer);
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
+	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
 	//}
 
-	// if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-	//	sk->launchSpike(player_mage, renderer);
-	// }
+	 //if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		//sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
+	 //}
 	if (isFreeRoam) {
 		// Move right
 		if (key == GLFW_KEY_D) {
 			if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.x = 300.f;
+				motion.velocity.x = 400.f;
 				// Turn archer right
-				motion.scale.x = abs(motion.scale.x);
-				if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+				if (registry.companions.get(player_archer).curr_anim_type != ATTACKING
+					&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
+					motion.scale.x = abs(motion.scale.x);
+				}
+				if (registry.companions.get(player_archer).curr_anim_type != JUMPING
+					&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+					&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 					registry.companions.get(player_archer).curr_anim_type = WALKING;
 				}
 			}
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				if (motion.velocity.x != -300.f) {
+				if (motion.velocity.x != -400.f) {
 					motion.velocity.x = 0;
-					if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+					if (registry.companions.get(player_archer).curr_anim_type != JUMPING
+						&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+						&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 						registry.companions.get(player_archer).curr_anim_type = IDLE;
 					}
 				}
@@ -1938,37 +2288,45 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		if (key == GLFW_KEY_A) {
 			if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.x = -300.f;
+				motion.velocity.x = -400.f;
 				// Turn archer left
-				motion.scale.x = -abs(motion.scale.x);
-				if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+				if (registry.companions.get(player_archer).curr_anim_type != ATTACKING
+					&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
+					motion.scale.x = -abs(motion.scale.x);
+				}
+				if (registry.companions.get(player_archer).curr_anim_type != JUMPING
+					&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+					&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 					registry.companions.get(player_archer).curr_anim_type = WALKING;
 				}	
 			}
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				if (motion.velocity.x != 300.f) {
+				if (motion.velocity.x != 400.f) {
 					motion.velocity.x = 0;
-					if (registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+					if (registry.companions.get(player_archer).curr_anim_type != JUMPING
+						&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+						&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 						registry.companions.get(player_archer).curr_anim_type = IDLE;
 					}
 				}
 			}
 		}
 		// Jump up
-		if (key == GLFW_KEY_W && registry.companions.get(player_archer).curr_anim_type != JUMPING){
+		if (key == GLFW_KEY_W && registry.companions.get(player_archer).curr_anim_type != JUMPING
+			&& registry.companions.get(player_archer).curr_anim_type != ATTACKING
+			&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.y = -300.f;
+				motion.velocity.y = -500.f;
 				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}
 	}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_E)
-	{
-		sk->launchNecroBarrier(necromancer_phase_two, renderer);
-	}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
+	//	sk->launchNecroBarrier(necromancer_phase_two, renderer);
+	//}
 
 	// Debugging
 	if (key == GLFW_KEY_B)
@@ -2023,6 +2381,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		Mix_VolumeChunk(registry.gesture_heal_sound, Mix_VolumeChunk(registry.gesture_heal_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.crow_sound, Mix_VolumeChunk(registry.crow_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V)
 	{
@@ -2046,6 +2405,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		Mix_VolumeChunk(registry.gesture_heal_sound, Mix_VolumeChunk(registry.gesture_heal_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.crow_sound, Mix_VolumeChunk(registry.crow_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 
@@ -2296,7 +2656,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		for (int i = 0; i < mouseGestures.size(); i++)
 		{
 			// print out conditions
-			printf("collected mousePos: X=%f Y=%f\n", mouseGestures[i].x, mouseGestures[i].y);
+			//printf("collected mousePos: X=%f Y=%f\n", mouseGestures[i].x, mouseGestures[i].y);
 			totalX += mouseGestures[i].x;
 			totalY += mouseGestures[i].y;
 			if (mouseGestures[i].x > maxX)
@@ -2332,11 +2692,11 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				minY = mouseGestures[i].y;
 			}
 		}
-		printf("gesture skill collecting deactive!\n");
+		//printf("gesture skill collecting deactive!\n");
 		aveX = totalX / mouseGestures.size();
 		aveY = totalY / mouseGestures.size();
-		printf("Ave X is %f, Ave Y is %f, MaxminX is %f %f, MixminY is %f %f\n", aveX, aveY, maxX, minX, maxY, minY);
-		printf("X inc:%f X dec:%f Yinc:%f Y dec:%f\n", Xincreasing_switch, Xdecreasing_switch, Yincreasing_switch, Ydecreasing_switch);
+		//printf("Ave X is %f, Ave Y is %f, MaxminX is %f %f, MixminY is %f %f\n", aveX, aveY, maxX, minX, maxY, minY);
+		//printf("X inc:%f X dec:%f Yinc:%f Y dec:%f\n", Xincreasing_switch, Xdecreasing_switch, Yincreasing_switch, Ydecreasing_switch);
 
 		// horisontal line - skill 1: heal
 		if (gestureSkillRemaining > 0)
@@ -2462,6 +2822,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
+		if (selected_skill != 6 && (!isFreeRoam)) {
+			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
+		}
 		if(!isFreeRoam){
 			showCorrectSkills();
 		}
@@ -2556,11 +2919,21 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 						selected_skill = -1;
 					}
 				}
-				else
-				{
-					// iceshard
-					if (selected_skill == 0)
-					{
+				//arrow
+				else if (inButton(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT)
+					&& canUseSkill(currPlayer, 6)) {
+					if (selected_skill == -1) {
+						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICONSELECTED;
+						selected_skill = 6;
+					}
+					else {
+						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
+						selected_skill = -1;
+					}
+				}
+				else {
+					//iceshard
+					if (selected_skill == 0) {
 						sk->startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
 						tutorial_ability_fired = 1;
@@ -2641,6 +3014,13 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 							}
 						}
 					}
+					//arrow
+					if (selected_skill == 6) {
+						sk->launchArrow(currPlayer,msPos,renderer, 0);
+						selected_skill = -1;
+						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+						playerUseMelee = 0;
+					}
 				}
 			}
 			else
@@ -2684,6 +3064,31 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			// Do case 6 from advanceTutorial here
 			advanceTutorial(curr_tutorial_box, vec2(600, 300));
 			showCorrectSkills();
+		}
+
+		// Handle free-roam arrow launching
+		if (isFreeRoam) {
+			if (!registry.attackers.has(player_archer) && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+				auto& arrow = registry.attackers.emplace(player_archer);
+				arrow.attack_type = FREE_ROAM_ARROW;
+				arrow.counter_ms = 525.f;
+				
+				auto& motion = registry.motions.get(player_archer);
+
+				if (motion.velocity.x != 0 && motion.velocity.y == 0) {
+					registry.companions.get(player_archer).curr_anim_type = WALK_ATTACKING;
+				}
+				else {
+					registry.companions.get(player_archer).curr_anim_type = ATTACKING;
+				}
+
+				if (motion.position.x <= msPos.x) {
+					motion.scale.x = abs(motion.scale.x);
+				}
+				else {
+					motion.scale.x = - abs(motion.scale.x);
+				}
+			}
 		}
 	}
 }
@@ -2781,6 +3186,7 @@ vec2 WorldSystem::placeDirection(vec2 mouse_position, vec2 icon_position, float 
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
 {
+	// printf("x: %f, y: %f\n", mouse_position.x, mouse_position.y);
 	msPos = mouse_position;
 	sk->mousePos = mouse_position;
 	if (!canStep && !story)
@@ -2915,6 +3321,7 @@ bool WorldSystem::inEntity(const Entity entity)
 	}
 	return false;
 }
+
 
 void WorldSystem::deselectButton()
 {

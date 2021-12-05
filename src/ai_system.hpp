@@ -4,6 +4,8 @@
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
 
+// UPDATED AI TREE 1/12/2021
+
 class AISystem
 {
 public:
@@ -251,6 +253,36 @@ public:
 	BTState process(Entity e) override;
 };
 
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckNecroOneTaunt : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckNecroOneTaunt(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		;
+
+	void init(Entity e) override;
+
+	BTState process(Entity e) override;
+};
+
+// A composite node that loops through all children and exits when one fails
+class BTRunCheckNecroTwoTaunt : public BTNode {
+private:
+	int m_index;
+	BTNode* m_children[2];	// Run pair has two children, using an array
+
+public:
+	BTRunCheckNecroTwoTaunt(BTNode* c0, BTNode* c1)	// build tree bottom up, we need to know children before building this node for instance
+		;
+
+	void init(Entity e) override;
+
+	BTState process(Entity e) override;
+};
+
 // A general decorator with lambda condition
 class BTIfPlayerSideDoNotHaveMageHardCoded : public BTNode
 {
@@ -361,6 +393,66 @@ class BTIfEnemyMageNotTaunted : public BTNode
 {
 public:
 	BTIfEnemyMageNotTaunted(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfNecroOneTaunted : public BTNode
+{
+public:
+	BTIfNecroOneTaunted(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfNecroOneNotTaunted : public BTNode
+{
+public:
+	BTIfNecroOneNotTaunted(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfNecroTwoTaunted : public BTNode
+{
+public:
+	BTIfNecroTwoTaunted(BTNode* child)	// Has one child
+		;
+
+	virtual void init(Entity e) override;
+
+	virtual BTState process(Entity e) override;
+
+private:
+	BTNode* m_child;	// one child stored in BTNode as a pointer
+};
+
+// A general decorator with lambda condition
+class BTIfNecroTwoNotTaunted : public BTNode
+{
+public:
+	BTIfNecroTwoNotTaunted(BTNode* child)	// Has one child
 		;
 
 	virtual void init(Entity e) override;
@@ -764,7 +856,19 @@ private:
 	BTState process(Entity e) override;
 };
 
+class BTMeleeAttackOnSwordsman : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
 class BTCastRockOnSwordsman : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
+class BTCastRockOnMage : public BTNode {
 private:
 	void init(Entity e) override;
 	BTState process(Entity e) override;
@@ -806,6 +910,12 @@ private:
 	BTState process(Entity e) override;
 };
 
+class BTLightningAttackOnSwordsman : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
 class BTCastAOEAttack : public BTNode {
 private:
 	void init(Entity e) override;
@@ -837,6 +947,12 @@ private:
 };
 
 class BTCastSingleTargetAttack : public BTNode {
+private:
+	void init(Entity e) override;
+	BTState process(Entity e) override;
+};
+
+class BTCastSingleTargetAttackOnSwordsman : public BTNode {
 private:
 	void init(Entity e) override;
 	BTState process(Entity e) override;
