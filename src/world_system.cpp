@@ -1536,7 +1536,7 @@ void WorldSystem::restart_game(bool force_restart)
 	{
 		if (gameLevel < 3)
 		{
-			renderer->transitioningToNextLevel = true;
+			//renderer->transitioningToNextLevel = true;
 			renderer->gameLevel = gameLevel;
 			if(!isFreeRoam){
 				gameLevel++;
