@@ -38,6 +38,9 @@ vec2 PhysicsSystem::get_custom_bounding_box(Entity entity)
 	else if (registry.platform.has(entity)) {
 		return { abs(motion.scale.x) + 50, abs(motion.scale.y) };
 	}
+	else if (registry.boulders.has(entity)) {
+		return { abs(motion.scale.x)+50, abs(motion.scale.y)+50 };
+	}
 	else {
 		return { abs(motion.scale.x), abs(motion.scale.y) };
 	}
@@ -433,7 +436,8 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 			
 			if (collides(entity_i, entity_j))
 			{
-				if(registry.preciseColliders.has(entity_i) && registry.preciseColliders.has(entity_j))
+				if((registry.preciseColliders.has(entity_i) && registry.preciseColliders.has(entity_j))&&
+					!(registry.boulders.has(entity_i) && registry.boulders.has(entity_j)))
 				{
 					if(precise_collides(entity_i, entity_j))
 					{

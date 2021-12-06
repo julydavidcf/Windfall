@@ -76,7 +76,7 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
-const size_t MAX_BOULDERS = 5;
+const size_t MAX_BOULDERS = 2;
 
 // mouse gesture skills related=============
 int startMousePosCollect = 0;
@@ -1656,7 +1656,8 @@ void WorldSystem::restart_game(bool force_restart)
 			initializeFreeRoamTwo();
 		}
 		open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
-		printf("Loading free roam 0\n");
+		player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
+		printf("Loading free roam %d\n", freeRoamLevel);
 		renderer->gameLevel = 1;
 	}
 	else
@@ -1969,7 +1970,9 @@ void WorldSystem::handle_collisions()
 					}
 					// Switch to open chest image
 					renderedChest.used_geometry = GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN;
-				} else if (registry.boulders.has(entity_other))
+				} 
+				// Rock archer collision
+				else if (registry.boulders.has(entity_other) && !registry.particlePools.has(entity_other))
 				{
 					Motion& rollable_motion = registry.motions.get(entity_other);
 					rollable_motion.velocity = {0.f, 0.f};
@@ -2011,7 +2014,7 @@ void WorldSystem::handle_collisions()
 					}
 				}
 				// Arrow rock collision
-				else if (registry.boulders.has(entity_other)) {
+				else if (registry.boulders.has(entity_other) && !registry.particlePools.has(entity_other)) {
 					activate_deathParticles(entity_other);
 					registry.remove_all_components_of(entity);
 				}
