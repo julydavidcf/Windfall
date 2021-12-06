@@ -99,7 +99,6 @@ if (IS_OS_LINUX OR IS_OS_MAC)
        find_library(COCOA_LIBRARY Cocoa)
        find_library(CF_LIBRARY CoreFoundation)
        target_link_libraries(${PROJECT_NAME} PUBLIC ${COCOA_LIBRARY} ${CF_LIBRARY})
-       target_link_libraries(${PROJECT_NAME} "-framework CoreGraphics" "-framework Foundation")
     endif()
 
     # Increase warning level
