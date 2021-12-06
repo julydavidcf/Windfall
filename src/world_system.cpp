@@ -957,8 +957,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				//start BFS
 				vec2 startPos = baM->position;
 				vector<pair<int, int>> path;
-				path.push_back(make_pair(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10));
-				BFS bfs = BFS(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10, 0, path);
+				int newy = static_cast<int>(startPos.y) / 10;
+				path.push_back(make_pair(static_cast<int>(startPos.x)/10, std::min (screen_height / 10 -1, newy)));
+				BFS bfs = BFS(static_cast<int>(startPos.x)/10, std::min(screen_height/10 -1, newy), 0, path);
 				ArrowResult = bfs.arrowBFS(map, bfs, visited);
 				currentArrow = registry.bouncingArrows.entities[i];
 				printf("result path is:\n ");
