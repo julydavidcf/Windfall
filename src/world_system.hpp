@@ -199,12 +199,12 @@ private:
 	float next_boulder_spawn;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
-		// ice  fire  rock  heal  taunt  melee
+		// ice  fire  rock  heal  taunt  melee  arrow
 //mage
 		{ true, true, true, true, false, false, false},
 //swordsman
 		{ false, false, false, false, true, true,false},
-// archer
+//archer
 	{ false, false, false, false, false, false, true}
 	};
 
