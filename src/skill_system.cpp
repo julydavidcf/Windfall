@@ -316,7 +316,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + 1500;
+			timer.counter_ms = rt.counter_ms + 2500.f + 1500;
 		}
 
 		//playerUseMelee = 1;
@@ -725,11 +725,6 @@ void SkillSystem::launchSilence(Entity target, RenderSystem* renderer) {
 void SkillSystem::removeSilence(Entity target) {
 	if (registry.silenced.has(target)) {
 		registry.silenced.remove(target);
-		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
-			if (registry.statsindicators.components[j].owner == target) {
-				registry.remove_all_components_of(registry.statsindicators.entities[j]);
-			}
-		}
 		printf("silence removed!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
 }
@@ -806,11 +801,6 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 void SkillSystem::removeUltimate(Entity target) {
 	if (registry.ultimate.has(target)) {
 		registry.ultimate.remove(target);
-		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
-			if (registry.statsindicators.components[j].owner == target) {
-				registry.remove_all_components_of(registry.statsindicators.entities[j]);
-			}
-		}
 	}
 }
 
@@ -825,10 +815,5 @@ Entity SkillSystem::launchParticleBeamCharge(Entity target, RenderSystem* render
 void SkillSystem::removeShield(Entity target) {
 	if (registry.shield.has(target)) {
 		registry.shield.remove(target);
-		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
-			if (registry.statsindicators.components[j].owner == target) {
-				registry.remove_all_components_of(registry.statsindicators.entities[j]);
-			}
-		}
 	}
 }

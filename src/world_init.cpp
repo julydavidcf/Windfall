@@ -982,7 +982,7 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
-	auto*statid =  &registry.statsindicators.emplace(entity);
+	auto* statid =  &registry.statsindicators.emplace(entity);
 	statid->owner = owner;
 
 	auto& motion = registry.motions.emplace(entity);

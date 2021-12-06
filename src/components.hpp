@@ -127,6 +127,7 @@ struct BleedIndicator
 {
 	Entity owner;
 };
+
 // Currently attacking
 struct Attack
 {
