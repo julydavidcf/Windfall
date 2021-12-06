@@ -25,9 +25,40 @@ std::vector<std::pair<int, int>> BFS::arrowBFS(std::vector<std::vector<int>> map
 			return curr.path;
 			
 		}
-		// test(add diagnals)+++++++++++++++++++++++++++++++++++++++++++++
-
-		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		//// test(add diagnals)+++++++++++++++++++++++++++++++++++++++++++++
+		//if (curr.row - 1 >= 0 && curr.col - 1 >= 0 && visited[curr.row - 1][curr.col-1] == false) {
+		//	//printf("before U\n");
+		//	std::vector <std::pair<int, int>> new_path = curr.path;
+		//	new_path.push_back(make_pair(curr.row - 1, curr.col-1));
+		//	workQueue.push(BFS(curr.row - 1, curr.col-1, curr.dist + 1, new_path));
+		//	visited[curr.row - 1][curr.col-1] = true;
+		//	//printf("save U\n");
+		//}
+		//if (curr.row + 1 < map.size() && curr.col - 1 >=0  && visited[curr.row + 1][curr.col - 1] == false) {
+		//	//printf("before U\n");
+		//	std::vector <std::pair<int, int>> new_path = curr.path;
+		//	new_path.push_back(make_pair(curr.row + 1, curr.col - 1));
+		//	workQueue.push(BFS(curr.row + 1, curr.col - 1, curr.dist + 1, new_path));
+		//	visited[curr.row + 1][curr.col - 1] = true;
+		//	//printf("save U\n");
+		//}
+		//if (curr.row + 1 < map.size() && curr.col + 1 < map[0].size() && visited[curr.row + 1][curr.col+ 1] == false) {
+		//	//printf("before U\n");
+		//	std::vector <std::pair<int, int>> new_path = curr.path;
+		//	new_path.push_back(make_pair(curr.row + 1, curr.col + 1));
+		//	workQueue.push(BFS(curr.row + 1, curr.col + 1, curr.dist + 1, new_path));
+		//	visited[curr.row + 1][curr.col + 1] = true;
+		//	//printf("save U\n");
+		//}
+		//if (curr.row - 1 >= 0 && curr.col + 1 < map[0].size() && visited[curr.row - 1][curr.col + 1] == false) {
+		//	//printf("before U\n");
+		//	std::vector <std::pair<int, int>> new_path = curr.path;
+		//	new_path.push_back(make_pair(curr.row - 1, curr.col + 1));
+		//	workQueue.push(BFS(curr.row - 1, curr.col + 1, curr.dist + 1, new_path));
+		//	visited[curr.row - 1][curr.col + 1] = true;
+		//	//printf("save U\n");
+		//}
+		////++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		//move up
 		if (curr.row - 1 >= 0 && visited[curr.row - 1][curr.col] == false) {
 			//printf("before U\n");
