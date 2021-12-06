@@ -967,17 +967,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				for (int i = 0; i < ArrowResult.size(); i++) {
 					printf("%d, %d\n", ArrowResult[i].first, ArrowResult[i].second);
 				}
-
-				//print map
-				//for (int i = 0; i < screen_width / 10; i++) {
-				//	for (int j = 0; j < screen_height / 10; j++) {
-				//		printf("%d ", map[i][j]);
-				//	}
-				//	printf("\n");
-				//}
-				//printf("%d x %d matrix",map.size(),map[0].size());
-
-
 			}
 			//======================================================================
 
@@ -1543,7 +1532,7 @@ void WorldSystem::restart_game(bool force_restart)
 	JSONLoader json_loader;
 	json_loader.init(renderer);
 
-	if (registry.companions.size() > 0 && registry.enemies.size() == 0)
+	if (registry.companions.size() > 0 && (registry.enemies.size() == 0 || (registry.enemies.size() != 0 && registry.enemies.has(free_roam_bird))))
 	{
 		if (gameLevel < 3)
 		{
@@ -1654,39 +1643,23 @@ void WorldSystem::restart_game(bool force_restart)
 	glfwGetWindowSize(window, &w, &h);
 	// Render background before all else
 
-	// Layer 1 (Last layer in background)
-	createBackground(renderer, {w / 2, h / 2}, FREE_ROAM_TWO);
-
-
 	if (isFreeRoam)
 	{
-		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
+		if (freeRoamLevel == 1) {
+			createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_ONE);
+			initializeFreeRoamOne();
+		}
+
+		else if (freeRoamLevel == 2) {
+			createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_TWO);
+			initializeFreeRoamTwo();
+		}
+		open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 		printf("Loading free roam 0\n");
 
-		std::vector<vec3> controlPoints;
-		controlPoints.push_back(vec3(227, 160, 0));
-		controlPoints.push_back(vec3(382, 341, 0));
-		controlPoints.push_back(vec3(632, 281, 0));
-		controlPoints.push_back(vec3(758, 367, 0));
-		controlPoints.push_back(vec3(1070, 242, 0));
-		controlPoints.push_back(vec3(1008, 59, 0));
-		controlPoints.push_back(vec3(733, 148, 0));
-		controlPoints.push_back(vec3(446, 75, 0));
-		controlPoints.push_back(vec3(227, 160, 0));
-		auto result = GenerateSpline(controlPoints, 20);
-		// Keeping these for debugging purposes
-		// printf("spline points: %i\n", result.size());
-		// createSpline(renderer, controlPoints);
-		spline = result;
-		birdNextPostionTracker = 1;
-		birdPositionDivisor = 1;
-		free_roam_bird = createBird(renderer, vec2(227, 160));
+		player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
 
-
-		initializeFreeRoamTwo();
 		renderer->gameLevel = 1;
-
-		Mix_FadeInMusic(registry.wintervale_music, -1, 500);	// change to free roam level 1 music
 	}
 	else
 	{
@@ -1718,6 +1691,7 @@ void WorldSystem::restart_game(bool force_restart)
 			printf("Loading level 0\n");
 			renderer->gameLevel = 1;
 
+			createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
 			// Kept this to load icons, but commented out createMage in load_level()
 			json_loader.get_level("level_0.json");
 			player_archer = createPlayerArcher(renderer, vec2(100, 650), 0);
@@ -1729,17 +1703,21 @@ void WorldSystem::restart_game(bool force_restart)
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
+			createBackground(renderer, { w / 2, h / 2 }, LEVEL_ONE);
 			json_loader.get_level("level_1.json");
 			story = 8;
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
 			renderer->gameLevel = gameLevel;
+			createBackground(renderer, { w / 2, h / 2 }, LEVEL_TWO);
 			json_loader.get_level("level_2.json");
 			story = 15;
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
 			renderer->gameLevel = 1;
+			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
 			json_loader.get_level("level_3.json");
+			player_archer = createPlayerArcher(renderer, { 300, 600 }, 0);
 			story = 20;
 		} else{
 			printf("Incorrect level\n");
@@ -2319,14 +2297,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		restart_game(true);
 	}
 
-	// david test
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
-	//}
-
-	 //if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-		//sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
-	 //}
 	if (isFreeRoam) {
 		// Move right
 		if (key == GLFW_KEY_D) {
@@ -2396,9 +2366,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		}
 	}
 
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
-	//	sk->launchNecroBarrier(necromancer_phase_two, renderer);
-	//}
 
 	// Debugging
 	if (key == GLFW_KEY_B)
@@ -2408,19 +2375,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		else
 			debugging.in_debug_mode = true;
 	}
-
-	// testing particle beam
-	// if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
-	//	if (!registry.Particles.has(necromancer_phase_two)) {
-	//		sk->startParticleBeamAttack(necromancer_phase_two);
-	//	}
-	//}
-
-	// testing deformation of mesh. NOTE: render_system also needs to be updated
-	// to use this
-	/*if (key == GLFW_KEY_Q && action == GLFW_RELEASE) {
-		renderer->shouldDeform = 1;
-	}*/
 
 	// Volume control (z = Decrease BGM vol., x = Increase BGM vol., c = Decrease effects vol., v = Increase effects vol.)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_Z)
@@ -3490,9 +3444,32 @@ void WorldSystem::backgroundTelling()
 
 }
 
-void WorldSystem::initializeFreeRoamTwo() {
 
-	player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
+void WorldSystem::initializeFreeRoamOne() {
+
+	std::vector<vec3> controlPoints;
+	controlPoints.push_back(vec3(227, 160, 0));
+	controlPoints.push_back(vec3(382, 341, 0));
+	controlPoints.push_back(vec3(632, 281, 0));
+	controlPoints.push_back(vec3(758, 367, 0));
+	controlPoints.push_back(vec3(1070, 242, 0));
+	controlPoints.push_back(vec3(1008, 59, 0));
+	controlPoints.push_back(vec3(733, 148, 0));
+	controlPoints.push_back(vec3(446, 75, 0));
+	controlPoints.push_back(vec3(227, 160, 0));
+	auto result = GenerateSpline(controlPoints, 20);
+	// Keeping these for debugging purposes
+	// printf("spline points: %i\n", result.size());
+	// createSpline(renderer, controlPoints);
+	spline = result;
+	birdNextPostionTracker = 1;
+	birdPositionDivisor = 1;
+	free_roam_bird = createBird(renderer, vec2(227, 160));
+
+	Mix_FadeInMusic(registry.wintervale_music, -1, 500);	// change to free roam level 1 music
+}
+
+void WorldSystem::initializeFreeRoamTwo() {
 
 	createPlatform(renderer, { 550, 600 });
 	createPlatform(renderer, { 650, 450 });
@@ -3509,4 +3486,5 @@ void WorldSystem::initializeFreeRoamTwo() {
 	else {
 		swarmSys->initializeSwarmEntities(renderer);
 	}
+	Mix_FadeInMusic(registry.cestershire_music, -1, 500);
 }

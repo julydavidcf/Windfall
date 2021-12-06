@@ -302,7 +302,7 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 {
-	Mix_FadeInMusic(registry.background_music, -1, 5000);
+	Mix_FadeInMusic(registry.boss_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE);
@@ -420,7 +420,6 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	motion.position = position;
 	
 	registry.projectiles.emplace(entity);
-	registry.light.emplace(entity);
 	registry.preciseColliders.emplace(entity);
 
 	if (isFreeRoam) {

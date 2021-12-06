@@ -7,8 +7,8 @@
 // These are ahrd coded to the dimensions of the entity texture
 const float MAGE_WIDTH = 175.f / 1.5;
 const float MAGE_HEIGHT = 190.f / 1.5;
-const float SWORDSMAN_WIDTH = 250.f;
-const float SWORDSMAN_HEIGHT = 290.f;
+const float SWORDSMAN_WIDTH = 250.f / 1.5;
+const float SWORDSMAN_HEIGHT = 290.f / 1.5;
 const float ARCHER_WIDTH = 160.f / 1.5;
 const float ARCHER_HEIGHT = 180.f / 1.5;
 const float ARCHER_FREEROAM_WIDTH = ARCHER_WIDTH / 1.75;

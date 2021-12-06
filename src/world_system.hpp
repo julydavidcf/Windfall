@@ -132,6 +132,7 @@ private:
 	// Story telling
 	void backgroundTelling();
 
+	void initializeFreeRoamOne();
 	void initializeFreeRoamTwo();
 
 	// Game state

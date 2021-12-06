@@ -48,6 +48,8 @@ int main()
 	
 	// variable timestep loop
 	auto t = Clock::now();
+	
+	isFreeRoam = 0;
 
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become
