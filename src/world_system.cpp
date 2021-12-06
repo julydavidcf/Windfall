@@ -817,6 +817,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				sk->removeSilence(registry.companions.entities[i]);
 			}
 		}
+
+		if (registry.stats.has(registry.companions.entities[i]) && registry.stats.get(registry.companions.entities[i]).health <= 0)
+		{
+			// get rid of dead entity's stats indicators
+			sk->removeTaunt(registry.companions.entities[i]);
+			sk->removeSilence(registry.companions.entities[i]);
+			sk->removeBleed(registry.companions.entities[i]);
+		}
 	}
 
 	for (int i = (int)registry.shield.components.size() - 1; i >= 0; --i)
