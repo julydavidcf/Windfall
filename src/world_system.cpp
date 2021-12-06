@@ -1125,12 +1125,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 						break;
 					}
 					case BATTLE_ARROW: {
-						sk->launchArrow(attacker, msPos, renderer, 0);
+						sk->launchArrow(attacker, attack.old_pos, renderer, 0);
 						break;
 					}
 					case FREE_ROAM_ARROW: {
 						// For free-roam archer arrow-shooting
-						sk->launchArrow(player_archer, msPos, renderer, 1);
+						sk->launchArrow(player_archer, attack.old_pos, renderer, 1);
 						break;
 					}
 					default:
