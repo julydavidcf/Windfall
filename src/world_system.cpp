@@ -2001,12 +2001,12 @@ void WorldSystem::handle_collisions()
 
 					// Platform is on top of archer
 					if (archer_motion.position.y > platform_position_y + platform_height / 2) {
-						currCeilingPos = platform_position_y + platform_height + 15;
+						currCeilingPos = platform_position_y + platform_height;
 						onTopOrBelow = 1;
 					}
 					// Archer is on top of a platform
 					if (archer_motion.position.y < platform_position_y - platform_height / 2) {
-						currFloorPos = platform_position_y - platform_height - 15;
+						currFloorPos = platform_position_y - platform_height;
 						onTopOrBelow = 1;
 					}
 
@@ -2441,7 +2441,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.y = -350.f;
+				motion.velocity.y = -(verticalResolution / 2.5);
 				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}
