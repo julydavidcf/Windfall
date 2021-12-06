@@ -986,7 +986,26 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		if (registry.motions.has(currentArrow)) {;
 			Motion* arrowM = &registry.motions.get(currentArrow);
 			arrowM->position = { ArrowResult[0].first*10,ArrowResult[0].second*10 };
+			// assumes ArrowResult will never be empty because arrow disappears before path ends
+			pair<int, int> currpos = ArrowResult[0];
+			pair<int, int> nextpos = ArrowResult[1];
 			ArrowResult.erase(ArrowResult.begin());
+			// move right
+			if (currpos.first+1 == nextpos.first) {
+				arrowM->angle = 0;
+			}
+			// move left
+			if (currpos.first - 1 == nextpos.first) {
+				arrowM->angle = M_PI;
+			}
+			if (currpos.second + 1 == nextpos.second) {
+				arrowM->angle = M_PI/2;
+			}
+			// move left
+			if (currpos.second - 1 == nextpos.second) {
+				arrowM->angle = 3*M_PI/2;
+			}
+
 		}
 	}
 
