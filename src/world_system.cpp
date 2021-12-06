@@ -3210,8 +3210,11 @@ void WorldSystem::advanceTutorial(Entity currTutorial, vec2 pos)
 	curr_tutorial_box_num += 1;
 
 	// Change box location
-	Motion &motion = registry.motions.get(currTutorial);
-	motion.position = (pos.x != -1) ? pos : next_box_pos;
+	if (registry.motions.has(currTutorial)) {
+		Motion& motion = registry.motions.get(currTutorial);
+		motion.position = (pos.x != -1) ? pos : next_box_pos;
+	}
+
 
 	// Change box type
 	TEXTURE_ASSET_ID tutorial_box_num = TEXTURE_ASSET_ID::TUTORIAL_ONE;
