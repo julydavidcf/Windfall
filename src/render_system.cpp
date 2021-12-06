@@ -1057,7 +1057,7 @@ void RenderSystem::draw(float elapsed_ms)
 
 	drawToScreen();
 
-	if (isFreeRoam && (freeRoamLevel == 2)) {
+	if (isFreeRoam == 2) {
 		for (int i = 0; i < registry.motions.components.size(); i++) {
 			Entity e = registry.motions.entities[i];
 			if (registry.light.has(e)) {
