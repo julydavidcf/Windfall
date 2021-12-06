@@ -336,7 +336,7 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 {
-	Mix_FadeInMusic(registry.boss_music, -1, 5000);
+	//Mix_FadeInMusic(registry.boss_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE);

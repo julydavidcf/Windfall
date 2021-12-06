@@ -943,8 +943,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				}
 				//if barrier exist
 				if (registry.shield.size() != 0) {
-					for (int i = 72 - 1 - 8; i <= 78 - 1 + 8; i++) {
-						for (int j = 35 - 1 - 8; j <= 75 - 1; j++) {
+					for (int i = 57 - 1 - 8; i <= 63 - 1 + 8; i++) {
+						for (int j = 21 - 1 - 8; j <= 64 - 1; j++) {
 							map[i][j] = -1;
 							visited[i][j] = true;
 						}
