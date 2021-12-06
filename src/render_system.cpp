@@ -953,13 +953,6 @@ void RenderSystem::draw(float elapsed_ms)
 							}
 							break;
 						}
-						case DEAD: {
-							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_DEAD) {
-								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_DEAD;
-								*currFrame = 0;
-							}
-							numFrames = ARCHER_DEAD_FRAMES; timePerFrame = ARCHER_DEAD_FRAME_TIME; break;
-						}
 						default: break;
 					}
 					break;
