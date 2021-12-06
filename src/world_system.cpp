@@ -942,8 +942,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				}
 				//if barrier exist
 				if (registry.shield.size() != 0) {
-					for (int i = 72 - 1 - 8; i <= 78 - 1 + 8; i++) {
-						for (int j = 35 - 1 - 8; j <= 75 - 1; j++) {
+					for (int i = 57 - 1 - 8; i <= 63 - 1 + 8; i++) {
+						for (int j = 21 - 1 - 8; j <= 64 - 1; j++) {
 							map[i][j] = -1;
 							visited[i][j] = true;
 						}
@@ -957,8 +957,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				//start BFS
 				vec2 startPos = baM->position;
 				vector<pair<int, int>> path;
-				path.push_back(make_pair(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10));
-				BFS bfs = BFS(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10, 0, path);
+				int newy = static_cast<int>(startPos.y) / 10;
+				path.push_back(make_pair(static_cast<int>(startPos.x)/10, std::min (screen_height / 10 -1, newy)));
+				BFS bfs = BFS(static_cast<int>(startPos.x)/10, std::min(screen_height/10 -1, newy), 0, path);
 				ArrowResult = bfs.arrowBFS(map, bfs, visited);
 				currentArrow = registry.bouncingArrows.entities[i];
 				printf("result path is:\n ");
