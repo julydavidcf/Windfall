@@ -869,7 +869,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			baM->acceleration.x = baM->acceleration.x * -1;
 			baM->position.x = baXPos - baM->scale.x;
 			ba->bounce_time--;
-			printf("Bouncing from left wall\n");
+			//printf("Bouncing from left wall\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baXPos + baM->scale.x > screen_width && baM->velocity.x >= 0 && baM->acceleration.x>=0 && ba->bounce_time>0) {
@@ -878,7 +878,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			baM->acceleration.x = baM->acceleration.x * -1;
 			baM->position.x = baXPos + baM->scale.x;
 			ba->bounce_time--;
-			printf("Bouncing from right wall\n");
+			//printf("Bouncing from right wall\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baYPos - baM->scale.y < 0 && baM->velocity.y <= 0 && baM->acceleration.y >= 0 && ba->bounce_time>0) {
@@ -887,7 +887,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			//baM->acceleration.y = baM->acceleration.y * -1;
 			baM->position.y = baYPos - baM->scale.y;
 			ba->bounce_time--;
-			printf("Bouncing from ceiling\n");
+			//printf("Bouncing from ceiling\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baYPos + baM->scale.y > screen_height && baM->velocity.y >= 0 && baM->acceleration.y >= 0 && ba->bounce_time > 0) {
@@ -896,7 +896,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			//baM->acceleration.y = baM->acceleration.y * -1;
 			baM->position.y = baYPos + baM->scale.y;
 			ba->bounce_time--;
-			printf("Bouncing from floor\n");
+			//printf("Bouncing from floor\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 
@@ -963,8 +963,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				vec2 startPos = baM->position;
 				vector<pair<int, int>> path;
 				int newy = static_cast<int>(startPos.y) / 10;
-				path.push_back(make_pair(static_cast<int>(startPos.x)/10, std::min (screen_height / 10 -1, newy)));
-				BFS bfs = BFS(static_cast<int>(startPos.x)/10, std::min(screen_height/10 -1, newy), 0, path);
+				int newx = static_cast<int>(startPos.x) / 10;
+				path.push_back(make_pair(std::max(0, std::min(screen_height / 10 - 1, newx)), std::max(0,std::min (screen_height / 10 -1, newy))));
+				BFS bfs = BFS(std::max(0, std::min(screen_height / 10 - 1, newx)), std::max(0,std::min(screen_height/10 -1, newy)), 0, path);
 				ArrowResult = bfs.arrowBFS(map, bfs, visited);
 				currentArrow = registry.bouncingArrows.entities[i];
 				printf("result path is:\n ");
