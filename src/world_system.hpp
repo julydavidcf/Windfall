@@ -201,7 +201,7 @@ private:
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee
 //mage
-		{ true, true, true, true, false, false, true},
+		{ true, true, true, true, false, false, false},
 //swordsman
 		{ false, false, false, false, true, true,false},
 // archer
