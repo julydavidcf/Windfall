@@ -395,6 +395,7 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 	//------------------------------------------------
 
 	registry.projectiles.emplace(entity);
+	registry.FireBalls.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		//currently using fireball
@@ -1500,7 +1501,9 @@ Entity createTooltip(RenderSystem* renderer, vec2 position, std::string type) {
 	else if (type == "ML") {
 		tooltipType = TEXTURE_ASSET_ID::MELEETOOLTIP;
 	}
-
+	else if (type == "AR") {
+		tooltipType = TEXTURE_ASSET_ID::ARROWTOOLTIP;
+	}
 	registry.renderRequests.insert(
 		entity,
 		{ tooltipType,
@@ -1564,6 +1567,10 @@ Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number)
 	case 4: storyBackground = TEXTURE_ASSET_ID::WHISPER; break;
 	case 5: storyBackground = TEXTURE_ASSET_ID::STORYBEGIN; break;
 	case 6: storyBackground = TEXTURE_ASSET_ID::STARTSCREEN; break;
+	case 7: storyBackground = TEXTURE_ASSET_ID::PEACEFUL; break;
+	case 8: storyBackground = TEXTURE_ASSET_ID::CELERBRATE; break;
+	case 9: storyBackground = TEXTURE_ASSET_ID::DARK; break;
+	case 10: storyBackground = TEXTURE_ASSET_ID::THEEND; break;
 	default: break;
 	}
 
@@ -1576,7 +1583,7 @@ Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number)
 	return entity;
 }
 
-Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number)
+Entity createBackgroundDiaogue(RenderSystem* renderer, vec2 pos, int number)
 {
 	auto entity = Entity();
 
@@ -1597,35 +1604,78 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	case 3: dialogue = TEXTURE_ASSET_ID::BACKGROUNDTHREE; break;
 	case 4: dialogue = TEXTURE_ASSET_ID::BACKGROUNDFOUR; break;
 	case 5: dialogue = TEXTURE_ASSET_ID::BACKGROUNDFIVE; break;
+	default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ dialogue,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+Entity createLevelOneDiaogue(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { DIALOGUE_WIDTH, DIALOGUE_HEIGHT };
+
+	TEXTURE_ASSET_ID dialogue = TEXTURE_ASSET_ID::GAME_TITLE;
+
+	auto& ui = registry.uiButtons.emplace(entity);
+	ui.isDialogue = 1;
+
+	switch (number) {
 
 	//level one
-	case 6: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEONE; break;
-	case 7: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO; break;
-	case 8: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE; break;
-	case 9: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR; break;
-	case 10: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE; break;
-	case 11: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX; break;
+	case 1: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEONE; break;
+	case 2: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO; break;
+	case 3: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE; break;
+	case 4: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR; break;
+	case 5: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE; break;
+	case 6: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX; break;
+	case 7: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUESEVEN; break;
+	case 8: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEEIGHT; break;
+	case 9: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUENINE; break;
+	case 10: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETEN; break;
+	default: break;
+	}
 
+	registry.renderRequests.insert(
+		entity,
+		{ dialogue,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+Entity createLevelTwoDiaogue(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { DIALOGUE_WIDTH, DIALOGUE_HEIGHT };
+
+	TEXTURE_ASSET_ID dialogue = TEXTURE_ASSET_ID::GAME_TITLE;
+
+	auto& ui = registry.uiButtons.emplace(entity);
+	ui.isDialogue = 1;
+
+	switch (number) {
 	//level two
-	case 12: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEONE; break;
-	case 13: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO; break;
-	case 14: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE; break;
-	case 15: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR; break;
-
-	//level three
-	case 16: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEONE; break;
-	case 17: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETWO; break;
-	case 18: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE; break;
-	case 19: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR; break;
-	case 20: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFIVE; break;
-	case 21: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESIX; break;
-	case 22: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESEVEN; break;
-	case 23: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT; break;
-
-	//level Four
-	case 24: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUEONE; break;
-	case 25: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO; break;
-	case 26: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETHREE; break;
+	case 1: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEONE; break;
+	case 2: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO; break;
+	case 3: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE; break;
+	case 4: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR; break;
+	case 5: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFIVE; break;
 
 	default: break;
 	}
@@ -1633,6 +1683,133 @@ Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	registry.renderRequests.insert(
 		entity,
 		{ dialogue,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+Entity createLevelThreeDiaogue(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { DIALOGUE_WIDTH, DIALOGUE_HEIGHT };
+
+	TEXTURE_ASSET_ID dialogue = TEXTURE_ASSET_ID::GAME_TITLE;
+
+	auto& ui = registry.uiButtons.emplace(entity);
+	ui.isDialogue = 1;
+
+	switch (number) {
+
+		//level three
+	case 1: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEONE; break;
+	case 2: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETWO; break;
+	case 3: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE; break;
+	case 4: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR; break;
+	case 5: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFIVE; break;
+	case 6: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESIX; break;
+	case 7: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESEVEN; break;
+	case 8: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT; break;
+	default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ dialogue,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+Entity createLevelFourDiaogue(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { DIALOGUE_WIDTH, DIALOGUE_HEIGHT };
+
+	TEXTURE_ASSET_ID dialogue = TEXTURE_ASSET_ID::GAME_TITLE;
+
+	auto& ui = registry.uiButtons.emplace(entity);
+	ui.isDialogue = 1;
+
+	switch (number) {
+		//level Four
+	case 1: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUEONE; break;
+	case 2: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO; break;
+	case 3: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETHREE; break;
+	case 4: dialogue = TEXTURE_ASSET_ID::LEVELFOURDIALOGUEFOUR; break;
+	default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ dialogue,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+Entity createFreeRoamLevelDiaogue(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { DIALOGUE_WIDTH, DIALOGUE_HEIGHT };
+
+	TEXTURE_ASSET_ID dialogue = TEXTURE_ASSET_ID::GAME_TITLE;
+
+	auto& ui = registry.uiButtons.emplace(entity);
+	ui.isDialogue = 1;
+
+	switch (number) {
+		//level one
+	case 1: dialogue = TEXTURE_ASSET_ID::FREEROAMLEVELONEDIALOGUEONE; break;
+	case 2: dialogue = TEXTURE_ASSET_ID::FREEROAMLEVELONEDIALOGUETWO; break;
+	case 3: dialogue = TEXTURE_ASSET_ID::FREEROAMLEVELONEDIALOGUETHREE; break;
+	case 4: dialogue = TEXTURE_ASSET_ID::FREEROAMLEVELONEDIALOGUEFOUR; break;
+	case 5: dialogue = TEXTURE_ASSET_ID::FREEROAMLEVELONEDIALOGUEFIVE; break;
+
+		//level two
+	case 6: dialogue = TEXTURE_ASSET_ID::FREEROAMLEVELTWODIALOGUEONE; break;
+	case 7: dialogue = TEXTURE_ASSET_ID::FREEROAMLEVELTWODIALOGUETWO; break;
+	case 8: dialogue = TEXTURE_ASSET_ID::FREEROAMLEVELTWODIALOGUETHREE; break;
+	default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ dialogue,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { HELPER_BOX_WIDTH, HELPER_BOX_HEIGHT };
+
+	TEXTURE_ASSET_ID tutorial_box = TEXTURE_ASSET_ID::FREEROAMTUTORIAL;
+
+	registry.renderRequests.insert(
+		entity,
+		{ tutorial_box,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

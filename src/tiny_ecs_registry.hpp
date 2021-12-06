@@ -28,6 +28,7 @@ public:
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Projectile> projectiles;
+	ComponentContainer<FireBall> FireBalls;
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
 	ComponentContainer<Silenced> silenced;
@@ -130,6 +131,7 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&FireBalls);
 		registry_list.push_back(&silenced);
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&debugComponents);

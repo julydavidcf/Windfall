@@ -169,6 +169,7 @@ class RenderSystem {
 			textures_path("meleeToolTip.png"),
 			textures_path("tauntToolTip.png"),
 			textures_path("healToolTip.png"),
+			textures_path("arrowToolTip.png"),
 
 			//storytelling background
 			textures_path("battle.jpg"),
@@ -177,7 +178,11 @@ class RenderSystem {
 			textures_path("whisper.png"),
 			textures_path("storyBegin.png"),
 			textures_path("startScreen.png"),
-
+			textures_path("peaceful.jpg"),
+			textures_path("celerbrate.jpg"),
+			textures_path("dark.jpg"),
+			textures_path("theEnd.png"),
+				
 			//background dialogue
 			textures_path("backgroundOne.png"),
 			textures_path("backgroundTwo.png"),
@@ -192,12 +197,18 @@ class RenderSystem {
 			textures_path("levelOneDialogueFour.png"),
 			textures_path("levelOneDialogueFive.png"),
 			textures_path("levelOneDialogueSix.png"),
+			textures_path("levelOneDialogueSeven.png"),
+			textures_path("levelOneDialogueEight.png"),
+			textures_path("levelOneDialogueNine.png"),
+			textures_path("levelOneDialogueTen.png"),
 
 			//Level Two dialogue
 			textures_path("levelTwoDialogueOne.png"),
 			textures_path("levelTwoDialogueTwo.png"),
 			textures_path("levelTwoDialogueThree.png"),
 			textures_path("levelTwoDialogueFour.png"),
+			textures_path("levelTwoDialogueFive.png"),
+			textures_path("levelTwoDialogueSix.png"),
 			
 			//level Three dialogue
 			textures_path("levelThreeDialogueOne.png"),
@@ -213,13 +224,29 @@ class RenderSystem {
 			textures_path("levelFourDialogueOne.png"),
 			textures_path("levelFourDialogueTwo.png"),
 			textures_path("levelFourDialogueThree.png"),
+			textures_path("levelFourDialogueFour.png"),
 
+			//Free roam level 1 dialogue
+			textures_path("freeRoamLevelOneDialogueOne.png"),
+			textures_path("freeRoamLevelOneDialogueTwo.png"),
+			textures_path("freeRoamLevelOneDialogueThree.png"),
+			textures_path("freeRoamLevelOneDialogueFour.png"),
+			textures_path("freeRoamLevelOneDialogueFive.png"),
+
+			//Free roam level 2 dialogue
+			textures_path("freeRoamLevelTwoDialogueOne.png"),
+			textures_path("freeRoamLevelTwoDialogueTwo.png"),
+			textures_path("freeRoamLevelTwoDialogueThree.png"),
+
+			textures_path("freeRoamTutorial.png"),
+				
 			textures_path("particlered.png"),
 			textures_path("firefly.png"),
 			textures_path("platform.png"),
 			textures_path("treasure_chest_sheet.png"),
+			textures_path("smoke_particle.png"),
 			textures_path("damage_increase_msg.png"),
-			textures_path("health_increase_msg.png"),
+			textures_path("health_increase_msg.png")
   };
   
 	std::array<GLuint, effect_count> effects;

@@ -119,6 +119,10 @@ private:
 	// Death particle activation
 	void activate_deathParticles(Entity entity);
 
+	// Smoke particle activation
+	void activate_smokeParticles(Entity entity);
+
+
 	//Skills Function
 	void removeTaunt(Entity target);
 	void removeSilence(Entity target);
