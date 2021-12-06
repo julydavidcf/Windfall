@@ -298,6 +298,7 @@ class RenderSystem {
 	float ARCHER_JUMPING_FRAME_TIME = 750;
 	float ARCHER_ATTACKING_FRAME_TIME = 75;
 	float ARCHER_TURN_ATTACKING_FRAME_TIME = 150;
+	float ARCHER_DEAD_FRAME_TIME = 200;
 
 	float DRAGON_FLYING_FRAME_TIME = 225;
 
@@ -396,6 +397,8 @@ class RenderSystem {
 	const int ARCHER_JUMPING_FRAMES = 2;
 
 	const int ARCHER_ATTACKING_FRAMES = 7;
+
+	const int ARCHER_DEAD_FRAMES = 8;
 
 	// Dragon frame stats
 	const GLfloat DRAGON_FLYING_FRAME_WIDTH = 0.11111111111;
