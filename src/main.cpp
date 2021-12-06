@@ -48,6 +48,8 @@ int main()
 	
 	// variable timestep loop
 	auto t = Clock::now();
+	
+	isFreeRoam = 0;
 
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become
@@ -59,12 +61,6 @@ int main()
 		float elapsed_ms =
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
-
-		// FOR TESTING: REMOVE LATER
-		isFreeRoam = 1;
-		//if (isFreeRoam == 1) {
-		//	world.handle_collisions();
-		//}
 
 		if (world.canStep) {
 			world.step(elapsed_ms);

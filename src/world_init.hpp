@@ -5,20 +5,22 @@
 #include "render_system.hpp"
 
 // These are ahrd coded to the dimensions of the entity texture
-const float MAGE_WIDTH = 175.f;
-const float MAGE_HEIGHT = 190.f;
-const float SWORDSMAN_WIDTH = 250.f;
-const float SWORDSMAN_HEIGHT = 290.f;
-const float ARCHER_WIDTH = 160.f;
-const float ARCHER_HEIGHT = 180.f;
-const float ARCHER_FREEROAM_WIDTH = ARCHER_WIDTH / 2;
-const float ARCHER_FREEROAM_HEIGHT = ARCHER_HEIGHT / 2;
+const float MAGE_WIDTH = 175.f / 1.5;
+const float MAGE_HEIGHT = 190.f / 1.5;
+const float SWORDSMAN_WIDTH = 250.f / 1.5;
+const float SWORDSMAN_HEIGHT = 290.f / 1.5;
+const float ARCHER_WIDTH = 160.f / 1.5;
+const float ARCHER_HEIGHT = 180.f / 1.5;
+const float ARCHER_FREEROAM_WIDTH = ARCHER_WIDTH / 1.75;
+const float ARCHER_FREEROAM_HEIGHT = ARCHER_HEIGHT / 1.75;
 const float NECRO_ONE_WIDTH = 240.f;
 const float NECRO_ONE_HEIGHT = 270.f;
 const float NECRO_TWO_WIDTH = 350.f;
 const float NECRO_TWO_HEIGHT = 500.f;
 const float NECRO_MINION_WIDTH = 90.f;
 const float NECRO_MINION_HEIGHT = 110.f;
+const float DRAGON_WIDTH = 128.f;
+const float DRAGON_HEIGHT = 117.333333333f;
 
 const float HEALTHBAR_WIDTH = 130.f;
 const float HEALTHBAR_HEIGHT = 15.f;
@@ -42,8 +44,8 @@ const float FIREFLY_WIDTH = 10.f;
 const float FIREFLY_HEIGHT = 10.f;
 const float PLATFORM_WIDTH = 200.f;
 const float PLATFORM_HEIGHT = 50.f;
-const float ROCK_MESH_WIDTH = 180.f;
-const float ROCK_MESH_HEIGHT = 180.f;
+const float ROCK_MESH_WIDTH = 80.f;
+const float ROCK_MESH_HEIGHT = 80.f;
 const float ARROW_MESH_WIDTH = ARROW_WIDTH / 2;
 const float ARROW_MESH_HEIGHT = ARROW_HEIGHT / 2;
 const float TREASURE_CHEST_WIDTH = 32.f;
@@ -54,8 +56,8 @@ const float PLAYERTURN_HEIGHT = 100.f;
 const float ENEMYTURN_WIDTH = 300.f;
 const float ENEMYTURN_HEIGHT = 100.f;
 
-const float BACKGROUND_WIDTH = 1800.f;
-const float BACKGROUND_HEIGHT = 1200.f;
+const float BACKGROUND_WIDTH = window_width_px;
+const float BACKGROUND_HEIGHT = window_height_px;
 
 const float DIALOGUE_WIDTH = 1200.f;
 const float DIALOGUE_HEIGHT = 200.f;
@@ -69,6 +71,8 @@ const float GREENCROSS_WIDTH = 30.f;
 const float GREENCROSS_HEIGHT = 30.f;
 const float METEOR_WIDTH = 500.f;
 const float METEOR_HEIGHT = 500.f;
+const float BOOST_MSG_WIDTH = 150.f;
+const float BOOST_MSG_HEIGHT = 80.f;
 
 const float BACKGROUND_OBJ_WIDTH = 60;
 const float BACKGROUND_OBJ_HEIGHT = 60.f;
@@ -113,11 +117,8 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos);
 // the necromancer's minion
 Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos);
 
-// Create background layers
-Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos);
-Entity createBackgroundLayerTwo(RenderSystem* renderer, vec2 pos);
-Entity createBackgroundLayerThree(RenderSystem* renderer, vec2 pos);
-Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos);
+// Create the background based on given levelNumber
+void createBackground(RenderSystem* renderer, vec2 pos, int levelNumber);
 
 //healthbar
 Entity createHealthBar(RenderSystem* renderer, vec2 position);
@@ -153,7 +154,8 @@ Entity createBarrier(RenderSystem* renderer, vec2 position);
 Entity createFirefly(RenderSystem* renderer, vec2 position);
 Entity createPlatform(RenderSystem* renderer, vec2 position);
 Entity createRockMesh(RenderSystem* renderer, vec2 position);
-Entity createTreasureChest(RenderSystem* renderer, vec2 position);
+Entity createTreasureChest(RenderSystem* renderer, vec2 position, int chestType);
+Entity createBoostMessage(RenderSystem* renderer, vec2 position, int boostType);
 
 Entity createGreenCross(RenderSystem* renderer, vec2 position);
 Entity createMeteorShower(RenderSystem* renderer, vec2 position, int isFriendly);
@@ -164,6 +166,9 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
 
 Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);
+
+
+Entity createBoulder(RenderSystem* renderer, vec2 position);
 
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly);
 // a basic, textured enemy
@@ -196,26 +201,3 @@ Entity createLevelFourDiaogue(RenderSystem* renderer, vec2 pos, int number);
 Entity createFreeRoamLevelDiaogue(RenderSystem* renderer, vec2 pos, int number);
 
 Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos);
-//Game Stats
-
-const int enemy_mage_hp = 90;
-const int enemy_swordsman_hp = 130;
-
-const int player_mage_hp = 60;
-const int player_swordsman_hp = 85;
-const int player_archer_hp = 50;
-const int necro_minion_health = 15;
-const int necro_1_health = 175;
-const int necro_2_health = 125;
-
-
-//skill dmg
-const int rock_dmg = 10;
-const int fireball_dmg = 30;
-const int iceshard_dmg = 20;
-const int melee_dmg = 15;
-const int bleed_dmg = 5;
-const int spike_dmg = 10;
-const int lightning_dmg = 25;
-const int arrow_dmg = 10;
-

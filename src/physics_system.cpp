@@ -1,6 +1,7 @@
 // internal
 #include "physics_system.hpp"
 #include "world_init.hpp"
+#include <iostream>
 
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 get_bounding_box(const Motion& motion)
@@ -163,6 +164,75 @@ bool fireflyCollides(const Entity entity_i, const Entity entity_j) {
 		return true;
 	}
 	return false;
+}
+
+
+// https://www.geeksforgeeks.org/check-whether-a-given-point-lies-inside-a-triangle-or-not/
+float area(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+   return abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
+}
+
+// https://www.geeksforgeeks.org/check-whether-a-given-point-lies-inside-a-triangle-or-not/
+bool isInside(vec3 point1, vec3 point2, vec3 point3, vec3 p)
+{
+	float A = area(point1.x, point1.y, point2.x, point2.y, point3.x, point3.y);
+	float A1 = area(p.x, p.y, point2.x, point2.y, point3.x, point3.y);
+	float A2 = area(point1.x, point1.y, p.x, p.y, point3.x, point3.y);
+	float A3 = area(point1.x, point1.y, point2.x, point2.y, p.x, p.y);
+	return (A == (A1 + A2 + A3));
+}
+
+
+bool precise_collides(Entity entity1, Entity entity2)
+{
+	Motion& motion1 = registry.motions.get(entity1);
+	Motion& motion2 = registry.motions.get(entity2);
+	
+	Mesh* mesh1 = registry.meshPtrs.get(entity1);
+	Mesh* mesh2 = registry.meshPtrs.get(entity2);
+	
+	// Go over the first entity's faces
+	for(int i = 0; i<mesh1->vertex_indices.size(); i=i+3){
+		// vertex indices in a triangle face
+		uint16_t ind1 = mesh1->vertex_indices[i];
+		uint16_t ind2 = mesh1->vertex_indices[i+1];
+		uint16_t ind3 = mesh1->vertex_indices[i+2];
+		
+		// vertices of the triangle
+		std::vector<ColoredVertex> coloredVerteces = mesh1->vertices;
+		vec3 point1 = {coloredVerteces[ind1].position.x, coloredVerteces[ind1].position.y, 1.f};
+		vec3 point2 = {coloredVerteces[ind2].position.x, coloredVerteces[ind2].position.y, 1.f};
+		vec3 point3 = {coloredVerteces[ind3].position.x, coloredVerteces[ind3].position.y, 1.f};
+		
+		// vertices of the triangle in world coor
+		Transform transform1;
+		transform1.translate(motion1.position);
+		transform1.rotate(motion1.angle);
+		transform1.scale(motion1.scale);
+
+		point1 = transform1.mat*point1;
+		point2 = transform1.mat*point2;
+		point3 = transform1.mat*point3;
+		
+		// Go over the second entity's vertices
+		for(ColoredVertex cv: mesh2->vertices){
+			vec3 vertex = {cv.position.x, cv.position.y, 1.f};
+			
+			// vertex in world coor
+			Transform transform2;
+			transform2.translate(motion2.position);
+			transform2.rotate(motion2.angle);
+			transform2.scale(motion2.scale);
+
+			vertex = transform2.mat*vertex;
+
+			if(isInside(point1, point2, point3, vertex)){
+				return true;
+			}
+		}
+	}
+	return false;	
 }
 
 void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float window_height_px)
@@ -360,15 +430,25 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 			else if (registry.charIndicator.has(entity_j) && registry.charIndicator.get(entity_j).owner == entity_i) {
 				motion_j.position = vec2(motion_i.position.x, motion_j.position.y);
 			}
-
-
-			//if (collides(motion_i, motion_j))
+			
 			if (collides(entity_i, entity_j))
 			{
-				// Create a collisions event
-				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
-				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+				if(registry.preciseColliders.has(entity_i) && registry.preciseColliders.has(entity_j))
+				{
+					if(precise_collides(entity_i, entity_j))
+					{
+						// Create a collisions event
+						// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+						registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+						registry.collisions.emplace_with_duplicates(entity_j, entity_i);	
+					}
+				} else
+				{
+					// Create a collisions event
+					// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+					registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+					registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+				}
 			}
 		}
 	}

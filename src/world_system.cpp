@@ -11,12 +11,11 @@
 
 #include "ai_system.hpp"
 #include "skill_system.hpp"
+#include <queue>
+#include "BFS.hpp"
 
 // Game configuration
-const size_t MAX_TURTLES = 15;
-const size_t MAX_FISH = 5;
-const size_t TURTLE_DELAY_MS = 2000 * 3;
-const size_t FISH_DELAY_MS = 5000 * 3;
+const size_t BOULDER_DELAY_MS = 1000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = {600, 150};
@@ -25,6 +24,9 @@ vec2 CURRPLAYER_LOCATION = {};
 
 const float animation_timer = 250.f;
 const float hit_position = 20.f;
+//arrow BFS
+vector<pair<int, int>> ArrowResult;
+Entity currentArrow;
 
 Entity player_mage;
 Entity enemy_mage;
@@ -73,6 +75,8 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
+const size_t MAX_BOULDERS = 5;
+
 // mouse gesture skills related=============
 int startMousePosCollect = 0;
 std::vector<vec2> mouseGestures;
@@ -92,6 +96,7 @@ using namespace std;
 
 WorldSystem::WorldSystem()
 	: points(0)
+	, next_boulder_spawn(0.f)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -374,7 +379,7 @@ void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem
 	Mix_VolumeChunk(registry.charge_spell_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.beam_spell_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.minion_spawn_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(registry.error_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.error_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(registry.gesture_heal_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_aoe_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_turn_sound, MIX_MAX_VOLUME / 10);
@@ -847,6 +852,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	//printf("%f %f\n",msPos.x, msPos.y);
+
 	//check bouncing arrow
 	for (int i = (int)registry.bouncingArrows.components.size() - 1; i >= 0; --i) {
 		BouncingArrow* ba = &registry.bouncingArrows.components[i];
@@ -887,54 +894,95 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			ba->bounce_time--;
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
-		//stops arrow when it have bounced
 
-		if (ba->bounce_time <= 0 && ba->ai_runned == 0) {
-			baM->velocity.x = baM->velocity.x * 0.6;
-			baM->velocity.y = baM->velocity.y * 0.6;
-			baM->acceleration.x = baM->acceleration.x * 0.6;
-			baM->acceleration.y = baM->acceleration.y * 0.6;
-			ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
+		//check if enemy exist
+		if (registry.enemies.size() > 0) {
+			//stops arrow when it have bounced
+
+			if (ba->bounce_time <= 0 && ba->ai_runned == 0) {
+				baM->velocity.x = baM->velocity.x * 0.9;
+				baM->velocity.y = baM->velocity.y * 0.9;
+				baM->acceleration.x = baM->acceleration.x * 0.9;
+				baM->acceleration.y = baM->acceleration.y * 0.9;
+				ba->ai_trigger = ba->ai_trigger - elapsed_ms_since_last_update;
+			}
+
+			////trigger BFS============================
+			if (ba->ai_trigger <= 0 && ba->ai_runned == 0) {
+				registry.gravities.remove(registry.bouncingArrows.entities[i]);
+				baM->velocity.x = 0;
+				baM->velocity.y = 0;
+				baM->acceleration.x = 0;
+				baM->acceleration.y = 0;
+				ba->ai_runned = 1;
+				//initilaze visited
+				printf("initilizing grid\n");
+				//printf("ai_runned is: %d\n", ba->ai_runned);
+				vector<vector<bool>> visited;
+				for (int i = 0; i < screen_width / 10; i++)
+				{
+					vector<bool> tempv;
+					for (int j = 0; j < screen_height / 10; j++)
+					{
+						tempv.push_back(false);
+					}
+					visited.push_back(tempv);
+				}
+
+				//initilaze map
+				vector<vector<int>> map;
+				for (int i = 0; i < screen_width / 10; i++)
+				{
+					vector<int> tempv1;
+					for (int j = 0; j < screen_height / 10; j++)
+					{
+						tempv1.push_back(1);
+					}
+					map.push_back(tempv1);
+				}
+				//if barrier exist
+				if (registry.shield.size() != 0) {
+					for (int i = 57 - 1 - 8; i <= 63 - 1 + 8; i++) {
+						for (int j = 21 - 1 - 8; j <= 64 - 1; j++) {
+							map[i][j] = -1;
+							visited[i][j] = true;
+						}
+					}
+				}
+				// mark enemy
+				Motion markedEnemyM = registry.motions.get(registry.enemies.entities[0]);
+				pair<int, int> mark = make_pair(static_cast<int>(markedEnemyM.position.x)/10, static_cast<int>(markedEnemyM.position.y)/10);
+				map[mark.first][mark.second]=9;
+
+				//start BFS
+				vec2 startPos = baM->position;
+				vector<pair<int, int>> path;
+				path.push_back(make_pair(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10));
+				BFS bfs = BFS(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10, 0, path);
+				ArrowResult = bfs.arrowBFS(map, bfs, visited);
+				currentArrow = registry.bouncingArrows.entities[i];
+				printf("result path is:\n ");
+
+				//print path
+				for (int i = 0; i < ArrowResult.size(); i++) {
+					printf("%d, %d\n", ArrowResult[i].first, ArrowResult[i].second);
+				}
+			}
+			//======================================================================
+
+
 		}
-		////trigger BFS
-		//if (ba->ai_trigger <= 0 && ba->ai_runned==0) {
-		//	registry.gravities.remove(registry.bouncingArrows.entities[i]);
-		//	ba->ai_runned = 1;
-		//	//initilaze visited
-		//	printf("initilizing grid\n");
-		//	//printf("ai_runned is: %d\n", ba->ai_runned);
-		//	vector<vector<bool>> visited;
-		//	for (int i = 0; i < screen_width/10; i++)
-		//	{
-		//		vector<bool> tempv;
-		//		for (int j = 0; j < screen_height/10; j++)
-		//		{
-		//			tempv.push_back(false);
-		//		}
-		//		visited.push_back(tempv);
-		//	}
-
-		////	//initilaze map
-		//	vector<vector<int>> map;
-		//	for (int i = 0; i < screen_width/10; i++)
-		//	{
-		//		vector<int> tempv1;
-		//		for (int j = 0; j < screen_height/10; j++)
-		//		{
-		//			tempv1.push_back(1);
-		//		}
-		//		map.push_back(tempv1);
-		//	}
-		//	for (int i = 0; i < screen_width / 10; i++) {
-		//		for (int j = 0; j < screen_height / 10; j++) {
-		//			printf("%d ", map[i][j]);
-		//		}
-		//		printf("\n");
-		//	}
-		//}
-
+		
 	}
 
+	// move arrow
+	if (!ArrowResult.empty()) {
+		if (registry.motions.has(currentArrow)) {;
+			Motion* arrowM = &registry.motions.get(currentArrow);
+			arrowM->position = { ArrowResult[0].first*10,ArrowResult[0].second*10 };
+			ArrowResult.erase(ArrowResult.begin());
+		}
+	}
 
 
 
@@ -1075,9 +1123,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 						projm->acceleration = {-100, 0};
 						break;
 					}
+					case BATTLE_ARROW: {
+						sk->launchArrow(attacker, msPos, renderer, 0);
+						break;
+					}
 					case FREE_ROAM_ARROW: {
 						// For free-roam archer arrow-shooting
 						sk->launchArrow(player_archer, msPos, renderer, 1);
+						break;
 					}
 					default:
 						break;
@@ -1219,7 +1272,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if (isFreeRoam) {
+	if (isFreeRoam && (freeRoamLevel == 2)) {
 		// Update swarm timer here, use fireflySwarm[0] to track time
 		float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
 		if (swarm_update_timer < 0.f) {
@@ -1239,31 +1292,33 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if (player_turn == 1)
-	{
-		displayPlayerTurn();
-		prevPlayer = currPlayer;
-	}
-
-	// this area is to check for edge cases for enemy to attack during their turn
-	if (player_turn == 0)
-	{
-
-		if ((registry.checkRoundTimer.size() <= 0) && (registry.companions.size() > 0))
+	if(!isFreeRoam){
+		if (player_turn == 1)
 		{
-			displayEnemyTurn();
-			if (registry.enemies.has(currPlayer))
-			{ // check if enemies have currPlayer
-				printf("Calling tree here\n");
-				ai->callTree(currPlayer);
-				prevPlayer = currPlayer; // added this line to progress the necromancer phase 2 turn 2 after the first turn's tree is called, not sure if it will affect other things, need more testing
-			}
-			else
+			displayPlayerTurn();
+			prevPlayer = currPlayer;
+		}
+
+		// this area is to check for edge cases for enemy to attack during their turn
+		if (player_turn == 0)
+		{
+
+			if ((registry.checkRoundTimer.size() <= 0) && (registry.companions.size() > 0))
 			{
-				if (roundVec.empty())
+				displayEnemyTurn();
+				if (registry.enemies.has(currPlayer))
+				{ // check if enemies have currPlayer
+					printf("Calling tree here\n");
+					ai->callTree(currPlayer);
+					prevPlayer = currPlayer; // added this line to progress the necromancer phase 2 turn 2 after the first turn's tree is called, not sure if it will affect other things, need more testing
+				}
+				else
 				{
-					printf("roundVec is empty at enemy turn, createRound now \n");
-					createRound();
+					if (roundVec.empty())
+					{
+						printf("roundVec is empty at enemy turn, createRound now \n");
+						createRound();
+					}
 				}
 			}
 		}
@@ -1371,6 +1426,24 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+	if(isFreeRoam && (freeRoamLevel == 1)){
+		next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
+		if (registry.boulders.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+			// Reset timer
+			next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
+			// Create boulder
+			Entity entity = createBoulder(renderer, {window_width_px+50, window_height_px - ARCHER_FREEROAM_HEIGHT + 25});
+			// Setting random initial position and constant velocity
+			Motion& motion = registry.motions.get(entity);
+			motion.velocity = vec2(-100.f, 0.f);
+		}
+		// move it to physics
+		for(Entity rollable: registry.rollables.entities){
+			Motion& motion = registry.motions.get(rollable);
+			motion.angle = motion.angle - 0.03;
+		}
+	}
+
 	float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities)
 	{
@@ -1467,6 +1540,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// update state of free_roam_bird
 	if (registry.motions.has(free_roam_bird)) {
 		auto& birdMotion = registry.motions.get(free_roam_bird);
+		registry.bird.get(free_roam_bird).birdNextPostionTracker = birdNextPostionTracker;
 		
 		if (birdPositionDivisor == 1 || birdPositionDivisor == 2) {
 			float offsetX = (spline[birdNextPostionTracker].x - spline[birdNextPostionTracker - 1].x) / 2.f;
@@ -1495,7 +1569,7 @@ void WorldSystem::restart_game(bool force_restart)
 	JSONLoader json_loader;
 	json_loader.init(renderer);
 
-	if (registry.companions.size() > 0 && registry.enemies.size() == 0)
+	if (registry.companions.size() > 0 && (registry.enemies.size() == 0 || (registry.enemies.size() != 0 && registry.enemies.has(free_roam_bird))))
 	{
 		if (gameLevel < 3)
 		{
@@ -1606,65 +1680,23 @@ void WorldSystem::restart_game(bool force_restart)
 	glfwGetWindowSize(window, &w, &h);
 	// Render background before all else
 
-	// Layer 1 (Last layer in background)
-	createBackgroundLayerOne(renderer, {w / 2, h / 2});
-	// Layer 3
-	createBackgroundLayerThree(renderer, {w / 2, h / 2});
-	// Layer 2
-	createBackgroundLayerTwo(renderer, {w / 2, h / 2});
-	// Layer 4 (Foremost layer)
-	createBackgroundLayerFour(renderer, {w / 2, h / 2});
-
-	std::vector<vec3> controlPoints;
-	controlPoints.push_back(vec3(227, 160, 0));
-	controlPoints.push_back(vec3(382, 341, 0));
-	controlPoints.push_back(vec3(632, 281, 0));
-	controlPoints.push_back(vec3(758, 367, 0));
-	controlPoints.push_back(vec3(1105, 242, 0));
-	controlPoints.push_back(vec3(1008, 59, 0));
-	controlPoints.push_back(vec3(733, 148, 0));
-	controlPoints.push_back(vec3(446, 75, 0));
-	controlPoints.push_back(vec3(227, 160, 0));
-	auto result = GenerateSpline(controlPoints, 20);
-	// Keeping these for debugging purposes
-	// printf("spline points: %i\n", result.size());
-	// createSpline(renderer, controlPoints);
-	spline = result;
-	free_roam_bird = createBird(renderer, vec2(227, 160));
-	birdNextPostionTracker = 1;
-	birdPositionDivisor = 1;
-
 	if (isFreeRoam)
 	{
-		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
+		if (freeRoamLevel == 1) {
+			createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_ONE);
+			initializeFreeRoamOne();
+		}
+
+		else if (freeRoamLevel == 2) {
+			createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_TWO);
+			initializeFreeRoamTwo();
+		}
+		open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 		printf("Loading free roam 0\n");
 
-		player_archer = createPlayerArcher(renderer, {700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25}, 1);
-		//renderer->archer = player_archer;
-
-		// Create these for testing, can remove unneeded assets
-		//createFirefly(renderer, { 300, 500 });
-		createPlatform(renderer, { 550, 600 });
-		createPlatform(renderer, { 650, 450 });
-		createPlatform(renderer, { 100, 350 });
-		createPlatform(renderer, { 300, 350 });
-		createPlatform(renderer, { 1100, 225 });
-		createPlatform(renderer, { 675, 225 });
-		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
-		//createRockMesh(renderer, { 900, 600 });
-		createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT });
-		createTreasureChest(renderer, { 1150, 225 - PLATFORM_HEIGHT });
-
-		if (swarmSys->swarmInitialized) {
-			swarmSys->resetSwarm();
-		}
-		else {
-			swarmSys->initializeSwarmEntities(renderer);
-		}
+		player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
 
 		renderer->gameLevel = 1;
-
-		Mix_FadeInMusic(registry.wintervale_music, -1, 500);	// change to free roam level 1 music
 	}
 	else
 	{
@@ -1693,9 +1725,13 @@ void WorldSystem::restart_game(bool force_restart)
 			printf("Loading a file\n");
 			if (gameLevel == 0)
 			{
-				printf("Loading level 0\n");
-				renderer->gameLevel = 1;
-				json_loader.get_level("level_0.json");
+			printf("Loading level 0\n");
+			renderer->gameLevel = 1;
+
+			createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
+			// Kept this to load icons, but commented out createMage in load_level()
+			json_loader.get_level("level_0.json");
+			player_archer = createPlayerArcher(renderer, vec2(100, 650), 0);
 
 			tutorial_enabled = 1;
 			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
@@ -1704,22 +1740,25 @@ void WorldSystem::restart_game(bool force_restart)
 		if(gameLevel == 1){
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
+			createBackground(renderer, { w / 2, h / 2 }, LEVEL_ONE);
 			json_loader.get_level("level_1.json");
 			story = 8;
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
 			renderer->gameLevel = gameLevel;
+			createBackground(renderer, { w / 2, h / 2 }, LEVEL_TWO);
 			json_loader.get_level("level_2.json");
-			story = 15;
+			story = 19;
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
 			renderer->gameLevel = 1;
+			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
 			json_loader.get_level("level_3.json");
-			story = 20;
+			player_archer = createPlayerArcher(renderer, { 300, 600 }, 0);
+			story = 26;
 		} else{
 			printf("Incorrect level\n");
 		}
-
 		arrow_icon = createArrowIcon(renderer, {200, 700});
 		roundVec.clear();	// empty vector roundVec to create a new round
 		createRound();
@@ -1735,7 +1774,7 @@ void WorldSystem::restart_game(bool force_restart)
 		showCorrectSkills();
 		displayPlayerTurn(); // display player turn when restart game
 		update_healthBars();
-	}
+	}printf("done with restarting\n");
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity)
@@ -1940,11 +1979,13 @@ void WorldSystem::handle_collisions()
 		// deal with collisions in free roam
 		if (isFreeRoam) {
 
-			// Deal with archer - platform collisions
+			
 			if (registry.companions.has(entity))
 			{
+				// Deal with archer - platform collisions
 				if (registry.platform.has(entity_other))
 				{
+					printf("platform has other entity\n");
 					Motion& platform_motion = registry.motions.get(entity_other);
 					float platform_position_x = platform_motion.position.x;
 					float platform_position_y = platform_motion.position.y;
@@ -1979,7 +2020,40 @@ void WorldSystem::handle_collisions()
 						archer_motion.position.x += 2;
 					}
 				}
+				// Deal with archer - treasure chest collisions
+				else if (registry.chests.has(entity_other)) {;
+					TreasureChest chest = registry.chests.get(entity_other);
+					RenderRequest& renderedChest = registry.renderRequests.get(entity_other);
+					Motion chestMotion = registry.motions.get(entity_other);
+					if (renderedChest.used_geometry != GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN && chest.chestType == HEALTH_BOOST) {
+						// Boost all companion HP permanently
+						registry.player_mage_hp *= 1.25;
+						registry.player_swordsman_hp *= 1.25;
+						registry.player_archer_hp *= 1.25;
+						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
+						createBoostMessage(renderer, chestMotion.position, HEALTH_BOOST);
+					}
+					else if (renderedChest.used_geometry != GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN && chest.chestType == DAMAGE_BOOST) {
+						// Boost all ability damages permanently
+						registry.fireball_dmg *= 1.25;
+						registry.iceshard_dmg *= 1.25;
+						registry.arrow_dmg *= 1.25;
+						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
+						createBoostMessage(renderer, chestMotion.position, DAMAGE_BOOST);
+					}
+					// Switch to open chest image
+					renderedChest.used_geometry = GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN;
+				} else if (registry.boulders.has(entity_other))
+				{
+					Motion& rollable_motion = registry.motions.get(entity_other);
+					rollable_motion.velocity = {0.f, 0.f};
+					registry.rollables.remove(entity_other);
 
+					Motion& companion_motion = registry.motions.get(entity);
+					if(companion_motion.velocity.x>0){
+						companion_motion.velocity.x = 0.f;
+					}
+				}
 			}
 
 			// Deal with arrow - bird collisions
@@ -2010,11 +2084,17 @@ void WorldSystem::handle_collisions()
 						registry.remove_all_components_of(entity);
 					}
 				}
+				// Arrow rock collision
+				else if (registry.boulders.has(entity_other)) {
+					activate_deathParticles(entity_other);
+					registry.remove_all_components_of(entity);
+				}
 			}
 		}		
 		
 		// deal with collisions in battles
 		else {
+			//printf("Not free world\n");
 			// Deal with arrow - bird collisions
 			if (registry.projectiles.has(entity))	// not working in free roam
 			{
@@ -2204,39 +2284,34 @@ void WorldSystem::handle_collisions()
 		}		
 	}
 
-	Motion& archerMotion = registry.motions.get(player_archer);
+	if(isFreeRoam){
 
-	// Check for left & right boundaries
-	if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
-		archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
-	}
-	else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH / 2) {
-		archerMotion.position.x = window_width_px - ARCHER_FREEROAM_WIDTH / 2;
-	}
+		Motion& archerMotion = registry.motions.get(player_archer);
 
-	// Check if archer is above ceiling
-	if (archerMotion.position.y < currCeilingPos) {
-		archerMotion.position.y = currCeilingPos;
-		archerMotion.velocity.y = 400.f;
-		registry.companions.get(player_archer).curr_anim_type = JUMPING;
-	}
-
-	// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
-	if (archerMotion.position.y > currFloorPos) {
-		archerMotion.velocity.y = 0.f;
-		archerMotion.acceleration.y = 0.f;
-		archerMotion.position.y = currFloorPos;
-		if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
-			if (archerMotion.velocity.x != 0) {
-				registry.companions.get(player_archer).curr_anim_type = WALKING;
-			}
-			else registry.companions.get(player_archer).curr_anim_type = IDLE;
+		// Check if archer is above ceiling
+		if (archerMotion.position.y < currCeilingPos) {
+			archerMotion.position.y = currCeilingPos;
+			archerMotion.velocity.y = 400.f;
+			registry.companions.get(player_archer).curr_anim_type = JUMPING;
 		}
-	}
-	// If archer is not on currFloorPos and falling from above (No jump)
-	else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
-		archerMotion.velocity.y = 400.f;
-		registry.companions.get(player_archer).curr_anim_type = JUMPING;
+
+		// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
+		if (archerMotion.position.y > currFloorPos) {
+			archerMotion.velocity.y = 0.f;
+			archerMotion.acceleration.y = 0.f;
+			archerMotion.position.y = currFloorPos;
+			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
+				if (archerMotion.velocity.x != 0) {
+					registry.companions.get(player_archer).curr_anim_type = WALKING;
+				}
+				else registry.companions.get(player_archer).curr_anim_type = IDLE;
+			}
+		}
+		// If archer is not on currFloorPos and falling from above (No jump)
+		else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+			archerMotion.velocity.y = 400.f;
+			registry.companions.get(player_archer).curr_anim_type = JUMPING;
+		}
 	}
 
 	// Remove all collisions from this simulation step
@@ -2262,6 +2337,18 @@ void WorldSystem::handle_boundary_collision()
 			// enemy turn start
 		}
 	}
+	if(isFreeRoam){
+
+		Motion& archerMotion = registry.motions.get(player_archer);
+
+		// Check for left & right boundaries
+		if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
+			archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
+		}
+		else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH) {
+			restart_game(false);
+		}
+	}
 }
 
 // Should the game be over ?
@@ -2282,14 +2369,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		restart_game(true);
 	}
 
-	// david test
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_Q) {
-	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
-	//}
-
-	 //if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-		//sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
-	 //}
 	if (isFreeRoam) {
 		// Move right
 		if (key == GLFW_KEY_D) {
@@ -2353,15 +2432,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.y = -500.f;
+				motion.velocity.y = -350.f;
 				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}
 	}
 
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_E) {
-	//	sk->launchNecroBarrier(necromancer_phase_two, renderer);
-	//}
 
 	// Debugging
 	if (key == GLFW_KEY_B)
@@ -2371,19 +2447,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		else
 			debugging.in_debug_mode = true;
 	}
-
-	// testing particle beam
-	// if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
-	//	if (!registry.Particles.has(necromancer_phase_two)) {
-	//		sk->startParticleBeamAttack(necromancer_phase_two);
-	//	}
-	//}
-
-	// testing deformation of mesh. NOTE: render_system also needs to be updated
-	// to use this
-	/*if (key == GLFW_KEY_Q && action == GLFW_RELEASE) {
-		renderer->shouldDeform = 1;
-	}*/
 
 	// Volume control (z = Decrease BGM vol., x = Increase BGM vol., c = Decrease effects vol., v = Increase effects vol.)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_Z)
@@ -2813,13 +2876,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			{
 
 				// iceshard
-				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 0))
+				if (inButton(registry.motions.get(iceShard_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 0) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICONSELECTED;
 						selected_skill = 0;
-						tutorial_icon_selected = 1;
 					}
 					else
 					{
@@ -2828,7 +2890,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// fireball
-				else if (inButton(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 1))
+				else if (inButton(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 1) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2842,7 +2904,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// rock
-				else if (inButton(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 2))
+				else if (inButton(registry.motions.get(rock_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 2) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2856,7 +2918,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// heal
-				else if (inButton(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 3))
+				else if (inButton(registry.motions.get(heal_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 3) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2870,7 +2932,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// taunt
-				else if (inButton(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 4))
+				else if (inButton(registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 4) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2884,7 +2946,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					}
 				}
 				// melee
-				else if (inButton(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 5))
+				else if (inButton(registry.motions.get(melee_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 5) && !(tutorial_enabled && curr_tutorial_box_num < 7))
 				{
 					if (selected_skill == -1)
 					{
@@ -2897,12 +2959,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 						selected_skill = -1;
 					}
 				}
-				//arrow
-				else if (inButton(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT)
-					&& canUseSkill(currPlayer, 6)) {
+				// arrow (Tutorial ability)
+				else if (inButton(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT) && canUseSkill(currPlayer, 6) && !(tutorial_enabled && curr_tutorial_box_num < 5)) {
 					if (selected_skill == -1) {
 						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICONSELECTED;
 						selected_skill = 6;
+						tutorial_icon_selected = 1;
 					}
 					else {
 						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
@@ -2914,7 +2976,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					if (selected_skill == 0) {
 						sk->startIceShardAttack(currPlayer, currPlayer);
 						selected_skill = -1;
-						tutorial_ability_fired = 1;
 						registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
 						playerUseMelee = 0; // added this to switch back playerUseMelee to 0 so that we don't trigger unnecessary enemy attack
 					}
@@ -2988,15 +3049,16 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 								sk->startMeleeAttack(currPlayer, registry.enemies.entities[j], -1);
 								playerUseMelee = 1;
 								selected_skill = -1;
-								registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
+								registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 							}
 						}
 					}
 					//arrow
 					if (selected_skill == 6) {
-						sk->launchArrow(currPlayer,msPos,renderer, 0);
+						sk->startArrowAttack(currPlayer);
 						selected_skill = -1;
-						registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
+						tutorial_ability_fired = 1;
+						registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
 						playerUseMelee = 0;
 					}
 				}
@@ -3089,7 +3151,7 @@ void WorldSystem::advanceTutorial(Entity currTutorial, vec2 pos)
 		next_box_pos = vec2(350, 100);
 		break; // Menu
 	case 4:
-		next_box_pos = vec2(800, 550);
+		next_box_pos = vec2(200, 550);
 		tutorial_icon_selected = 0;
 		break; // Ability intro
 	// case 5: next_box_pos = vec2(700, 300); tutorial_ability_fired = 0; break;  // Ability targeting
@@ -3335,7 +3397,7 @@ void WorldSystem::showCorrectSkills()
 	if (currPlayer != NULL && registry.companions.has(currPlayer))
 	{
 		Statistics pStat = registry.stats.get(currPlayer);
-		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 5))
+		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7))
 		{
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
@@ -3388,9 +3450,63 @@ void WorldSystem::showCorrectSkills()
 		{
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
+		if (!skill_character_aviability[pStat.classID][6] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 5))
+		{
+			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+		}
+		else
+		{
+			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
+		}
 	}
 }
 
-void WorldSystem::backgroundTelling()
+void WorldSystem::backgroundTelling() 
 {
+
+}
+
+
+void WorldSystem::initializeFreeRoamOne() {
+
+	std::vector<vec3> controlPoints;
+	controlPoints.push_back(vec3(227, 160, 0));
+	controlPoints.push_back(vec3(382, 341, 0));
+	controlPoints.push_back(vec3(632, 281, 0));
+	controlPoints.push_back(vec3(758, 367, 0));
+	controlPoints.push_back(vec3(1070, 242, 0));
+	controlPoints.push_back(vec3(1008, 59, 0));
+	controlPoints.push_back(vec3(733, 148, 0));
+	controlPoints.push_back(vec3(446, 75, 0));
+	controlPoints.push_back(vec3(227, 160, 0));
+	auto result = GenerateSpline(controlPoints, 20);
+	// Keeping these for debugging purposes
+	// printf("spline points: %i\n", result.size());
+	// createSpline(renderer, controlPoints);
+	spline = result;
+	birdNextPostionTracker = 1;
+	birdPositionDivisor = 1;
+	free_roam_bird = createBird(renderer, vec2(227, 160));
+
+	Mix_FadeInMusic(registry.wintervale_music, -1, 500);	// change to free roam level 1 music
+}
+
+void WorldSystem::initializeFreeRoamTwo() {
+
+	createPlatform(renderer, { 550, 600 });
+	createPlatform(renderer, { 650, 450 });
+	createPlatform(renderer, { 100, 350 });
+	createPlatform(renderer, { 300, 350 });
+	createPlatform(renderer, { 1100, 225 });
+	createPlatform(renderer, { 675, 225 });
+	createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT }, HEALTH_BOOST);
+	createTreasureChest(renderer, { 1100, 225 - PLATFORM_HEIGHT }, DAMAGE_BOOST);
+
+	if (swarmSys->swarmInitialized) {
+		swarmSys->resetSwarm();
+	}
+	else {
+		swarmSys->initializeSwarmEntities(renderer);
+	}
+	Mix_FadeInMusic(registry.cestershire_music, -1, 500);
 }

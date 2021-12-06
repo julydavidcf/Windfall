@@ -136,6 +136,9 @@ private:
 	// Story telling
 	void backgroundTelling();
 
+	void initializeFreeRoamOne();
+	void initializeFreeRoamTwo();
+
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;
@@ -194,12 +197,16 @@ private:
 
 	const int16 MAX_GAME_LEVELS = 3;
 
+	float next_boulder_spawn;
+
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee
 //mage
 		{ true, true, true, true, false, false, true},
 //swordsman
-		{ false, false, false, false, true, true,false}
+		{ false, false, false, false, true, true,false},
+// archer
+	{ false, false, false, false, false, false, true}
 	};
 
 	std::vector<vec3> spline;

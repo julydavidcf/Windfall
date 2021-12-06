@@ -923,6 +923,17 @@ void RenderSystem::draw(float elapsed_ms)
 						}
 						case ATTACKING: {
 							numFrames = ARCHER_ATTACKING_FRAMES; timePerFrame = ARCHER_ATTACKING_FRAME_TIME;
+
+							if (registry.motions.get(entity).scale.x == 160.f) {
+								// Slower attack frames for turn-based battle
+								timePerFrame = ARCHER_TURN_ATTACKING_FRAME_TIME;
+								if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_ATTACKING) {
+									currGeometry = GEOMETRY_BUFFER_ID::ARCHER_ATTACKING;
+									*currFrame = 0;
+								}
+								break;
+							}
+
 							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_ATTACKING) {
 								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_ATTACKING;
 								*currFrame = 0;
@@ -951,7 +962,37 @@ void RenderSystem::draw(float elapsed_ms)
 							}
 							break;
 						}
+						case DEAD: {
+							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_DEAD) {
+								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_DEAD;
+								*currFrame = 0;
+							}
+							numFrames = ARCHER_DEAD_FRAMES; timePerFrame = ARCHER_DEAD_FRAME_TIME; break;
+						}
 						default: break;
+					}
+					break;
+				}
+				case DRAGON: {
+					switch (animType) {
+					case IDLE: {
+						if (currGeometry != GEOMETRY_BUFFER_ID::DRAGON_FLYING) {
+							*currFrame = 0;
+						}
+						currGeometry = GEOMETRY_BUFFER_ID::DRAGON_FLYING;
+						numFrames = DRAGON_FLYING_FRAMES;  frame_width = DRAGON_FLYING_FRAME_WIDTH; timePerFrame = DRAGON_FLYING_FRAME_TIME; 
+						
+						// Flip dragon when reaching edge
+						if (registry.bird.components[0].birdNextPostionTracker == 84) {
+							registry.motions.get(entity).scale.x = abs(registry.motions.get(entity).scale.x);
+						}
+						else if (registry.bird.components[0].birdNextPostionTracker == 1) {
+							registry.motions.get(entity).scale.x = -abs(registry.motions.get(entity).scale.x);
+						}
+
+						break;
+					}
+					default: break;
 					}
 					break;
 				}
