@@ -142,11 +142,7 @@ private:
 	SwarmSystem* swarmSys;
 
 	float current_speed;
-	Entity player_mage;
-	Entity enemy_mage;
-	Entity player_swordsman;
-	Entity enemy_swordsman;
-	Entity player_archer;
+	
 	Entity arrow_mesh;
 
 	Entity fireball;

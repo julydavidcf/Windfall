@@ -28,6 +28,7 @@ const float hit_position = 20.f;
 vector<pair<int, int>> ArrowResult;
 Entity currentArrow;
 
+Entity player_archer;
 Entity player_mage;
 Entity enemy_mage;
 Entity player_swordsman;
@@ -1656,15 +1657,11 @@ void WorldSystem::restart_game(bool force_restart)
 		}
 		open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 		printf("Loading free roam 0\n");
-
-		player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
-
 		renderer->gameLevel = 1;
 	}
 	else
 	{
 		// Pause menu button
-		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		bool hasSaveFile = false;
 		if (loaded_game)
 		{
@@ -1672,7 +1669,7 @@ void WorldSystem::restart_game(bool force_restart)
 			if (hasSaveFile)
 			{
 				gameLevel = loadedLevel;
-				renderer->gameLevel = gameLevel > 2 ? 1 : gameLevel;
+				renderer->gameLevel = gameLevel == 2 ? 2 : 1;
 			}
 			else
 			{
@@ -1694,7 +1691,6 @@ void WorldSystem::restart_game(bool force_restart)
 			createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
 			// Kept this to load icons, but commented out createMage in load_level()
 			json_loader.get_level("level_0.json");
-			player_archer = createPlayerArcher(renderer, vec2(100, 650), 0);
 
 			tutorial_enabled = 1;
 			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
@@ -1717,19 +1713,17 @@ void WorldSystem::restart_game(bool force_restart)
 			renderer->gameLevel = 1;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
 			json_loader.get_level("level_3.json");
-			player_archer = createPlayerArcher(renderer, { 300, 600 }, 0);
 			story = 20;
 		} else{
 			printf("Incorrect level\n");
 		}
-		arrow_icon = createArrowIcon(renderer, {200, 700});
 		roundVec.clear();	// empty vector roundVec to create a new round
 		createRound();
 		checkRound();
 	} else {
 		loaded_game = false;
 	}
-
+		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		// Create a tooltip
 		tooltip;
 		player_turn = 1;		   // player turn indicator
@@ -1737,7 +1731,8 @@ void WorldSystem::restart_game(bool force_restart)
 		showCorrectSkills();
 		displayPlayerTurn(); // display player turn when restart game
 		update_healthBars();
-	}printf("done with restarting\n");
+	}
+	printf("done with restarting\n");
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity)
