@@ -155,8 +155,8 @@ class RenderSystem {
 			textures_path("load_game.png"),
 			textures_path("load_game_hover.png"),
 			textures_path("save_game.png"),
-			textures_path("makeupGame.png"),
-			textures_path("makeupGameHover.png"),
+			textures_path("create_game.png"),
+			textures_path("create_game_hover.png"),
 			textures_path("exit_game.png"),
 			textures_path("exit_hover.png"),
 			textures_path("game_title.png"),
@@ -246,7 +246,6 @@ class RenderSystem {
 			textures_path("firefly.png"),
 			textures_path("platform.png"),
 			textures_path("treasure_chest_sheet.png"),
-			textures_path("smoke_particle.png"),
 			textures_path("damage_increase_msg.png"),
 			textures_path("health_increase_msg.png"),
 
@@ -258,13 +257,16 @@ class RenderSystem {
 			textures_path("four_out_of_four.png"),
 			// charactor selectors
 
+			textures_path("selectPanel.png"),
+
 			textures_path("mage_anim_select.png"),
 			textures_path("archerAnims_select.png"),
 			textures_path("swordsman_select.png"),
 			textures_path("necromancer_select.png"),
 			textures_path("necro_two_select.png"),
 
-			textures_path("selectPanel.png")
+			textures_path("smoke_particle.png")
+
   };
   
 	std::array<GLuint, effect_count> effects;

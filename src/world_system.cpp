@@ -75,10 +75,24 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
+
 // Makeup Game
 bool isMakeupGame = false;
+bool isReady = false;
 int companion_size = 0;
 int enemy_size = 0;
+vec2 companionOnePos = {20, 300};
+vec2 companionTwoPos = { 120, 300 };
+vec2 companionThreePos = { 220, 300 };
+vec2 companionFourPos = { 320, 300 };
+
+vec2 enemyOnePos = { 620, 300 };
+vec2 enemyTwoPos = { 720, 300 };
+vec2 enemyThreePos = { 820, 300 };
+vec2 enemyFourPos = { 920, 300 };
+
+
+
 
 
 const size_t MAX_BOULDERS = 5;
@@ -406,7 +420,7 @@ void WorldSystem::render_startscreen()
 	createStoryBackground(renderer, {w / 2, h / 2}, 6);
 	new_game_button = createUIButton(renderer, {600, 400}, NEW_GAME);
 	load_game_button = createUIButton(renderer, {600, 500}, LOAD_GAME);
-	makeup_game_button = createUIButton(renderer, {600, 600}, LOAD_GAME);
+	makeup_game_button = createUIButton(renderer, {600, 600}, 5);
 	exit_game_button = createUIButton(renderer, {600, 700}, EXIT_GAME);
 	registry.motions.get(exit_game_button).scale = {150, 70};
 }
@@ -3145,10 +3159,56 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 
 	//makeup game clicks
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && isMakeupGame) {
-		if (inButton(registry.motions.get(companionOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && isMakeupGame && !canStep && !story) {
+		if (inButton(registry.motions.get(selectArcher).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
-
+			if ((companionSize + 1) <= 4) {
+				companion_size++;
+				placeSelections(companion_size, 1) = createPlayerArcher(renderer, checkPositions(companion_size, 1), 0);
+			}
+			
+		} 
+		else if (inButton(registry.motions.get(selectMage).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+			if ((companion_size + 1) <= 4) {
+				companion_size++;
+				placeSelections(companion_size, 1) = createPlayerMage(renderer, checkPositions(companion_size, 1));
+			}
+		} 
+		else if (inButton(registry.motions.get(selectSwordsman).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+			if ((companion_size + 1) <= 4) {
+			companion_size++;
+			placeSelections(companion_size, 1) = createPlayerSwordsman(renderer, checkPositions(companion_size, 1));
+			}
+		}
+		else if (inButton(registry.motions.get(selectEnemyMage).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+			if ((companion_size + 1) <= 4) {
+				enemy_size++;
+			placeSelections(enemy_size, 2) = createEnemyMage(renderer, checkPositions(enemy_size, 2));
+			}
+		}
+		else if (inButton(registry.motions.get(selectEnemySwordsman).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+			if ((enemy_size + 1) <= 4) {
+				enemy_size++;
+				placeSelections(enemy_size, 2) = createEnemySwordsman(renderer, checkPositions(enemy_size, 2));
+			}
+		}
+		else if (inButton(registry.motions.get(selectNecroOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+			if ((enemy_size + 2) <= 4) {
+			enemy_size + 2;
+			placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size, 2));
+			}
+		}
+		else if (inButton(registry.motions.get(selectNecroTwo).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+			if ((enemy_size + 1) <= 4) {
+			enemy_size++;
+			placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size, 2));
+			}
 		}
 	}
 }
@@ -3271,6 +3331,17 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 		{
 			registry.renderRequests.get(load_game_button).used_texture = TEXTURE_ASSET_ID::LOAD_GAME;
 		}
+
+		if (mouseInArea(registry.motions.get(makeup_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
+		{
+			registry.renderRequests.get(makeup_game_button).used_texture = TEXTURE_ASSET_ID::CREATE_GAME_HOVER;
+			Mix_Volume(5, 32);
+			Mix_PlayChannel(5, registry.button_hover_sound, 0);
+		}
+		else
+		{
+			registry.renderRequests.get(makeup_game_button).used_texture = TEXTURE_ASSET_ID::CREATE_GAME;
+		}
 		if (mouseInArea(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
 		{
 			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_HOVER;
@@ -3341,41 +3412,41 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 		}
 	}
 	if (isMakeupGame) {
-		if (mouseInArea(registry.motions.get(companionOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		if (mouseInArea(registry.motions.get(selectArcher).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
-				makeHoverBox(companionOne);
+				makeHoverBox(selectArcher);
 			}
 
-		} else if (mouseInArea(registry.motions.get(companionTwo).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		} else if (mouseInArea(registry.motions.get(selectMage).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
-			makeHoverBox(companionTwo);
+			makeHoverBox(selectMage);
 			}
-		} else if (mouseInArea(registry.motions.get(companionThree).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		} else if (mouseInArea(registry.motions.get(selectSwordsman).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
-			makeHoverBox(companionThree);
+			makeHoverBox(selectSwordsman);
 			}
-		} else if (mouseInArea(registry.motions.get(enemyOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		} else if (mouseInArea(registry.motions.get(selectEnemyMage).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
-			makeHoverBox(enemyOne);
+			makeHoverBox(selectEnemyMage);
 			}
-		}else if (mouseInArea(registry.motions.get(enemyTwo).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		}else if (mouseInArea(registry.motions.get(selectEnemySwordsman).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
-			makeHoverBox(enemyTwo);
+			makeHoverBox(selectEnemySwordsman);
 			}
-		} else if (mouseInArea(registry.motions.get(enemyThree).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		} else if (mouseInArea(registry.motions.get(selectNecroOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
-			makeHoverBox(enemyThree);
+			makeHoverBox(selectNecroOne);
 			}
-		} else if (mouseInArea(registry.motions.get(enemyFour).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		} else if (mouseInArea(registry.motions.get(selectNecroTwo).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
-				makeHoverBox(enemyFour);
+				makeHoverBox(selectNecroTwo);
 			}
 		}
 		else {
@@ -3582,18 +3653,18 @@ void WorldSystem::initializeMakeUpGame() {
 	
 	createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_ONE);
 
-	selectPanel = createSelectPanel(renderer, { w / 2, h / 2 });
-	companionSize = createSizeIndicator(renderer, { w / 4, h / 2 }, companion_size - 1);
-	enemySize = createSizeIndicator(renderer, { w / 2, h / 2 }, enemy_size - 1);
+	selectPanel = createSelectPanel(renderer, { w / 2, 4*h/5 });
+	companionSize = createSizeIndicator(renderer, { 1 * w / 6, 15 * h/ 16 },companion_size + 1);
+	enemySize = createSizeIndicator(renderer, { 4 * w / 6, 15 * h / 16 }, enemy_size + 1);
 
-	companionOne = createSelections(renderer, { 1 * w / 11, 4 * h / 5 }, 1);
-	companionTwo = createSelections(renderer, {2 * w / 11, 4 * h / 5 }, 2);
-	companionThree = createSelections(renderer, { 3 * w / 11, 4 * h / 5 }, 3);
+	selectArcher = createSelections(renderer, { 1 * w / 15, 4 * h / 5 }, 1);
+	selectMage = createSelections(renderer, {3 * w / 15, 4 * h / 5 }, 2);
+	selectSwordsman = createSelections(renderer, { 5 * w / 15, 4 * h / 5 }, 3);
 
-	enemyOne = createSelections(renderer, { 7* w / 11, 4 * h / 5 }, 1);
-	enemyTwo = createSelections(renderer, { 8 * w / 11, 4 * h / 5 }, 3);
-	enemyThree = createSelections(renderer, { 9 * w / 11, 4 * h / 5 }, 4);
-	enemyFour = createSelections(renderer, { 10 * w / 11, 4 * h / 5 }, 5);
+	selectEnemyMage = createSelections(renderer, { 8* w / 15, 4 * h / 5 }, 2);
+	selectEnemySwordsman = createSelections(renderer, { 10 * w / 15, 4 * h / 5 }, 3);
+	selectNecroOne = createSelections(renderer, { 12 * w / 15, 4 * h / 5 }, 4);
+	selectNecroTwo = createSelections(renderer, { 14 * w / 15, 4 * h / 5 }, 5);
 	
 
 }
@@ -3613,8 +3684,8 @@ void WorldSystem::makeHoverBox(Entity target) {
 	vec2 line3_pos = { targetPosX + (targetScaleY / 4), targetPosY };
 	vec2 line4_pos = { targetPosX - (targetScaleY / 4), targetPosY };
 
-	vec2 line1_scale = { targetScaleX/4, line_thickness };
-	vec2 line3_scale = { line_thickness, targetScaleY/4 };
+	vec2 line1_scale = { targetScaleX/2, line_thickness };
+	vec2 line3_scale = { line_thickness, targetScaleY/2 };
 
 
 	hoverBoxTop = createLine(line1_pos, line1_scale);
@@ -3626,4 +3697,51 @@ void WorldSystem::makeHoverBox(Entity target) {
 	registry.hoverBox.emplace(hoverBoxBottom);
 	registry.hoverBox.emplace(hoverBoxLeft);
 	registry.hoverBox.emplace(hoverBoxRight);
+}
+
+vec2 WorldSystem::checkPositions(int number, int type) {
+	vec2 pos = { 0,0 };
+	if (type == 1) {
+		switch (number)
+		{
+		case 1: pos = companionOnePos; break;
+		case 2: pos = companionTwoPos; break;
+		case 3: pos = companionThreePos; break;
+		case 4: pos = companionFourPos; break;
+		}
+	}
+	else if (type == 2) {
+		switch (number)
+		{
+		case 1: pos = enemyOnePos; break;
+		case 2: pos = enemyTwoPos; break;
+		case 3: pos = enemyThreePos; break;
+		case 4: pos = enemyFourPos; break;
+		}
+	}
+	return pos;
+}
+
+Entity WorldSystem::placeSelections(int number, int type) {
+	Entity entity = emptyPos;
+	if (type == 1) {
+		switch (number)
+		{
+		case 1: entity = companionPosOne; break;
+		case 2: entity = companionPosTwo; break;
+		case 3: entity = companionPosThree; break;
+		case 4: entity = companionPosFour; break;
+		}
+	}
+	else if (type == 2) {
+		switch (number)
+		{
+		case 1: entity = enemyPosOne; break;
+		case 2: entity = enemyPosTwo; break;
+		case 3: entity = enemyPosThree; break;
+		case 4: entity = enemyPosFour; break;
+		}
+	}
+
+	return entity;
 }

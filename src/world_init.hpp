@@ -62,11 +62,12 @@ const float BACKGROUND_HEIGHT = window_height_px;
 const float DIALOGUE_WIDTH = 1200.f;
 const float DIALOGUE_HEIGHT = 200.f;
 
-const float SIZE_INDICATOR_WIDTH = 200.f;
-const float SIZE_INDICATOR_HEIGHT = 100.f;
+const float SIZE_INDICATOR_WIDTH = 50.f;
+const float SIZE_INDICATOR_HEIGHT = 25.f;
 
-const float SELECT_PANEL_WIDTH = 1200.f;
-const float SELECT_PANEL_HEIGHT = 500.f;
+
+const float SELECT_PANEL_WIDTH = window_width_px;
+const float SELECT_PANEL_HEIGHT = 350.f;
 
 const float SELECTIONS_WIDTH = 200.f;
 const float SELECTIONS_HEIGHT = 200.f;

@@ -139,9 +139,11 @@ private:
 	void initializeFreeRoamOne();
 	void initializeFreeRoamTwo();
 
+	//Make up game
 	void initializeMakeUpGame();
-
 	void makeHoverBox(Entity target);
+	vec2 checkPositions(int number, int type);
+	Entity placeSelections(int number,int type);
 	
 
 	// Game state
@@ -173,14 +175,15 @@ private:
 	Entity companionSize;
 	Entity enemySize;
 
-	Entity companionOne;
-	Entity companionTwo;
-	Entity companionThree;
-	Entity enemyOne;
-	Entity enemyTwo;
-	Entity enemyThree;
-	Entity enemyFour;
+	Entity selectArcher;
+	Entity selectMage;
+	Entity selectSwordsman;
+	Entity selectEnemyMage;
+	Entity selectEnemySwordsman;
+	Entity selectNecroOne;
+	Entity selectNecroTwo;
 
+	Entity emptyPos;
 	Entity companionPosOne;
 	Entity companionPosTwo;
 	Entity companionPosThree;
