@@ -76,7 +76,7 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
-const size_t MAX_BOULDERS = 2;
+const size_t MAX_BOULDERS = 1;
 
 // mouse gesture skills related=============
 int startMousePosCollect = 0;
@@ -3121,6 +3121,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				auto& arrow = registry.attackers.emplace(player_archer);
 				arrow.attack_type = FREE_ROAM_ARROW;
 				arrow.counter_ms = 525.f;
+				arrow.old_pos = msPos;
 				
 				auto& motion = registry.motions.get(player_archer);
 
