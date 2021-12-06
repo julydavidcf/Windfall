@@ -869,6 +869,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			baM->acceleration.x = baM->acceleration.x * -1;
 			baM->position.x = baXPos - baM->scale.x;
 			ba->bounce_time--;
+			printf("Bouncing from left wall\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baXPos + baM->scale.x > screen_width && baM->velocity.x >= 0 && baM->acceleration.x>=0 && ba->bounce_time>0) {
@@ -877,6 +878,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			baM->acceleration.x = baM->acceleration.x * -1;
 			baM->position.x = baXPos + baM->scale.x;
 			ba->bounce_time--;
+			printf("Bouncing from right wall\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baYPos - baM->scale.y < 0 && baM->velocity.y <= 0 && baM->acceleration.y >= 0 && ba->bounce_time>0) {
@@ -885,6 +887,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			//baM->acceleration.y = baM->acceleration.y * -1;
 			baM->position.y = baYPos - baM->scale.y;
 			ba->bounce_time--;
+			printf("Bouncing from ceiling\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baYPos + baM->scale.y > screen_height && baM->velocity.y >= 0 && baM->acceleration.y >= 0 && ba->bounce_time > 0) {
@@ -893,6 +896,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			//baM->acceleration.y = baM->acceleration.y * -1;
 			baM->position.y = baYPos + baM->scale.y;
 			ba->bounce_time--;
+			printf("Bouncing from floor\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 
@@ -1697,7 +1701,7 @@ void WorldSystem::restart_game(bool force_restart)
 			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
 			curr_tutorial_box_num = 0;
 		}
-		if(gameLevel == 1){
+		else if(gameLevel == 1){
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_ONE);
@@ -2252,11 +2256,17 @@ void WorldSystem::handle_boundary_collision()
 	for (uint i = 0; i < projectilesRegistry.components.size(); i++)
 	{
 		Entity entity = projectilesRegistry.entities[i];
-		if (registry.motions.get(entity).position.x <= 0 - 20 ||
-			registry.motions.get(entity).position.x >= screen_width + 20 ||
-			registry.motions.get(entity).position.y <= 0 - 20 ||
-			registry.motions.get(entity).position.y >= screen_height + 20)
+		if (registry.motions.get(entity).position.x <= 0 - registry.motions.get(entity).scale.x - 20 ||
+			registry.motions.get(entity).position.x >= screen_width + registry.motions.get(entity).scale.x + 20 ||
+			registry.motions.get(entity).position.y <= 0 - registry.motions.get(entity).scale.y- 20 ||
+			registry.motions.get(entity).position.y >= screen_height + registry.motions.get(entity).scale.y + 20)
 		{
+			if(registry.bouncingArrows.has(entity)){
+				BouncingArrow& baM = registry.bouncingArrows.get(registry.bouncingArrows.entities[i]);
+				if(baM.bounce_time>0){
+					continue;
+				} 
+			}
 			registry.remove_all_components_of(entity);
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
