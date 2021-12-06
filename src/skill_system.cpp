@@ -164,7 +164,7 @@ void SkillSystem::startArrowAttack(Entity origin) {
 		companion.curr_anim_type = ATTACKING;
 		Attack& attack = registry.attackers.emplace(origin);
 		attack.attack_type = BATTLE_ARROW;
-		attack.counter_ms += 800.f;	// attack.counter_ms is 250, animation_timer is 500
+		attack.counter_ms += 400.f;	// attack.counter_ms is 250, animation_timer is 500
 		attack.old_pos = mousePos;
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);

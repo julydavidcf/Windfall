@@ -1906,17 +1906,27 @@ void WorldSystem::update_healthBars()
 {
 	for (Entity entity : registry.enemies.entities)
 	{
+		if (!registry.enemies.has(entity) || !registry.stats.has(entity)) continue;
+
 		Enemy &enemy = registry.enemies.get(entity);
 		Statistics &stat = registry.stats.get(entity);
 		Entity healthbar = enemy.healthbar;
+
+		if (!registry.motions.has(healthbar)) continue;
+
 		Motion &motion = registry.motions.get(healthbar);
 		motion.scale = vec2({(HEALTHBAR_WIDTH * (stat.health / 100.f)), HEALTHBAR_HEIGHT});
 	}
 	for (Entity entity : registry.companions.entities)
 	{
+		if (!registry.companions.has(entity) || !registry.stats.has(entity)) continue;
+
 		Companion &enemy = registry.companions.get(entity);
 		Statistics &stat = registry.stats.get(entity);
 		Entity healthbar = enemy.healthbar;
+
+		if (!registry.motions.has(healthbar)) continue;
+
 		Motion &motion = registry.motions.get(healthbar);
 		motion.scale = vec2({(HEALTHBAR_WIDTH * (stat.health / 100.f)), HEALTHBAR_HEIGHT});
 	}
