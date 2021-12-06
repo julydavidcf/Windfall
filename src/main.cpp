@@ -28,6 +28,7 @@ using namespace std;
 int window_width_px = 1200;
 int window_height_px = 750;
 
+// Get the horizontal and vertical screen sizes in pixel
 void getScreenResolution(unsigned int& width, unsigned int& height) {
 #if WIN32
 	width = (int)GetSystemMetrics(SM_CXSCREEN);
