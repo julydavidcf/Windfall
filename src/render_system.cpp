@@ -963,12 +963,14 @@ void RenderSystem::draw(float elapsed_ms)
 							break;
 						}
 						case DEAD: {
-							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_DEAD) {
-								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_DEAD;
-								*currFrame = 0;
-							}
-							numFrames = ARCHER_DEAD_FRAMES; timePerFrame = ARCHER_DEAD_FRAME_TIME; break;
-						}
+ 							if (currGeometry != GEOMETRY_BUFFER_ID::ARCHER_DEAD) {
+ 								currGeometry = GEOMETRY_BUFFER_ID::ARCHER_DEAD;
+ 								*currFrame = 0;
+ 							}
+ 							numFrames = ARCHER_DEAD_FRAMES; 
+							timePerFrame = ARCHER_DEAD_FRAME_TIME; 
+							break;
+ 						}
 						default: break;
 					}
 					break;
@@ -1064,7 +1066,7 @@ void RenderSystem::draw(float elapsed_ms)
 
 	drawToScreen();
 
-	if (isFreeRoam == 1) {
+	if (isFreeRoam && (freeRoamLevel == 2)) {
 		for (int i = 0; i < registry.motions.components.size(); i++) {
 			Entity e = registry.motions.entities[i];
 			if (registry.light.has(e)) {

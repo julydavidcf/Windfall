@@ -60,8 +60,8 @@ public:
 	ComponentContainer<BouncingArrow> bouncingArrows;
 	ComponentContainer<Bird> bird;
 	ComponentContainer<Platform> platform;
-	ComponentContainer<Boulder> boulders;
 	ComponentContainer<PreciseCollider> preciseColliders;
+	ComponentContainer<Boulder> boulders;
 
 	// Sounds
 	Mix_Music* background_music;
@@ -162,8 +162,8 @@ public:
 		registry_list.push_back(&bird);
 		registry_list.push_back(&platform);
 		registry_list.push_back(&chests);
-		registry_list.push_back(&boulders);
 		registry_list.push_back(&preciseColliders);
+		registry_list.push_back(&boulders);
 	}
 
 	void clear_all_components() {

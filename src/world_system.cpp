@@ -28,6 +28,7 @@ const float hit_position = 20.f;
 vector<pair<int, int>> ArrowResult;
 Entity currentArrow;
 
+Entity player_archer;
 Entity player_mage;
 Entity enemy_mage;
 Entity player_swordsman;
@@ -75,7 +76,7 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
-const size_t MAX_BOULDERS = 5;
+const size_t MAX_BOULDERS = 2;
 
 // mouse gesture skills related=============
 int startMousePosCollect = 0;
@@ -868,6 +869,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			baM->acceleration.x = baM->acceleration.x * -1;
 			baM->position.x = baXPos - baM->scale.x;
 			ba->bounce_time--;
+			printf("Bouncing from left wall\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baXPos + baM->scale.x > screen_width && baM->velocity.x >= 0 && baM->acceleration.x>=0 && ba->bounce_time>0) {
@@ -876,6 +878,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			baM->acceleration.x = baM->acceleration.x * -1;
 			baM->position.x = baXPos + baM->scale.x;
 			ba->bounce_time--;
+			printf("Bouncing from right wall\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baYPos - baM->scale.y < 0 && baM->velocity.y <= 0 && baM->acceleration.y >= 0 && ba->bounce_time>0) {
@@ -884,6 +887,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			//baM->acceleration.y = baM->acceleration.y * -1;
 			baM->position.y = baYPos - baM->scale.y;
 			ba->bounce_time--;
+			printf("Bouncing from ceiling\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 		if (baYPos + baM->scale.y > screen_height && baM->velocity.y >= 0 && baM->acceleration.y >= 0 && ba->bounce_time > 0) {
@@ -892,6 +896,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			//baM->acceleration.y = baM->acceleration.y * -1;
 			baM->position.y = baYPos + baM->scale.y;
 			ba->bounce_time--;
+			printf("Bouncing from floor\n");
 			//printf("bouncetime= %d\n", ba->bounce_time--);
 		}
 
@@ -1125,12 +1130,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 						break;
 					}
 					case BATTLE_ARROW: {
-						sk->launchArrow(attacker, msPos, renderer, 0);
+						sk->launchArrow(attacker, attack.old_pos, renderer, 0);
 						break;
 					}
 					case FREE_ROAM_ARROW: {
 						// For free-roam archer arrow-shooting
-						sk->launchArrow(player_archer, msPos, renderer, 1);
+						sk->launchArrow(player_archer, attack.old_pos, renderer, 1);
 						break;
 					}
 					default:
@@ -1693,16 +1698,13 @@ void WorldSystem::restart_game(bool force_restart)
 			initializeFreeRoamTwo();
 		}
 		open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
-		printf("Loading free roam 0\n");
-
 		player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
-
+		printf("Loading free roam %d\n", freeRoamLevel);
 		renderer->gameLevel = 1;
 	}
 	else
 	{
 		// Pause menu button
-		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		bool hasSaveFile = false;
 		if (loaded_game)
 		{
@@ -1710,7 +1712,7 @@ void WorldSystem::restart_game(bool force_restart)
 			if (hasSaveFile)
 			{
 				gameLevel = loadedLevel;
-				renderer->gameLevel = gameLevel > 2 ? 1 : gameLevel;
+				renderer->gameLevel = gameLevel == 2 ? 2 : 1;
 			}
 			else
 			{
@@ -1732,13 +1734,12 @@ void WorldSystem::restart_game(bool force_restart)
 			createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
 			// Kept this to load icons, but commented out createMage in load_level()
 			json_loader.get_level("level_0.json");
-			player_archer = createPlayerArcher(renderer, vec2(100, 650), 0);
 
 			tutorial_enabled = 1;
 			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
 			curr_tutorial_box_num = 0;
 		}
-		if(gameLevel == 1){
+		else if(gameLevel == 1){
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_ONE);
@@ -1755,19 +1756,17 @@ void WorldSystem::restart_game(bool force_restart)
 			renderer->gameLevel = 1;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
 			json_loader.get_level("level_3.json");
-			player_archer = createPlayerArcher(renderer, { 300, 600 }, 0);
 			story = 26;
 		} else{
 			printf("Incorrect level\n");
 		}
-		arrow_icon = createArrowIcon(renderer, {200, 700});
 		roundVec.clear();	// empty vector roundVec to create a new round
 		createRound();
 		checkRound();
 	} else {
 		loaded_game = false;
 	}
-
+		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		// Create a tooltip
 		tooltip;
 		player_turn = 1;		   // player turn indicator
@@ -1775,7 +1774,8 @@ void WorldSystem::restart_game(bool force_restart)
 		showCorrectSkills();
 		displayPlayerTurn(); // display player turn when restart game
 		update_healthBars();
-	}printf("done with restarting\n");
+	}
+	printf("done with restarting\n");
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity)
@@ -2044,7 +2044,9 @@ void WorldSystem::handle_collisions()
 					}
 					// Switch to open chest image
 					renderedChest.used_geometry = GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN;
-				} else if (registry.boulders.has(entity_other))
+				} 
+				// Rock archer collision
+				else if (registry.boulders.has(entity_other) && !registry.particlePools.has(entity_other))
 				{
 					Motion& rollable_motion = registry.motions.get(entity_other);
 					rollable_motion.velocity = {0.f, 0.f};
@@ -2086,7 +2088,7 @@ void WorldSystem::handle_collisions()
 					}
 				}
 				// Arrow rock collision
-				else if (registry.boulders.has(entity_other)) {
+				else if (registry.boulders.has(entity_other) && !registry.particlePools.has(entity_other)) {
 					activate_deathParticles(entity_other);
 					registry.remove_all_components_of(entity);
 				}
@@ -2327,11 +2329,17 @@ void WorldSystem::handle_boundary_collision()
 	for (uint i = 0; i < projectilesRegistry.components.size(); i++)
 	{
 		Entity entity = projectilesRegistry.entities[i];
-		if (registry.motions.get(entity).position.x <= 0 - 20 ||
-			registry.motions.get(entity).position.x >= screen_width + 20 ||
-			registry.motions.get(entity).position.y <= 0 - 20 ||
-			registry.motions.get(entity).position.y >= screen_height + 20)
+		if (registry.motions.get(entity).position.x <= 0 - registry.motions.get(entity).scale.x - 20 ||
+			registry.motions.get(entity).position.x >= screen_width + registry.motions.get(entity).scale.x + 20 ||
+			registry.motions.get(entity).position.y <= 0 - registry.motions.get(entity).scale.y- 20 ||
+			registry.motions.get(entity).position.y >= screen_height + registry.motions.get(entity).scale.y + 20)
 		{
+			if(registry.bouncingArrows.has(entity)){
+				BouncingArrow& baM = registry.bouncingArrows.get(registry.bouncingArrows.entities[i]);
+				if(baM.bounce_time>0){
+					continue;
+				} 
+			}
 			registry.remove_all_components_of(entity);
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);

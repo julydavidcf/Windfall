@@ -154,7 +154,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = { pos.x + 65, pos.y - 10 };
+	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
@@ -238,7 +238,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = { pos.x - 65, pos.y - 10 };
+	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ -SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
