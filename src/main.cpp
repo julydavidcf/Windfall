@@ -1,6 +1,7 @@
 
 #define GL3W_IMPLEMENTATION
 #include <gl3w.h>
+#include "wtypes.h"
 
 // stlib
 #include <chrono>
@@ -22,6 +23,21 @@ using namespace std;
 int window_width_px = 1200;
 int window_height_px = 750;
 
+// Get the horizontal and vertical screen sizes in pixel
+void GetDesktopResolution(int& horizontal, int& vertical)
+{
+	RECT desktop;
+	// Get a handle to the desktop window
+	const HWND hDesktop = GetDesktopWindow();
+	// Get the size of screen to the variable desktop
+	GetWindowRect(hDesktop, &desktop);
+	// The top left corner will have coordinates (0,0)
+	// and the bottom right corner will have coordinates
+	// (horizontal, vertical)
+	horizontal = desktop.right;
+	vertical = desktop.bottom;
+}
+
 // Entry point
 int main()
 {
@@ -32,6 +48,8 @@ int main()
 	AISystem ai;
 	SkillSystem sk;
 	SwarmSystem swarmSys;
+
+	GetDesktopResolution(world.horizontalResolution, world.verticalResolution);
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
