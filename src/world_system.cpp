@@ -398,9 +398,9 @@ void WorldSystem::render_startscreen()
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
 	createStoryBackground(renderer, {w / 2, h / 2}, 6);
-	new_game_button = createUIButton(renderer, {600, 400}, NEW_GAME);
-	load_game_button = createUIButton(renderer, {600, 500}, LOAD_GAME);
-	exit_game_button = createUIButton(renderer, {600, 600}, EXIT_GAME);
+	new_game_button = createUIButton(renderer, {850, 230}, NEW_GAME);
+	load_game_button = createUIButton(renderer, {850, 330}, LOAD_GAME);
+	exit_game_button = createUIButton(renderer, {850, 430}, EXIT_GAME);
 	registry.motions.get(exit_game_button).scale = {150, 70};
 }
 
