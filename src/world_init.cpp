@@ -1643,6 +1643,7 @@ Entity createLevelOneDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	case 8: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEEIGHT; break;
 	case 9: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUENINE; break;
 	case 10: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETEN; break;
+	case 11: dialogue = TEXTURE_ASSET_ID::MISSIONONE; break;
 	default: break;
 	}
 
@@ -1676,6 +1677,8 @@ Entity createLevelTwoDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	case 3: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE; break;
 	case 4: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR; break;
 	case 5: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFIVE; break;
+	case 6: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUESIX; break;
+	case 7: dialogue = TEXTURE_ASSET_ID::MISSIONTWO; break;
 
 	default: break;
 	}
@@ -1706,7 +1709,7 @@ Entity createLevelThreeDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	switch (number) {
 
 		//level three
-	case 1: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEONE; break;
+	case 1: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEONE; break;	// wrong place
 	case 2: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETWO; break;
 	case 3: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE; break;
 	case 4: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR; break;

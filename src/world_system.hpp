@@ -142,6 +142,8 @@ private:
 	void initializeFreeRoamOne();
 	void initializeFreeRoamTwo();
 
+	void renderBeginningStory();
+
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;

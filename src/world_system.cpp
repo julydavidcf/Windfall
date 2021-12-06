@@ -76,6 +76,8 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
+int beginning = 0;
+
 const size_t MAX_BOULDERS = 1;
 
 // mouse gesture skills related=============
@@ -1614,14 +1616,20 @@ void WorldSystem::restart_game(bool force_restart)
 			}
 			if (gameLevel == 1)
 			{
+				// render the beginning story
+				renderBeginningStory();
 				story = 8;
 			}
 			else if (gameLevel == 2)
 			{
+				// render the beginning story
+				renderBeginningStory();
 				story = 19;
 			}
 			else if (gameLevel == 3)
 			{
+				// render the beginning story
+				renderBeginningStory();
 				story = 26;
 			}
 			if (gameLevel > 0)
@@ -1645,15 +1653,21 @@ void WorldSystem::restart_game(bool force_restart)
 		gameLevel = loadedLevel == -1 ? 1 : loadedLevel;
 		renderer->gameLevel = gameLevel;
 		if (gameLevel == 1)
-		{
+		{			
+			// render the beginning story
+			renderBeginningStory();
 			story = 8;
 		}
 		else if (gameLevel == 2)
 		{
+			// render the beginning story
+			renderBeginningStory();
 			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
+			// render the beginning story
+			renderBeginningStory();
 			story = 26;
 		}
 	}
@@ -1663,14 +1677,20 @@ void WorldSystem::restart_game(bool force_restart)
 		renderer->gameLevel = gameLevel;
 		if (gameLevel == 1)
 		{
+			// render the beginning story
+			renderBeginningStory();
 			story = 8;
 		}
 		else if (gameLevel == 2)
 		{
+			// render the beginning story
+			renderBeginningStory();
 			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
+			// render the beginning story
+			renderBeginningStory();
 			story = 26;
 		}
 		// renderer->transitioningToNextLevel = true;
@@ -1681,14 +1701,20 @@ void WorldSystem::restart_game(bool force_restart)
 		renderer->gameLevel = gameLevel;
 		if (gameLevel == 1)
 		{
+			// render the beginning story
+			renderBeginningStory();
 			story = 8;
 		}
 		else if (gameLevel == 2)
 		{
+			// render the beginning story
+			renderBeginningStory();
 			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
+			// render the beginning story
+			renderBeginningStory();
 			story = 26;
 		}
 	}
@@ -1772,18 +1798,30 @@ void WorldSystem::restart_game(bool force_restart)
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_ONE);
 			json_loader.get_level("level_1.json");
+
+			// render the beginning story
+			renderBeginningStory();
+
 			story = 8;
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_TWO);
 			json_loader.get_level("level_2.json");
+
+			// render the beginning story
+			renderBeginningStory();
+
 			story = 19;
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
 			renderer->gameLevel = 1;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
 			json_loader.get_level("level_3.json");
+
+			// render the beginning story
+			renderBeginningStory();
+
 			story = 26;
 		} else{
 			printf("Incorrect level\n");
@@ -2657,9 +2695,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		story = 8;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 9 && story <= 17) 
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 8 && story <= 17) 
 	{
 		registry.remove_all_components_of(dialogue);
+		printf("STORY IS WHAT NUMBER: %g \n", float(story));
 		dialogue = createLevelOneDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 7));
 		story++;
 	}
@@ -2669,9 +2708,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 20 && story <= 24)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 19 && story <= 24)
 	{
 		registry.remove_all_components_of(dialogue);
+		printf("STORY IS WHAT NUMBER: %g \n", float(story));
 		dialogue = createLevelTwoDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 18));
 		story++;
 	}
@@ -2681,13 +2721,14 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 27 && story <= 34)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 26 && story <= 33)
 	{
 		registry.remove_all_components_of(dialogue);
+		printf("STORY IS WHAT NUMBER: %g \n", float(story));
 		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 25));
 		story++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 35)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 34)
 	{
 		registry.remove_all_components_of(dialogue);
 		canStep = 1;
@@ -2716,6 +2757,11 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		story = 42;
 		canStep = 1;
 		restart_game();
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && (beginning == 1 || beginning == 2))
+	{
+		registry.remove_all_components_of(dialogue);
+		beginning = 0;
 	}
 
 	// gesture skill
@@ -3557,4 +3603,22 @@ void WorldSystem::initializeFreeRoamTwo() {
 		swarmSys->initializeSwarmEntities(renderer);
 	}
 	Mix_FadeInMusic(registry.cestershire_music, -1, 500);
+}
+
+void WorldSystem::renderBeginningStory() {
+	if (gameLevel == 1) {
+		dialogue = createLevelOneDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 11);
+		// need to enable click to continue
+		beginning = 1;
+	}
+	if (gameLevel == 2) {
+		dialogue = createLevelTwoDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 7);
+		// need to enable click to continue
+		beginning = 2;
+	}
+	//if (gameLevel == 3) {
+	//	dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 6);
+	//	// need to enable click to continue
+	//	beginning = 2;
+	//}
 }

@@ -191,6 +191,7 @@ class RenderSystem {
 			textures_path("backgroundFive.png"),
 
 			//Level One dialogue
+			textures_path("missionOne.png"),
 			textures_path("levelOneDialogueOne.png"),
 			textures_path("levelOneDialogueTwo.png"),
 			textures_path("levelOneDialogueThree.png"),
@@ -203,6 +204,7 @@ class RenderSystem {
 			textures_path("levelOneDialogueTen.png"),
 
 			//Level Two dialogue
+			textures_path("missionTwo.png"),
 			textures_path("levelTwoDialogueOne.png"),
 			textures_path("levelTwoDialogueTwo.png"),
 			textures_path("levelTwoDialogueThree.png"),
