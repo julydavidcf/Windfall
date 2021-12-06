@@ -29,6 +29,8 @@ class RenderSystem {
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SHIELD_MESH, mesh_path("necroBarrier.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::ROCK_MESH, mesh_path("rock.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::ARROW_MESH, mesh_path("arrow.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SIMPLIFIED_ROCK_MESH, mesh_path("rock_simplified.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SIMPLIFIED_ARROW_MESH, mesh_path("arrow_simplified.obj")),
 		  // specify meshes of other assets here
 	};
 

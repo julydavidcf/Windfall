@@ -44,10 +44,10 @@ const float FIREFLY_WIDTH = 10.f;
 const float FIREFLY_HEIGHT = 10.f;
 const float PLATFORM_WIDTH = 200.f;
 const float PLATFORM_HEIGHT = 50.f;
-const float ROCK_MESH_WIDTH = 180.f;
-const float ROCK_MESH_HEIGHT = 180.f;
-const float ARROW_MESH_WIDTH = ARROW_WIDTH / 1.5;
-const float ARROW_MESH_HEIGHT = ARROW_HEIGHT / 1.5;
+const float ROCK_MESH_WIDTH = 80.f;
+const float ROCK_MESH_HEIGHT = 80.f;
+const float ARROW_MESH_WIDTH = ARROW_WIDTH / 2;
+const float ARROW_MESH_HEIGHT = ARROW_HEIGHT / 2;
 const float TREASURE_CHEST_WIDTH = 32.f;
 const float TREASURE_CHEST_HEIGHT = 38.4f;
 
@@ -164,6 +164,9 @@ Entity createRock(RenderSystem* renderer, vec2 position, int isFriendly);
 
 Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly);
 Entity createLightning(RenderSystem* renderer, vec2 position, int isFriendly);
+
+
+Entity createBoulder(RenderSystem* renderer, vec2 position);
 
 Entity createMelee(RenderSystem* renderer, vec2 position, int isFriendly);
 // a basic, textured enemy

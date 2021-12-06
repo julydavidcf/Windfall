@@ -257,6 +257,23 @@ struct Silence
 
 };
 
+//Boulder
+struct Boulder
+{
+
+};
+
+// Make the boulders roll
+struct Rollable
+{
+
+};
+
+struct PreciseCollider
+{
+
+};
+
 struct StatIndicator
 {
 	Entity owner;
@@ -708,7 +725,11 @@ enum class GEOMETRY_BUFFER_ID {
 	TREASURE_CHEST_CLOSED = ARROW_MESH + 1,
 	TREASURE_CHEST_OPEN = TREASURE_CHEST_CLOSED + 1,
 
-	GEOMETRY_COUNT = TREASURE_CHEST_OPEN + 1
+	// SIMPLIFIED MESHES
+	SIMPLIFIED_ROCK_MESH = TREASURE_CHEST_OPEN + 1,
+	SIMPLIFIED_ARROW_MESH = SIMPLIFIED_ROCK_MESH + 1,
+
+	GEOMETRY_COUNT = SIMPLIFIED_ARROW_MESH + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

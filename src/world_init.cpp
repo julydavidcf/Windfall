@@ -408,9 +408,8 @@ Entity createFireBall(RenderSystem* renderer, vec2 position, float angle, vec2 v
 Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velocity, int isFriendly, int isFreeRoam)
 {
 	auto entity = Entity();
-	
 
-	Mesh& mesh = (isFreeRoam) ? renderer->getMesh(GEOMETRY_BUFFER_ID::ARROW_MESH) : renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = (isFreeRoam) ? renderer->getMesh(GEOMETRY_BUFFER_ID::SIMPLIFIED_ARROW_MESH) : renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 	auto& gravity = registry.gravities.emplace(entity);
 	gravity.gravity = 30;
@@ -421,6 +420,8 @@ Entity createArrow(RenderSystem* renderer, vec2 position, float angle, vec2 velo
 	motion.position = position;
 	
 	registry.projectiles.emplace(entity);
+	registry.light.emplace(entity);
+	registry.preciseColliders.emplace(entity);
 
 	if (isFreeRoam) {
 		motion.scale = vec2({ ARROW_MESH_WIDTH, ARROW_MESH_HEIGHT });
@@ -1089,6 +1090,36 @@ Entity createSpike(RenderSystem* renderer, vec2 position, int isFriendly)
 		{ TEXTURE_ASSET_ID::SPIKE,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createBoulder(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SIMPLIFIED_ROCK_MESH);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+
+	registry.rollables.emplace(entity);
+	registry.boulders.emplace(entity);
+	registry.preciseColliders.emplace(entity);
+
+	motion.scale = vec2({ ROCK_MESH_WIDTH, -ROCK_MESH_HEIGHT });
+	motion.angle = 1.f;
+	
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::PEBBLE,
+			GEOMETRY_BUFFER_ID::ROCK_MESH });
 
 	return entity;
 }

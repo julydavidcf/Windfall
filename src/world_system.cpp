@@ -13,10 +13,7 @@
 #include "skill_system.hpp"
 
 // Game configuration
-const size_t MAX_TURTLES = 15;
-const size_t MAX_FISH = 5;
-const size_t TURTLE_DELAY_MS = 2000 * 3;
-const size_t FISH_DELAY_MS = 5000 * 3;
+const size_t BOULDER_DELAY_MS = 1000 * 3;
 const size_t BARRIER_DELAY = 4000;
 const size_t ENEMY_TURN_TIME = 3000;
 const vec2 TURN_INDICATOR_LOCATION = {600, 150};
@@ -73,6 +70,8 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
+const size_t MAX_BOULDERS = 5;
+
 // mouse gesture skills related=============
 int startMousePosCollect = 0;
 std::vector<vec2> mouseGestures;
@@ -92,6 +91,7 @@ using namespace std;
 
 WorldSystem::WorldSystem()
 	: points(0)
+	, next_boulder_spawn(0.f)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -1224,7 +1224,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if (isFreeRoam) {
+	if (isFreeRoam && (freeRoamLevel == 2)) {
 		// Update swarm timer here, use fireflySwarm[0] to track time
 		float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
 		if (swarm_update_timer < 0.f) {
@@ -1244,31 +1244,33 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if (player_turn == 1)
-	{
-		displayPlayerTurn();
-		prevPlayer = currPlayer;
-	}
-
-	// this area is to check for edge cases for enemy to attack during their turn
-	if (player_turn == 0)
-	{
-
-		if ((registry.checkRoundTimer.size() <= 0) && (registry.companions.size() > 0))
+	if(!isFreeRoam){
+		if (player_turn == 1)
 		{
-			displayEnemyTurn();
-			if (registry.enemies.has(currPlayer))
-			{ // check if enemies have currPlayer
-				printf("Calling tree here\n");
-				ai->callTree(currPlayer);
-				prevPlayer = currPlayer; // added this line to progress the necromancer phase 2 turn 2 after the first turn's tree is called, not sure if it will affect other things, need more testing
-			}
-			else
+			displayPlayerTurn();
+			prevPlayer = currPlayer;
+		}
+
+		// this area is to check for edge cases for enemy to attack during their turn
+		if (player_turn == 0)
+		{
+
+			if ((registry.checkRoundTimer.size() <= 0) && (registry.companions.size() > 0))
 			{
-				if (roundVec.empty())
+				displayEnemyTurn();
+				if (registry.enemies.has(currPlayer))
+				{ // check if enemies have currPlayer
+					printf("Calling tree here\n");
+					ai->callTree(currPlayer);
+					prevPlayer = currPlayer; // added this line to progress the necromancer phase 2 turn 2 after the first turn's tree is called, not sure if it will affect other things, need more testing
+				}
+				else
 				{
-					printf("roundVec is empty at enemy turn, createRound now \n");
-					createRound();
+					if (roundVec.empty())
+					{
+						printf("roundVec is empty at enemy turn, createRound now \n");
+						createRound();
+					}
 				}
 			}
 		}
@@ -1336,6 +1338,24 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 					}
 				}
 			}
+		}
+	}
+
+	if(isFreeRoam && (freeRoamLevel == 1)){
+		next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
+		if (registry.boulders.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
+			// Reset timer
+			next_boulder_spawn = (BOULDER_DELAY_MS / 2) + uniform_dist(rng) * (BOULDER_DELAY_MS / 2);
+			// Create boulder
+			Entity entity = createBoulder(renderer, {window_width_px+50, window_height_px - ARCHER_FREEROAM_HEIGHT + 25});
+			// Setting random initial position and constant velocity
+			Motion& motion = registry.motions.get(entity);
+			motion.velocity = vec2(-100.f, 0.f);
+		}
+		// move it to physics
+		for(Entity rollable: registry.rollables.entities){
+			Motion& motion = registry.motions.get(rollable);
+			motion.angle = motion.angle - 0.03;
 		}
 	}
 
@@ -1665,7 +1685,6 @@ void WorldSystem::restart_game(bool force_restart)
 		} else{
 			printf("Incorrect level\n");
 		}
-
 		arrow_icon = createArrowIcon(renderer, {200, 700});
 		roundVec.clear();	// empty vector roundVec to create a new round
 		createRound();
@@ -1681,7 +1700,7 @@ void WorldSystem::restart_game(bool force_restart)
 		showCorrectSkills();
 		displayPlayerTurn(); // display player turn when restart game
 		update_healthBars();
-	}
+	}printf("done with restarting\n");
 }
 
 void WorldSystem::update_health(Entity entity, Entity other_entity)
@@ -1860,6 +1879,7 @@ void WorldSystem::handle_collisions()
 				// Deal with archer - platform collisions
 				if (registry.platform.has(entity_other))
 				{
+					printf("platform has other entity\n");
 					Motion& platform_motion = registry.motions.get(entity_other);
 					float platform_position_x = platform_motion.position.x;
 					float platform_position_y = platform_motion.position.y;
@@ -1917,8 +1937,17 @@ void WorldSystem::handle_collisions()
 					}
 					// Switch to open chest image
 					renderedChest.used_geometry = GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN;
-				}
+				} else if (registry.boulders.has(entity_other))
+				{
+					Motion& rollable_motion = registry.motions.get(entity_other);
+					rollable_motion.velocity = {0.f, 0.f};
+					registry.rollables.remove(entity_other);
 
+					Motion& companion_motion = registry.motions.get(entity);
+					if(companion_motion.velocity.x>0){
+						companion_motion.velocity.x = 0.f;
+					}
+				}
 			}
 
 			// Deal with arrow - bird collisions
@@ -1949,11 +1978,17 @@ void WorldSystem::handle_collisions()
 						registry.remove_all_components_of(entity);
 					}
 				}
+				// Arrow rock collision
+				else if (registry.boulders.has(entity_other)) {
+					activate_deathParticles(entity_other);
+					registry.remove_all_components_of(entity);
+				}
 			}
 		}		
 		
 		// deal with collisions in battles
 		else {
+			printf("Not free world\n");
 			// Deal with arrow - bird collisions
 			if (registry.projectiles.has(entity))	// not working in free roam
 			{
@@ -2140,17 +2175,9 @@ void WorldSystem::handle_collisions()
 		}		
 	}
 
+	if(isFreeRoam){
 
-	if (isFreeRoam) {
 		Motion& archerMotion = registry.motions.get(player_archer);
-
-		// Check for left & right boundaries
-		if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
-			archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
-		}
-		else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH / 2) {
-			archerMotion.position.x = window_width_px - ARCHER_FREEROAM_WIDTH / 2;
-		}
 
 		// Check if archer is above ceiling
 		if (archerMotion.position.y < currCeilingPos) {
@@ -2199,6 +2226,18 @@ void WorldSystem::handle_boundary_collision()
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
 			// enemy turn start
+		}
+	}
+	if(isFreeRoam){
+
+		Motion& archerMotion = registry.motions.get(player_archer);
+
+		// Check for left & right boundaries
+		if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
+			archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
+		}
+		else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH) {
+			restart_game(false);
 		}
 	}
 }
