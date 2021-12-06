@@ -379,7 +379,7 @@ void WorldSystem::init(RenderSystem *renderer_arg, AISystem *ai_arg, SkillSystem
 	Mix_VolumeChunk(registry.charge_spell_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.beam_spell_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.minion_spawn_sound, MIX_MAX_VOLUME / 10);
-	Mix_VolumeChunk(registry.error_sound, MIX_MAX_VOLUME / 10);
+	Mix_VolumeChunk(registry.error_sound, MIX_MAX_VOLUME);
 	Mix_VolumeChunk(registry.gesture_heal_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_aoe_sound, MIX_MAX_VOLUME / 10);
 	Mix_VolumeChunk(registry.gesture_turn_sound, MIX_MAX_VOLUME / 10);
