@@ -683,38 +683,38 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 6);
+			dialogue = createLevelOneDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
 			story = 9;
 		}
-		else if (story == 15 && gameLevel == 2)
+		else if (story == 19 && gameLevel == 2)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createLevelOneDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
+			dialogue = createLevelTwoDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
-			story = 16;
+			story = 20;
 		}
 
 		// restart_game();
 	}
 	else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0) && (!isFreeRoam))
 	{
-		if (story == 20)
-		{
-			int w, h;
-			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createLevelTwoDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
-			canStep = 0;
-			story = 21;
-		}
-		else if (story == 28)
+		if (story == 26)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
 			dialogue = createLevelThreeDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
-			story = 29;
+			story = 27;
+		}
+		else if (story == 36)
+		{
+			int w, h;
+			glfwGetFramebufferSize(window, &w, &h);
+			dialogue = createLevelFourDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
+			canStep = 0;
+			story = 37;
 		}
 	}
 	else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0)) && (!isFreeRoam))
@@ -1510,11 +1510,11 @@ void WorldSystem::restart_game(bool force_restart)
 			}
 			else if (gameLevel == 2)
 			{
-				story = 15;
+				story = 19;
 			}
 			else if (gameLevel == 3)
 			{
-				story = 20;
+				story = 26;
 			}
 			if (gameLevel > 0)
 			{
@@ -1542,11 +1542,11 @@ void WorldSystem::restart_game(bool force_restart)
 		}
 		else if (gameLevel == 2)
 		{
-			story = 15;
+			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
-			story = 20;
+			story = 26;
 		}
 	}
 	if (registry.companions.size() == 0)
@@ -1559,11 +1559,11 @@ void WorldSystem::restart_game(bool force_restart)
 		}
 		else if (gameLevel == 2)
 		{
-			story = 15;
+			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
-			story = 20;
+			story = 26;
 		}
 		// renderer->transitioningToNextLevel = true;
 	}
@@ -1577,11 +1577,11 @@ void WorldSystem::restart_game(bool force_restart)
 		}
 		else if (gameLevel == 2)
 		{
-			story = 15;
+			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
-			story = 20;
+			story = 26;
 		}
 	}
 
@@ -2550,7 +2550,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 9 && story <= 17) 
 	{
 		registry.remove_all_components_of(dialogue);
-		dialogue = createLevelOneDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 8));
+		dialogue = createLevelOneDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 7));
 		story++;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 18)
@@ -2562,7 +2562,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 20 && story <= 24)
 	{
 		registry.remove_all_components_of(dialogue);
-		dialogue = createLevelTwoDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 19));
+		dialogue = createLevelTwoDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 18));
 		story++;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 25)
@@ -2574,7 +2574,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 27 && story <= 34)
 	{
 		registry.remove_all_components_of(dialogue);
-		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 26));
+		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 25));
 		story++;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 35)
