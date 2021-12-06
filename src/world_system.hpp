@@ -76,8 +76,8 @@ public:
 	int canStep = 0;
 	int closeWindow = 0;
 
-	int horizontalResolution = 0;
-	int verticalResolution = 0;
+	unsigned int horizontalResolution = 0;
+	unsigned int verticalResolution = 0;
 
 private:
 	// Input callback functions
