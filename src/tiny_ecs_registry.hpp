@@ -28,6 +28,7 @@ public:
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Projectile> projectiles;
+	ComponentContainer<FireBall> FireBalls;
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
 	ComponentContainer<Silenced> silenced;
@@ -95,14 +96,14 @@ public:
 
 	//Game Stats
 
-	int enemy_mage_hp = 90;
-	int enemy_swordsman_hp = 130;
+	int enemy_mage_hp = 90/10;
+	int enemy_swordsman_hp = 130/10;
 
 	int player_mage_hp = 60;
 	int player_swordsman_hp = 85;
 	int player_archer_hp = 50;
 	int necro_minion_health = 15;
-	int necro_1_health = 175;
+	int necro_1_health = 175/10;
 	int necro_2_health = 125;
 
 
@@ -130,6 +131,7 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&FireBalls);
 		registry_list.push_back(&silenced);
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&debugComponents);

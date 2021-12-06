@@ -94,6 +94,8 @@ const float TITLE_WIDTH = 300.f;
 const float TITLE_HEIGHT = 100.f;
 const float SPIKE_WIDTH = 40.f;
 const float SPIKE_HEIGHT = 100.f;
+const float HELPER_BOX_WIDTH = 600.f;
+const float HELPER_BOX_HEIGHT = 200.f;
 
 
 Entity createBird(RenderSystem* renderer, vec2 pos);
@@ -189,5 +191,13 @@ Entity createUIButton(RenderSystem* renderer, vec2 position, int buttonType);
 
 // create story background image
 Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number);
+
 // create dialogue image
-Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createBackgroundDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createLevelOneDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createLevelTwoDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createLevelThreeDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createLevelFourDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createFreeRoamLevelDiaogue(RenderSystem* renderer, vec2 pos, int number);
+
+Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos);

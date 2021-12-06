@@ -689,38 +689,38 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 6);
+			dialogue = createLevelOneDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
 			story = 9;
 		}
-		else if (story == 15 && gameLevel == 2)
+		else if (story == 19 && gameLevel == 2)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 12);
+			dialogue = createLevelTwoDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
-			story = 16;
+			story = 20;
 		}
 
 		// restart_game();
 	}
 	else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0) && (!isFreeRoam))
 	{
-		if (story == 20)
+		if (story == 26)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 17);
+			dialogue = createLevelThreeDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
-			story = 21;
+			story = 27;
 		}
-		else if (story == 28)
+		else if (story == 36)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 24);
+			dialogue = createLevelFourDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
-			story = 29;
+			story = 37;
 		}
 	}
 	else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0)) && (!isFreeRoam))
@@ -962,8 +962,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				//start BFS
 				vec2 startPos = baM->position;
 				vector<pair<int, int>> path;
-				path.push_back(make_pair(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10));
-				BFS bfs = BFS(static_cast<int>(startPos.x)/10, static_cast<int>(startPos.y)/10, 0, path);
+				int newy = static_cast<int>(startPos.y) / 10;
+				path.push_back(make_pair(static_cast<int>(startPos.x)/10, std::min (screen_height / 10 -1, newy)));
+				BFS bfs = BFS(static_cast<int>(startPos.x)/10, std::min(screen_height/10 -1, newy), 0, path);
 				ArrowResult = bfs.arrowBFS(map, bfs, visited);
 				currentArrow = registry.bouncingArrows.entities[i];
 				printf("result path is:\n ");
@@ -1367,6 +1368,43 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				registry.remove_all_components_of(entity); // added back in, kinda works
 			}
 		}
+		else if (pool.areTypeSmoke) {
+			for (int i = 0; i < pool.particles.size(); i++)
+			{
+				auto& particle = pool.particles[i];
+				particle.Life -= elapsed_ms_since_last_update;
+				float g = 10.f;
+				float initialSpeedX = particle.motion.velocity.x;
+				float initialSpeedY = particle.motion.velocity.y;
+				float finalSpeed = 100.f;
+				float p1 = finalSpeed * initialSpeedY / g;
+				float p2 = -g / initialSpeedY;
+				float p3 = -finalSpeed * (initialSpeedY + finalSpeed) / g;
+				float p5 = finalSpeed;
+				if (particle.Life <= 0)
+				{
+					pool.fadedParticles++;
+				}
+				particle.motion.position.x = p1 * (1 - exp(p2 * particle.Life));
+				particle.motion.position.y = p3 * (1 - exp(p2 * particle.Life)) - p5 * particle.Life;
+				particle.Color.a -= 0.05f * 0.01f;
+				particle.motion.angle += 0.5;
+				if (particle.motion.angle >= (2 * M_PI))
+				{
+					particle.motion.angle = 0;
+				}
+				pool.positions[i * 3 + 0] = particle.motion.position.x;
+				pool.positions[i * 3 + 1] = particle.motion.position.y;
+				pool.positions[i * 3 + 2] = particle.Life / pool.poolLife;
+			}
+			if (pool.fadedParticles == pool.size)
+			{
+				delete[] pool.positions;
+				pool.faded = true;
+				registry.particlePools.remove(entity);
+				registry.remove_all_components_of(entity); // added back in, kinda works
+			}
+		}
 		else
 		{
 			int w, h;
@@ -1541,7 +1579,7 @@ void WorldSystem::restart_game(bool force_restart)
 	{
 		if (gameLevel < 3)
 		{
-			renderer->transitioningToNextLevel = true;
+			//renderer->transitioningToNextLevel = true;
 			renderer->gameLevel = gameLevel;
 			if(!isFreeRoam){
 				gameLevel++;
@@ -1552,11 +1590,11 @@ void WorldSystem::restart_game(bool force_restart)
 			}
 			else if (gameLevel == 2)
 			{
-				story = 15;
+				story = 19;
 			}
 			else if (gameLevel == 3)
 			{
-				story = 20;
+				story = 26;
 			}
 			if (gameLevel > 0)
 			{
@@ -1584,11 +1622,11 @@ void WorldSystem::restart_game(bool force_restart)
 		}
 		else if (gameLevel == 2)
 		{
-			story = 15;
+			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
-			story = 20;
+			story = 26;
 		}
 	}
 	if (registry.companions.size() == 0)
@@ -1601,11 +1639,11 @@ void WorldSystem::restart_game(bool force_restart)
 		}
 		else if (gameLevel == 2)
 		{
-			story = 15;
+			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
-			story = 20;
+			story = 26;
 		}
 		// renderer->transitioningToNextLevel = true;
 	}
@@ -1619,11 +1657,11 @@ void WorldSystem::restart_game(bool force_restart)
 		}
 		else if (gameLevel == 2)
 		{
-			story = 15;
+			story = 19;
 		}
 		else if (gameLevel == 3)
 		{
-			story = 20;
+			story = 26;
 		}
 	}
 
@@ -1712,13 +1750,13 @@ void WorldSystem::restart_game(bool force_restart)
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_TWO);
 			json_loader.get_level("level_2.json");
-			story = 15;
+			story = 19;
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
 			renderer->gameLevel = 1;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
 			json_loader.get_level("level_3.json");
-			story = 20;
+			story = 26;
 		} else{
 			printf("Incorrect level\n");
 		}
@@ -1888,7 +1926,39 @@ void WorldSystem::activate_deathParticles(Entity entity)
 		registry.particlePools.insert(entity, pool);
 	}
 }
+void WorldSystem::activate_smokeParticles(Entity entity)
+{
+	ParticlePool pool(1000);
+	pool.areTypeSmoke = true;
+	// pool.size = 1000;
+	initParticlesBuffer(pool);
+	pool.poolLife = 2000.f;
+	pool.motion.scale = vec2(3.f, 3.f);
 
+	for (int p = 0; p < pool.size; p++)
+	{
+		auto& motion = registry.motions.get(entity);
+		Particle particle;
+		float random1 = ((rand() % 100) - 50) / 10.0f;
+		float random2 = ((rand() % 200) - 100) / 10.0f;
+
+		float rColor = 0.5f + ((rand() % 100) / 100.0f);
+		// particle.motion.position = motion.position + random + vec2({ 20,20 });
+		particle.motion.position.x = motion.position.x + random1 + 20.f;
+		particle.motion.position.y = motion.position.y + random2 + 40.f;
+		particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+		particle.motion.velocity *= 0.1f;
+		particle.motion.scale = vec2({ 10, 10 });
+		pool.particles.push_back(particle);
+		pool.positions[p * 3 + 0] = particle.motion.position.x;
+		pool.positions[p * 3 + 1] = particle.motion.position.y;
+		pool.positions[p * 3 + 2] = particle.Life / pool.poolLife;
+	}
+	if (!registry.particlePools.has(entity))
+	{
+		registry.particlePools.insert(entity, pool);
+	}
+}
 // Compute collisions between entities
 void WorldSystem::handle_collisions()
 {
@@ -2102,6 +2172,9 @@ void WorldSystem::handle_collisions()
 				// Checking Projectile - Enemy collisions
 				if (registry.projectiles.has(entity_other))
 				{
+					if (registry.FireBalls.has(entity_other)) {
+						activate_smokeParticles(entity_other);
+					}
 					Damage& projDamage = registry.damages.get(entity_other);
 					if (projDamage.isFriendly == 1)
 					{ // check if isFriendly = 1 which hits enemy
@@ -2455,7 +2528,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			int w, h;
 			glfwGetWindowSize(window, &w, &h);
 			backgroundImage = createStoryBackground(renderer, {window_width_px / 2, window_height_px / 2}, 1);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 1);
+			dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 1);
 			story = 1;
 			canStep = 0;
 		}
@@ -2481,7 +2554,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		registry.remove_all_components_of(backgroundImage);
 		backgroundImage = createStoryBackground(renderer, {window_width_px / 2, window_height_px / 2}, 2);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 2);
+		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 2);
 		story = 2;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 2)
@@ -2491,7 +2564,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 3);
+		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 3);
 		story = 3;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3)
@@ -2503,7 +2576,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		registry.remove_all_components_of(backgroundImage);
 		backgroundImage = createStoryBackground(renderer, {window_width_px / 2, window_height_px / 2}, 3);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 4);
+		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 4);
 		story = 4;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4)
@@ -2523,7 +2596,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-		dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 5);
+		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 5);
 		story = 6;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6)
@@ -2546,120 +2619,63 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		story = 8;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 9)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 9 && story <= 17) 
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO;
-		story = 10;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 10)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE;
-		story = 11;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 11)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR;
-		story = 12;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 12)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE;
-		story = 13;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 13)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX;
-		story = 14;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 14)
-	{
-		story = 15;
-		canStep = 1;
-		restart_game();
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 16)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO;
-		story = 17;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 17)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE;
-		story = 18;
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelOneDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 7));
+		story++;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 18)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR;
 		story = 19;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 19)
-	{
-		story = 20;
 		canStep = 1;
 		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 21)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 20 && story <= 24)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE;
-		story = 22;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 22)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR;
-		story = 23;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 23)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFIVE;
-		story = 24;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 24)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESIX;
-		story = 25;
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelTwoDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 18));
+		story++;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 25)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESEVEN;
 		story = 26;
+		canStep = 1;
+		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 26)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 27 && story <= 34)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT;
-		story = 27;
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 25));
+		story++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 27)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 35)
 	{
-		// registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT;
 		registry.remove_all_components_of(dialogue);
 		canStep = 1;
-		story = 28;
+		story = 36;
 		roundVec.clear(); // empty vector roundVec to create a new round
-		createBackgroundObject(renderer, {1160, 315});
-		auto ent = createBackgroundObject(renderer, {550, 325});
+		createBackgroundObject(renderer, { 1160, 315 });
+		auto ent = createBackgroundObject(renderer, { 550, 325 });
 		registry.deformableEntities.get(ent).deformType2 = true;
-		necromancer_phase_two = createNecromancerPhaseTwo(renderer, {900, 350});
+		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 350 });
 		createRound();
 		checkRound();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 29)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 37 && story <= 40)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;
-		story = 30;
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 36));
+		story++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 30)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETHREE;
-		story = 31;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 31)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 41)
 	{
 		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
 
 		// Shut down game after last enemy defeated
 		closeWindow = 1;
 
-		story = 32;
+		story = 42;
 		canStep = 1;
 		restart_game();
 	}
@@ -2726,7 +2742,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				minY = mouseGestures[i].y;
 			}
 		}
-		//printf("gesture skill collecting deactive!\n");
+		//printf("gesture skill collecting de	!\n");
 		aveX = totalX / mouseGestures.size();
 		aveY = totalY / mouseGestures.size();
 		//printf("Ave X is %f, Ave Y is %f, MaxminX is %f %f, MixminY is %f %f\n", aveX, aveY, maxX, minX, maxY, minY);
@@ -3298,6 +3314,13 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 			if (registry.toolTip.size() == 0)
 			{
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT) && registry.renderRequests.get(arrow_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE)
+		{
+			if (registry.toolTip.size() == 0)
+			{
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT), "AR");
 			}
 		}
 		else
