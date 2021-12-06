@@ -11,6 +11,8 @@ const float SWORDSMAN_WIDTH = 250.f;
 const float SWORDSMAN_HEIGHT = 290.f;
 const float ARCHER_WIDTH = 160.f;
 const float ARCHER_HEIGHT = 180.f;
+const float ARCHER_FREEROAM_WIDTH = ARCHER_WIDTH / 2;
+const float ARCHER_FREEROAM_HEIGHT = ARCHER_HEIGHT / 2;
 const float NECRO_ONE_WIDTH = 240.f;
 const float NECRO_ONE_HEIGHT = 270.f;
 const float NECRO_TWO_WIDTH = 350.f;
@@ -38,12 +40,12 @@ const float BARRIER_WIDTH = 50.f;
 const float BARRIER_HEIGHT = 425.f;
 const float FIREFLY_WIDTH = 10.f;
 const float FIREFLY_HEIGHT = 10.f;
-const float PLATFORM_WIDTH = 300.f;
-const float PLATFORM_HEIGHT = 80.f;
+const float PLATFORM_WIDTH = 200.f;
+const float PLATFORM_HEIGHT = 50.f;
 const float ROCK_MESH_WIDTH = 180.f;
 const float ROCK_MESH_HEIGHT = 180.f;
-const float ARROW_MESH_WIDTH = 120.f;
-const float ARROW_MESH_HEIGHT = 20.f;
+const float ARROW_MESH_WIDTH = ARROW_WIDTH / 2;
+const float ARROW_MESH_HEIGHT = ARROW_HEIGHT / 2;
 const float TREASURE_CHEST_WIDTH = 32.f;
 const float TREASURE_CHEST_HEIGHT = 38.4f;
 
@@ -88,6 +90,8 @@ const float TITLE_WIDTH = 300.f;
 const float TITLE_HEIGHT = 100.f;
 const float SPIKE_WIDTH = 40.f;
 const float SPIKE_HEIGHT = 100.f;
+const float HELPER_BOX_WIDTH = 600.f;
+const float HELPER_BOX_HEIGHT = 200.f;
 
 
 Entity createBird(RenderSystem* renderer, vec2 pos);
@@ -182,9 +186,16 @@ Entity createUIButton(RenderSystem* renderer, vec2 position, int buttonType);
 
 // create story background image
 Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number);
-// create dialogue image
-Entity createDiaogue(RenderSystem* renderer, vec2 pos, int number);
 
+// create dialogue image
+Entity createBackgroundDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createLevelOneDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createLevelTwoDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createLevelThreeDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createLevelFourDiaogue(RenderSystem* renderer, vec2 pos, int number);
+Entity createFreeRoamLevelDiaogue(RenderSystem* renderer, vec2 pos, int number);
+
+Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos);
 //Game Stats
 
 const int enemy_mage_hp = 90;

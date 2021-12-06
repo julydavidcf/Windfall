@@ -148,12 +148,16 @@ WorldSystem::~WorldSystem()
 		Mix_FreeChunk(registry.gesture_aoe_sound);
 	if (registry.gesture_turn_sound != nullptr)
 		Mix_FreeChunk(registry.gesture_turn_sound);
-	if (registry.menu_music != nullptr)	// only this is playing, got replaced
+	if (registry.menu_music != nullptr)
 		Mix_FreeMusic(registry.menu_music);
 	if (registry.wintervale_music != nullptr)
 		Mix_FreeMusic(registry.wintervale_music);
 	if (registry.cestershire_music != nullptr)
 		Mix_FreeMusic(registry.cestershire_music);
+	if (registry.boss_music != nullptr)
+		Mix_FreeMusic(registry.boss_music);
+	if (registry.crow_sound != nullptr)
+		Mix_FreeChunk(registry.crow_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -303,8 +307,10 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	registry.menu_music = Mix_LoadMUS(audio_path("menuMusic.wav").c_str());						// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
 	registry.wintervale_music = Mix_LoadMUS(audio_path("wintervaleMusic.wav").c_str());			// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
 	registry.cestershire_music = Mix_LoadMUS(audio_path("cestershireMusic.wav").c_str());		// https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
+	registry.boss_music = Mix_LoadMUS(audio_path("bossMusic.wav").c_str());						// https://downloads.khinsider.com/game-soundtracks/album/darkest-dungeon-ost
+	registry.crow_sound = Mix_LoadWAV(audio_path("crow.wav").c_str());							// https://freesound.org/people/vixuxx/sounds/9874/
 
-	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr || registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr)
+	if (registry.background_music == nullptr || registry.salmon_dead_sound == nullptr || registry.salmon_eat_sound == nullptr || registry.hit_enemy_sound == nullptr || registry.fireball_explosion_sound == nullptr || registry.death_enemy_sound == nullptr || registry.fire_spell_sound == nullptr || registry.rock_spell_sound == nullptr || registry.heal_spell_sound == nullptr || registry.taunt_spell_sound == nullptr || registry.melee_spell_sound == nullptr || registry.silence_spell_sound == nullptr || registry.lightning_spell_sound == nullptr || registry.ice_spell_sound == nullptr || registry.summon_spell_sound == nullptr || registry.button_hover_sound == nullptr || registry.turning_sound == nullptr || registry.summon_spell_sound == nullptr || registry.charge_spell_sound == nullptr || registry.beam_spell_sound == nullptr || registry.minion_spawn_sound == nullptr || registry.error_sound == nullptr || registry.gesture_heal_sound == nullptr || registry.gesture_aoe_sound == nullptr || registry.gesture_turn_sound == nullptr || registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr || registry.boss_music == nullptr || registry.crow_sound == nullptr)
 	{
 		//|| registry.menu_music == nullptr || registry.wintervale_music == nullptr || registry.cestershire_music == nullptr
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
@@ -332,7 +338,12 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 				audio_path("error.wav").c_str(),
 				audio_path("gesture_heal.wav").c_str(),
 				audio_path("gesture_aoe.wav").c_str(),
-				audio_path("gesture_turn.wav").c_str());
+				audio_path("gesture_turn.wav").c_str(),
+				audio_path("menuMusic.wav").c_str(), 
+				audio_path("wintervaleMusic.wav").c_str(), 
+				audio_path("cestershireMusic.wav").c_str(), 
+				audio_path("bossMusic.wav").c_str(),
+				audio_path("crow.wav").c_str());
 		return nullptr;
 	}
 	return window;
@@ -442,7 +453,7 @@ void WorldSystem::iceShardAttack(Entity currPlayer)
 std::vector<Entity> roundVec;
 void WorldSystem::createRound()
 {
-
+	
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++)
 	{ // iterate through all enemies to get speed stats
@@ -672,7 +683,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 6);
+			dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 6);
 			canStep = 0;
 			story = 9;
 		}
@@ -680,7 +691,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 12);
+			dialogue = createLevelOneDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
 			story = 16;
 		}
@@ -693,7 +704,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 17);
+			dialogue = createLevelTwoDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
 			story = 21;
 		}
@@ -701,7 +712,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 24);
+			dialogue = createLevelThreeDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
 			canStep = 0;
 			story = 29;
 		}
@@ -1296,6 +1307,43 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				registry.remove_all_components_of(entity); // added back in, kinda works
 			}
 		}
+		else if (pool.areTypeSmoke) {
+			for (int i = 0; i < pool.particles.size(); i++)
+			{
+				auto& particle = pool.particles[i];
+				particle.Life -= elapsed_ms_since_last_update;
+				float g = 10.f;
+				float initialSpeedX = particle.motion.velocity.x;
+				float initialSpeedY = particle.motion.velocity.y;
+				float finalSpeed = 100.f;
+				float p1 = finalSpeed * initialSpeedY / g;
+				float p2 = -g / initialSpeedY;
+				float p3 = -finalSpeed * (initialSpeedY + finalSpeed) / g;
+				float p5 = finalSpeed;
+				if (particle.Life <= 0)
+				{
+					pool.fadedParticles++;
+				}
+				particle.motion.position.x = p1 * (1 - exp(p2 * particle.Life));
+				particle.motion.position.y = p3 * (1 - exp(p2 * particle.Life)) - p5 * particle.Life;
+				particle.Color.a -= 0.05f * 0.01f;
+				particle.motion.angle += 0.5;
+				if (particle.motion.angle >= (2 * M_PI))
+				{
+					particle.motion.angle = 0;
+				}
+				pool.positions[i * 3 + 0] = particle.motion.position.x;
+				pool.positions[i * 3 + 1] = particle.motion.position.y;
+				pool.positions[i * 3 + 2] = particle.Life / pool.poolLife;
+			}
+			if (pool.fadedParticles == pool.size)
+			{
+				delete[] pool.positions;
+				pool.faded = true;
+				registry.particlePools.remove(entity);
+				registry.remove_all_components_of(entity); // added back in, kinda works
+			}
+		}
 		else
 		{
 			int w, h;
@@ -1591,23 +1639,21 @@ void WorldSystem::restart_game(bool force_restart)
 		open_menu_button = createUIButton(renderer, {100, 100}, OPEN_MENU);
 		printf("Loading free roam 0\n");
 
-		player_archer = createPlayerArcher(renderer, {700, 600}, 1);
+		player_archer = createPlayerArcher(renderer, {700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25}, 1);
 		//renderer->archer = player_archer;
-		//if (!registry.light.has(player_archer)) {
-		//	registry.light.emplace(player_archer);	// center light on archer
-		//	auto& lightProperties = registry.light.get(player_archer);
-		//	lightProperties.color = { 255, 255, 255, 255 };
-		//	lightProperties.position = registry.motions.get(player_archer).position;
-		//	lightProperties.size = 10.0f;
-		//}
-
 
 		// Create these for testing, can remove unneeded assets
 		//createFirefly(renderer, { 300, 500 });
-		//createPlatform(renderer, { 400, 600 });
+		createPlatform(renderer, { 550, 600 });
+		createPlatform(renderer, { 650, 450 });
+		createPlatform(renderer, { 100, 350 });
+		createPlatform(renderer, { 300, 350 });
+		createPlatform(renderer, { 1100, 225 });
+		createPlatform(renderer, { 675, 225 });
 		//createArrow(renderer, { 700, 600 }, 0, vec2(0.f, 0.f), 1, 1);
 		//createRockMesh(renderer, { 900, 600 });
-		//createTreasureChest(renderer, { 1100, 600 });
+		createTreasureChest(renderer, { 100, 350 - PLATFORM_HEIGHT });
+		createTreasureChest(renderer, { 1150, 225 - PLATFORM_HEIGHT });
 
 		if (swarmSys->swarmInitialized) {
 			swarmSys->resetSwarm();
@@ -1618,7 +1664,7 @@ void WorldSystem::restart_game(bool force_restart)
 
 		renderer->gameLevel = 1;
 
-		Mix_FadeInMusic(registry.wintervale_music, -1, 500);
+		Mix_FadeInMusic(registry.wintervale_music, -1, 500);	// change to free roam level 1 music
 	}
 	else
 	{
@@ -1855,6 +1901,7 @@ void WorldSystem::activate_smokeParticles(Entity entity)
 		Particle particle;
 		float random1 = ((rand() % 100) - 50) / 10.0f;
 		float random2 = ((rand() % 200) - 100) / 10.0f;
+
 		float rColor = 0.5f + ((rand() % 100) / 100.0f);
 		// particle.motion.position = motion.position + random + vec2({ 20,20 });
 		particle.motion.position.x = motion.position.x + random1 + 20.f;
@@ -1878,6 +1925,11 @@ void WorldSystem::handle_collisions()
 	// reduce turn
 	// Loop over all collisions detected by the physics system
 
+
+	// Reset the ceiling and floor (For free-roam archer physics)
+	currCeilingPos = 0.f;
+	currFloorPos = window_height_px - ARCHER_FREEROAM_HEIGHT + 25;
+
 	auto &collisionsRegistry = registry.collisions;
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++)
 	{
@@ -1885,185 +1937,308 @@ void WorldSystem::handle_collisions()
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// Deal with fireball - Companion collisions
-		if (registry.companions.has(entity))
-		{
+		// deal with collisions in free roam
+		if (isFreeRoam) {
 
-			// Checking Projectile - Companion collisions
-			if (registry.projectiles.has(entity_other))
+			// Deal with archer - platform collisions
+			if (registry.companions.has(entity))
 			{
+				if (registry.platform.has(entity_other))
+				{
+					Motion& platform_motion = registry.motions.get(entity_other);
+					float platform_position_x = platform_motion.position.x;
+					float platform_position_y = platform_motion.position.y;
+					float platform_width = platform_motion.scale.x;
+					float platform_height = platform_motion.scale.y;
 
-				Damage &projDamage = registry.damages.get(entity_other);
-				if (projDamage.isFriendly == 0)
-				{ // check if isFriendly = 0 which hits companion
-					// initiate death unless already dying
-					if (!registry.deathTimers.has(entity))
-					{
-						if (!registry.buttons.has(entity))
+					Motion& archer_motion = registry.motions.get(player_archer);
+					float archer_pos_x = archer_motion.position.x;
+					float archer_pos_y = archer_motion.position.y;
+
+					int onTopOrBelow = 0;
+
+					// Platform is on top of archer
+					if (archer_motion.position.y > platform_position_y + platform_height / 2) {
+						currCeilingPos = platform_position_y + platform_height + 15;
+						onTopOrBelow = 1;
+					}
+					// Archer is on top of a platform
+					if (archer_motion.position.y < platform_position_y - platform_height / 2) {
+						currFloorPos = platform_position_y - platform_height - 15;
+						onTopOrBelow = 1;
+					}
+
+					// Bounce back archer to the left, if not on top or directly below
+					if (archer_pos_x > platform_position_x - platform_width && archer_pos_x < platform_position_x + 25 - ARCHER_FREEROAM_WIDTH
+						&& !onTopOrBelow) {
+						archer_motion.position.x -= 2;
+					}
+					// Bounce back archer to the right, if not on top or directly below
+					if (archer_pos_x < platform_position_x + platform_width && archer_pos_x > platform_position_x - 25 + ARCHER_FREEROAM_WIDTH
+						&& !onTopOrBelow) {
+						archer_motion.position.x += 2;
+					}
+				}
+
+			}
+
+			// Deal with arrow - bird collisions
+			if (registry.projectiles.has(entity))	// not working in free roam
+			{
+				// Checking bird
+				if (registry.bird.has(entity_other))
+				{
+					registry.remove_all_components_of(entity_other);
+					Mix_PlayChannel(-1, registry.crow_sound, 0);
+				}
+
+				else if (registry.platform.has(entity_other)) {
+					Motion& arrowMotion = registry.motions.get(entity);
+					float arrow_pos_x = arrowMotion.position.x;
+					Motion& platformMotion = registry.motions.get(entity_other);
+					float platform_position_x = platformMotion.position.x;
+					float platform_position_y = platformMotion.position.y;
+					float platform_width = platformMotion.scale.x;
+					float platform_height = platformMotion.scale.y;
+
+					// Check if arrow collides with platform and stop it
+					if ((arrowMotion.position.y > platform_position_y + platform_height + 100 && arrowMotion.velocity.y < 0)
+						|| (arrowMotion.position.y < platform_position_y - platform_height - 100 && arrowMotion.velocity.y > 0)
+						|| 
+						(arrow_pos_x > platform_position_x - platform_width / 2 && arrow_pos_x < platform_position_x + platform_width / 2
+						&& arrowMotion.position.y < platform_position_y + platform_height && arrowMotion.position.y > platform_position_y - platform_height)) {
+						registry.remove_all_components_of(entity);
+					}
+				}
+			}
+		}		
+		
+		// deal with collisions in battles
+		else {
+			// Deal with arrow - bird collisions
+			if (registry.projectiles.has(entity))	// not working in free roam
+			{
+				// Checking bird
+				if (registry.bird.has(entity_other))
+				{
+					registry.remove_all_components_of(entity_other);
+					Mix_PlayChannel(-1, registry.crow_sound, 0);
+				}
+			}
+			// Deal with fireball - Companion collisions
+			if (registry.companions.has(entity))
+			{
+				// Checking Projectile - Companion collisions
+				if (registry.projectiles.has(entity_other))
+				{
+
+					Damage& projDamage = registry.damages.get(entity_other);
+					if (projDamage.isFriendly == 0)
+					{ // check if isFriendly = 0 which hits companion
+						// initiate death unless already dying
+						if (!registry.deathTimers.has(entity))
 						{
-
-							update_health(entity_other, entity);
-							registry.remove_all_components_of(entity_other);
-							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
-							showCorrectSkills();
-							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+							if (!registry.buttons.has(entity))
 							{
-								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								update_health(entity_other, entity);
+								registry.remove_all_components_of(entity_other);
+								Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
+								showCorrectSkills();
+								if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+								{
+									Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								}
+								else
+								{
+									Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								}
+								// update only if hit_timer for entity does not already exist
+								if (!registry.hit_timer.has(entity))
+								{
+									registry.motions.get(entity).position.x -= 20; // character shifts backwards
+									registry.hit_timer.emplace(entity);			   // to move character back to original position
+								}
+								// displayPlayerTurn();	// displays player turn when enemy hits collide
 							}
-							else
+						}
+					}
+				}
+				if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+				{
+					// get rid of dead entity's healthbar.
+					Entity entityHealthbar = registry.companions.get(entity).healthbar;
+					registry.motions.remove(entityHealthbar);
+					registry.deathTimers.emplace(entity);
+					if (registry.companions.has(entity))
+					{
+						printf("Companion is dead\n");
+						Companion& companion = registry.companions.get(entity);
+						companion.curr_anim_type = DEAD;
+					}
+					else if (registry.enemies.has(entity))
+					{
+						printf("Enemy is dead\n");
+						Enemy& enemy = registry.enemies.get(entity);
+						enemy.curr_anim_type = DEAD;
+					}
+				}
+			}
+			// Deal with fireball - Enemy collisions
+			else if (registry.enemies.has(entity))
+			{
+				// Checking Projectile - Enemy collisions
+				if (registry.projectiles.has(entity_other))
+				{
+					if (registry.FireBalls.has(entity_other)) {
+						activate_smokeParticles(entity_other);
+					}
+					Damage& projDamage = registry.damages.get(entity_other);
+					if (projDamage.isFriendly == 1)
+					{ // check if isFriendly = 1 which hits enemy
+						// initiate death unless already dying
+						if (!registry.deathTimers.has(entity))
+						{
+							if (!registry.buttons.has(entity))
 							{
-								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								update_health(entity_other, entity);
+								registry.remove_all_components_of(entity_other);
+								Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
+								if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
+								{
+									// get rid of dead entity's stats indicators
+									sk->removeTaunt(entity);
+									sk->removeSilence(entity);
+									sk->removeBleed(entity);
+									Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
+								}
+								else
+								{
+									Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
+								}
+								// update only if hit_timer for entity does not already exist
+								if (!registry.hit_timer.has(entity))
+								{
+									registry.motions.get(entity).position.x += 20; // character shifts backwards
+									registry.hit_timer.emplace(entity);			   // to move character back to original position
+								}
+								// enemy turn start
 							}
-							// update only if hit_timer for entity does not already exist
-							if (!registry.hit_timer.has(entity))
+						}
+					}
+				}
+				if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+				{
+					// get rid of dead entity's healthbar.
+					Entity entityHealthbar = registry.enemies.get(entity).healthbar;
+					registry.motions.remove(entityHealthbar);
+					registry.deathTimers.emplace(entity);
+					if (registry.companions.has(entity))
+					{
+						printf("Companion is dead\n");
+						Companion& companion = registry.companions.get(entity);
+						companion.curr_anim_type = DEAD;
+					}
+					else if (registry.enemies.has(entity))
+					{
+						printf("Enemy is dead\n");
+						Enemy& enemy = registry.enemies.get(entity);
+						enemy.curr_anim_type = DEAD;
+					}
+				}
+			}
+			// handle collisions with background objects
+			if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other) && !registry.reflects.has(entity))
+			{
+				auto& backgroundObj = registry.deformableEntities.get(entity);
+				backgroundObj.shouldDeform = true;
+				Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
+				registry.remove_all_components_of(entity_other);
+				// enemy turn start
+				if (player_turn == 0)
+				{
+					if (!registry.checkRoundTimer.has(currPlayer))
+					{
+						displayEnemyTurn();
+						if (registry.enemies.has(currPlayer))
+						{ // check if enemies have currPlayer
+							ai->callTree(currPlayer);
+						}
+						else
+						{
+							if (roundVec.empty())
 							{
-								registry.motions.get(entity).position.x -= 20; // character shifts backwards
-								registry.hit_timer.emplace(entity);			   // to move character back to original position
+								printf("roundVec is empty at enemy turn, createRound now \n");
+								createRound();
 							}
-							// displayPlayerTurn();	// displays player turn when enemy hits collide
 						}
 					}
 				}
 			}
-			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
+			// barrier collection
+			else if (registry.projectiles.has(entity))
 			{
-				// get rid of dead entity's healthbar.
-				Entity entityHealthbar = registry.companions.get(entity).healthbar;
-				registry.motions.remove(entityHealthbar);
-				registry.deathTimers.emplace(entity);
-				if (registry.companions.has(entity))
+				if (registry.reflects.has(entity_other))
 				{
-					printf("Companion is dead\n");
-					Companion &companion = registry.companions.get(entity);
-					companion.curr_anim_type = DEAD;
-				}
-				else if (registry.enemies.has(entity))
-				{
-					printf("Enemy is dead\n");
-					Enemy &enemy = registry.enemies.get(entity);
-					enemy.curr_anim_type = DEAD;
-				}
-			}
-		}
-		// Deal with fireball - Enemy collisions
-		else if (registry.enemies.has(entity))
-		{
-			// Checking Projectile - Enemy collisions
-			if (registry.projectiles.has(entity_other))
-			{
-				Damage &projDamage = registry.damages.get(entity_other);
-				if (projDamage.isFriendly == 1)
-				{ // check if isFriendly = 1 which hits enemy
-					// initiate death unless already dying
-					if (!registry.deathTimers.has(entity))
+					// printf("colleds\n");
+					// printf("%f\n", registry.motions.get(entity).velocity.x);
+					if (registry.motions.get(entity).velocity.x > 0.f)
 					{
-						if (!registry.buttons.has(entity))
+						// printf("colleds1");
+						auto& shieldMesh = registry.deformableEntities.get(entity_other);
+						shieldMesh.shouldDeform = true;
+						shieldMesh.deformType2 = true;
+
+						Motion* reflectEM = &registry.motions.get(entity);
+
+						reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
+						reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
+						float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
+						if (registry.motions.get(entity).velocity.x < 0)
 						{
-
-							update_health(entity_other, entity);
-							registry.remove_all_components_of(entity_other);
-							Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0); // added fireball hit sound
-							if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0)
-							{
-								// get rid of dead entity's stats indicators
-								sk->removeTaunt(entity);
-								sk->removeSilence(entity);
-								sk->removeBleed(entity);
-								Mix_PlayChannel(-1, registry.death_enemy_sound, 0); // added enemy death sound
-							}
-
-							else
-							{
-								Mix_PlayChannel(-1, registry.hit_enemy_sound, 0); // new enemy hit sound
-							}
-							// update only if hit_timer for entity does not already exist
-							if (!registry.hit_timer.has(entity))
-							{
-								registry.motions.get(entity).position.x += 20; // character shifts backwards
-								registry.hit_timer.emplace(entity);			   // to move character back to original position
-							}
-
-							// enemy turn start
+							reflectE += M_PI;
 						}
+						reflectEM->angle = reflectE;
 					}
 				}
 			}
-			if (registry.stats.has(entity) && registry.stats.get(entity).health <= 0 && !registry.deathTimers.has(entity))
-			{
-				// get rid of dead entity's healthbar.
-				Entity entityHealthbar = registry.enemies.get(entity).healthbar;
-				registry.motions.remove(entityHealthbar);
-				registry.deathTimers.emplace(entity);
-				if (registry.companions.has(entity))
-				{
-					printf("Companion is dead\n");
-					Companion &companion = registry.companions.get(entity);
-					companion.curr_anim_type = DEAD;
-				}
-				else if (registry.enemies.has(entity))
-				{
-					printf("Enemy is dead\n");
-					Enemy &enemy = registry.enemies.get(entity);
-					enemy.curr_anim_type = DEAD;
-				}
-			}
-		}
-		// handle collisions with background objects
-		if (registry.deformableEntities.has(entity) && registry.projectiles.has(entity_other) && !registry.reflects.has(entity))
-		{
-			auto &backgroundObj = registry.deformableEntities.get(entity);
-			backgroundObj.shouldDeform = true;
-			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
-			registry.remove_all_components_of(entity_other);
-			// enemy turn start
-			if (player_turn == 0)
-			{
-				if (!registry.checkRoundTimer.has(currPlayer))
-				{
-					displayEnemyTurn();
-					if (registry.enemies.has(currPlayer))
-					{ // check if enemies have currPlayer
-						ai->callTree(currPlayer);
-					}
-					else
-					{
-						if (roundVec.empty())
-						{
-							printf("roundVec is empty at enemy turn, createRound now \n");
-							createRound();
-						}
-					}
-				}
-			}
-		}
-		// barrier collection
-		else if (registry.projectiles.has(entity))
-		{
-			if (registry.reflects.has(entity_other))
-			{
-				// printf("colleds\n");
-				// printf("%f\n", registry.motions.get(entity).velocity.x);
-				if (registry.motions.get(entity).velocity.x > 0.f)
-				{
-					// printf("colleds1");
-					auto &shieldMesh = registry.deformableEntities.get(entity_other);
-					shieldMesh.shouldDeform = true;
-					shieldMesh.deformType2 = true;
+		}		
+	}
 
-					Motion *reflectEM = &registry.motions.get(entity);
+	Motion& archerMotion = registry.motions.get(player_archer);
 
-					reflectEM->velocity = vec2(-registry.motions.get(entity).velocity.x, reflectEM->velocity.y);
-					reflectEM->acceleration = vec2(-registry.motions.get(entity).acceleration.x, reflectEM->acceleration.y);
-					float reflectE = atan(registry.motions.get(entity).velocity.y / registry.motions.get(entity).velocity.x);
-					if (registry.motions.get(entity).velocity.x < 0)
-					{
-						reflectE += M_PI;
-					}
-					reflectEM->angle = reflectE;
-				}
+	// Check for left & right boundaries
+	if (archerMotion.position.x < ARCHER_FREEROAM_WIDTH / 2) {
+		archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
+	}
+	else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH / 2) {
+		archerMotion.position.x = window_width_px - ARCHER_FREEROAM_WIDTH / 2;
+	}
+
+	// Check if archer is above ceiling
+	if (archerMotion.position.y < currCeilingPos) {
+		archerMotion.position.y = currCeilingPos;
+		archerMotion.velocity.y = 400.f;
+		registry.companions.get(player_archer).curr_anim_type = JUMPING;
+	}
+
+	// Reset archer y-pos based on the current floor position, so archer doesn't fall through platform/ground
+	if (archerMotion.position.y > currFloorPos) {
+		archerMotion.velocity.y = 0.f;
+		archerMotion.acceleration.y = 0.f;
+		archerMotion.position.y = currFloorPos;
+		if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
+			if (archerMotion.velocity.x != 0) {
+				registry.companions.get(player_archer).curr_anim_type = WALKING;
 			}
+			else registry.companions.get(player_archer).curr_anim_type = IDLE;
 		}
 	}
+	// If archer is not on currFloorPos and falling from above (No jump)
+	else if (archerMotion.position.y < currFloorPos && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
+		archerMotion.velocity.y = 400.f;
+		registry.companions.get(player_archer).curr_anim_type = JUMPING;
+	}
+
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
@@ -2085,26 +2260,6 @@ void WorldSystem::handle_boundary_collision()
 			registry.remove_all_components_of(entity);
 			Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
 			// enemy turn start
-		}
-	}
-	if(isFreeRoam){
-		Motion& motion = registry.motions.get(player_archer);
-		if(motion.position.x >= window_width_px + 20){
-			restart_game();
-		} else if(motion.position.x - (motion.scale.x/2) <= 0){
-			motion.position.x = (motion.scale.x/2);
-		}
-		// The base floor collision, so archer doesn't fall through the ground
-		if (motion.position.y > window_height_px - ARCHER_HEIGHT) {
-			motion.velocity.y = 0.f;
-			motion.acceleration.y = 0.f;
-			motion.position.y = window_height_px - ARCHER_HEIGHT;
-			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
-				if (motion.velocity.x != 0) {
-					registry.companions.get(player_archer).curr_anim_type = WALKING;
-				}
-				else registry.companions.get(player_archer).curr_anim_type = IDLE;
-			}
 		}
 	}
 }
@@ -2132,9 +2287,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	//	sk->launchArrow(registry.companions.entities[0],msPos,renderer);
 	//}
 
-	 if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-		sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
-	 }
+	 //if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		//sk->launchNecroBarrier(registry.enemies.entities[0], renderer);
+	 //}
 	if (isFreeRoam) {
 		// Move right
 		if (key == GLFW_KEY_D) {
@@ -2261,6 +2416,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		Mix_VolumeChunk(registry.gesture_heal_sound, Mix_VolumeChunk(registry.gesture_heal_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.crow_sound, Mix_VolumeChunk(registry.crow_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V)
 	{
@@ -2284,6 +2440,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		Mix_VolumeChunk(registry.gesture_heal_sound, Mix_VolumeChunk(registry.gesture_heal_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.crow_sound, Mix_VolumeChunk(registry.crow_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 
@@ -2299,7 +2456,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			int w, h;
 			glfwGetWindowSize(window, &w, &h);
 			backgroundImage = createStoryBackground(renderer, {window_width_px / 2, window_height_px / 2}, 1);
-			dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 1);
+			dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 1);
 			story = 1;
 			canStep = 0;
 		}
@@ -2325,7 +2482,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		registry.remove_all_components_of(backgroundImage);
 		backgroundImage = createStoryBackground(renderer, {window_width_px / 2, window_height_px / 2}, 2);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 2);
+		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 2);
 		story = 2;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 2)
@@ -2335,7 +2492,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 3);
+		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 3);
 		story = 3;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3)
@@ -2347,7 +2504,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		registry.remove_all_components_of(backgroundImage);
 		backgroundImage = createStoryBackground(renderer, {window_width_px / 2, window_height_px / 2}, 3);
 		registry.remove_all_components_of(dialogue);
-		dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 4);
+		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 4);
 		story = 4;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4)
@@ -2367,7 +2524,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		Mix_PlayChannel(5, registry.turning_sound, 0);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-		dialogue = createDiaogue(renderer, {window_width_px / 2, 650}, 5);
+		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 5);
 		story = 6;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6)
@@ -2390,120 +2547,63 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		story = 8;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 9)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 9 && story <= 17) 
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETWO;
-		story = 10;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 10)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUETHREE;
-		story = 11;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 11)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFOUR;
-		story = 12;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 12)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUEFIVE;
-		story = 13;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 13)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELONEDIALOGUESIX;
-		story = 14;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 14)
-	{
-		story = 15;
-		canStep = 1;
-		restart_game();
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 16)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETWO;
-		story = 17;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 17)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE;
-		story = 18;
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelOneDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 8));
+		story++;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 18)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR;
 		story = 19;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 19)
-	{
-		story = 20;
 		canStep = 1;
 		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 21)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 20 && story <= 24)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE;
-		story = 22;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 22)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR;
-		story = 23;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 23)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFIVE;
-		story = 24;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 24)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESIX;
-		story = 25;
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelTwoDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 19));
+		story++;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 25)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESEVEN;
 		story = 26;
+		canStep = 1;
+		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 26)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 27 && story <= 34)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT;
-		story = 27;
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 26));
+		story++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 27)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 35)
 	{
-		// registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT;
 		registry.remove_all_components_of(dialogue);
 		canStep = 1;
-		story = 28;
+		story = 36;
 		roundVec.clear(); // empty vector roundVec to create a new round
-		createBackgroundObject(renderer, {1160, 315});
-		auto ent = createBackgroundObject(renderer, {550, 325});
+		createBackgroundObject(renderer, { 1160, 315 });
+		auto ent = createBackgroundObject(renderer, { 550, 325 });
 		registry.deformableEntities.get(ent).deformType2 = true;
-		necromancer_phase_two = createNecromancerPhaseTwo(renderer, {900, 350});
+		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 350 });
 		createRound();
 		checkRound();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 29)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 37 && story <= 40)
 	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;
-		story = 30;
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 36));
+		story++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 30)
-	{
-		registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETHREE;
-		story = 31;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 31)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 41)
 	{
 		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
 
 		// Shut down game after last enemy defeated
 		closeWindow = 1;
 
-		story = 32;
+		story = 42;
 		canStep = 1;
 		restart_game();
 	}
@@ -3143,6 +3243,13 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 			if (registry.toolTip.size() == 0)
 			{
 				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(taunt_icon).position, ICON_WIDTH, ICON_HEIGHT), "ML");
+			}
+		}
+		else if (mouseInArea(registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT) && registry.renderRequests.get(arrow_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE)
+		{
+			if (registry.toolTip.size() == 0)
+			{
+				tooltip = createTooltip(renderer, placeDirection(msPos, registry.motions.get(arrow_icon).position, ICON_WIDTH, ICON_HEIGHT), "AR");
 			}
 		}
 		else

@@ -33,7 +33,11 @@ vec2 PhysicsSystem::get_custom_bounding_box(Entity entity)
 			return { abs(motion.scale.x), abs(motion.scale.y) };
 		}
 
-	} else {
+	}
+	else if (registry.platform.has(entity)) {
+		return { abs(motion.scale.x) + 50, abs(motion.scale.y) };
+	}
+	else {
 		return { abs(motion.scale.x), abs(motion.scale.y) };
 	}
 }
@@ -334,6 +338,43 @@ void PhysicsSystem::step_freeRoam(float elapsed_ms, float window_width_px, float
 			motion->angle = angle;
 		}
 	}
+
+	// Check for collisions between all moving entities
+	ComponentContainer<Motion>& motion_container = registry.motions;
+	for (uint i = 0; i < motion_container.components.size(); i++)
+	{
+		Motion& motion_i = motion_container.components[i];
+		Entity entity_i = motion_container.entities[i];
+		for (uint j = 0; j < motion_container.components.size(); j++) // i+1
+		{
+			if (i == j)
+				continue;
+
+			Motion& motion_j = motion_container.components[j];
+			Entity entity_j = motion_container.entities[j];
+
+			// Handle charIndicator following the character here
+			if (registry.charIndicator.has(entity_i) && registry.charIndicator.get(entity_i).owner == entity_j) {
+				motion_i.position = vec2(motion_j.position.x, motion_i.position.y);
+			}
+			else if (registry.charIndicator.has(entity_j) && registry.charIndicator.get(entity_j).owner == entity_i) {
+				motion_j.position = vec2(motion_i.position.x, motion_j.position.y);
+			}
+
+
+			//if (collides(motion_i, motion_j))
+			if (collides(entity_i, entity_j))
+			{
+				// Create a collisions event
+				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+			}
+		}
+	}
+
+	// debugging of bounding boxes
+	if (debugging.in_debug_mode) showDebugBox();
 }
 
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
@@ -350,7 +391,6 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		//gravity effect
 		if (registry.gravities.has(entity)){
 			motion->acceleration.y += registry.gravities.get(entity).gravity;
-
 		}
 
 		//normal movement
@@ -365,11 +405,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				angle += M_PI;
 			}
 			motion->angle = angle;
-
 		}
-
-
-
 	}
 
 	// make sure each stat indicator is with their owner
@@ -453,81 +489,84 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 
 
 	// debugging of bounding boxes
-	if (debugging.in_debug_mode)
+	if (debugging.in_debug_mode) showDebugBox();
+}
+
+void PhysicsSystem::showDebugBox() {
+	ComponentContainer<Motion>& motion_container = registry.motions;
+	uint size_before_adding_new = (uint)motion_container.components.size();
+	for (uint i = 0; i < size_before_adding_new; i++)
 	{
-		uint size_before_adding_new = (uint)motion_container.components.size();
-		for (uint i = 0; i < size_before_adding_new; i++)
-		{
 
-			Motion& motion_i = motion_container.components[i];
-			Entity entity_i = motion_container.entities[i];
+		Motion& motion_i = motion_container.components[i];
+		Entity entity_i = motion_container.entities[i];
 
-			if (!registry.companions.has(entity_i) && !registry.enemies.has(entity_i) && !registry.projectiles.has(entity_i)) {
-				continue;
-			}
-
-			vec3 point0 	= {0.f, 0.f, 1.f};
-			vec3 pointy 	= {0.f, 1.f, 1.f};
-			vec3 pointx 	= {1.f, 0.f, 1.f};
-			vec3 pointxy 	= {1.f, 1.f, 1.f};
-
-			Transform transform;
-			vec2 new_scale = get_custom_bounding_box(entity_i);
-			vec2 custom_pos = get_custom_position(entity_i);
-			
-			vec2 offset = {((cos(motion_i.angle)*new_scale.x)/2-(sin(motion_i.angle)*new_scale.y)/2), 
-								((sin(motion_i.angle)*new_scale.x)/2+(cos(motion_i.angle)*new_scale.y)/2)};
-			vec2 new_pos = custom_pos - offset;
-			transform.translate(new_pos);
-			transform.rotate(motion_i.angle);
-			transform.scale(new_scale);
-			
-			point0 	= transform.mat * point0;
-			pointy 	= transform.mat * pointy;
-			pointx 	= transform.mat * pointx;
-			pointxy = transform.mat * pointxy;
-
-			vec2 points[4] = {point0, pointx, pointy, pointxy};
-			
-			float min_x = point0.x;
-			float max_x = pointx.x;
-			float min_y = point0.y;
-			float max_y = pointy.y;
-			
-			for(vec2 vec: points){
-				if(vec.x<min_x){
-					min_x = vec.x;
-				}
-				if(vec.x>max_x){
-					max_x = vec.x;
-				}
-				if(vec.y<min_y){
-					min_y = vec.y;
-				}
-				if(vec.y>max_y){
-					max_y = vec.y;
-				}
-			}
-
-			float line_thickness = 6.f;
-
-			vec2 line1_pos = {(max_x+min_x)/2, min_y};
-			vec2 line2_pos = {(max_x+min_x)/2, max_y};
-			vec2 line3_pos = {min_x, (max_y+min_y)/2};
-			vec2 line4_pos = {max_x, (max_y+min_y)/2};
-
-			vec2 line1_scale = {(max_x-min_x), line_thickness};
-			vec2 line3_scale = {line_thickness, (max_y-min_y)};
-
-			
-			Entity line1 = createLine(line1_pos, line1_scale);
-			Entity line2 = createLine(line2_pos, line1_scale);
-			Entity line3 = createLine(line3_pos, line3_scale);
-			Entity line4 = createLine(line4_pos, line3_scale);
-
-			// center = pos
-			Entity center = createLine(get_custom_position(entity_i), {5.f, 5.f});
-
+		if (!registry.companions.has(entity_i) && !registry.enemies.has(entity_i) && !registry.projectiles.has(entity_i)
+			&& !registry.bird.has(entity_i) && !registry.fireflySwarm.has(entity_i) && !registry.platform.has(entity_i)
+			&& !registry.chests.has(entity_i)) {
+			continue;
 		}
+
+		vec3 point0 = { 0.f, 0.f, 1.f };
+		vec3 pointy = { 0.f, 1.f, 1.f };
+		vec3 pointx = { 1.f, 0.f, 1.f };
+		vec3 pointxy = { 1.f, 1.f, 1.f };
+
+		Transform transform;
+		vec2 new_scale = get_custom_bounding_box(entity_i);
+		vec2 custom_pos = get_custom_position(entity_i);
+
+		vec2 offset = { ((cos(motion_i.angle) * new_scale.x) / 2 - (sin(motion_i.angle) * new_scale.y) / 2),
+							((sin(motion_i.angle) * new_scale.x) / 2 + (cos(motion_i.angle) * new_scale.y) / 2) };
+		vec2 new_pos = custom_pos - offset;
+		transform.translate(new_pos);
+		transform.rotate(motion_i.angle);
+		transform.scale(new_scale);
+
+		point0 = transform.mat * point0;
+		pointy = transform.mat * pointy;
+		pointx = transform.mat * pointx;
+		pointxy = transform.mat * pointxy;
+
+		vec2 points[4] = { point0, pointx, pointy, pointxy };
+
+		float min_x = point0.x;
+		float max_x = pointx.x;
+		float min_y = point0.y;
+		float max_y = pointy.y;
+
+		for (vec2 vec : points) {
+			if (vec.x < min_x) {
+				min_x = vec.x;
+			}
+			if (vec.x > max_x) {
+				max_x = vec.x;
+			}
+			if (vec.y < min_y) {
+				min_y = vec.y;
+			}
+			if (vec.y > max_y) {
+				max_y = vec.y;
+			}
+		}
+
+		float line_thickness = 6.f;
+
+		vec2 line1_pos = { (max_x + min_x) / 2, min_y };
+		vec2 line2_pos = { (max_x + min_x) / 2, max_y };
+		vec2 line3_pos = { min_x, (max_y + min_y) / 2 };
+		vec2 line4_pos = { max_x, (max_y + min_y) / 2 };
+
+		vec2 line1_scale = { (max_x - min_x), line_thickness };
+		vec2 line3_scale = { line_thickness, (max_y - min_y) };
+
+
+		Entity line1 = createLine(line1_pos, line1_scale);
+		Entity line2 = createLine(line2_pos, line1_scale);
+		Entity line3 = createLine(line3_pos, line3_scale);
+		Entity line4 = createLine(line4_pos, line3_scale);
+
+		// center = pos
+		Entity center = createLine(get_custom_position(entity_i), { 5.f, 5.f });
 	}
 }
