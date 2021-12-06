@@ -5,14 +5,14 @@
 #include "render_system.hpp"
 
 // These are ahrd coded to the dimensions of the entity texture
-const float MAGE_WIDTH = 175.f;
-const float MAGE_HEIGHT = 190.f;
+const float MAGE_WIDTH = 175.f / 1.5;
+const float MAGE_HEIGHT = 190.f / 1.5;
 const float SWORDSMAN_WIDTH = 250.f;
 const float SWORDSMAN_HEIGHT = 290.f;
-const float ARCHER_WIDTH = 160.f;
-const float ARCHER_HEIGHT = 180.f;
-const float ARCHER_FREEROAM_WIDTH = ARCHER_WIDTH / 2;
-const float ARCHER_FREEROAM_HEIGHT = ARCHER_HEIGHT / 2;
+const float ARCHER_WIDTH = 160.f / 1.5;
+const float ARCHER_HEIGHT = 180.f / 1.5;
+const float ARCHER_FREEROAM_WIDTH = ARCHER_WIDTH / 1.75;
+const float ARCHER_FREEROAM_HEIGHT = ARCHER_HEIGHT / 1.75;
 const float NECRO_ONE_WIDTH = 240.f;
 const float NECRO_ONE_HEIGHT = 270.f;
 const float NECRO_TWO_WIDTH = 350.f;
@@ -56,8 +56,8 @@ const float PLAYERTURN_HEIGHT = 100.f;
 const float ENEMYTURN_WIDTH = 300.f;
 const float ENEMYTURN_HEIGHT = 100.f;
 
-const float BACKGROUND_WIDTH = 1800.f;
-const float BACKGROUND_HEIGHT = 1200.f;
+const float BACKGROUND_WIDTH = window_width_px;
+const float BACKGROUND_HEIGHT = window_height_px;
 
 const float DIALOGUE_WIDTH = 1200.f;
 const float DIALOGUE_HEIGHT = 200.f;
@@ -115,11 +115,8 @@ Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos);
 // the necromancer's minion
 Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos);
 
-// Create background layers
-Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos);
-Entity createBackgroundLayerTwo(RenderSystem* renderer, vec2 pos);
-Entity createBackgroundLayerThree(RenderSystem* renderer, vec2 pos);
-Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos);
+// Create the background based on given levelNumber
+void createBackground(RenderSystem* renderer, vec2 pos, int levelNumber);
 
 //healthbar
 Entity createHealthBar(RenderSystem* renderer, vec2 position);

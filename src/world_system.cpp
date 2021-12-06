@@ -1576,13 +1576,7 @@ void WorldSystem::restart_game(bool force_restart)
 	// Render background before all else
 
 	// Layer 1 (Last layer in background)
-	createBackgroundLayerOne(renderer, {w / 2, h / 2});
-	// Layer 3
-	createBackgroundLayerThree(renderer, {w / 2, h / 2});
-	// Layer 2
-	createBackgroundLayerTwo(renderer, {w / 2, h / 2});
-	// Layer 4 (Foremost layer)
-	createBackgroundLayerFour(renderer, {w / 2, h / 2});
+	createBackground(renderer, {w / 2, h / 2}, FREE_ROAM_TWO);
 
 
 	if (isFreeRoam)
@@ -1647,7 +1641,7 @@ void WorldSystem::restart_game(bool force_restart)
 
 			// Kept this to load icons, but commented out createMage in load_level()
 			json_loader.get_level("level_0.json");
-			player_archer = createPlayerArcher(renderer, vec2(100, 575), 0);
+			player_archer = createPlayerArcher(renderer, vec2(100, 650), 0);
 
 			tutorial_enabled = 1;
 			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });

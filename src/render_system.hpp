@@ -105,10 +105,37 @@ class RenderSystem {
 			textures_path("dragon_flying.png"),
 
 			// Background layers
-			textures_path("backgroundLayerOne.png"),
-			textures_path("backgroundLayerTwo.png"),
-			textures_path("backgroundLayerThree.png"),
-			textures_path("backgroundLayerFour.png"),
+
+			textures_path("tutorialBackground1.png"),
+			textures_path("tutorialBackground2.png"),
+			textures_path("tutorialBackground3.png"),
+			textures_path("tutorialBackground4.png"),
+			textures_path("tutorialBackground5.png"),
+
+			textures_path("levelOneBackground1.png"),
+			textures_path("levelOneBackground2.png"),
+			textures_path("levelOneBackground3.png"),
+			textures_path("levelOneBackground4.png"),
+
+			textures_path("freeRoamOneBackground1.png"),
+			textures_path("freeRoamOneBackground2.png"),
+			textures_path("freeRoamOneBackground3.png"),
+			textures_path("freeRoamOneBackground4.png"),
+			textures_path("freeRoamOneBackground5.png"),
+
+			textures_path("levelTwoBackground1.png"),
+			textures_path("levelTwoBackground2.png"),
+			textures_path("levelTwoBackground3.png"),
+			textures_path("levelTwoBackground4.png"),
+
+			textures_path("freeRoamTwoBackground1.png"),
+			textures_path("freeRoamTwoBackground2.png"),
+			textures_path("freeRoamTwoBackground3.png"),
+			textures_path("freeRoamTwoBackground4.png"),
+			textures_path("freeRoamTwoBackground5.png"),
+			textures_path("freeRoamTwoBackground6.png"),
+
+			textures_path("levelThreeBackground1.png"),
 
 			// Tutorial text boxes
 			textures_path("tutorial_one.png"),

@@ -1309,87 +1309,95 @@ Entity createDot(RenderSystem* renderer, vec2 position)
 }
 
 
-Entity createBackgroundLayerOne(RenderSystem* renderer, vec2 pos)
+void createBackground(RenderSystem* renderer, vec2 pos, int levelNumber)
 {
-	auto entity = Entity();
 
-	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.position = pos;
-	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+	std::vector<Entity> backgroundEntities;
+	std::vector<TEXTURE_ASSET_ID> bgAssetIds;
 
-	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
-	backgroundLayer.isAutoScroll = 1;
+	switch (levelNumber) {
+		case TUTORIAL: {
+			for (int i = 0; i < 5; i++) {
+				backgroundEntities.push_back(Entity());
+			}
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::TUTORIAL_BG_ONE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::TUTORIAL_BG_TWO);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::TUTORIAL_BG_THREE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::TUTORIAL_BG_FOUR);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::TUTORIAL_BG_FIVE); break;
+		}
+		case LEVEL_ONE: {
+			for (int i = 0; i < 4; i++) {
+				backgroundEntities.push_back(Entity());
+			}
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_ONE_BG_ONE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_ONE_BG_TWO);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_ONE_BG_THREE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_ONE_BG_FOUR); break;
+		}
+		case FREE_ROAM_ONE: {
+			for (int i = 0; i < 5; i++) {
+				backgroundEntities.push_back(Entity());
+			}
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_ONE_BG_ONE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_ONE_BG_TWO);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_ONE_BG_THREE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_ONE_BG_FOUR);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_ONE_BG_FIVE); break;
+		}
+		case LEVEL_TWO: {
+			for (int i = 0; i < 4; i++) {
+				backgroundEntities.push_back(Entity());
+			}
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_TWO_BG_ONE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_TWO_BG_TWO);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_TWO_BG_THREE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_TWO_BG_FOUR); break;
+		}
+		case FREE_ROAM_TWO: {
+			for (int i = 0; i < 6; i++) {
+				backgroundEntities.push_back(Entity());
+			}
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_TWO_BG_ONE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_TWO_BG_TWO);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_TWO_BG_THREE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_TWO_BG_FOUR);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_TWO_BG_FIVE);
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::FREE_ROAM_TWO_BG_SIX); break;
+		}
+		case LEVEL_THREE: {
+			for (int i = 0; i < 1; i++) {
+				backgroundEntities.push_back(Entity());
+			}
+			bgAssetIds.push_back(TEXTURE_ASSET_ID::LEVEL_THREE_BG_ONE); break;
+		}
+		default: break;
+	}
 
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERONE,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+	int numLayers = backgroundEntities.size();
 
-	return entity;
-}
+	for (int i = 0; i < numLayers; i++) {
+		Entity currEntity = backgroundEntities[i];
+		auto& motion = registry.motions.emplace(currEntity);
+		motion.angle = 0.f;
+		motion.position = pos;
 
-Entity createBackgroundLayerTwo(RenderSystem* renderer, vec2 pos)
-{
-	auto entity = Entity();
+		// Shift moon towards top-left
+		if (i == 1 && levelNumber == FREE_ROAM_TWO) {
+			motion.position = vec2(pos.x - 100, pos.y - 100);
+		}
 
-	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.position = pos;
-	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
+		motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
 
-	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
-	backgroundLayer.isCameraScrollOne = 1;
+		registry.backgroundLayers.emplace(currEntity);
 
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERTWO,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		registry.renderRequests.insert(
+			currEntity,
+			{ bgAssetIds[i],
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+	}
 
-	return entity;
-}
-
-Entity createBackgroundLayerThree(RenderSystem* renderer, vec2 pos)
-{
-	auto entity = Entity();
-
-	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.position = pos;
-	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
-
-	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
-
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERTHREE,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
-
-	return entity;
-}
-
-Entity createBackgroundLayerFour(RenderSystem* renderer, vec2 pos)
-{
-	auto entity = Entity();
-
-	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.position = pos;
-	motion.scale = vec2({ BACKGROUND_WIDTH, BACKGROUND_HEIGHT });
-
-	auto& backgroundLayer = registry.backgroundLayers.emplace(entity);
-	backgroundLayer.isCameraScrollTwo = 1;
-
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::BACKGROUNDLAYERFOUR,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
-
-	return entity;
 }
 
 Entity createPebble(vec2 pos, vec2 size)

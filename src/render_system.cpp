@@ -9,87 +9,87 @@
 
 void RenderSystem::drawLight(Entity entity)
 {
-	auto& entityPos = registry.motions.get(entity).position;
+	//auto& entityPos = registry.motions.get(entity).position;
 
-	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::LIGHT]);
-	gl_has_errors();
+	//glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::LIGHT]);
+	//gl_has_errors();
 
-	const GLuint light_program = effects[(GLuint)EFFECT_ASSET_ID::LIGHT];
+	//const GLuint light_program = effects[(GLuint)EFFECT_ASSET_ID::LIGHT];
 
-	// Clearing backbuffer
-	int w, h;
-	glfwGetFramebufferSize(window, &w, &h);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, w, h);
-	glDepthRange(0, 10);
-	glClearColor(1.f, 0, 0, 1.0);
-	glClearDepth(1.f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	gl_has_errors();
-	// Enabling alpha channel for textures
-	glDisable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
+	//// Clearing backbuffer
+	//int w, h;
+	//glfwGetFramebufferSize(window, &w, &h);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glViewport(0, 0, w, h);
+	//glDepthRange(0, 10);
+	//glClearColor(1.f, 0, 0, 1.0);
+	//glClearDepth(1.f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//gl_has_errors();
+	//// Enabling alpha channel for textures
+	//glDisable(GL_BLEND);
+	//glDisable(GL_DEPTH_TEST);
 
-	// Draw the screen texture on the quad geometry
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
-	glBindBuffer(
-		GL_ELEMENT_ARRAY_BUFFER,
-		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
-																	 // indices to the bound GL_ARRAY_BUFFER
-	gl_has_errors();
+	//// Draw the screen texture on the quad geometry
+	//glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
+	//glBindBuffer(
+	//	GL_ELEMENT_ARRAY_BUFFER,
+	//	index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
+	//																 // indices to the bound GL_ARRAY_BUFFER
+	//gl_has_errors();
 
-	GLuint resoltion_x_loc = glGetUniformLocation(light_program, "resolutionX");
-	GLuint resoltion_y_loc = glGetUniformLocation(light_program, "resolutionY");
-	glUniform1f(resoltion_x_loc, (float)w);
-	glUniform1f(resoltion_y_loc, (float)h);
+	//GLuint resoltion_x_loc = glGetUniformLocation(light_program, "resolutionX");
+	//GLuint resoltion_y_loc = glGetUniformLocation(light_program, "resolutionY");
+	//glUniform1f(resoltion_x_loc, (float)w);
+	//glUniform1f(resoltion_y_loc, (float)h);
 
-	glUniform2f(glGetUniformLocation(light_program, "lightSourcePos"), entityPos.x, (float)h - entityPos.y);
+	//glUniform2f(glGetUniformLocation(light_program, "lightSourcePos"), entityPos.x, (float)h - entityPos.y);
 
-	if (registry.projectiles.has(entity) && registry.projectiles.get(entity).empoweredArrow == 1) {
-		glUniform1f(glGetUniformLocation(light_program, "collidesWithFirefly"), 1.f);
-	}
-	else {
-		glUniform1f(glGetUniformLocation(light_program, "collidesWithFirefly"), 0.f);
-	}
-	
-	if (!registry.fireflySwarm.has(entity)) {
-		glUniform1f(glGetUniformLocation(light_program, "arrow"), 1.f);
-	}
-	else {
-		glUniform1f(glGetUniformLocation(light_program, "arrow"), 0.f);
-	}
+	//if (registry.projectiles.has(entity) && registry.projectiles.get(entity).empoweredArrow == 1) {
+	//	glUniform1f(glGetUniformLocation(light_program, "collidesWithFirefly"), 1.f);
+	//}
+	//else {
+	//	glUniform1f(glGetUniformLocation(light_program, "collidesWithFirefly"), 0.f);
+	//}
+	//
+	//if (!registry.fireflySwarm.has(entity)) {
+	//	glUniform1f(glGetUniformLocation(light_program, "arrow"), 1.f);
+	//}
+	//else {
+	//	glUniform1f(glGetUniformLocation(light_program, "arrow"), 0.f);
+	//}
 
-	for (int i = 0; i < fireFlyPosX.size(); i++) {
-		std::string s1("thingie.xCoordinates[");
-		std::string s2("thingie.yCoordinates[");
-		std::string iInS = std::to_string(i);
-		s1 += iInS + "]";
-		s2 += iInS + "]";
+	//for (int i = 0; i < fireFlyPosX.size(); i++) {
+	//	std::string s1("thingie.xCoordinates[");
+	//	std::string s2("thingie.yCoordinates[");
+	//	std::string iInS = std::to_string(i);
+	//	s1 += iInS + "]";
+	//	s2 += iInS + "]";
 
-		GLuint locX = glGetUniformLocation(light_program, s1.c_str());
-		GLuint locY = glGetUniformLocation(light_program, s2.c_str());
-		glUniform1f(locX, fireFlyPosX[i]);
-		glUniform1f(locY, (float) h - fireFlyPosY[i]);
-	}
-	gl_has_errors();
+	//	GLuint locX = glGetUniformLocation(light_program, s1.c_str());
+	//	GLuint locY = glGetUniformLocation(light_program, s2.c_str());
+	//	glUniform1f(locX, fireFlyPosX[i]);
+	//	glUniform1f(locY, (float) h - fireFlyPosY[i]);
+	//}
+	//gl_has_errors();
 
-	// Set the vertex position and vertex texture coordinates (both stored in the
-	// same VBO)
-	GLint in_position_loc = glGetAttribLocation(light_program, "in_position");
-	glEnableVertexAttribArray(in_position_loc);
-	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void*)0);
-	gl_has_errors();
+	//// Set the vertex position and vertex texture coordinates (both stored in the
+	//// same VBO)
+	//GLint in_position_loc = glGetAttribLocation(light_program, "in_position");
+	//glEnableVertexAttribArray(in_position_loc);
+	//glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void*)0);
+	//gl_has_errors();
 
-	// Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
-	gl_has_errors();
-	// Draw
-	glDrawElements(
-		GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
-		nullptr); // one triangle = 3 vertices; nullptr indicates that there is
-				  // no offset from the bound index buffer
-	gl_has_errors();
+	//// Bind our texture in Texture Unit 0
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
+	//gl_has_errors();
+	//// Draw
+	//glDrawElements(
+	//	GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
+	//	nullptr); // one triangle = 3 vertices; nullptr indicates that there is
+	//			  // no offset from the bound index buffer
+	//gl_has_errors();
 }
 
 void RenderSystem::drawDeathParticles(Entity entity, const mat3& projection)
