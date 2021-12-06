@@ -1531,9 +1531,11 @@ Entity createUIButton(RenderSystem* renderer, vec2 position, int buttonType) {
 		case 2: button_type = TEXTURE_ASSET_ID::LOAD_GAME; button.button_type = 2; break;
 		case 3: button_type = TEXTURE_ASSET_ID::SAVE_GAME; motion.scale = { 200, 80 }; button.button_type = 3; break;
 		case 4: button_type = TEXTURE_ASSET_ID::EXIT_GAME; button.button_type = 4; break;
-		case 5: button_type = TEXTURE_ASSET_ID::GAME_TITLE; motion.scale = { TITLE_WIDTH, TITLE_HEIGHT }; button.button_type = 5; break;
-		case 6: button_type = TEXTURE_ASSET_ID::OPEN_MENU; motion.scale = { 100, 100 }; button.button_type = 6; break;
-		case 7: button_type = TEXTURE_ASSET_ID::CLOSE_MENU; motion.scale = { 100,100}; button.button_type = 7; break;
+		case 5: button_type = TEXTURE_ASSET_ID::MAKEUPGAME; button.button_type = 5; break;
+		case 6: button_type = TEXTURE_ASSET_ID::GAME_TITLE; motion.scale = { TITLE_WIDTH, TITLE_HEIGHT }; button.button_type = 5; break;
+		case 7: button_type = TEXTURE_ASSET_ID::OPEN_MENU; motion.scale = { 100, 100 }; button.button_type = 6; break;
+		case 8: button_type = TEXTURE_ASSET_ID::CLOSE_MENU; motion.scale = { 100,100}; button.button_type = 7; break;
+
 		default: break;
 	}
 
@@ -1810,6 +1812,89 @@ Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos) {
 	registry.renderRequests.insert(
 		entity,
 		{ tutorial_box,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createSizeIndicator(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { SIZE_INDICATOR_WIDTH, SIZE_INDICATOR_HEIGHT };
+
+	TEXTURE_ASSET_ID size_indicator = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+
+
+	switch (number) {
+	case 1: size_indicator = TEXTURE_ASSET_ID::ZERO_OUT_OF_FOUR; break;
+	case 2: size_indicator = TEXTURE_ASSET_ID::ONE_OUT_OF_FOUR; break;
+	case 3: size_indicator = TEXTURE_ASSET_ID::TWO_OUT_OF_FOUR; break;
+	case 4: size_indicator = TEXTURE_ASSET_ID::THREE_OUT_OF_FOUR; break;
+	case 5: size_indicator = TEXTURE_ASSET_ID::FOUR_OUT_OF_FOUR; break;
+
+	default: break;
+	}
+	registry.renderRequests.insert(
+		entity,
+		{ size_indicator,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createSelectPanel(RenderSystem* renderer, vec2 pos)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { SELECT_PANEL_WIDTH, SELECT_PANEL_HEIGHT };
+
+
+	registry.renderRequests.insert(
+		entity,
+		{TEXTURE_ASSET_ID::SELECTPANEL,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createSelections(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { SELECTIONS_WIDTH, SELECTIONS_HEIGHT };
+
+	TEXTURE_ASSET_ID selections = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+
+
+	switch (number) {
+		//level one
+	case 1: selections = TEXTURE_ASSET_ID::MAGE_ANIM_SELECT; break;
+	case 2: selections = TEXTURE_ASSET_ID::ARCHERANIMS_SELECT; break;
+	case 3: selections = TEXTURE_ASSET_ID::SWORDSMAN_SELECT; break;
+	case 4: selections = TEXTURE_ASSET_ID::NECROMANCER_SELECT; break;
+	case 5: selections = TEXTURE_ASSET_ID::NECRO_TWO_SELECT; break;
+	default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ selections,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

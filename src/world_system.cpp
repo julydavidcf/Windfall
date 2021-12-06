@@ -75,6 +75,12 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
+// Makeup Game
+bool isMakeupGame = false;
+int companion_size = 0;
+int enemy_size = 0;
+
+
 const size_t MAX_BOULDERS = 5;
 
 // mouse gesture skills related=============
@@ -400,7 +406,8 @@ void WorldSystem::render_startscreen()
 	createStoryBackground(renderer, {w / 2, h / 2}, 6);
 	new_game_button = createUIButton(renderer, {600, 400}, NEW_GAME);
 	load_game_button = createUIButton(renderer, {600, 500}, LOAD_GAME);
-	exit_game_button = createUIButton(renderer, {600, 600}, EXIT_GAME);
+	makeup_game_button = createUIButton(renderer, {600, 600}, LOAD_GAME);
+	exit_game_button = createUIButton(renderer, {600, 700}, EXIT_GAME);
 	registry.motions.get(exit_game_button).scale = {150, 70};
 }
 
@@ -1382,11 +1389,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				particle.motion.position.x = p1 * (1 - exp(p2 * particle.Life));
 				particle.motion.position.y = p3 * (1 - exp(p2 * particle.Life)) - p5 * particle.Life;
 				particle.Color.a -= 0.05f * 0.01f;
-				particle.motion.angle += 0.5;
-				if (particle.motion.angle >= (2 * M_PI))
-				{
-					particle.motion.angle = 0;
-				}
+				//particle.motion.angle += 0.5;
+				//if (particle.motion.angle >= (2 * M_PI))
+				//{
+				//	particle.motion.angle = 0;
+				//}
 				pool.positions[i * 3 + 0] = particle.motion.position.x;
 				pool.positions[i * 3 + 1] = particle.motion.position.y;
 				pool.positions[i * 3 + 2] = particle.Life / pool.poolLife;
@@ -2530,6 +2537,11 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			restart_game(false);
 			canStep = 1;
 		}
+		else if (inButton(registry.motions.get(makeup_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+			isMakeupGame = true;
+			fprintf(stderr, "Makingup Game");
+			initializeMakeUpGame();
+		}
 		else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
 		{
 			// EXIT TO DESKTOP
@@ -3131,6 +3143,14 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			}
 		}
 	}
+
+	//makeup game clicks
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && isMakeupGame) {
+		if (inButton(registry.motions.get(companionOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+
+		}
+	}
 }
 
 void WorldSystem::advanceTutorial(Entity currTutorial, vec2 pos)
@@ -3229,7 +3249,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	// printf("x: %f, y: %f\n", mouse_position.x, mouse_position.y);
 	msPos = mouse_position;
 	sk->mousePos = mouse_position;
-	if (!canStep && !story)
+	if (!canStep && !story && (!isMakeupGame))
 	{
 		if (mouseInArea(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
 		{
@@ -3262,7 +3282,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 			registry.renderRequests.get(exit_game_button).used_texture = TEXTURE_ASSET_ID::EXIT_GAME;
 		}
 	}
-	else if (canStep && (!isFreeRoam))
+	else if (canStep && (!isFreeRoam) && (!isMakeupGame))
 	{
 
 		if (mouseInArea(registry.motions.get(fireBall_icon).position, ICON_WIDTH, ICON_HEIGHT) && registry.renderRequests.get(fireBall_icon).used_texture != TEXTURE_ASSET_ID::EMPTY_IMAGE)
@@ -3318,6 +3338,51 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 		{
 			registry.remove_all_components_of(tooltip);
 			registry.toolTip.clear();
+		}
+	}
+	if (isMakeupGame) {
+		if (mouseInArea(registry.motions.get(companionOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		{
+			if (registry.hoverBox.size() == 0) {
+				makeHoverBox(companionOne);
+			}
+
+		} else if (mouseInArea(registry.motions.get(companionTwo).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		{
+			if (registry.hoverBox.size() == 0) {
+			makeHoverBox(companionTwo);
+			}
+		} else if (mouseInArea(registry.motions.get(companionThree).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+			if (registry.hoverBox.size() == 0) {
+			makeHoverBox(companionThree);
+			}
+		} else if (mouseInArea(registry.motions.get(enemyOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
+		{
+			if (registry.hoverBox.size() == 0) {
+			makeHoverBox(enemyOne);
+			}
+		}else if (mouseInArea(registry.motions.get(enemyTwo).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		{
+			if (registry.hoverBox.size() == 0) {
+			makeHoverBox(enemyTwo);
+			}
+		} else if (mouseInArea(registry.motions.get(enemyThree).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		{
+			if (registry.hoverBox.size() == 0) {
+			makeHoverBox(enemyThree);
+			}
+		} else if (mouseInArea(registry.motions.get(enemyFour).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT)) 
+		{
+			if (registry.hoverBox.size() == 0) {
+				makeHoverBox(enemyFour);
+			}
+		}
+		else {
+			registry.remove_all_components_of(hoverBoxTop);
+			registry.remove_all_components_of(hoverBoxBottom);
+			registry.remove_all_components_of(hoverBoxLeft);
+			registry.remove_all_components_of(hoverBoxRight);
 		}
 	}
 }
@@ -3509,4 +3574,56 @@ void WorldSystem::initializeFreeRoamTwo() {
 		swarmSys->initializeSwarmEntities(renderer);
 	}
 	Mix_FadeInMusic(registry.cestershire_music, -1, 500);
+}
+
+void WorldSystem::initializeMakeUpGame() {
+	int w, h;
+	glfwGetWindowSize(window, &w, &h);
+	
+	createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_ONE);
+
+	selectPanel = createSelectPanel(renderer, { w / 2, h / 2 });
+	companionSize = createSizeIndicator(renderer, { w / 4, h / 2 }, companion_size - 1);
+	enemySize = createSizeIndicator(renderer, { w / 2, h / 2 }, enemy_size - 1);
+
+	companionOne = createSelections(renderer, { 1 * w / 11, 4 * h / 5 }, 1);
+	companionTwo = createSelections(renderer, {2 * w / 11, 4 * h / 5 }, 2);
+	companionThree = createSelections(renderer, { 3 * w / 11, 4 * h / 5 }, 3);
+
+	enemyOne = createSelections(renderer, { 7* w / 11, 4 * h / 5 }, 1);
+	enemyTwo = createSelections(renderer, { 8 * w / 11, 4 * h / 5 }, 3);
+	enemyThree = createSelections(renderer, { 9 * w / 11, 4 * h / 5 }, 4);
+	enemyFour = createSelections(renderer, { 10 * w / 11, 4 * h / 5 }, 5);
+	
+
+}
+
+void WorldSystem::makeHoverBox(Entity target) {
+	
+	float line_thickness = 6.f;
+
+	float targetPosX = registry.motions.get(target).position.x;
+	float targetPosY = registry.motions.get(target).position.y;
+
+	float targetScaleX = registry.motions.get(target).scale.x;
+	float targetScaleY = registry.motions.get(target).scale.y;
+
+	vec2 line1_pos = { targetPosX, targetPosY + (targetScaleY / 4) };
+	vec2 line2_pos = { targetPosX, targetPosY - (targetScaleY / 4) };
+	vec2 line3_pos = { targetPosX + (targetScaleY / 4), targetPosY };
+	vec2 line4_pos = { targetPosX - (targetScaleY / 4), targetPosY };
+
+	vec2 line1_scale = { targetScaleX/4, line_thickness };
+	vec2 line3_scale = { line_thickness, targetScaleY/4 };
+
+
+	hoverBoxTop = createLine(line1_pos, line1_scale);
+	hoverBoxBottom = createLine(line2_pos, line1_scale);
+	hoverBoxLeft = createLine(line3_pos, line3_scale);
+	hoverBoxRight = createLine(line4_pos, line3_scale);
+	
+	registry.hoverBox.emplace(hoverBoxTop);
+	registry.hoverBox.emplace(hoverBoxBottom);
+	registry.hoverBox.emplace(hoverBoxLeft);
+	registry.hoverBox.emplace(hoverBoxRight);
 }

@@ -62,6 +62,14 @@ const float BACKGROUND_HEIGHT = window_height_px;
 const float DIALOGUE_WIDTH = 1200.f;
 const float DIALOGUE_HEIGHT = 200.f;
 
+const float SIZE_INDICATOR_WIDTH = 200.f;
+const float SIZE_INDICATOR_HEIGHT = 100.f;
+
+const float SELECT_PANEL_WIDTH = 1200.f;
+const float SELECT_PANEL_HEIGHT = 500.f;
+
+const float SELECTIONS_WIDTH = 200.f;
+const float SELECTIONS_HEIGHT = 200.f;
 
 const float ROCK_WIDTH = 75.f;
 const float ROCK_HEIGHT = 75.f;
@@ -201,3 +209,9 @@ Entity createLevelFourDiaogue(RenderSystem* renderer, vec2 pos, int number);
 Entity createFreeRoamLevelDiaogue(RenderSystem* renderer, vec2 pos, int number);
 
 Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos);
+
+// Makeup Game
+
+Entity createSizeIndicator(RenderSystem* renderer, vec2 pos, int number);
+Entity createSelectPanel(RenderSystem* renderer, vec2 pos);
+Entity createSelections(RenderSystem* renderer, vec2 pos, int number);

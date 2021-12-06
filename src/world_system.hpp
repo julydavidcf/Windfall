@@ -139,6 +139,11 @@ private:
 	void initializeFreeRoamOne();
 	void initializeFreeRoamTwo();
 
+	void initializeMakeUpGame();
+
+	void makeHoverBox(Entity target);
+	
+
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;
@@ -158,6 +163,33 @@ private:
 	Entity iceShard;
 	Entity tooltip;
 
+	Entity hoverBoxTop;
+	Entity hoverBoxBottom;
+	Entity hoverBoxLeft;
+	Entity hoverBoxRight;
+
+
+	Entity selectPanel;
+	Entity companionSize;
+	Entity enemySize;
+
+	Entity companionOne;
+	Entity companionTwo;
+	Entity companionThree;
+	Entity enemyOne;
+	Entity enemyTwo;
+	Entity enemyThree;
+	Entity enemyFour;
+
+	Entity companionPosOne;
+	Entity companionPosTwo;
+	Entity companionPosThree;
+	Entity companionPosFour;
+
+	Entity enemyPosOne;
+	Entity enemyPosTwo;
+	Entity enemyPosThree;
+	Entity enemyPosFour;
 
 	Entity turn_indicator;
 	Entity curr_tutorial_box;
@@ -174,6 +206,7 @@ private:
 	Entity new_game_button;
 	Entity load_game_button;
 	Entity save_game_button;
+	Entity makeup_game_button;
 	Entity exit_game_button;
 	Entity open_menu_button;
 	int pauseMenuOpened = 0;
