@@ -1570,7 +1570,15 @@ Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number)
 	case 7: storyBackground = TEXTURE_ASSET_ID::PEACEFUL; break;
 	case 8: storyBackground = TEXTURE_ASSET_ID::CELERBRATE; break;
 	case 9: storyBackground = TEXTURE_ASSET_ID::DARK; break;
-	case 10: storyBackground = TEXTURE_ASSET_ID::THEEND; break;
+	case 10: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONTHEEND; break;
+
+	case 11: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONONE; break;
+	case 12: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONTWO; break;
+	case 13: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONTHREE; break;
+	case 14: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONFOUR; break;
+	case 15: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONFIVE; break;
+	case 16: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONSIX; break;
+	case 17: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONSEVEN; break;
 	default: break;
 	}
 
