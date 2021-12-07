@@ -2569,7 +2569,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 		else if (inButton(registry.motions.get(makeup_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// isMakeupGame = true;
-			fprintf(stderr, "Makingup Game");
 			initializeMakeUpGame();
 			isMakeupGame = true;
 			// initializeMakeUpGame();
@@ -2866,6 +2865,17 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				canStep = 0;
 				story = 0;
 				isMakeupGame = false;
+
+				companion_size = 0;
+				enemy_size = 0;
+
+				isReady = false;
+				isReset = false;
+
+				isFreeRoam = false;
+				freeRoamLevel = 1;
+
+				
 				while (registry.motions.entities.size() > 0)
 					registry.remove_all_components_of(registry.motions.entities.back());
 				render_startscreen();
@@ -3249,8 +3259,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if (inButton(registry.motions.get(resetGameButton).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 					companion_size = 0;
 					enemy_size = 0;
-					printf("Companion size: %d\n", registry.companions.size());
-					printf("Enemy size: %d\n", registry.enemies.size());
+
 					if(registry.companions.has(companionPosOne)){
 						Companion& comp = registry.companions.get(companionPosOne);
 						registry.remove_all_components_of(comp.healthbar);
@@ -3298,9 +3307,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 						registry.remove_all_components_of(enemy.healthbar);
 						registry.remove_all_components_of(enemyPosFour);
 					}
-
-					printf("Companion size after remove: %d\n", registry.companions.size());
-					printf("Enemy size after remove: %d\n", registry.enemies.size());
 
 					if (registry.renderRequests.has(startGameButton)) {
 						registry.remove_all_components_of(startGameButton);
@@ -3822,6 +3828,8 @@ void WorldSystem::initializeMakeUpGame() {
 
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
+	
+	canStep = 0;
 	
 	createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_ONE);
 

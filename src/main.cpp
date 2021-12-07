@@ -64,22 +64,17 @@ int main()
 
 		if (world.canStep) {
 			world.step(elapsed_ms);
-			printf("stepped world\n");
 			// ai.step(elapsed_ms);
 			if(isFreeRoam){
 				physics.step_freeRoam(elapsed_ms, window_width_px, window_height_px);
 			} else {
 				physics.step(elapsed_ms, window_width_px, window_height_px);
 			}
-			printf("stepped physics\n");
 			world.handle_collisions();
-			printf("stepped handle collision\n");
 			world.handle_boundary_collision();
-			printf("stepped handle boundary collision\n");
 		}
 
 		renderer.draw(elapsed_ms);
-		printf("stepped renderer\n");
 	}
 
 	return EXIT_SUCCESS;
