@@ -1754,7 +1754,11 @@ void WorldSystem::restart_game(bool force_restart)
 			initializeFreeRoamTwo();
 			renderBeginningStory();
 		}
+
 		open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
+		Motion openMenuMotion = registry.motions.get(open_menu_button);
+		createFreeRoamLevelTutorialIndicator(renderer, vec2(openMenuMotion.position.x + openMenuMotion.scale.x + 50, openMenuMotion.position.y));
+		
 		player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
 		printf("Loading free roam %d\n", freeRoamLevel);
 		renderer->gameLevel = 1;
@@ -2141,7 +2145,7 @@ void WorldSystem::handle_collisions()
 
 					// On top of rock
 					if (archer_pos_y > rock_pos_y - rock_height && archer_pos_y < rock_pos_y) {
-						archer_motion.position.y = rock_pos_y - rock_height + 10;
+						archer_motion.position.y -= 3.f;
 					}
 					// Bounce archer to the left
 					else if (archer_pos_x > rock_pos_x - rock_width && archer_pos_x < rock_pos_x
@@ -2491,7 +2495,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		restart_game(true);
 	}
 
-	if (isFreeRoam) {
+	if (isFreeRoam && !registry.renderRequests.has(dialogue)) {
+
+		if (key == GLFW_KEY_H) {
+			if (action == GLFW_RELEASE) {
+				if (registry.renderRequests.has(free_roam_tutorial)) {
+					registry.remove_all_components_of(free_roam_tutorial);
+				}
+				else {
+					free_roam_tutorial = createFreeRoamLevelTutorial(renderer, vec2(window_width_px / 2, window_height_px / 2));
+				}
+			}
+		}
+
+
 		// Move right
 		if (key == GLFW_KEY_D) {
 			if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
@@ -2819,6 +2836,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 101)
 	{
 		registry.remove_all_components_of(dialogue);
+		free_roam_tutorial = createFreeRoamLevelTutorial(renderer, vec2(window_width_px / 2, window_height_px / 2));
 		beginning = 0;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning >= 200 && beginning <= 201)
@@ -3269,7 +3287,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 
 		// Handle free-roam arrow launching
-		if (isFreeRoam) {
+		if (isFreeRoam && !registry.renderRequests.has(dialogue)) {
 			if (!registry.attackers.has(player_archer) && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
 				auto& arrow = registry.attackers.emplace(player_archer);
 				arrow.attack_type = FREE_ROAM_ARROW;
@@ -3637,11 +3655,11 @@ void WorldSystem::initializeFreeRoamOne() {
 
 	createPlatform(renderer, { 100, 500 });
 	createPlatform(renderer, { 400, 600 });
-	createPlatform(renderer, { 490, 375 });
+	createPlatform(renderer, { 450, 375 });
 	createPlatform(renderer, { 700, 425 });
-	createPlatform(renderer, { 900, 400 });
-	createPlatform(renderer, { 1100, 400 });
-	createTreasureChest(renderer, { 1050, 400 - PLATFORM_HEIGHT }, HEALTH_BOOST);
+	createPlatform(renderer, { 900, 425 });
+	createPlatform(renderer, { 1100, 425 });
+	createTreasureChest(renderer, { 1050, 425 - PLATFORM_HEIGHT }, HEALTH_BOOST);
 
 	std::vector<vec3> controlPoints;
 	controlPoints.push_back(vec3(227, 160, 0));

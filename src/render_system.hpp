@@ -245,6 +245,7 @@ class RenderSystem {
 			textures_path("freeRoamLevelTwoDialogueThree.png"),
 
 			textures_path("freeRoamTutorial.png"),
+			textures_path("helper.png"),
 				
 			textures_path("particlered.png"),
 			textures_path("firefly.png"),

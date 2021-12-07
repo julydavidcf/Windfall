@@ -1822,3 +1822,23 @@ Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos) {
 
 	return entity;
 }
+
+Entity createFreeRoamLevelTutorialIndicator(RenderSystem* renderer, vec2 pos) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { HELPER_INDICATOR_WIDTH, HELPER_INDICATOR_HEIGHT };
+
+	TEXTURE_ASSET_ID tutorial_box = TEXTURE_ASSET_ID::FREEROAMTUTORIAL_HELPER;
+
+	registry.renderRequests.insert(
+		entity,
+		{ tutorial_box,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}

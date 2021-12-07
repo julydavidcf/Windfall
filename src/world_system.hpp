@@ -182,6 +182,7 @@ private:
 	// story telling system
 	Entity backgroundImage;
 	Entity dialogue;
+	Entity free_roam_tutorial;
 
 	// C++ random number generator
 	std::default_random_engine rng;
