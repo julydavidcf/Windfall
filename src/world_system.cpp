@@ -82,6 +82,8 @@ bool isReady = false;
 bool isReset = false;
 int companion_size = 0;
 int enemy_size = 0;
+int makeupGameCount = 0;
+
 vec2 companionOnePos = {20, 300};
 vec2 companionTwoPos = { 170, 300 };
 vec2 companionThreePos = { 320, 300 };
@@ -754,6 +756,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	title_ss << "Music volume (z-key , x-key): " << Mix_VolumeMusic(-1) << " ,   Effects volume (c-key , v-key): " << Mix_VolumeChunk(registry.death_enemy_sound, -1) << " ";
 	glfwSetWindowTitle(window, title_ss.str().c_str());
 
+
+
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
 		registry.remove_all_components_of(registry.debugComponents.entities.back());
@@ -1006,9 +1010,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-
-
-
+	if (isMakeupGame) {
+		title_ss << "You win " << makeupGameCount << " MakeUp Game!!";
+		glfwSetWindowTitle(window, title_ss.str().c_str());
+	}
 
 	// Walk
 	for (Entity runner : registry.runners.entities)
@@ -3754,6 +3759,7 @@ void WorldSystem::initializeFreeRoamTwo() {
 }
 
 void WorldSystem::initializeMakeUpGame() {
+
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
 	
