@@ -79,7 +79,7 @@ int freeRoamLevel = 1;
 int beginning = 0;	// for beginning speech
 int dragon = 0;		// for dragon speech
 
-const size_t MAX_BOULDERS = 1;
+const size_t MAX_BOULDERS = 3;
 
 // mouse gesture skills related=============
 int startMousePosCollect = 0;
@@ -2097,7 +2097,6 @@ void WorldSystem::handle_collisions()
 				// Deal with archer - platform collisions
 				if (registry.platform.has(entity_other))
 				{
-					printf("platform has other entity\n");
 					Motion& platform_motion = registry.motions.get(entity_other);
 					float platform_position_x = platform_motion.position.x;
 					float platform_position_y = platform_motion.position.y;
@@ -2172,18 +2171,21 @@ void WorldSystem::handle_collisions()
 					float archer_pos_y = archer_motion.position.y;
 
 					// On top of rock
-					if (archer_pos_y > rock_pos_y - rock_height && archer_pos_y < rock_pos_y) {
+					if (archer_pos_y > rock_pos_y - rock_height
+						&& !(archer_pos_x <= rock_pos_x - rock_width + 10)
+						&& !(archer_pos_x >= rock_pos_x + rock_width - 25)) {
 						currFloorPos = rock_pos_y - rock_height;
+						registry.companions.get(player_archer).curr_anim_type = IDLE;
 					}
 					// Bounce archer to the left
 					else if (archer_pos_x > rock_pos_x - rock_width && archer_pos_x < rock_pos_x
-						&& !(archer_pos_y > rock_pos_y - rock_height && archer_pos_y < rock_pos_y)) {
-						archer_motion.position.x -= 6.5;
+						&& !(archer_pos_y <= rock_pos_y - rock_height)) {
+						archer_motion.position.x = rock_pos_x - rock_width;
 					}
 					// Bounce archer to the right
 					else if (archer_pos_x < rock_pos_x + rock_width - 15 && archer_pos_x > rock_pos_x
-						&& !(archer_pos_y > rock_pos_y - rock_height && archer_pos_y < rock_pos_y)) {
-						archer_motion.position.x += 6.5;
+						&& !(archer_pos_y <= rock_pos_y - rock_height)) {
+						archer_motion.position.x = rock_pos_x + rock_width - 15;
 					}
 				}
 			}
@@ -2448,6 +2450,7 @@ void WorldSystem::handle_collisions()
 			archerMotion.velocity.y = 0.f;
 			archerMotion.acceleration.y = 0.f;
 			archerMotion.position.y = currFloorPos;
+
 			if (registry.companions.get(player_archer).curr_anim_type == JUMPING) {
 				if (archerMotion.velocity.x != 0) {
 					registry.companions.get(player_archer).curr_anim_type = WALKING;
