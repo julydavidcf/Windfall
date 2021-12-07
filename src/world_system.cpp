@@ -2838,10 +2838,11 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	// other clicks
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && canStep)
 	{
-
+		printf("checking menu clicks\n");
 		// Check menu clicks
 		if (!pauseMenuOpened && inButton(registry.motions.get(open_menu_button).position, UI_BUTTON_HEIGHT, UI_BUTTON_HEIGHT))
 		{
+			printf("inside menu part\n");
 			printf("opens menu\n");
 			Motion menu_motion = registry.motions.get(open_menu_button);
 			save_game_button = createUIButton(renderer, {menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT}, SAVE_GAME);
@@ -3354,6 +3355,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				registry.motions.get(enemyPosFour).position.y = 600;
 				}
 
+				open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 				createIcons();
 				createRound();
 				checkRound();
@@ -3567,7 +3569,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 			registry.toolTip.clear();
 		}
 	}
-	if (isMakeupGame && companion_size < 4 && enemy_size < 4) {
+	if (isMakeupGame && companion_size < 4 && enemy_size < 4 && !canStep && !isReady) {
 		if (mouseInArea(registry.motions.get(selectArcher).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
