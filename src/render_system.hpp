@@ -191,6 +191,7 @@ class RenderSystem {
 			textures_path("backgroundFive.png"),
 
 			//Level One dialogue
+			textures_path("missionOne.png"),
 			textures_path("levelOneDialogueOne.png"),
 			textures_path("levelOneDialogueTwo.png"),
 			textures_path("levelOneDialogueThree.png"),
@@ -203,6 +204,7 @@ class RenderSystem {
 			textures_path("levelOneDialogueTen.png"),
 
 			//Level Two dialogue
+			textures_path("missionTwo.png"),
 			textures_path("levelTwoDialogueOne.png"),
 			textures_path("levelTwoDialogueTwo.png"),
 			textures_path("levelTwoDialogueThree.png"),
@@ -211,7 +213,7 @@ class RenderSystem {
 			textures_path("levelTwoDialogueSix.png"),
 			
 			//level Three dialogue
-			textures_path("levelThreeDialogueOne.png"),
+			//textures_path("levelThreeDialogueOne.png"),
 			textures_path("levelThreeDialogueTwo.png"),
 			textures_path("levelThreeDialogueThree.png"),
 			textures_path("levelThreeDialogueFour.png"),
@@ -219,6 +221,10 @@ class RenderSystem {
 			textures_path("levelThreeDialogueSix.png"),
 			textures_path("levelThreeDialogueSeven.png"),
 			textures_path("levelThreeDialogueEight.png"),
+			textures_path("missionThreeOne.png"),
+			textures_path("missionThreeTwo.png"),
+			textures_path("missionThreeThree.png"),
+			textures_path("missionThreeFour.png"),
 
 			//level Four dialogue
 			textures_path("levelFourDialogueOne.png"),
