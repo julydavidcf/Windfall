@@ -2144,16 +2144,15 @@ void WorldSystem::handle_collisions()
 					Motion chestMotion = registry.motions.get(entity_other);
 					if (renderedChest.used_geometry != GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN && chest.chestType == HEALTH_BOOST) {
 						// Boost all companion HP permanently
-						registry.player_mage_hp *= 1.25;
-						registry.player_swordsman_hp *= 1.25;
-						registry.player_archer_hp *= 1.25;
+						registry.player_mage_hp += 20;
+						registry.player_swordsman_hp += 20;
+						registry.player_archer_hp += 20;
 						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
 						createBoostMessage(renderer, chestMotion.position, HEALTH_BOOST);
 					}
 					else if (renderedChest.used_geometry != GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN && chest.chestType == DAMAGE_BOOST) {
 						// Boost all ability damages permanently
 						registry.fireball_dmg *= 1.25;
-						registry.iceshard_dmg *= 1.25;
 						registry.arrow_dmg *= 1.25;
 						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
 						createBoostMessage(renderer, chestMotion.position, DAMAGE_BOOST);
@@ -2223,6 +2222,7 @@ void WorldSystem::handle_collisions()
 				}
 
 				else if (registry.platform.has(entity_other)) {
+
 					Motion& arrowMotion = registry.motions.get(entity);
 					float arrow_pos_x = arrowMotion.position.x;
 					Motion& platformMotion = registry.motions.get(entity_other);
@@ -2242,6 +2242,7 @@ void WorldSystem::handle_collisions()
 				}
 				// Arrow rock collision
 				else if (registry.boulders.has(entity_other) && !registry.particlePools.has(entity_other)) {
+					Mix_PlayChannel(-1, registry.fireball_explosion_sound, 0);
 					activate_deathParticles(entity_other);
 					registry.remove_all_components_of(entity);
 				}
@@ -2659,6 +2660,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) - MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.crow_sound, Mix_VolumeChunk(registry.crow_sound, -1) - MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.turning_sound, Mix_VolumeChunk(registry.turning_sound, -1) - MIX_MAX_VOLUME / 10);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_V)
 	{
@@ -2683,6 +2685,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		Mix_VolumeChunk(registry.gesture_aoe_sound, Mix_VolumeChunk(registry.gesture_aoe_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.gesture_turn_sound, Mix_VolumeChunk(registry.gesture_turn_sound, -1) + MIX_MAX_VOLUME / 10);
 		Mix_VolumeChunk(registry.crow_sound, Mix_VolumeChunk(registry.crow_sound, -1) + MIX_MAX_VOLUME / 10);
+		Mix_VolumeChunk(registry.turning_sound, Mix_VolumeChunk(registry.turning_sound, -1) + MIX_MAX_VOLUME / 10);
 	}
 }
 
@@ -3912,22 +3915,26 @@ void WorldSystem::renderDragonSpeech() {
 void WorldSystem::balanceHealthNumbers(int levelNum) {
 	switch (levelNum) {
 		case 0: {
-			registry.player_archer_hp = 100;
+			registry.player_archer_hp = 175;
 			registry.enemy_mage_hp = 10;
 			break;
 		}
 		case 1: {
-			registry.player_archer_hp = 100;
 			registry.enemy_mage_hp = 30;
 			break;
 		}
 		case 2: {
+			registry.player_mage_hp = 70;
+			registry.enemy_swordsman_hp = 150;
 			break;
 		}
 		case 3: {
+			registry.player_swordsman_hp = 250;
+			registry.necro_minion_health = 10;
+			registry.necro_1_health = 160;
+			registry.necro_2_health = 200;
 			break;
 		}
-
 		default: break;
 	}
 }
