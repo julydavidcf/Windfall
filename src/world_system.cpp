@@ -82,15 +82,15 @@ bool isReady = false;
 bool isReset = false;
 int companion_size = 0;
 int enemy_size = 0;
-vec2 companionOnePos = {20, 300};
-vec2 companionTwoPos = { 170, 300 };
-vec2 companionThreePos = { 320, 300 };
-vec2 companionFourPos = { 470, 300 };
+vec2 companionOnePos = {100, 300};
+vec2 companionTwoPos = { 275, 300 };
+vec2 companionThreePos = { 350, 300 };
+vec2 companionFourPos = { 425, 300 };
 
-vec2 enemyOnePos = { 770, 300 };
-vec2 enemyTwoPos = { 920, 300 };
-vec2 enemyThreePos = { 1070, 300 };
-vec2 enemyFourPos = { 1200, 300 };
+vec2 enemyOnePos = { 625, 300 };
+vec2 enemyTwoPos = { 750, 300 };
+vec2 enemyThreePos = { 875, 300 };
+vec2 enemyFourPos = { 1000, 300 };
 
 
 
@@ -700,7 +700,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	}
 
 	// restart game if enemies or companions are 0
-	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0) && (!isFreeRoam))
+	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0) && (!isFreeRoam) && (!isMakeupGame))
 	{
 		if (story == 8 && gameLevel == 0)
 		{
@@ -725,7 +725,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 
 		// restart_game();
 	}
-	else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0) && (!isFreeRoam))
+	else if ((gameLevel >= 3) && (registry.enemies.size() <= 0) && (registry.companions.size() > 0) && (!isFreeRoam) && (!isMakeupGame))
 	{
 		if (story == 26)
 		{
@@ -744,7 +744,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			story = 37;
 		}
 	}
-	else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0)) && (!isFreeRoam))
+	else if ((gameLevel >= 3) && ((registry.enemies.size() <= 0) || (registry.companions.size() <= 0)) && (!isFreeRoam) && (!isMakeupGame))
 	{
 		restart_game();
 	}
@@ -1294,7 +1294,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if (isFreeRoam && (freeRoamLevel == 2)) {
+	if (isFreeRoam && (freeRoamLevel == 2) && (!isMakeupGame)) {
 		// Update swarm timer here, use fireflySwarm[0] to track time
 		float& swarm_update_timer = registry.fireflySwarm.components[0].update_timer;
 		if (swarm_update_timer < 0.f) {
@@ -1448,7 +1448,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if(isFreeRoam && (freeRoamLevel == 1)){
+	if(isFreeRoam && (freeRoamLevel == 1) && (!isMakeupGame)){
 		next_boulder_spawn -= elapsed_ms_since_last_update * current_speed;
 		if (registry.boulders.components.size() <= MAX_BOULDERS && next_boulder_spawn < 0.f) {
 			// Reset timer
@@ -1554,7 +1554,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if (isFreeRoam) {
+	if (isFreeRoam && (!isMakeupGame)) {
 		Motion& archerMotion = registry.motions.get(player_archer);
 		Companion& archerComp = registry.companions.get(player_archer);
 	}
@@ -2531,6 +2531,16 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 }
 
+void WorldSystem::createIcons(){
+	fireBall_icon = createFireballIcon(renderer, {200, 700});
+	taunt_icon = createTauntIcon(renderer, {300, 700});
+	heal_icon = createHealIcon(renderer, {400, 700});
+	melee_icon = createMeleeIcon(renderer, {500, 700});
+    iceShard_icon = createIceShardIcon(renderer, {600, 700});
+	rock_icon = createRockIcon(renderer, {700, 700});
+	arrow_icon = createArrowIcon(renderer, {800, 700});
+}
+
 void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
 	// For start menu and pause menu click detection
@@ -3171,7 +3181,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			if ((companion_size + 1) <= 4) {
 				companion_size++;
-				placeSelections(companion_size, 1) = createPlayerArcher(renderer, checkPositions(companion_size, 1), 0);
+				*placeSelections(companion_size, 1) = createPlayerArcher(renderer, checkPositions(companion_size, 1), 0);
 				updateSize();
 				checkIfReady();
 			}
@@ -3181,7 +3191,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			if ((companion_size + 1) <= 4) {
 				companion_size++;
-				placeSelections(companion_size, 1) = createPlayerMage(renderer, checkPositions(companion_size, 1));
+				*placeSelections(companion_size, 1) = createPlayerMage(renderer, checkPositions(companion_size, 1));
 				updateSize();
 				checkIfReady();
 			}
@@ -3190,7 +3200,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			if ((companion_size + 1) <= 4) {
 			companion_size++;
-			placeSelections(companion_size, 1) = createPlayerSwordsman(renderer, checkPositions(companion_size, 1));
+			*placeSelections(companion_size, 1) = createPlayerSwordsman(renderer, checkPositions(companion_size, 1));
 			updateSize();
 			checkIfReady();
 			}
@@ -3199,7 +3209,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			if ((enemy_size + 1) <= 4) {
 				enemy_size++;
-			placeSelections(enemy_size, 2) = createEnemyMage(renderer, checkPositions(enemy_size, 2));
+			*placeSelections(enemy_size, 2) = createEnemyMage(renderer, checkPositions(enemy_size, 2));
 			updateSize();
 			checkIfReady();
 			}
@@ -3208,7 +3218,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			if ((enemy_size + 1) <= 4) {
 				enemy_size++;
-				placeSelections(enemy_size, 2) = createEnemySwordsman(renderer, checkPositions(enemy_size, 2));
+				*placeSelections(enemy_size, 2) = createEnemySwordsman(renderer, checkPositions(enemy_size, 2));
 				updateSize();
 				checkIfReady();
 			}
@@ -3217,7 +3227,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			if ((enemy_size + 2) <= 4) {
 			enemy_size += 2;
-			placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size, 2));
+			*placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size, 2));
 			updateSize();
 			checkIfReady();
 			}
@@ -3226,7 +3236,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			if ((enemy_size + 1) <= 4) {
 			enemy_size++;
-			placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size, 2));
+			*placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size, 2));
 			updateSize();
 			checkIfReady();
 			}
@@ -3236,15 +3246,58 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if (inButton(registry.motions.get(resetGameButton).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 					companion_size = 0;
 					enemy_size = 0;
+					printf("Companion size: %d\n", registry.companions.size());
+					printf("Enemy size: %d\n", registry.enemies.size());
+					if(registry.companions.has(companionPosOne)){
+						Companion& comp = registry.companions.get(companionPosOne);
+						registry.remove_all_components_of(comp.healthbar);
+						registry.remove_all_components_of(companionPosOne);
+					}
 
-					registry.remove_all_components_of(companionPosOne);
-					registry.remove_all_components_of(companionPosTwo);
-					registry.remove_all_components_of(companionPosThree);
-					registry.remove_all_components_of(companionPosFour);
-					registry.remove_all_components_of(enemyPosOne);
-					registry.remove_all_components_of(enemyPosTwo);
-					registry.remove_all_components_of(enemyPosThree);
-					registry.remove_all_components_of(enemyPosFour);
+					if(registry.companions.has(companionPosTwo)){
+						Companion& comp = registry.companions.get(companionPosTwo);
+						registry.remove_all_components_of(comp.healthbar);
+						registry.remove_all_components_of(companionPosTwo);
+					}
+
+					if(registry.companions.has(companionPosThree)){
+						Companion& comp = registry.companions.get(companionPosThree);
+						registry.remove_all_components_of(comp.healthbar);
+						registry.remove_all_components_of(companionPosThree);
+					}
+
+					if(registry.companions.has(companionPosFour)){
+						Companion& comp = registry.companions.get(companionPosFour);
+						registry.remove_all_components_of(comp.healthbar);
+						registry.remove_all_components_of(companionPosFour);
+					}
+
+					if(registry.enemies.has(enemyPosOne)){
+						Enemy& enemy = registry.enemies.get(enemyPosOne);
+						registry.remove_all_components_of(enemy.healthbar);
+						registry.remove_all_components_of(enemyPosOne);
+					}
+
+					if(registry.enemies.has(enemyPosTwo)){
+						Enemy& enemy = registry.enemies.get(enemyPosTwo);
+						registry.remove_all_components_of(enemy.healthbar);
+						registry.remove_all_components_of(enemyPosTwo);
+					}
+
+					if(registry.enemies.has(enemyPosThree)){
+						Enemy& enemy = registry.enemies.get(enemyPosThree);
+						registry.remove_all_components_of(enemy.healthbar);
+						registry.remove_all_components_of(enemyPosThree);
+					}
+
+					if(registry.enemies.has(enemyPosFour)){
+						Enemy& enemy = registry.enemies.get(enemyPosFour);
+						registry.remove_all_components_of(enemy.healthbar);
+						registry.remove_all_components_of(enemyPosFour);
+					}
+
+					printf("Companion size after remove: %d\n", registry.companions.size());
+					printf("Enemy size after remove: %d\n", registry.enemies.size());
 
 					if (registry.renderRequests.has(startGameButton)) {
 						registry.remove_all_components_of(startGameButton);
@@ -3273,33 +3326,40 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 
 				
 				if (registry.renderRequests.has(companionPosOne)) {
-					registry.motions.get(companionPosOne).position.y = 1000;
+					registry.motions.get(companionPosOne).position.y = 600;
 				}
 				if (registry.motions.has(companionPosTwo)) {
-				registry.motions.get(companionPosTwo).position.y = 1000;
+				registry.motions.get(companionPosTwo).position.y = 600;
 				}
 				if (registry.motions.has(companionPosThree)) {
-				registry.motions.get(companionPosThree).position.y = 1000;
+				registry.motions.get(companionPosThree).position.y = 600;
 				}
 				if (registry.motions.has(companionPosFour)) {
-				registry.motions.get(companionPosFour).position.y = 1000;
+				registry.motions.get(companionPosFour).position.y = 600;
 				}
 				if (registry.motions.has(enemyPosOne)) {
-				registry.motions.get(enemyPosOne).position.y = 1000;
+				registry.motions.get(enemyPosOne).position.y = 600;
 				}
 				if (registry.motions.has(enemyPosTwo)) {
-				registry.motions.get(enemyPosTwo).position.y = 1000;
+				registry.motions.get(enemyPosTwo).position.y = 600;
 				}
 				if (registry.motions.has(enemyPosThree)) {
-				registry.motions.get(enemyPosThree).position.y = 1000;
+				registry.motions.get(enemyPosThree).position.y = 600;
 				 }
 
 				if (registry.renderRequests.has(enemyPosFour)) {
-				registry.motions.get(enemyPosFour).position.y = 1000;
+				registry.motions.get(enemyPosFour).position.y = 600;
 				}
 
-				//createRound();
-				//checkRound();
+				createIcons();
+				createRound();
+				checkRound();
+				player_turn = 1;		   // player turn indicator
+				gestureSkillRemaining = 1; // reset gesture skill remaining
+				showCorrectSkills();
+				displayPlayerTurn(); // display player turn when restart game
+				update_healthBars();
+				canStep = 1;
 			}
 		}
 	}
@@ -3638,9 +3698,10 @@ void WorldSystem::showCorrectSkills()
 {
 	if (currPlayer != NULL && registry.companions.has(currPlayer))
 	{
+
 		Statistics pStat = registry.stats.get(currPlayer);
 		if (!skill_character_aviability[pStat.classID][0] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7))
-		{
+		{	
 			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else
@@ -3649,11 +3710,11 @@ void WorldSystem::showCorrectSkills()
 		}
 
 		if (!skill_character_aviability[pStat.classID][1] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 7))
-		{
+		{	
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else
-		{
+		{	
 			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
 		}
 
@@ -3693,11 +3754,11 @@ void WorldSystem::showCorrectSkills()
 			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
 		}
 		if (!skill_character_aviability[pStat.classID][6] || pStat.health < 0 || (tutorial_enabled && curr_tutorial_box_num < 5))
-		{
+		{	
 			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 		}
 		else
-		{
+		{	
 			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
 		}
 	}
@@ -3829,24 +3890,24 @@ vec2 WorldSystem::checkPositions(int number, int type) {
 	return pos;
 }
 
-Entity WorldSystem::placeSelections(int number, int type) {
-	Entity entity = emptyPos;
+Entity* WorldSystem::placeSelections(int number, int type) {
+	Entity* entity = &emptyPos;
 	if (type == 1) {
 		switch (number)
 		{
-		case 1: entity = companionPosOne; break;
-		case 2: entity = companionPosTwo; break;
-		case 3: entity = companionPosThree; break;
-		case 4: entity = companionPosFour; break;
+		case 1: entity = &companionPosOne; break;
+		case 2: entity = &companionPosTwo; break;
+		case 3: entity = &companionPosThree; break;
+		case 4: entity = &companionPosFour; break;
 		}
 	}
 	else if (type == 2) {
 		switch (number)
 		{
-		case 1: entity = enemyPosOne; break;
-		case 2: entity = enemyPosTwo; break;
-		case 3: entity = enemyPosThree; break;
-		case 4: entity = enemyPosFour; break;
+		case 1: entity = &enemyPosOne; break;
+		case 2: entity = &enemyPosTwo; break;
+		case 3: entity = &enemyPosThree; break;
+		case 4: entity = &enemyPosFour; break;
 		}
 	}
 
