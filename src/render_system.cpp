@@ -418,6 +418,27 @@ void RenderSystem::drawToScreen()
 	glUniform1f(resoltion_x_loc, (float)w);
 	glUniform1f(resoltion_y_loc, (float)h);
 
+	// Think this part causes some lag. Hence the number 10.
+	if (isFreeRoam && freeRoamLevel == 10) {
+		glUniform1i(glGetUniformLocation(water_program, "enableSpline"), true);
+		for (int i = 0; i < splineControlPoints.size(); i++) {
+			std::string s1("spline.xCoordinates[");
+			std::string s2("spline.yCoordinates[");
+			std::string iInS = std::to_string(i);
+			s1 += iInS + "]";
+			s2 += iInS + "]";
+
+			// printf("%f %f\n", lightBallsXcoords[i], lightBallsYcoords[i]);
+			GLuint locX = glGetUniformLocation(water_program, s1.c_str());
+			GLuint locY = glGetUniformLocation(water_program, s2.c_str());
+			glUniform1f(locX, splineControlPoints[i].x);
+			glUniform1f(locY, (float)h - splineControlPoints[i].y);
+		}
+	}
+	else {
+		glUniform1i(glGetUniformLocation(water_program, "nextLevelTransition"), false);
+	}
+
 	glUniform1i(glGetUniformLocation(water_program, "gameLevel"), gameLevel);
 
 	if (transitioningToNextLevel) {
@@ -993,7 +1014,7 @@ void RenderSystem::draw(float elapsed_ms)
 						numFrames = DRAGON_FLYING_FRAMES;  frame_width = DRAGON_FLYING_FRAME_WIDTH; timePerFrame = DRAGON_FLYING_FRAME_TIME; 
 						
 						// Flip dragon when reaching edge
-						if (registry.bird.components[0].birdNextPostionTracker == 84) {
+						if (registry.bird.components[0].birdNextPostionTracker == 163) {
 							registry.motions.get(entity).scale.x = abs(registry.motions.get(entity).scale.x);
 						}
 						else if (registry.bird.components[0].birdNextPostionTracker == 1) {
