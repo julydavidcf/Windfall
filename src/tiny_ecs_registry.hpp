@@ -61,6 +61,7 @@ public:
 	ComponentContainer<Bird> bird;
 	ComponentContainer<Platform> platform;
 	ComponentContainer<PreciseCollider> preciseColliders;
+	ComponentContainer<HoverBox> hoverBox;
 	ComponentContainer<Boulder> boulders;
 
 	// Sounds
@@ -163,6 +164,8 @@ public:
 		registry_list.push_back(&platform);
 		registry_list.push_back(&chests);
 		registry_list.push_back(&preciseColliders);
+		registry_list.push_back(&hoverBox);
+		
 		registry_list.push_back(&boulders);
 	}
 

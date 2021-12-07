@@ -155,12 +155,18 @@ class RenderSystem {
 			textures_path("load_game.png"),
 			textures_path("load_game_hover.png"),
 			textures_path("save_game.png"),
+			textures_path("create_game.png"),
+			textures_path("create_game_hover.png"),
 			textures_path("exit_game.png"),
 			textures_path("exit_hover.png"),
 			textures_path("game_title.png"),
 			textures_path("open_menu.png"),
 			textures_path("close_menu.png"),
 			textures_path("empty_image.png"),
+			textures_path("start_makeup.png"),
+			textures_path("start_makeup_hover.png"),
+			textures_path("reset_makeup.png"),
+			textures_path("reset_makeup_hover.png"),
 
 			//tootips
 			textures_path("fireBallToolTip.png"),
@@ -260,7 +266,27 @@ class RenderSystem {
 			textures_path("treasure_chest_sheet.png"),
 			textures_path("smoke_particle.png"),
 			textures_path("damage_increase_msg.png"),
-			textures_path("health_increase_msg.png")
+			textures_path("health_increase_msg.png"),
+
+			//Size Indicator
+			textures_path("zero_out_of_four.png"),
+			textures_path("one_out_of_four.png"),
+			textures_path("two_out_of_four.png"),
+			textures_path("three_out_of_four.png"),
+			textures_path("four_out_of_four.png"),
+			// charactor selectors
+
+			textures_path("selectPanel.png"),
+
+			textures_path("mage_anim_select.png"),
+			textures_path("archerAnims_select.png"),
+			textures_path("swordsman_select.png"),
+			textures_path("necromancer_select.png"),
+			textures_path("necro_two_select.png"),
+
+			textures_path("new_makeup_options.png"),
+			textures_path("yes_option.png"),
+			textures_path("no_option.png")
   };
   
 	std::array<GLuint, effect_count> effects;

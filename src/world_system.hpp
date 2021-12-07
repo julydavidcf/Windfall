@@ -86,6 +86,7 @@ private:
 	// handle mouse click
 	void on_mouse_button( int button,int action, int mods);
 
+	void createIcons();
 	// check if mouse in button
 	bool inButton(vec2 buttonPos, float buttonX, float buttonY);
 
@@ -146,6 +147,18 @@ private:
 	void renderBeginningStory();
 	void renderDragonSpeech();
 
+	//Make up game
+	void initializeMakeUpGame();
+	void makeHoverBox(Entity target);
+	vec2 checkPositions(int number, int type);
+	Entity* placeSelections(int number,int type);
+	void updateSize();
+	void checkIfReady();
+
+	void startMenuCleanUp();
+
+	float getYPosition(Entity entity);
+
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;
@@ -161,7 +174,43 @@ private:
 	Entity iceShard;
 	Entity tooltip;
 
+	//-------makeup game system--------
+	Entity startGameButton;
+	Entity resetGameButton;
 
+	Entity hoverBoxTop;
+	Entity hoverBoxBottom;
+	Entity hoverBoxLeft;
+	Entity hoverBoxRight;
+
+
+	Entity selectPanel;
+	Entity companionSize;
+	Entity enemySize;
+
+	Entity selectArcher;
+	Entity selectMage;
+	Entity selectSwordsman;
+	Entity selectEnemyMage;
+	Entity selectEnemySwordsman;
+	Entity selectNecroOne;
+	Entity selectNecroTwo;
+
+	Entity emptyPos;
+	Entity companionPosOne;
+	Entity companionPosTwo;
+	Entity companionPosThree;
+	Entity companionPosFour;
+
+	Entity enemyPosOne;
+	Entity enemyPosTwo;
+	Entity enemyPosThree;
+	Entity enemyPosFour;
+
+	Entity optionPanel;
+	Entity yesOption;
+	Entity noOption;
+	//-----------------------------------------------------------
 	Entity turn_indicator;
 	Entity curr_tutorial_box;
 	int curr_tutorial_box_num = 0;
@@ -177,6 +226,7 @@ private:
 	Entity new_game_button;
 	Entity load_game_button;
 	Entity save_game_button;
+	Entity makeup_game_button;
 	Entity exit_game_button;
 	Entity open_menu_button;
 	int pauseMenuOpened = 0;
