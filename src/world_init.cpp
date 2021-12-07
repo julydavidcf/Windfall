@@ -1936,3 +1936,31 @@ Entity createFreeRoamLevelTutorialIndicator(RenderSystem* renderer, vec2 pos) {
 
 	return entity;
 }
+
+Entity createFinishedOptions(RenderSystem* renderer, vec2 pos, int number)
+{
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+
+	TEXTURE_ASSET_ID options = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+
+
+	switch (number) {
+	case 1: options = TEXTURE_ASSET_ID::NEW_MAKEUP_OPTIONS; motion.scale = { 500, 300 }; break;
+	case 2: options = TEXTURE_ASSET_ID::YES_OPTION;  motion.scale = { 50, 30 }; break;
+	case 3: options = TEXTURE_ASSET_ID::NO_OPTION;  motion.scale = { 100, 30 }; break;
+	default: break;
+	}
+
+	registry.renderRequests.insert(
+		entity,
+		{ options,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}

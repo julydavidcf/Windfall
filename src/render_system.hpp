@@ -284,6 +284,9 @@ class RenderSystem {
 			textures_path("necromancer_select.png"),
 			textures_path("necro_two_select.png"),
 
+			textures_path("new_makeup_options.png"),
+			textures_path("yes_option.png"),
+			textures_path("no_option.png")
   };
   
 	std::array<GLuint, effect_count> effects;

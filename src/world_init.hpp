@@ -218,3 +218,4 @@ Entity createFreeRoamLevelTutorialIndicator(RenderSystem* renderer, vec2 pos);
 Entity createSizeIndicator(RenderSystem* renderer, vec2 pos, int number);
 Entity createSelectPanel(RenderSystem* renderer, vec2 pos);
 Entity createSelections(RenderSystem* renderer, vec2 pos, int number);
+Entity createFinishedOptions(RenderSystem* renderer, vec2 pos, int number);

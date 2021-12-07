@@ -206,6 +206,10 @@ private:
 	Entity enemyPosTwo;
 	Entity enemyPosThree;
 	Entity enemyPosFour;
+
+	Entity optionPanel;
+	Entity yesOption;
+	Entity noOption;
 	//-----------------------------------------------------------
 	Entity turn_indicator;
 	Entity curr_tutorial_box;

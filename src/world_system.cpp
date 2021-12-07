@@ -81,6 +81,7 @@ int freeRoamLevel = 1;
 bool isMakeupGame = false;
 bool isReady = false;
 bool isReset = false;
+bool isFInished = false;
 int companion_size = 0;
 int enemy_size = 0;
 int speed_increment= 2;
@@ -798,7 +799,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 
 	if(isMakeupGame && ((registry.companions.size() <= 0) || (registry.enemies.size() <= 0)) && (registry.particlePools.size() <= 0)){
 		// Custom game finished go back
-		startMenuCleanUp();
+		isFInished = true;
+		optionPanel = createFinishedOptions(renderer, { 600, 300 }, 1);
+		noOption = createFinishedOptions(renderer, { 700, 400 }, 3);
+		yesOption = createFinishedOptions(renderer, { 500, 400 }, 2);
+		yesOption = createFinishedOptions(renderer, { 400, 400 }, 2);
 	}
 
 	// Updating window title with volume control
@@ -2752,7 +2757,7 @@ void WorldSystem::createIcons(){
 void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
 	// For start menu and pause menu click detection
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story)
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story && (!isMakeupGame))
 	{
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
 		{
@@ -3781,6 +3786,41 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			}
 		}
 	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && isMakeupGame && isFInished && canStep) {
+		if (inButton(registry.motions.get(yesOption).position, 50, 30)) {
+			fprintf(stderr, "click on yes");
+
+			while (registry.motions.entities.size() > 0)
+				registry.remove_all_components_of(registry.motions.entities.back());
+			while (registry.renderRequests.entities.size() > 0)
+				registry.remove_all_components_of(registry.renderRequests.entities.back());
+			if (registry.charIndicator.components.size() != 0)
+			{
+				registry.remove_all_components_of(registry.charIndicator.entities[0]);
+			}
+			// Debugging for memory/component leaks
+			registry.list_all_components();
+
+			canStep = 0;
+			isFInished = false;
+			isReady = false;
+			isReset = false;
+			isMakeupGame = true;
+
+			initializeMakeUpGame();
+			companion_size = 0;
+			enemy_size = 0;
+			updateSize();
+
+
+
+		}
+		else if ((inButton(registry.motions.get(noOption).position, 100, 30))) {
+			fprintf(stderr, "click on no");
+			startMenuCleanUp();
+		}
+
+	}
 
 }
 
@@ -4287,7 +4327,7 @@ void WorldSystem::initializeMakeUpGame() {
 
 void WorldSystem::makeHoverBox(Entity target) {
 	
-	float line_thickness = 6.f;
+	float line_thickness = 3.f;
 
 	float targetPosX = registry.motions.get(target).position.x;
 	float targetPosY = registry.motions.get(target).position.y;
