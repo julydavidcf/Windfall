@@ -45,10 +45,14 @@ void RenderSystem::drawLight(Entity entity)
 
 	glUniform2f(glGetUniformLocation(light_program, "lightSourcePos"), entityPos.x, (float)h - entityPos.y);
 
+	float lightPercent = max(0.25f * cos(0.01f*time),0.f);
+	glUniform1f(glGetUniformLocation(light_program, "randLight"), lightPercent);
+
 	if (registry.projectiles.has(entity) && registry.projectiles.get(entity).empoweredArrow == 1) {
 		glUniform1f(glGetUniformLocation(light_program, "collidesWithFirefly"), 1.f);
 	}
 	else {
+		
 		glUniform1f(glGetUniformLocation(light_program, "collidesWithFirefly"), 0.f);
 	}
 	
@@ -473,6 +477,10 @@ void RenderSystem::draw(float elapsed_ms)
 	// Getting size of window
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h);
+
+	// set time
+	time +=1.f;
+	//printf("time is  % f", time);
 
 	// First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
