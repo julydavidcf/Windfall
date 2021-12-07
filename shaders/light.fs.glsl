@@ -11,6 +11,7 @@ uniform glowCoordinates thingie;
 uniform vec2 lightSourcePos;
 uniform float arrow;
 uniform float collidesWithFirefly;
+uniform float randLight;
 in vec2 texcoord;
 
 // Output color
@@ -19,7 +20,7 @@ layout(location = 0) out  vec4 color;
 void main()
 {
     vec4 in_color = texture(screen_texture, texcoord);
-    color = in_color * 0.1;
+    color = in_color * randLight;
     //color = vec4(0.0, 0.0, 0.0, 0.0);
     vec2 uv = gl_FragCoord.xy / resolutionY;
    
@@ -45,7 +46,7 @@ void main()
         float arrowSize = 200;
         if (collidesWithFirefly == 1.0) {
             arrowSize = 10;
-            float output_start = 0.1;
+            float output_start = randLight;
             float output_end = 1.0;
             float input_start = 0.8;
             float input_end = 1.0;
@@ -59,7 +60,7 @@ void main()
             }
         }
         else {
-            float output_start = 0.1;
+            float output_start = randLight;
             float output_end = 1.0;
             float input_start = 0.95;
             float input_end = 1.0;

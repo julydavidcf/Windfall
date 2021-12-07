@@ -70,7 +70,7 @@ public:
 	
 
 	//skill constants
-	float FIREBALLSPEED = 900.f;
+	float FIREBALLSPEED = 700.f;
 	float ARROWSPEED = 1400.f;
 	float ICESHARDSPEED = 100.f;
 

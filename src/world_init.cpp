@@ -154,7 +154,7 @@ Entity createPlayerSwordsman(RenderSystem* renderer, vec2 pos)
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = { pos.x + 65, pos.y - 10 };
+	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
@@ -238,7 +238,7 @@ Entity createEnemySwordsman(RenderSystem* renderer, vec2 pos)
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	Motion& motion = registry.motions.emplace(entity);
-	motion.position = { pos.x - 65, pos.y - 10 };
+	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ -SWORDSMAN_WIDTH, SWORDSMAN_HEIGHT });
@@ -982,7 +982,7 @@ Entity createTauntIndicator(RenderSystem* renderer, Entity owner)
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
-	auto*statid =  &registry.statsindicators.emplace(entity);
+	auto statid =  &registry.statsindicators.emplace(entity);
 	statid->owner = owner;
 
 	auto& motion = registry.motions.emplace(entity);
@@ -1006,7 +1006,7 @@ Entity createBleedIndicator(RenderSystem* renderer, Entity owner)
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
-	auto* statid = &registry.bleedIndicators.emplace(entity);
+	auto statid = &registry.bleedIndicators.emplace(entity);
 	statid->owner = owner;
 
 	auto& motion = registry.motions.emplace(entity);
@@ -1573,7 +1573,15 @@ Entity createStoryBackground(RenderSystem* renderer, vec2 pos, int number)
 	case 7: storyBackground = TEXTURE_ASSET_ID::PEACEFUL; break;
 	case 8: storyBackground = TEXTURE_ASSET_ID::CELERBRATE; break;
 	case 9: storyBackground = TEXTURE_ASSET_ID::DARK; break;
-	case 10: storyBackground = TEXTURE_ASSET_ID::THEEND; break;
+	case 10: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONTHEEND; break;
+
+	case 11: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONONE; break;
+	case 12: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONTWO; break;
+	case 13: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONTHREE; break;
+	case 14: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONFOUR; break;
+	case 15: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONFIVE; break;
+	case 16: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONSIX; break;
+	case 17: storyBackground = TEXTURE_ASSET_ID::CONCLUSIONSEVEN; break;
 	default: break;
 	}
 
@@ -1646,6 +1654,7 @@ Entity createLevelOneDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	case 8: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUEEIGHT; break;
 	case 9: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUENINE; break;
 	case 10: dialogue = TEXTURE_ASSET_ID::LEVELONEDIALOGUETEN; break;
+	case 11: dialogue = TEXTURE_ASSET_ID::MISSIONONE; break;
 	default: break;
 	}
 
@@ -1679,6 +1688,8 @@ Entity createLevelTwoDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	case 3: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUETHREE; break;
 	case 4: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFOUR; break;
 	case 5: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUEFIVE; break;
+	case 6: dialogue = TEXTURE_ASSET_ID::LEVELTWODIALOGUESIX; break;
+	case 7: dialogue = TEXTURE_ASSET_ID::MISSIONTWO; break;
 
 	default: break;
 	}
@@ -1709,7 +1720,7 @@ Entity createLevelThreeDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	switch (number) {
 
 		//level three
-	case 1: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEONE; break;
+	//case 1: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEONE; break;	// wrong place
 	case 2: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETWO; break;
 	case 3: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUETHREE; break;
 	case 4: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEFOUR; break;
@@ -1717,6 +1728,10 @@ Entity createLevelThreeDiaogue(RenderSystem* renderer, vec2 pos, int number)
 	case 6: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESIX; break;
 	case 7: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUESEVEN; break;
 	case 8: dialogue = TEXTURE_ASSET_ID::LEVELTHREEDIALOGUEEIGHT; break;
+	case 9: dialogue = TEXTURE_ASSET_ID::MISSIONTHREEONE; break;
+	case 10: dialogue = TEXTURE_ASSET_ID::MISSIONTHREETWO; break;
+	case 11: dialogue = TEXTURE_ASSET_ID::MISSIONTHREETHREE; break;
+	case 12: dialogue = TEXTURE_ASSET_ID::MISSIONTHREEFOUR; break;
 	default: break;
 	}
 
@@ -1896,6 +1911,26 @@ Entity createSelections(RenderSystem* renderer, vec2 pos, int number)
 	registry.renderRequests.insert(
 		entity,
 		{ selections,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity createFreeRoamLevelTutorialIndicator(RenderSystem* renderer, vec2 pos) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = { HELPER_INDICATOR_WIDTH, HELPER_INDICATOR_HEIGHT };
+
+	TEXTURE_ASSET_ID tutorial_box = TEXTURE_ASSET_ID::FREEROAMTUTORIAL_HELPER;
+
+	registry.renderRequests.insert(
+		entity,
+		{ tutorial_box,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

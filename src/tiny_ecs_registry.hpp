@@ -60,9 +60,9 @@ public:
 	ComponentContainer<BouncingArrow> bouncingArrows;
 	ComponentContainer<Bird> bird;
 	ComponentContainer<Platform> platform;
-	ComponentContainer<Boulder> boulders;
 	ComponentContainer<PreciseCollider> preciseColliders;
 	ComponentContainer<HoverBox> hoverBox;
+	ComponentContainer<Boulder> boulders;
 
 	// Sounds
 	Mix_Music* background_music;
@@ -97,15 +97,15 @@ public:
 
 	//Game Stats
 
-	int enemy_mage_hp = 1;
-	int enemy_swordsman_hp = 1;
+	int enemy_mage_hp = 90/10;
+	int enemy_swordsman_hp = 130/10;
 
 	int player_mage_hp = 60;
 	int player_swordsman_hp = 85;
 	int player_archer_hp = 50;
 	int necro_minion_health = 15;
-	int necro_1_health = 175;
-	int necro_2_health = 125;
+	int necro_1_health = 175/10;
+	int necro_2_health = 125/10;
 
 
 	//skill dmg
@@ -163,10 +163,10 @@ public:
 		registry_list.push_back(&bird);
 		registry_list.push_back(&platform);
 		registry_list.push_back(&chests);
-		registry_list.push_back(&boulders);
 		registry_list.push_back(&preciseColliders);
 		registry_list.push_back(&hoverBox);
 		
+		registry_list.push_back(&boulders);
 	}
 
 	void clear_all_components() {

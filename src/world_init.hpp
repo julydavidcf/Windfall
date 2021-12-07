@@ -103,9 +103,10 @@ const float TITLE_WIDTH = 300.f;
 const float TITLE_HEIGHT = 100.f;
 const float SPIKE_WIDTH = 40.f;
 const float SPIKE_HEIGHT = 100.f;
-const float HELPER_BOX_WIDTH = 600.f;
-const float HELPER_BOX_HEIGHT = 200.f;
-
+const float HELPER_BOX_WIDTH = 900.f;
+const float HELPER_BOX_HEIGHT = 500.f;
+const float HELPER_INDICATOR_WIDTH = 200.f;
+const float HELPER_INDICATOR_HEIGHT = 80.f;
 
 Entity createBird(RenderSystem* renderer, vec2 pos);
 void createSpline(RenderSystem* renderer, std::vector<vec3> points);
@@ -209,10 +210,11 @@ Entity createLevelThreeDiaogue(RenderSystem* renderer, vec2 pos, int number);
 Entity createLevelFourDiaogue(RenderSystem* renderer, vec2 pos, int number);
 Entity createFreeRoamLevelDiaogue(RenderSystem* renderer, vec2 pos, int number);
 
+// Free-roam tutorial images
 Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos);
+Entity createFreeRoamLevelTutorialIndicator(RenderSystem* renderer, vec2 pos);
 
 // Makeup Game
-
 Entity createSizeIndicator(RenderSystem* renderer, vec2 pos, int number);
 Entity createSelectPanel(RenderSystem* renderer, vec2 pos);
 Entity createSelections(RenderSystem* renderer, vec2 pos, int number);

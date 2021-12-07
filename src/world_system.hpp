@@ -76,6 +76,9 @@ public:
 	int canStep = 0;
 	int closeWindow = 0;
 
+	unsigned int horizontalResolution = 0;
+	unsigned int verticalResolution = 0;
+
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -132,6 +135,7 @@ private:
 
 	void displayTurnIndicator(int isPlayerTurn);
 	void advanceTutorial(Entity currTutorial, vec2 pos);
+	void balanceHealthNumbers(int levelNum);
 
 
 	// Story telling
@@ -140,6 +144,9 @@ private:
 	void initializeFreeRoamOne();
 	void initializeFreeRoamTwo();
 
+	void renderBeginningStory();
+	void renderDragonSpeech();
+
 	//Make up game
 	void initializeMakeUpGame();
 	void makeHoverBox(Entity target);
@@ -147,7 +154,8 @@ private:
 	Entity* placeSelections(int number,int type);
 	void updateSize();
 	void checkIfReady();
-	
+
+	void startMenuCleanUp();
 
 	// Game state
 	RenderSystem* renderer;
@@ -156,11 +164,7 @@ private:
 	SwarmSystem* swarmSys;
 
 	float current_speed;
-	Entity player_mage;
-	Entity enemy_mage;
-	Entity player_swordsman;
-	Entity enemy_swordsman;
-	Entity player_archer;
+	
 	Entity arrow_mesh;
 
 	Entity fireball;
@@ -224,6 +228,7 @@ private:
 	// story telling system
 	Entity backgroundImage;
 	Entity dialogue;
+	Entity free_roam_tutorial;
 
 	// C++ random number generator
 	std::default_random_engine rng;
@@ -240,15 +245,18 @@ private:
 
 	const int16 MAX_GAME_LEVELS = 3;
 
+	const float BOULDER_VELOCITY = -100.f;
+	const float BOULDER_ACCELERATION = -5.f;
+
 	float next_boulder_spawn;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
-		// ice  fire  rock  heal  taunt  melee
+		// ice  fire  rock  heal  taunt  melee  arrow
 //mage
-		{ true, true, true, true, false, false, true},
+		{ true, true, true, true, false, false, false},
 //swordsman
 		{ false, false, false, false, true, true,false},
-// archer
+//archer
 	{ false, false, false, false, false, false, true}
 	};
 

@@ -2,6 +2,12 @@
 #define GL3W_IMPLEMENTATION
 #include <gl3w.h>
 
+#if WIN32
+#include <windows.h>
+#else
+#include <CoreGraphics/CGDisplayConfiguration.h>
+#endif
+
 // stlib
 #include <chrono>
 #include <iostream>
@@ -22,6 +28,18 @@ using namespace std;
 int window_width_px = 1200;
 int window_height_px = 750;
 
+// Get the horizontal and vertical screen sizes in pixel
+void getScreenResolution(unsigned int& width, unsigned int& height) {
+#if WIN32
+	width = (int)GetSystemMetrics(SM_CXSCREEN);
+	height = (int)GetSystemMetrics(SM_CYSCREEN);
+#else
+	auto mainDisplayId = CGMainDisplayID();
+	width = CGDisplayPixelsWide(mainDisplayId);
+	height = CGDisplayPixelsHigh(mainDisplayId);
+#endif
+}
+
 // Entry point
 int main()
 {
@@ -32,6 +50,8 @@ int main()
 	AISystem ai;
 	SkillSystem sk;
 	SwarmSystem swarmSys;
+
+	getScreenResolution(world.horizontalResolution, world.verticalResolution);
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
