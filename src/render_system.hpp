@@ -422,6 +422,7 @@ public:
 	float dimScreenFactor = 0.4f;
 	float fogFactor = 0.2;
 	std::map<int, int> deferredRenderingEntities = {};
+	std::vector<vec3> splineControlPoints;
 	int gameLevel = 1;
 	int shouldDeform = 0;
 	bool implode = false;

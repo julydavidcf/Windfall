@@ -1511,7 +1511,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// Handle flying projectile timer
 	for (Entity entity : registry.projectiles.entities)
 	{
-		Projectile &proj = registry.projectiles.get(entity);
+		Projectile& proj = registry.projectiles.get(entity);
 		proj.flyingTimer -= elapsed_ms_since_last_update;
 	}
 
@@ -1520,7 +1520,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	for (Entity entity : registry.hit_timer.entities)
 	{
 		// progress timer
-		HitTimer &hitCounter = registry.hit_timer.get(entity);
+		HitTimer& hitCounter = registry.hit_timer.get(entity);
 		hitCounter.counter_ms -= elapsed_ms_since_last_update;
 		if (hitCounter.counter_ms < min_counter_ms_2)
 		{
@@ -1551,7 +1551,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	for (Entity entity : registry.checkRoundTimer.entities)
 	{
 		// progress timer
-		CheckRoundTimer &timerCounter = registry.checkRoundTimer.get(entity);
+		CheckRoundTimer& timerCounter = registry.checkRoundTimer.get(entity);
 		timerCounter.counter_ms -= elapsed_ms_since_last_update;
 		if (timerCounter.counter_ms < min_counter_ms_3)
 		{
@@ -1576,18 +1576,24 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	if (registry.motions.has(free_roam_bird)) {
 		auto& birdMotion = registry.motions.get(free_roam_bird);
 		registry.bird.get(free_roam_bird).birdNextPostionTracker = birdNextPostionTracker;
-		
+
 		if (birdPositionDivisor == 1 || birdPositionDivisor == 2) {
 			float offsetX = (spline[birdNextPostionTracker].x - spline[birdNextPostionTracker - 1].x) / 2.f;
 			float offsetY = (spline[birdNextPostionTracker].y - spline[birdNextPostionTracker - 1].y) / 2.f;
 			birdMotion.position += vec2(offsetX, offsetY);
 			birdPositionDivisor++;
+			if (birdNextPostionTracker >= 0 && birdNextPostionTracker < spline.size()) {
+				if (spline[birdNextPostionTracker].x == 1070 && spline[birdNextPostionTracker].y == 180) {
+					printf("birdIdx: %d\n", birdNextPostionTracker);
+				}
+			}
 		}
 		else {
 			birdNextPostionTracker++;
 			if (birdNextPostionTracker == spline.size()) {
 				birdNextPostionTracker = 1;
 			}
+
 			float offsetX = (spline[birdNextPostionTracker].x - spline[birdNextPostionTracker - 1].x) / 2.f;
 			float offsetY = (spline[birdNextPostionTracker].y - spline[birdNextPostionTracker - 1].y) / 2.f;
 			birdMotion.position += vec2(offsetX, offsetY);
@@ -3565,15 +3571,16 @@ void WorldSystem::initializeFreeRoamOne() {
 
 	std::vector<vec3> controlPoints;
 	controlPoints.push_back(vec3(227, 160, 0));
-	controlPoints.push_back(vec3(382, 180, 0));
-	controlPoints.push_back(vec3(632, 190, 0));
-	controlPoints.push_back(vec3(758, 200, 0));
+	controlPoints.push_back(vec3(312, 260, 0));
+	controlPoints.push_back(vec3(432, 150, 0));
+	controlPoints.push_back(vec3(710, 240, 0));
 	controlPoints.push_back(vec3(1070, 180, 0));
 	controlPoints.push_back(vec3(1008, 59, 0));
 	controlPoints.push_back(vec3(733, 148, 0));
 	controlPoints.push_back(vec3(446, 75, 0));
 	controlPoints.push_back(vec3(227, 160, 0));
-	auto result = GenerateSpline(controlPoints, 20);
+	auto result = GenerateSpline(controlPoints, 40);
+	renderer->splineControlPoints = controlPoints;
 	// Keeping these for debugging purposes
 	// printf("spline points: %i\n", result.size());
 	// createSpline(renderer, controlPoints);
