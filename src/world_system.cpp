@@ -93,6 +93,7 @@ Entity currentProjectile;
 
 int story = 0;
 
+
 using namespace std;
 
 WorldSystem::WorldSystem()
@@ -681,7 +682,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// restart game if enemies or companions are 0
 	if ((gameLevel != 3) && (registry.enemies.size() <= 0 || registry.companions.size() <= 0) && (registry.particlePools.size() <= 0) && (!isFreeRoam))
 	{
-		if (story == 8 && gameLevel == 0)
+		if (registry.companions.size() <= 0){
+			restart_game();
+		}
+		else if (story == 8 && gameLevel == 0)
 		{
 			restart_game();
 		}
@@ -1639,6 +1643,19 @@ void WorldSystem::restart_game(bool force_restart)
 			std::cout << "New free roam " <<isFreeRoam << std::endl;
 		}
 		printf("Updated game level %d\n", gameLevel);
+	}
+	if((registry.companions.size() <= 0) && (registry.enemies.size() > 0))
+	{
+		// GO BACK TO START MENU
+		pauseMenuOpened = 0;
+		canStep = 0;
+		story = 0;
+				
+		while (registry.motions.entities.size() > 0)
+			registry.remove_all_components_of(registry.motions.entities.back());
+		render_startscreen();
+		printf("lost, return\n");
+		return;
 	}
 	if (gameLevel > MAX_GAME_LEVELS)
 	{
@@ -2604,8 +2621,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			loaded_game = true;
 			loadedLevel = -1;
-			restart_game(false);
+			tutorial_enabled = 0;
 			canStep = 1;
+			restart_game(false);
 		}
 		else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
 		{
@@ -2743,11 +2761,22 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
 
 		// Shut down game after last enemy defeated
-		closeWindow = 1;
+		// closeWindow = 1;
 
 		story = 42;
 		canStep = 1;
-		restart_game();
+
+		// GO BACK TO START MENU
+		pauseMenuOpened = 0;
+		canStep = 0;
+		story = 0;
+				
+		while (registry.motions.entities.size() > 0)
+			registry.remove_all_components_of(registry.motions.entities.back());
+		render_startscreen();
+		printf("won, return\n");
+		return;
+
 	}
 
 	// gesture skill
@@ -2899,6 +2928,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				pauseMenuOpened = 0;
 				canStep = 0;
 				story = 0;
+				
 				while (registry.motions.entities.size() > 0)
 					registry.remove_all_components_of(registry.motions.entities.back());
 				render_startscreen();
