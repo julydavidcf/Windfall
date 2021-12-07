@@ -2906,15 +2906,19 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		{
 			printf("opens menu\n");
 			Motion menu_motion = registry.motions.get(open_menu_button);
-			save_game_button = createUIButton(renderer, {menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT}, SAVE_GAME);
-			exit_game_button = createUIButton(renderer, {menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2}, EXIT_GAME);
+			if(!isFreeRoam){
+				save_game_button = createUIButton(renderer, {menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT}, SAVE_GAME);
+				exit_game_button = createUIButton(renderer, {menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2}, EXIT_GAME);
+			} else {
+				exit_game_button = createUIButton(renderer, {menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT}, EXIT_GAME);
+			}
 			registry.motions.get(exit_game_button).scale = {200, 80};
 			pauseMenuOpened = 1;
 			registry.renderRequests.get(open_menu_button).used_texture = TEXTURE_ASSET_ID::CLOSE_MENU;
 		}
 		else if (pauseMenuOpened)
 		{
-			if (inButton(registry.motions.get(save_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
+			if ((!isFreeRoam) && (inButton(registry.motions.get(save_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)))
 			{
 				// SAVE THE CURRENT GAME STATE
 				JSONLoader jl;
