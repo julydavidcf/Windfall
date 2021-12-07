@@ -2145,7 +2145,7 @@ void WorldSystem::handle_collisions()
 
 					// On top of rock
 					if (archer_pos_y > rock_pos_y - rock_height && archer_pos_y < rock_pos_y) {
-						archer_motion.position.y -= 3.f;
+						currFloorPos = rock_pos_y - rock_height;
 					}
 					// Bounce archer to the left
 					else if (archer_pos_x > rock_pos_x - rock_width && archer_pos_x < rock_pos_x
