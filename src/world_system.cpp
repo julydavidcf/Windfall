@@ -3249,8 +3249,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 					if (registry.renderRequests.has(startGameButton)) {
 						registry.remove_all_components_of(startGameButton);
 					}
-					isReady = 0;
-					isReset = 0;
+					isReady = false;
+					isReset = false;
 
 					updateSize();
 				}
@@ -3268,19 +3268,38 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				registry.remove_all_components_of(selectEnemySwordsman);
 				registry.remove_all_components_of(selectNecroOne);
 				registry.remove_all_components_of(selectNecroTwo);
+				registry.remove_all_components_of(startGameButton);
+				registry.remove_all_components_of(resetGameButton);
 
 				
-				registry.motions.get(companionPosOne).position.y = 1000;
+				if (registry.renderRequests.has(companionPosOne)) {
+					registry.motions.get(companionPosOne).position.y = 1000;
+				}
+				if (registry.motions.has(companionPosTwo)) {
 				registry.motions.get(companionPosTwo).position.y = 1000;
+				}
+				if (registry.motions.has(companionPosThree)) {
 				registry.motions.get(companionPosThree).position.y = 1000;
+				}
+				if (registry.motions.has(companionPosFour)) {
 				registry.motions.get(companionPosFour).position.y = 1000;
+				}
+				if (registry.motions.has(enemyPosOne)) {
 				registry.motions.get(enemyPosOne).position.y = 1000;
+				}
+				if (registry.motions.has(enemyPosTwo)) {
 				registry.motions.get(enemyPosTwo).position.y = 1000;
+				}
+				if (registry.motions.has(enemyPosThree)) {
 				registry.motions.get(enemyPosThree).position.y = 1000;
-				registry.motions.get(enemyPosFour).position.y = 1000;
+				 }
 
-				createRound();
-				checkRound();
+				if (registry.renderRequests.has(enemyPosFour)) {
+				registry.motions.get(enemyPosFour).position.y = 1000;
+				}
+
+				//createRound();
+				//checkRound();
 			}
 		}
 	}
