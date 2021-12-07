@@ -104,7 +104,7 @@ public:
 	int player_archer_hp = 50;
 	int necro_minion_health = 15;
 	int necro_1_health = 175/10;
-	int necro_2_health = 125;
+	int necro_2_health = 125/10;
 
 
 	//skill dmg
