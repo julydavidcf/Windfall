@@ -2866,7 +2866,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning >= 3 && beginning <= 5)
 	{
 		registry.remove_all_components_of(dialogue);
-		dialogue = createLevelFourDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (beginning + 7));
+		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (beginning + 7));
 		beginning++;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 6 && dragon == 0)
