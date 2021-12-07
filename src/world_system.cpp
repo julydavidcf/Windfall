@@ -1581,6 +1581,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
+
+
 	return true;
 }
 
@@ -3162,9 +3164,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && isMakeupGame && !canStep && !story) {
 		if (inButton(registry.motions.get(selectArcher).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
-			if ((companionSize + 1) <= 4) {
+			if ((companion_size + 1) <= 4) {
 				companion_size++;
 				placeSelections(companion_size, 1) = createPlayerArcher(renderer, checkPositions(companion_size, 1), 0);
+				updateSize();
 			}
 			
 		} 
@@ -3173,6 +3176,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((companion_size + 1) <= 4) {
 				companion_size++;
 				placeSelections(companion_size, 1) = createPlayerMage(renderer, checkPositions(companion_size, 1));
+				updateSize();
 			}
 		} 
 		else if (inButton(registry.motions.get(selectSwordsman).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
@@ -3180,13 +3184,15 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((companion_size + 1) <= 4) {
 			companion_size++;
 			placeSelections(companion_size, 1) = createPlayerSwordsman(renderer, checkPositions(companion_size, 1));
+			updateSize();
 			}
 		}
 		else if (inButton(registry.motions.get(selectEnemyMage).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
-			if ((companion_size + 1) <= 4) {
+			if ((enemy_size + 1) <= 4) {
 				enemy_size++;
 			placeSelections(enemy_size, 2) = createEnemyMage(renderer, checkPositions(enemy_size, 2));
+			updateSize();
 			}
 		}
 		else if (inButton(registry.motions.get(selectEnemySwordsman).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
@@ -3194,6 +3200,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((enemy_size + 1) <= 4) {
 				enemy_size++;
 				placeSelections(enemy_size, 2) = createEnemySwordsman(renderer, checkPositions(enemy_size, 2));
+				updateSize();
 			}
 		}
 		else if (inButton(registry.motions.get(selectNecroOne).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
@@ -3201,6 +3208,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((enemy_size + 2) <= 4) {
 			enemy_size + 2;
 			placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size, 2));
+			updateSize();
 			}
 		}
 		else if (inButton(registry.motions.get(selectNecroTwo).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
@@ -3208,6 +3216,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((enemy_size + 1) <= 4) {
 			enemy_size++;
 			placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size, 2));
+			updateSize();
 			}
 		}
 	}
@@ -3666,6 +3675,7 @@ void WorldSystem::initializeMakeUpGame() {
 	selectNecroOne = createSelections(renderer, { 12 * w / 15, 4 * h / 5 }, 4);
 	selectNecroTwo = createSelections(renderer, { 14 * w / 15, 4 * h / 5 }, 5);
 	
+	
 
 }
 
@@ -3745,3 +3755,38 @@ Entity WorldSystem::placeSelections(int number, int type) {
 
 	return entity;
 }
+
+void WorldSystem::updateSize() {
+	if (companion_size == 0) {
+		registry.renderRequests.get(companionSize).used_texture = TEXTURE_ASSET_ID::ZERO_OUT_OF_FOUR;
+	}
+	else if (companion_size == 1) {
+		registry.renderRequests.get(companionSize).used_texture = TEXTURE_ASSET_ID::ONE_OUT_OF_FOUR;
+	}
+	else if (companion_size == 2) {
+		registry.renderRequests.get(companionSize).used_texture = TEXTURE_ASSET_ID::TWO_OUT_OF_FOUR;
+	}
+	else if (companion_size == 3) {
+		registry.renderRequests.get(companionSize).used_texture = TEXTURE_ASSET_ID::THREE_OUT_OF_FOUR;
+	}
+	else if (companion_size == 4) {
+		registry.renderRequests.get(companionSize).used_texture = TEXTURE_ASSET_ID::FOUR_OUT_OF_FOUR;
+	}
+
+	if (enemy_size == 0) {
+		registry.renderRequests.get(enemySize).used_texture = TEXTURE_ASSET_ID::ZERO_OUT_OF_FOUR;
+	}
+	else if (enemy_size == 1) {
+		registry.renderRequests.get(enemySize).used_texture = TEXTURE_ASSET_ID::ONE_OUT_OF_FOUR;
+	}
+	else if (enemy_size == 2) {
+		registry.renderRequests.get(enemySize).used_texture = TEXTURE_ASSET_ID::TWO_OUT_OF_FOUR;
+	}
+	else if (enemy_size == 3) {
+		registry.renderRequests.get(enemySize).used_texture = TEXTURE_ASSET_ID::THREE_OUT_OF_FOUR;
+	}
+	else if (enemy_size == 4) {
+		registry.renderRequests.get(enemySize).used_texture = TEXTURE_ASSET_ID::FOUR_OUT_OF_FOUR;
+	}
+}
+

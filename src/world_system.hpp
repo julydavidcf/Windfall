@@ -144,6 +144,7 @@ private:
 	void makeHoverBox(Entity target);
 	vec2 checkPositions(int number, int type);
 	Entity placeSelections(int number,int type);
+	void updateSize();
 	
 
 	// Game state
