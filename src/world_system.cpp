@@ -3565,10 +3565,10 @@ void WorldSystem::initializeFreeRoamOne() {
 
 	std::vector<vec3> controlPoints;
 	controlPoints.push_back(vec3(227, 160, 0));
-	controlPoints.push_back(vec3(382, 341, 0));
-	controlPoints.push_back(vec3(632, 281, 0));
-	controlPoints.push_back(vec3(758, 367, 0));
-	controlPoints.push_back(vec3(1070, 242, 0));
+	controlPoints.push_back(vec3(382, 180, 0));
+	controlPoints.push_back(vec3(632, 190, 0));
+	controlPoints.push_back(vec3(758, 200, 0));
+	controlPoints.push_back(vec3(1070, 180, 0));
 	controlPoints.push_back(vec3(1008, 59, 0));
 	controlPoints.push_back(vec3(733, 148, 0));
 	controlPoints.push_back(vec3(446, 75, 0));
