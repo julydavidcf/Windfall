@@ -2138,6 +2138,7 @@ void WorldSystem::handle_collisions()
 				if (registry.bird.has(entity_other))
 				{
 					registry.remove_all_components_of(entity_other);
+					registry.remove_all_components_of(entity);
 					Mix_PlayChannel(-1, registry.crow_sound, 0);
 				}
 

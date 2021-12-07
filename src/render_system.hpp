@@ -480,6 +480,9 @@ private:
 
 	// GLuint particles_position_buffer;
 	float deformTime = 0.f;
+
+	//time 
+	float time = 0;
 };
 
 bool loadEffectFromFile(
