@@ -1469,7 +1469,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			Entity entity = createBoulder(renderer, {window_width_px+50, window_height_px - ARCHER_FREEROAM_HEIGHT + 25});
 			// Setting random initial position and constant velocity
 			Motion& motion = registry.motions.get(entity);
-			motion.velocity = vec2(-100.f, 0.f);
+			motion.velocity = vec2(BOULDER_VELOCITY, 0.f);
 		}
 		// move it to physics
 		for(Entity rollable: registry.rollables.entities){
@@ -2087,14 +2087,44 @@ void WorldSystem::handle_collisions()
 				else if (registry.boulders.has(entity_other) && !registry.particlePools.has(entity_other))
 				{
 					Motion& rollable_motion = registry.motions.get(entity_other);
-					rollable_motion.velocity = {0.f, 0.f};
-					registry.rollables.remove(entity_other);
+					rollable_motion.velocity = { BOULDER_VELOCITY / 3, 0.f};
+					//registry.rollables.remove(entity_other);
+					float rock_pos_x = rollable_motion.position.x;
+					float rock_pos_y = rollable_motion.position.y;
+					float rock_width = rollable_motion.scale.x;
+					float rock_height = abs(rollable_motion.scale.y);
 
-					Motion& companion_motion = registry.motions.get(entity);
-					if(companion_motion.velocity.x>0){
-						companion_motion.velocity.x = 0.f;
+					Motion& archer_motion = registry.motions.get(player_archer);
+					float archer_pos_x = archer_motion.position.x;
+					float archer_pos_y = archer_motion.position.y;
+
+					// On top of rock
+					if (archer_pos_y > rock_pos_y - rock_height && archer_pos_y < rock_pos_y) {
+						archer_motion.position.y = rock_pos_y - rock_height + 10;
+					}
+					// Bounce archer to the left
+					else if (archer_pos_x > rock_pos_x - rock_width && archer_pos_x < rock_pos_x
+						&& !(archer_pos_y > rock_pos_y - rock_height && archer_pos_y < rock_pos_y)) {
+						archer_motion.position.x -= 6.5;
+					}
+					// Bounce archer to the right
+					else if (archer_pos_x < rock_pos_x + rock_width - 15 && archer_pos_x > rock_pos_x
+						&& !(archer_pos_y > rock_pos_y - rock_height && archer_pos_y < rock_pos_y)) {
+						archer_motion.position.x += 6.5;
 					}
 				}
+			}
+
+			if (registry.boulders.has(entity) && registry.boulders.has(entity_other)) {
+				Motion& entity_motion = registry.motions.get(entity);
+				Motion& entity_other_motion = registry.motions.get(entity_other);
+
+				entity_motion.velocity = vec2(BOULDER_VELOCITY / 3, 0.f);
+				entity_other_motion.velocity = vec2(BOULDER_VELOCITY / 3, 0.f);
+
+				//if (registry.rollables.has(entity)) registry.rollables.remove(entity);
+				//if (registry.rollables.has(entity_other)) registry.rollables.remove(entity_other);
+				
 			}
 
 			// Deal with arrow - bird collisions

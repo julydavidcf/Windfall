@@ -196,6 +196,8 @@ private:
 
 	const int16 MAX_GAME_LEVELS = 3;
 
+	const float BOULDER_VELOCITY = -100.f;
+
 	float next_boulder_spawn;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
