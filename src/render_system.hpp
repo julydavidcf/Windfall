@@ -181,7 +181,14 @@ class RenderSystem {
 			textures_path("peaceful.jpg"),
 			textures_path("celerbrate.jpg"),
 			textures_path("dark.jpg"),
-			textures_path("theEnd.png"),
+			textures_path("conclusionTheEnd.png"),
+			textures_path("conclusionOne.png"),
+			textures_path("conclusionTwo.png"),
+			textures_path("conclusionThree.png"),
+			textures_path("conclusionFour.png"),
+			textures_path("conclusionFive.png"),
+			textures_path("conclusionSix.png"),
+			textures_path("conclusionSeven.png"),
 				
 			//background dialogue
 			textures_path("backgroundOne.png"),

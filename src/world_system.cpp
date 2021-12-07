@@ -2837,27 +2837,106 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 40)
 	{
+		story = 42;
+
+		// GO TO CONCLUSION
+		while (registry.motions.entities.size() > 0) {
+			registry.remove_all_components_of(registry.motions.entities.back());
+		}
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2, h / 2 }, 11);
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 42)
+	{
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2, h / 2 }, 12);
+		story++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 43)
+	{
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2, h / 2 }, 13);
+		story++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 44)
+	{
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2, h / 2 }, 14);
+		story++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 45)
+	{
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2, h / 2 }, 15);
+		story++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 46)
+	{
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2, h / 2 }, 16);
+		story++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 47)
+	{
+		Mix_Volume(5, 32);
+		Mix_PlayChannel(5, registry.turning_sound, 0);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		registry.remove_all_components_of(dialogue);
+		registry.remove_all_components_of(backgroundImage);
+		backgroundImage = createStoryBackground(renderer, { w / 2, h / 2 }, 17);
+		story++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 48)
+	{
 		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
 		// Shut down game after last enemy defeated
 		// closeWindow = 1;
 
-		story = 42;
+		story = 50;
 		canStep = 1;
 
 		// GO BACK TO START MENU
 		pauseMenuOpened = 0;
 		canStep = 0;
 		story = 0;
-				
-		while (registry.motions.entities.size() > 0)
-			registry.remove_all_components_of(registry.motions.entities.back());
 
 		Mix_FadeInMusic(registry.menu_music, -1, 3000);
 		render_startscreen();
 		printf("won, return\n");
 		return;
-
 	}
+
+
+
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && (beginning == 1 || beginning == 2) && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
