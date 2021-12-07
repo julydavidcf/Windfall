@@ -1247,7 +1247,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
 						printf("heal attack enemy\n");
 
-						int healValue = (gameLevel == 0) ? 10 : 30;
+						int healValue = 5;
 
 						sk->launchHeal(attack.target, healValue, renderer);
 						update_healthBars();
@@ -1822,6 +1822,7 @@ void WorldSystem::restart_game(bool force_restart)
 
 			createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
 			// Kept this to load icons, but commented out createMage in load_level()
+			balanceHealthNumbers(0);
 			json_loader.get_level("level_0.json");
 
 			tutorial_enabled = 1;
@@ -1832,6 +1833,7 @@ void WorldSystem::restart_game(bool force_restart)
 			printf("Loading level 1\n");
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_ONE);
+			balanceHealthNumbers(1);
 			json_loader.get_level("level_1.json");
 
 			// render the beginning story
@@ -1842,6 +1844,7 @@ void WorldSystem::restart_game(bool force_restart)
 			printf("Loading level 2\n");
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_TWO);
+			balanceHealthNumbers(2);
 			json_loader.get_level("level_2.json");
 
 			// render the beginning story
@@ -1852,6 +1855,7 @@ void WorldSystem::restart_game(bool force_restart)
 			printf("Loading level 3 phase 1\n");
 			renderer->gameLevel = 1;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
+			balanceHealthNumbers(3);
 			json_loader.get_level("level_3.json");
 
 			// render the beginning story
@@ -1906,7 +1910,9 @@ void WorldSystem::update_health(Entity entity, Entity other_entity)
 		}
 		if (hp)
 		{
-			hp->health = hp->health - (rand() % damage.range + damage.minDamage);
+			//hp->health = hp->health - (rand() % damage.range + damage.minDamage);
+			// No randomness in damage
+			hp->health = hp->health - damage.minDamage;
 			Motion &motion = registry.motions.get(healthbar);
 			if (registry.stats.get(currPlayer).health <= 0)
 			{ // check if HP of currPlayer is 0, checkRound to skip this player
@@ -3821,5 +3827,28 @@ void WorldSystem::renderDragonSpeech() {
 
 	if (freeRoamLevel == 2) {
 		restart_game(false);
+	}
+}
+
+void WorldSystem::balanceHealthNumbers(int levelNum) {
+	switch (levelNum) {
+		case 0: {
+			registry.player_archer_hp = 100;
+			registry.enemy_mage_hp = 10;
+			break;
+		}
+		case 1: {
+			registry.player_archer_hp = 100;
+			registry.enemy_mage_hp = 30;
+			break;
+		}
+		case 2: {
+			break;
+		}
+		case 3: {
+			break;
+		}
+
+		default: break;
 	}
 }
