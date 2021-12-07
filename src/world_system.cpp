@@ -277,7 +277,7 @@ GLFWwindow *WorldSystem::create_window(int width, int height)
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(width, height, "Windfall Milestone 3", nullptr, nullptr);
+	window = glfwCreateWindow(width, height, "Windfall", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		fprintf(stderr, "Failed to glfwCreateWindow");
@@ -438,6 +438,7 @@ void WorldSystem::startMenuCleanUp()
 
 	isReady = false;
 	isReset = false;
+	isFInished = false;
 
 	isFreeRoam = false;
 	freeRoamLevel = 1;
@@ -803,7 +804,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		optionPanel = createFinishedOptions(renderer, { 600, 300 }, 1);
 		noOption = createFinishedOptions(renderer, { 700, 400 }, 3);
 		yesOption = createFinishedOptions(renderer, { 500, 400 }, 2);
-		yesOption = createFinishedOptions(renderer, { 400, 400 }, 2);
 	}
 
 	// Updating window title with volume control
@@ -1149,7 +1149,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				{
 					attack.attack_type = AOEMELEE;
 				}
-				attack.counter_ms = 1000.f;
+				attack.counter_ms = 750.f;
 			}
 
 			registry.runners.remove(runner);
@@ -4309,7 +4309,7 @@ void WorldSystem::initializeMakeUpGame() {
 	
 	canStep = 0;
 	
-	createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_ONE);
+	createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
 
 	selectPanel = createSelectPanel(renderer, { w / 2, 4*h/5 });
 	companionSize = createSizeIndicator(renderer, { 1 * w / 6, 15 * h/ 16 },companion_size + 1);
@@ -4319,10 +4319,10 @@ void WorldSystem::initializeMakeUpGame() {
 	selectMage = createSelections(renderer, {3 * w / 15, 4 * h / 5 }, 2);
 	selectSwordsman = createSelections(renderer, { 5 * w / 15, 4 * h / 5 }, 3);
 
-	selectEnemyMage = createSelections(renderer, { 10 * w / 15, 4 * h / 5 }, 2);
-	selectEnemySwordsman = createSelections(renderer, { 11 * w / 15, 4 * h / 5 }, 3);
+	selectEnemyMage = createSelections(renderer, { 9 * w / 15, 4 * h / 5 }, 2);
+	selectEnemySwordsman = createSelections(renderer, { 10.5 * w / 15, 4 * h / 5 }, 3);
 	selectNecroOne = createSelections(renderer, { 12 * w / 15, 4 * h / 5 }, 4);
-	selectNecroTwo = createSelections(renderer, { 13 * w / 15, 4 * h / 5 }, 5);
+	selectNecroTwo = createSelections(renderer, { 13.5 * w / 15, 4 * h / 5 }, 5);
 	
 	
 
@@ -4507,18 +4507,18 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 			break;
 		}
 		case 1: {
-			registry.enemy_mage_hp = 30;
+			registry.enemy_mage_hp = 30/10;
 			break;
 		}
 		case 2: {
 			registry.player_mage_hp = 70;
-			registry.enemy_swordsman_hp = 150;
+			registry.enemy_swordsman_hp = 150 / 10;
 			break;
 		}
 		case 3: {
 			registry.player_swordsman_hp = 250;
-			registry.necro_minion_health = 10;
-			registry.necro_1_health = 160;
+			registry.necro_minion_health = 10 / 10;
+			registry.necro_1_health = 160 / 10;
 			registry.necro_2_health = 200;
 			break;
 		}

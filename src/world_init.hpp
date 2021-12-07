@@ -69,8 +69,8 @@ const float SIZE_INDICATOR_HEIGHT = 25.f;
 const float SELECT_PANEL_WIDTH = window_width_px;
 const float SELECT_PANEL_HEIGHT = 350.f;
 
-const float SELECTIONS_WIDTH = 200.f;
-const float SELECTIONS_HEIGHT = 200.f;
+const float SELECTIONS_WIDTH = 100.f;
+const float SELECTIONS_HEIGHT = 100.f;
 
 const float ROCK_WIDTH = 75.f;
 const float ROCK_HEIGHT = 75.f;
