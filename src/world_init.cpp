@@ -1877,7 +1877,7 @@ Entity createSelections(RenderSystem* renderer, vec2 pos, int number)
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = { SELECTIONS_WIDTH, SELECTIONS_HEIGHT };
+	motion.scale = { 100, 100 };
 
 	TEXTURE_ASSET_ID selections = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 

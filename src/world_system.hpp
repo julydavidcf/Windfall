@@ -145,6 +145,7 @@ private:
 	vec2 checkPositions(int number, int type);
 	Entity placeSelections(int number,int type);
 	void updateSize();
+	void checkIfReady();
 	
 
 	// Game state
@@ -165,6 +166,9 @@ private:
 	Entity silence_icon;
 	Entity iceShard;
 	Entity tooltip;
+
+	//-------makeup game system--------
+	Entity startGameButton;
 
 	Entity hoverBoxTop;
 	Entity hoverBoxBottom;
@@ -194,7 +198,7 @@ private:
 	Entity enemyPosTwo;
 	Entity enemyPosThree;
 	Entity enemyPosFour;
-
+	//-----------------------------------------------------------
 	Entity turn_indicator;
 	Entity curr_tutorial_box;
 	int curr_tutorial_box_num = 0;
