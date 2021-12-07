@@ -1007,15 +1007,15 @@ BTState BTIfNecroTwoNotTaunted::process(Entity e) {
 }
 
 // A general decorator with lambda condition
-BTIfOneLessThanHalf::BTIfOneLessThanHalf(BTNode* child)	// Has one child
+BTIfAtLeastOneLessThanHalf::BTIfAtLeastOneLessThanHalf(BTNode* child)	// Has one child
 	: m_child(child) {
 }
 
-void BTIfOneLessThanHalf::init(Entity e) {
+void BTIfAtLeastOneLessThanHalf::init(Entity e) {
 	m_child->init(e);
 }
 
-BTState BTIfOneLessThanHalf::process(Entity e) {
+BTState BTIfAtLeastOneLessThanHalf::process(Entity e) {
 	int toggle = 0;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {
 		Entity currEntity = registry.enemies.entities[i];
@@ -1725,19 +1725,22 @@ BTState BTCastRockOnMage::process(Entity e) {
 	return BTState::Success;
 }
 
-void BTCastHeal::init(Entity e) {
+void BTCastHealOnLowestHP::init(Entity e) {
 }
-BTState BTCastHeal::process(Entity e) {
+BTState BTCastHealOnLowestHP::process(Entity e) {
+	int lowestHealth = 100;
 	SkillSystem sk;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {
 		Entity toGet = registry.enemies.entities[i];
-		if (registry.enemies.get(toGet).enemyType == SWORDSMAN) {
+		int currHealth = registry.stats.get(toGet).health;
+		if (currHealth < lowestHealth) {
+			lowestHealth = currHealth;
 			target = toGet;
 		}
 	}
 	sk.startHealAttack(e, target);
 
-	printf("Cast Heal \n\n");	// print statement to visualize
+	printf("Cast Heal On Lowest HP \n\n");	// print statement to visualize
 
 	// return progress
 	return BTState::Success;
@@ -1932,7 +1935,7 @@ BTMeleeAttack meleeAttack;												// done
 BTMeleeAttackOnSwordsman meleeAttackOnSwordsman;						// done
 BTCastRockOnSwordsman castRockOnSwordsman;								// done
 BTCastRockOnMage castRockOnMage;										// done
-BTCastHeal castHeal;													// done
+BTCastHealOnLowestHP castHealOnLowestHP;								// done
 BTCastHealOnSelf castHealOnSelf;										// done
 BTDoNothing doNothing;													// done
 BTSummonNecroMinion summonNecroMinion;									// done
@@ -1969,7 +1972,7 @@ BTRunCheckSwordsman checkSwordsmanFour(&haveSwordsmanFour, &noSwordsmanFour);	//
 BTIfPlayerSideHasMageHardCoded haveMageThree(&castRockOnMage);							// done
 BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMageThree(&castIceShard);					// done
 BTIfMageHPBelowHalf mageBelowHalf(&castHealOnSelf);										// done
-BTIfMageHPAboveHalf mageAboveHalf(&castHeal);											// done
+BTIfMageHPAboveHalf mageAboveHalf(&castHealOnLowestHP);									// done
 BTIfPlayerMageTaunted isTaunted(&meleeAttack);											// done
 BTIfPlayerMageNotTaunted notTaunted(&castTaunt);										// done
 BTIfPlayerSideHasMageHardCoded haveMageTwo(&checkSilenced);								// done
@@ -1988,7 +1991,7 @@ BTRunCheckNecroTwoTaunt checkNecroTwoTaunt(&necroTwoNotTaunted, &necroTwoTaunted
 BTIfPlayerSideHasSwordsman haveSwordsman(&castRockOnSwordsman);						// done
 BTIfPlayerSideDoNotHaveSwordsman noSwordsman(&castIceShard);						// done
 BTIfNoneLessThanHalf none(&checkMageThree);											// done
-BTIfOneLessThanHalf atLeastOne(&checkMageHP);										// done
+BTIfAtLeastOneLessThanHalf atLeastOne(&checkMageHP);								
 BTIfPlayerSideHasMageHardCoded haveMage(&checkTaunted);								// done
 BTIfPlayerSideDoNotHaveMageHardCoded doNotHaveMage(&meleeAttack);					// done
 BTIfPlayerSideHasSwordsman haveSwordsmanTwo(&meleeAttackOnSwordsman);				// done

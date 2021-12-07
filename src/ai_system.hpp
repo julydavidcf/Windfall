@@ -464,10 +464,10 @@ private:
 };
 
 // A general decorator with lambda condition
-class BTIfOneLessThanHalf : public BTNode
+class BTIfAtLeastOneLessThanHalf : public BTNode
 {
 public:
-	BTIfOneLessThanHalf(BTNode* child)	// Has one child
+	BTIfAtLeastOneLessThanHalf(BTNode* child)	// Has one child
 		;
 
 	virtual void init(Entity e) override;
@@ -874,7 +874,7 @@ private:
 	BTState process(Entity e) override;
 };
 
-class BTCastHeal : public BTNode {
+class BTCastHealOnLowestHP : public BTNode {
 private:
 	void init(Entity e) override;
 	BTState process(Entity e) override;
