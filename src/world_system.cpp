@@ -2547,7 +2547,7 @@ void WorldSystem::createIcons(){
 void WorldSystem::on_mouse_button(int button, int action, int mods)
 {
 	// For start menu and pause menu click detection
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story)
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && !story && !isMakeupGame)
 	{
 		if (inButton(registry.motions.get(new_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
 		{
@@ -2570,9 +2570,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		else if (inButton(registry.motions.get(makeup_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 			// isMakeupGame = true;
 			fprintf(stderr, "Makingup Game");
-			if (!isMakeupGame) {
-				initializeMakeUpGame();
-			}
+			initializeMakeUpGame();
 			isMakeupGame = true;
 			// initializeMakeUpGame();
 		}
@@ -2867,6 +2865,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				pauseMenuOpened = 0;
 				canStep = 0;
 				story = 0;
+				isMakeupGame = false;
 				while (registry.motions.entities.size() > 0)
 					registry.remove_all_components_of(registry.motions.entities.back());
 				render_startscreen();
