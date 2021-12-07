@@ -474,21 +474,26 @@ void WorldSystem::render_startscreen()
 void WorldSystem::displayPlayerTurn()
 {
 	displayTurnIndicator(1);
-	if (registry.charIndicator.components.size() != 0)
-	{
-		registry.remove_all_components_of(registry.charIndicator.entities[0]);
+	
+	if (registry.charIndicator.has(char_indicator)) {
+		registry.motions.get(char_indicator).position = vec2(CURRPLAYER_LOCATION.x, CURRPLAYER_LOCATION.y - 150);
+		registry.charIndicator.get(char_indicator).owner = currPlayer;
 	}
-	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
+	else {
+		char_indicator = createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
+	}
 }
 
 void WorldSystem::displayEnemyTurn()
 {
 	displayTurnIndicator(0);
-	if (registry.charIndicator.components.size() != 0)
-	{
-		registry.remove_all_components_of(registry.charIndicator.entities[0]);
+	if (registry.charIndicator.has(char_indicator)) {
+		registry.motions.get(char_indicator).position = vec2(CURRPLAYER_LOCATION.x, CURRPLAYER_LOCATION.y - 150);
+		registry.charIndicator.get(char_indicator).owner = currPlayer;
 	}
-	createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
+	else {
+		char_indicator = createCharIndicator(renderer, CURRPLAYER_LOCATION, currPlayer);
+	}
 }
 
 void WorldSystem::displayTurnIndicator(int isPlayerTurn)
@@ -1883,9 +1888,9 @@ void WorldSystem::restart_game(bool force_restart)
 			balanceHealthNumbers(0);
 			json_loader.get_level("level_0.json");
 
+			HPBuff = 0;
+			HPDebuff = 0;
 			tutorial_enabled = 1;
-			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
-			curr_tutorial_box_num = 0;
 		}
 		else if(gameLevel == 1){
 			printf("Loading level 1\n");
@@ -1937,6 +1942,11 @@ void WorldSystem::restart_game(bool force_restart)
 		showCorrectSkills();
 		displayPlayerTurn(); // display player turn when restart game
 		update_healthBars();
+
+		if (tutorial_enabled) {
+			curr_tutorial_box = createTutorialBox(renderer, { 600, 300 });
+			curr_tutorial_box_num = 0;
+		}
 	}
 	printf("done with restarting\n");
 }
@@ -2202,9 +2212,7 @@ void WorldSystem::handle_collisions()
 					Motion chestMotion = registry.motions.get(entity_other);
 					if (renderedChest.used_geometry != GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN && chest.chestType == HEALTH_BOOST) {
 						// Boost all companion HP permanently
-						registry.player_mage_hp += 20;
-						registry.player_swordsman_hp += 20;
-						registry.player_archer_hp += 20;
+						HPBuff++;
 						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
 						createBoostMessage(renderer, chestMotion.position, HEALTH_BOOST);
 					}
@@ -2277,26 +2285,6 @@ void WorldSystem::handle_collisions()
 					registry.remove_all_components_of(entity_other);
 					registry.remove_all_components_of(entity);
 					Mix_PlayChannel(-1, registry.crow_sound, 0);
-				}
-
-				else if (registry.platform.has(entity_other)) {
-
-					Motion& arrowMotion = registry.motions.get(entity);
-					float arrow_pos_x = arrowMotion.position.x;
-					Motion& platformMotion = registry.motions.get(entity_other);
-					float platform_position_x = platformMotion.position.x;
-					float platform_position_y = platformMotion.position.y;
-					float platform_width = platformMotion.scale.x;
-					float platform_height = platformMotion.scale.y;
-
-					// Check if arrow collides with platform and stop it
-					if ((arrowMotion.position.y > platform_position_y + platform_height + 100 && arrowMotion.velocity.y < 0)
-						|| (arrowMotion.position.y < platform_position_y - platform_height - 100 && arrowMotion.velocity.y > 0)
-						|| 
-						(arrow_pos_x > platform_position_x - platform_width / 2 && arrow_pos_x < platform_position_x + platform_width / 2
-						&& arrowMotion.position.y < platform_position_y + platform_height && arrowMotion.position.y > platform_position_y - platform_height)) {
-						registry.remove_all_components_of(entity);
-					}
 				}
 				// Arrow rock collision
 				else if (registry.boulders.has(entity_other) && !registry.particlePools.has(entity_other)) {
@@ -4485,6 +4473,10 @@ void WorldSystem::renderDragonSpeech() {
 		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 3);
 		dragon = 1;
 		canStep = 0;
+		// Decrease health
+		HPDebuff++;
+		Motion archerMotion = registry.motions.get(player_archer);
+		createDebuffIndicator(renderer, vec2(archerMotion.position.x, archerMotion.position.y - archerMotion.scale.y - 10));
 	}
 
 	// check if has bird call this
@@ -4507,12 +4499,12 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 			break;
 		}
 		case 1: {
-			registry.enemy_mage_hp = 30;
+			registry.enemy_mage_hp = 30 / 10;
 			break;
 		}
 		case 2: {
 			registry.player_mage_hp = 70;
-			registry.enemy_swordsman_hp = 150;
+			registry.enemy_swordsman_hp = 150/10;
 			break;
 		}
 		case 3: {
@@ -4524,4 +4516,31 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 		}
 		default: break;
 	}
+
+	if (HPBuff > 0) {
+		for (int i = 0; i < HPBuff; i++) {
+			registry.player_archer_hp += 10;
+			registry.player_mage_hp += 5;
+			swordsmanHPBuff++;
+		}
+		HPBuff = 0;
+	}
+
+	if (swordsmanHPBuff > 0 && levelNum == 3) {
+		for (int i = 0; i < swordsmanHPBuff; i++) {
+			registry.player_swordsman_hp += 15;
+		}
+		swordsmanHPBuff = 0;
+	}
+
+	if (HPDebuff > 0) {
+		if (levelNum == 2) {
+			registry.player_archer_hp *= (1/2);
+			registry.player_mage_hp *= (1/2);
+		}
+		else if (levelNum == 3) {
+			registry.player_swordsman_hp *= (1/2);
+		}
+	}
+
 }

@@ -214,6 +214,8 @@ Entity createFreeRoamLevelDiaogue(RenderSystem* renderer, vec2 pos, int number);
 Entity createFreeRoamLevelTutorial(RenderSystem* renderer, vec2 pos);
 Entity createFreeRoamLevelTutorialIndicator(RenderSystem* renderer, vec2 pos);
 
+Entity createDebuffIndicator(RenderSystem* renderer, vec2 pos);
+
 // Makeup Game
 Entity createSizeIndicator(RenderSystem* renderer, vec2 pos, int number);
 Entity createSelectPanel(RenderSystem* renderer, vec2 pos);

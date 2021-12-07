@@ -45,7 +45,7 @@ void RenderSystem::drawLight(Entity entity)
 
 	glUniform2f(glGetUniformLocation(light_program, "lightSourcePos"), entityPos.x, (float)h - entityPos.y);
 
-	float lightPercent = max(0.25f * cos(0.01f*time),0.f);
+	float lightPercent = max(0.25f * cos(0.02f*time),0.f);
 	glUniform1f(glGetUniformLocation(light_program, "randLight"), lightPercent);
 
 	if (registry.projectiles.has(entity) && registry.projectiles.get(entity).empoweredArrow == 1) {

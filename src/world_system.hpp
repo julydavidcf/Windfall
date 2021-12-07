@@ -212,6 +212,7 @@ private:
 	Entity noOption;
 	//-----------------------------------------------------------
 	Entity turn_indicator;
+	Entity char_indicator;
 	Entity curr_tutorial_box;
 	int curr_tutorial_box_num = 0;
 	int tutorial_icon_selected = 1;
@@ -255,6 +256,11 @@ private:
 	const float BOULDER_ACCELERATION = -5.f;
 
 	float next_boulder_spawn;
+
+	// Buff indicators
+	int hasHPDebuff = 0;
+	int hasHPBuff = 0;
+	int swordsmanHPBuff = 0;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee  arrow

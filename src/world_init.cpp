@@ -1937,6 +1937,24 @@ Entity createFreeRoamLevelTutorialIndicator(RenderSystem* renderer, vec2 pos) {
 	return entity;
 }
 
+Entity createDebuffIndicator(RenderSystem* renderer, vec2 pos) {
+	auto entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, -100.f };
+	motion.scale = { GREENCROSS_WIDTH, GREENCROSS_HEIGHT };
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BLEED,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 Entity createFinishedOptions(RenderSystem* renderer, vec2 pos, int number)
 {
 	auto entity = Entity();
