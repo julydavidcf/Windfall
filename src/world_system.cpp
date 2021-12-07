@@ -82,6 +82,11 @@ bool isReady = false;
 bool isReset = false;
 int companion_size = 0;
 int enemy_size = 0;
+int speed_increment= 2;
+int init_enemy_speed = 1;
+int enemy_speed = 1;
+int init_companion_speed = 2;
+int companion_speed = 2;
 vec2 companionOnePos = {100, 300};
 vec2 companionTwoPos = { 275, 300 };
 vec2 companionThreePos = { 350, 300 };
@@ -480,7 +485,8 @@ void WorldSystem::iceShardAttack(Entity currPlayer)
 std::vector<Entity> roundVec;
 void WorldSystem::createRound()
 {
-	
+	printf("Enemy size: %zu\n", registry.enemies.size());
+	printf("Companion size: %zu\n", registry.companions.size());
 	std::vector<int> speedVec;
 	for (int i = 0; i < registry.enemies.components.size(); i++)
 	{ // iterate through all enemies to get speed stats
@@ -628,7 +634,7 @@ void WorldSystem::createRound()
 	// print the sorted array
 	for (int i = 0; i < roundVec.size(); i++)
 	{
-		printf("%g \n", float(registry.stats.get(roundVec[i]).speed));
+		printf("Round vec index: %d, %g \n",i, float(registry.stats.get(roundVec[i]).speed));
 	}
 }
 
@@ -2868,6 +2874,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				companion_size = 0;
 				enemy_size = 0;
 
+				companion_speed = init_companion_speed;
+				enemy_speed = init_enemy_speed;
+
 				isReady = false;
 				isReset = false;
 
@@ -3194,6 +3203,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((companion_size + 1) <= 4) {
 				companion_size++;
 				*placeSelections(companion_size, 1) = createPlayerArcher(renderer, checkPositions(companion_size, 1), 0);
+				Entity entity = *placeSelections(companion_size, 1);
+				Statistics& stat = registry.stats.get(entity);
+				stat.speed = companion_speed;
+				companion_speed = companion_speed + speed_increment;
 				updateSize();
 				checkIfReady();
 			}
@@ -3204,6 +3217,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((companion_size + 1) <= 4) {
 				companion_size++;
 				*placeSelections(companion_size, 1) = createPlayerMage(renderer, checkPositions(companion_size, 1));
+				Entity entity = *placeSelections(companion_size, 1);
+				Statistics& stat = registry.stats.get(entity);
+				stat.speed = companion_speed;
+				companion_speed = companion_speed + speed_increment;
 				updateSize();
 				checkIfReady();
 			}
@@ -3213,6 +3230,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((companion_size + 1) <= 4) {
 			companion_size++;
 			*placeSelections(companion_size, 1) = createPlayerSwordsman(renderer, checkPositions(companion_size, 1));
+			Entity entity = *placeSelections(companion_size, 1);
+			Statistics& stat = registry.stats.get(entity);
+			stat.speed = companion_speed;
+			companion_speed = companion_speed + speed_increment;
 			updateSize();
 			checkIfReady();
 			}
@@ -3220,8 +3241,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		else if (inButton(registry.motions.get(selectEnemyMage).position, 100, 100))
 		{
 			if ((enemy_size + 1) <= 4) {
-				enemy_size++;
+			enemy_size++;
 			*placeSelections(enemy_size, 2) = createEnemyMage(renderer, checkPositions(enemy_size, 2));
+			Entity entity = *placeSelections(enemy_size, 2);
+			Statistics& stat = registry.stats.get(entity);
+			stat.speed = enemy_speed;
+			enemy_speed = enemy_speed + speed_increment;
 			updateSize();
 			checkIfReady();
 			}
@@ -3231,6 +3256,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((enemy_size + 1) <= 4) {
 				enemy_size++;
 				*placeSelections(enemy_size, 2) = createEnemySwordsman(renderer, checkPositions(enemy_size, 2));
+				Entity entity = *placeSelections(enemy_size, 2);
+				Statistics& stat = registry.stats.get(entity);
+				stat.speed = enemy_speed;
+				enemy_speed = enemy_speed + speed_increment;
 				updateSize();
 				checkIfReady();
 			}
@@ -3240,6 +3269,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((enemy_size + 2) <= 4) {
 			enemy_size += 2;
 			*placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size, 2));
+			Entity entity = *placeSelections(enemy_size, 2);
+			Statistics& stat = registry.stats.get(entity);
+			stat.speed = enemy_speed;
+			enemy_speed = enemy_speed + speed_increment;
 			updateSize();
 			checkIfReady();
 			}
@@ -3249,6 +3282,10 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if ((enemy_size + 1) <= 4) {
 			enemy_size++;
 			*placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size, 2));
+			Entity entity = *placeSelections(enemy_size, 2);
+			Statistics& stat = registry.stats.get(entity);
+			stat.speed = enemy_speed;
+			enemy_speed = enemy_speed + speed_increment;
 			updateSize();
 			checkIfReady();
 			}
@@ -3258,6 +3295,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if (inButton(registry.motions.get(resetGameButton).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 					companion_size = 0;
 					enemy_size = 0;
+					companion_speed = init_companion_speed;
+					enemy_speed = init_enemy_speed;
 
 					if(registry.companions.has(companionPosOne)){
 						Companion& comp = registry.companions.get(companionPosOne);
