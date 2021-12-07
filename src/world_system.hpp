@@ -143,6 +143,7 @@ private:
 	void initializeFreeRoamTwo();
 
 	void renderBeginningStory();
+	void renderDragonSpeech();
 
 	// Game state
 	RenderSystem* renderer;

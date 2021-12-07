@@ -76,7 +76,8 @@ int selected_skill = -1;
 bool isFreeRoam = false;
 int freeRoamLevel = 1;
 
-int beginning = 0;
+int beginning = 0;	// for beginning speech
+int dragon = 0;		// for dragon speech
 
 const size_t MAX_BOULDERS = 1;
 
@@ -712,7 +713,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			int w, h;
 			glfwGetFramebufferSize(window, &w, &h);
-			dialogue = createLevelThreeDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 1);
+			dialogue = createLevelThreeDiaogue(renderer, {window_width_px / 2, window_height_px - window_height_px / 3}, 2);
 			canStep = 0;
 			story = 27;
 		}
@@ -729,6 +730,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	{
 		restart_game();
 	}
+	//else if ((gameLevel <= 3) && isFreeRoam && )
+	//{
+
+	//}
 
 	// Updating window title with volume control
 	std::stringstream title_ss;
@@ -2172,7 +2177,7 @@ void WorldSystem::handle_collisions()
 			}
 
 			// Deal with arrow - bird collisions
-			if (registry.projectiles.has(entity))	// not working in free roam
+			if (registry.projectiles.has(entity))
 			{
 				// Checking bird
 				if (registry.bird.has(entity_other))
@@ -2468,7 +2473,8 @@ void WorldSystem::handle_boundary_collision()
 			archerMotion.position.x = ARCHER_FREEROAM_WIDTH / 2;
 		}
 		else if (archerMotion.position.x > window_width_px - ARCHER_FREEROAM_WIDTH) {
-			restart_game(false);
+			// restart_game(false);
+			renderDragonSpeech();
 		}
 	}
 }
@@ -2491,7 +2497,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		restart_game(true);
 	}
 
-	if (isFreeRoam) {
+	if (isFreeRoam && beginning == 0 && dragon == 0) {
 		// Move right
 		if (key == GLFW_KEY_D) {
 			if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
@@ -2658,7 +2664,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			closeWindow = 1;
 		}
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 1)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 1 && dragon == 0)
 	{
 		Mix_Volume(5, 32);
 		Mix_PlayChannel(5, registry.turning_sound, 0);
@@ -2670,7 +2676,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 2);
 		story = 2;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 2)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 2 && dragon == 0)
 	{
 		Mix_Volume(5, 32);
 		Mix_PlayChannel(5, registry.turning_sound, 0);
@@ -2680,7 +2686,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 3);
 		story = 3;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 3 && dragon == 0)
 	{
 		Mix_Volume(5, 32);
 		Mix_PlayChannel(5, registry.turning_sound, 0);
@@ -2692,7 +2698,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 4);
 		story = 4;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 4 && dragon == 0)
 	{
 		Mix_Volume(5, 32);
 		Mix_PlayChannel(5, registry.turning_sound, 0);
@@ -2703,7 +2709,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		registry.remove_all_components_of(dialogue);
 		story = 5;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 5)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 5 && dragon == 0)
 	{
 		Mix_Volume(5, 32);
 		Mix_PlayChannel(5, registry.turning_sound, 0);
@@ -2712,7 +2718,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		dialogue = createBackgroundDiaogue(renderer, {window_width_px / 2, 650}, 5);
 		story = 6;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 6 && dragon == 0)
 	{
 		Mix_Volume(5, 32);
 		Mix_PlayChannel(5, registry.turning_sound, 0);
@@ -2723,7 +2729,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		backgroundImage = createStoryBackground(renderer, {w / 2, h / 2}, 5);
 		story = 7;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 7 && dragon == 0)
 	{
 		// START A NEW GAME
 		loadedLevel = 0;
@@ -2732,7 +2738,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		story = 8;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 8 && story <= 17) 
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 8 && story <= 17 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		printf("STORY IS WHAT NUMBER: %g \n", float(story));
@@ -2745,7 +2751,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 19 && story <= 24)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 19 && story <= 24 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		printf("STORY IS WHAT NUMBER: %g \n", float(story));
@@ -2758,14 +2764,14 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 26 && story <= 33)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 26 && story <= 32 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		printf("STORY IS WHAT NUMBER: %g \n", float(story));
-		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 25));
+		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 24));
 		story++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 34)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 33)
 	{
 		registry.remove_all_components_of(dialogue);
 		canStep = 1;
@@ -2778,7 +2784,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		createRound();
 		checkRound();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 36 && story <= 39)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 36 && story <= 39 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		dialogue = createLevelFourDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 35));
@@ -2793,7 +2799,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		canStep = 1;
 		restart_game();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && (beginning == 1 || beginning == 2))
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && (beginning == 1 || beginning == 2) && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		beginning = 0;
@@ -2804,33 +2810,53 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		dialogue = createLevelFourDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (beginning + 7));
 		beginning++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 6)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 6 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		beginning = 0;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 100)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 100 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (beginning - 98));
 		beginning++;
 		printf("BEGINNING IS ... %g \n", float(beginning));
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 101)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 101 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		beginning = 0;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning >= 200 && beginning <= 201)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning >= 200 && beginning <= 201 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (beginning - 193));
 		beginning++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 202)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 202 && dragon == 0)
 	{
 		registry.remove_all_components_of(dialogue);
 		beginning = 0;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && dragon == 1)
+	{
+		registry.remove_all_components_of(dialogue);
+		dragon = 0;
+		canStep = 1;
+		restart_game(false);
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && dragon == 2)
+	{
+		registry.remove_all_components_of(dialogue);
+		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (dragon + 3));
+		dragon++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && dragon == 3)
+	{
+		registry.remove_all_components_of(dialogue);
+		dragon = 0;
+		canStep = 1;
+		restart_game(false);
 	}
 
 	// gesture skill
@@ -3269,7 +3295,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 
 		// Handle free-roam arrow launching
-		if (isFreeRoam) {
+		if (isFreeRoam && beginning == 0 && dragon == 0) {
 			if (!registry.attackers.has(player_archer) && registry.companions.get(player_archer).curr_anim_type != JUMPING) {
 				auto& arrow = registry.attackers.emplace(player_archer);
 				arrow.attack_type = FREE_ROAM_ARROW;
@@ -3705,5 +3731,26 @@ void WorldSystem::renderBeginningStory() {
 	if (isFreeRoam && freeRoamLevel == 2) {
 		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 6);
 		beginning = 200;
+	}
+}
+
+// call at level transition, make canStep = 0, 
+void WorldSystem::renderDragonSpeech() {
+	// check if no bird call this
+	if (freeRoamLevel == 1 && registry.bird.components.size() <= 0) {
+		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 3);
+		dragon = 1;
+		canStep = 0;
+	}
+
+	// check if has bird call this
+	if (freeRoamLevel == 1 && registry.bird.components.size() != 0) {
+		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 4);
+		dragon = 2;
+		canStep = 0;
+	}
+
+	if (freeRoamLevel == 2) {
+		restart_game(false);
 	}
 }
