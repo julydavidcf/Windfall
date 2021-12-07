@@ -4507,18 +4507,18 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 			break;
 		}
 		case 1: {
-			registry.enemy_mage_hp = 30/10;
+			registry.enemy_mage_hp = 30;
 			break;
 		}
 		case 2: {
 			registry.player_mage_hp = 70;
-			registry.enemy_swordsman_hp = 150 / 10;
+			registry.enemy_swordsman_hp = 150;
 			break;
 		}
 		case 3: {
 			registry.player_swordsman_hp = 250;
-			registry.necro_minion_health = 10 / 10;
-			registry.necro_1_health = 160 / 10;
+			registry.necro_minion_health = 10;
+			registry.necro_1_health = 160;
 			registry.necro_2_health = 200;
 			break;
 		}
