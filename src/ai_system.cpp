@@ -1016,13 +1016,12 @@ void BTIfOneLessThanHalf::init(Entity e) {
 }
 
 BTState BTIfOneLessThanHalf::process(Entity e) {
-	int lowestHealth = 50;	// set HP to half
 	int toggle = 0;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {
 		Entity currEntity = registry.enemies.entities[i];
 		int currHealth = registry.stats.get(currEntity).health;
-		if (currHealth < lowestHealth) {
-			lowestHealth = currHealth;
+		int halfHealth = registry.stats.get(currEntity).max_health / 2;
+		if (currHealth < halfHealth) {
 			toggle = 1;
 		}
 	}
@@ -1047,13 +1046,12 @@ void BTIfNoneLessThanHalf::init(Entity e) {
 }
 
 BTState BTIfNoneLessThanHalf::process(Entity e) {
-	int lowestHealth = 50;	// set HP to half
 	int toggle = 0;
 	for (int i = 0; i < registry.enemies.components.size(); i++) {
 		Entity currEntity = registry.enemies.entities[i];
 		int currHealth = registry.stats.get(currEntity).health;
-		if (currHealth < lowestHealth) {
-			lowestHealth = currHealth;
+		int halfHealth = registry.stats.get(currEntity).max_health / 2;
+		if (currHealth < halfHealth) {
 			toggle = 1;
 		}
 	}
@@ -1078,7 +1076,7 @@ void BTIfMageHPBelowHalf::init(Entity e) {
 
 BTState BTIfMageHPBelowHalf::process(Entity e) {
 	int toggle = 0;
-	if (registry.stats.get(currPlayer).health < 50) {
+	if (registry.stats.get(currPlayer).health < registry.stats.get(currPlayer).max_health / 2) {
 		toggle = 1;
 	}
 	printf("Checking if mage HP is below half ... \n");	// print statement to visualize
@@ -1104,7 +1102,7 @@ BTState BTIfMageHPAboveHalf::process(Entity e) {
 	int toggle = 0;
 	printf("Accessing currPlayer \n");
 	printf("currPlayer HP is %g \n", float(registry.stats.get(currPlayer).health));
-	if (registry.stats.get(currPlayer).health < 50) {
+	if (registry.stats.get(currPlayer).health < registry.stats.get(currPlayer).max_health / 2) {
 		toggle = 1;
 	}
 	printf("Checking if mage HP is above half ... \n");	// print statement to visualize

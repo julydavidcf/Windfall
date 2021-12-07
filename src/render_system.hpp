@@ -187,7 +187,14 @@ class RenderSystem {
 			textures_path("peaceful.jpg"),
 			textures_path("celerbrate.jpg"),
 			textures_path("dark.jpg"),
-			textures_path("theEnd.png"),
+			textures_path("conclusionTheEnd.png"),
+			textures_path("conclusionOne.png"),
+			textures_path("conclusionTwo.png"),
+			textures_path("conclusionThree.png"),
+			textures_path("conclusionFour.png"),
+			textures_path("conclusionFive.png"),
+			textures_path("conclusionSix.png"),
+			textures_path("conclusionSeven.png"),
 				
 			//background dialogue
 			textures_path("backgroundOne.png"),
@@ -197,6 +204,7 @@ class RenderSystem {
 			textures_path("backgroundFive.png"),
 
 			//Level One dialogue
+			textures_path("missionOne.png"),
 			textures_path("levelOneDialogueOne.png"),
 			textures_path("levelOneDialogueTwo.png"),
 			textures_path("levelOneDialogueThree.png"),
@@ -209,6 +217,7 @@ class RenderSystem {
 			textures_path("levelOneDialogueTen.png"),
 
 			//Level Two dialogue
+			textures_path("missionTwo.png"),
 			textures_path("levelTwoDialogueOne.png"),
 			textures_path("levelTwoDialogueTwo.png"),
 			textures_path("levelTwoDialogueThree.png"),
@@ -217,7 +226,7 @@ class RenderSystem {
 			textures_path("levelTwoDialogueSix.png"),
 			
 			//level Three dialogue
-			textures_path("levelThreeDialogueOne.png"),
+			//textures_path("levelThreeDialogueOne.png"),
 			textures_path("levelThreeDialogueTwo.png"),
 			textures_path("levelThreeDialogueThree.png"),
 			textures_path("levelThreeDialogueFour.png"),
@@ -225,6 +234,10 @@ class RenderSystem {
 			textures_path("levelThreeDialogueSix.png"),
 			textures_path("levelThreeDialogueSeven.png"),
 			textures_path("levelThreeDialogueEight.png"),
+			textures_path("missionThreeOne.png"),
+			textures_path("missionThreeTwo.png"),
+			textures_path("missionThreeThree.png"),
+			textures_path("missionThreeFour.png"),
 
 			//level Four dialogue
 			textures_path("levelFourDialogueOne.png"),
@@ -245,11 +258,13 @@ class RenderSystem {
 			textures_path("freeRoamLevelTwoDialogueThree.png"),
 
 			textures_path("freeRoamTutorial.png"),
+			textures_path("helper.png"),
 				
 			textures_path("particlered.png"),
 			textures_path("firefly.png"),
 			textures_path("platform.png"),
 			textures_path("treasure_chest_sheet.png"),
+			textures_path("smoke_particle.png"),
 			textures_path("damage_increase_msg.png"),
 			textures_path("health_increase_msg.png"),
 
@@ -268,8 +283,6 @@ class RenderSystem {
 			textures_path("swordsman_select.png"),
 			textures_path("necromancer_select.png"),
 			textures_path("necro_two_select.png"),
-
-			textures_path("smoke_particle.png")
 
   };
   
@@ -322,7 +335,7 @@ class RenderSystem {
 	float ARCHER_JUMPING_FRAME_TIME = 750;
 	float ARCHER_ATTACKING_FRAME_TIME = 75;
 	float ARCHER_TURN_ATTACKING_FRAME_TIME = 150;
-	float ARCHER_DEAD_FRAME_TIME = 200;
+	float ARCHER_DEAD_FRAME_TIME = 250;
 
 	float DRAGON_FLYING_FRAME_TIME = 225;
 
@@ -446,6 +459,7 @@ public:
 	float dimScreenFactor = 0.4f;
 	float fogFactor = 0.2;
 	std::map<int, int> deferredRenderingEntities = {};
+	std::vector<vec3> splineControlPoints;
 	int gameLevel = 1;
 	int shouldDeform = 0;
 	bool implode = false;
@@ -504,6 +518,9 @@ private:
 
 	// GLuint particles_position_buffer;
 	float deformTime = 0.f;
+
+	//time 
+	float time = 0;
 };
 
 bool loadEffectFromFile(

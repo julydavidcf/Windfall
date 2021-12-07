@@ -10,6 +10,7 @@ uniform int gamesLevel;
 uniform float dimScreenFactor;
 uniform float fogFactor;
 uniform int gameLevel;
+uniform bool enableSpline;
 in vec2 texcoord;
 
 layout(location = 0) out vec4 color;
@@ -20,6 +21,12 @@ struct glowCoordinates{
     float yCoordinates[100];
 };
 
+struct splineCoordinates{
+    float xCoordinates[9];
+    float yCoordinates[9];
+};
+
+uniform splineCoordinates spline;
 uniform glowCoordinates thingie;
 
 #define PI 3.14159265359
@@ -172,5 +179,17 @@ void main()
             vec3 col = vec3(0.9, 0.8, 0.4) * 0.3 * pow( fMoonDot, 8000.0 );
             // color += vec4(col, 1.0);
             // color += vec4(vec3(0.9, 0.8, 0.4) * 0.5 *pow( fMoonDot, 3000.0 ), 1.0);
-    }        
+    }
+    if (enableSpline) {
+        for(int i = 0; i < 9; i++) {
+        vec2 tCoord = gl_FragCoord.xy / resolutionY;
+        vec2 lightSource = vec2(spline.xCoordinates[i], spline.yCoordinates[i]);    
+        lightSource = lightSource / resolutionY;
+        vec2 lightBall = tCoord - lightSource;
+        float lightBallLuminance = max( 0.0, 1.0 - dot( lightBall, lightBall ) );
+        vec3 col = vec3(0.8, 0.1, 0.6) * 0.5 * pow( lightBallLuminance, 12000.0 );
+        color += vec4(col * 1.2, 1.0);
+        color += vec4(vec3(0.8, 0.1, 0.6) * 0.7 * pow( lightBallLuminance, 12000 ), 1.0);
+    }
+    }
 }
