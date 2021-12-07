@@ -1745,11 +1745,13 @@ void WorldSystem::restart_game(bool force_restart)
 		if (freeRoamLevel == 1) {
 			createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_ONE);
 			initializeFreeRoamOne();
+			renderBeginningStory();
 		}
 
 		else if (freeRoamLevel == 2) {
 			createBackground(renderer, { w / 2, h / 2 }, FREE_ROAM_TWO);
 			initializeFreeRoamTwo();
+			renderBeginningStory();
 		}
 		open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
 		player_archer = createPlayerArcher(renderer, { 700, window_height_px - ARCHER_FREEROAM_HEIGHT + 25 }, 1);
@@ -2741,24 +2743,56 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		createRound();
 		checkRound();
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 37 && story <= 40)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story >= 36 && story <= 39)
 	{
 		registry.remove_all_components_of(dialogue);
-		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 36));
+		dialogue = createLevelFourDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (story - 35));
 		story++;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 41)
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !canStep && story == 40)
 	{
 		/*registry.renderRequests.get(dialogue).used_texture = TEXTURE_ASSET_ID::LEVELFOURDIALOGUETWO;*/
-
 		// Shut down game after last enemy defeated
 		closeWindow = 1;
-
 		story = 42;
 		canStep = 1;
 		restart_game();
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && (beginning == 1 || beginning == 2))
+	{
+		registry.remove_all_components_of(dialogue);
+		beginning = 0;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning >= 3 && beginning <= 5)
+	{
+		registry.remove_all_components_of(dialogue);
+		dialogue = createLevelFourDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (beginning + 7));
+		beginning++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 6)
+	{
+		registry.remove_all_components_of(dialogue);
+		beginning = 0;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 100)
+	{
+		registry.remove_all_components_of(dialogue);
+		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (beginning - 98));
+		beginning++;
+		printf("BEGINNING IS ... %g \n", float(beginning));
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 101)
+	{
+		registry.remove_all_components_of(dialogue);
+		beginning = 0;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning >= 200 && beginning <= 201)
+	{
+		registry.remove_all_components_of(dialogue);
+		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, (beginning - 193));
+		beginning++;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && beginning == 202)
 	{
 		registry.remove_all_components_of(dialogue);
 		beginning = 0;
@@ -3606,19 +3640,24 @@ void WorldSystem::initializeFreeRoamTwo() {
 }
 
 void WorldSystem::renderBeginningStory() {
-	if (gameLevel == 1) {
+	if (!isFreeRoam && gameLevel == 1) {
 		dialogue = createLevelOneDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 11);
-		// need to enable click to continue
 		beginning = 1;
 	}
-	if (gameLevel == 2) {
+	if (!isFreeRoam && gameLevel == 2) {
 		dialogue = createLevelTwoDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 7);
-		// need to enable click to continue
 		beginning = 2;
 	}
-	//if (gameLevel == 3) {
-	//	dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 6);
-	//	// need to enable click to continue
-	//	beginning = 2;
-	//}
+	if (!isFreeRoam && gameLevel == 3) {
+		dialogue = createLevelThreeDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 9);
+		beginning = 3;
+	}
+	if (isFreeRoam && freeRoamLevel == 1) {
+		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 1);
+		beginning = 100;
+	}
+	if (isFreeRoam && freeRoamLevel == 2) {
+		dialogue = createFreeRoamLevelDiaogue(renderer, { window_width_px / 2, window_height_px - window_height_px / 3 }, 6);
+		beginning = 200;
+	}
 }
