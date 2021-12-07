@@ -83,6 +83,7 @@ private:
 	// handle mouse click
 	void on_mouse_button( int button,int action, int mods);
 
+	void createIcons();
 	// check if mouse in button
 	bool inButton(vec2 buttonPos, float buttonX, float buttonY);
 
@@ -143,7 +144,7 @@ private:
 	void initializeMakeUpGame();
 	void makeHoverBox(Entity target);
 	vec2 checkPositions(int number, int type);
-	Entity placeSelections(int number,int type);
+	Entity* placeSelections(int number,int type);
 	void updateSize();
 	void checkIfReady();
 	
