@@ -94,9 +94,9 @@ vec2 companionThreePos = { 350, 300 };
 vec2 companionFourPos = { 475, 300 };
 
 vec2 enemyOnePos = { 1100, 300 };
-vec2 enemyTwoPos = { 975, 300 };
-vec2 enemyThreePos = { 850, 300 };
-vec2 enemyFourPos = { 725, 300 };
+vec2 enemyTwoPos = { 950, 300 };
+vec2 enemyThreePos = { 800, 300 };
+vec2 enemyFourPos = { 650, 300 };
 
 
 int beginning = 0;	// for beginning speech
@@ -3607,9 +3607,15 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		else if (inButton(registry.motions.get(selectNecroOne).position, 100, 100))
 		{
 			if ((enemy_size + 3) <= 4) {
+				float offset_x = 0.f;
+				if(enemy_size == 1){
+					offset_x = 50.f;
+				}
 			enemy_size += 3;
 			*placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size-2, 2));
 			Entity entity = *placeSelections(enemy_size, 2);
+			Motion& motion = registry.motions.get(entity);
+			motion.position.x = motion.position.x - offset_x;
 			Statistics& stat = registry.stats.get(entity);
 			stat.speed = enemy_speed;
 			enemy_speed = enemy_speed + speed_increment;
@@ -3619,8 +3625,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 		else if (inButton(registry.motions.get(selectNecroTwo).position, 100, 100))
 		{
-			if ((enemy_size + 2) <= 4) {
-			enemy_size += 2;
+			if ((enemy_size + 3) <= 4) {
+			enemy_size += 3;
 			*placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size-1, 2));
 			Entity entity = *placeSelections(enemy_size, 2);
 			Statistics& stat = registry.stats.get(entity);
