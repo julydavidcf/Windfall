@@ -163,6 +163,10 @@ class RenderSystem {
 			textures_path("open_menu.png"),
 			textures_path("close_menu.png"),
 			textures_path("empty_image.png"),
+			textures_path("start_makeup.png"),
+			textures_path("start_makeup_hover.png"),
+			textures_path("reset_makeup.png"),
+			textures_path("reset_makeup_hover.png"),
 
 			//tootips
 			textures_path("fireBallToolTip.png"),

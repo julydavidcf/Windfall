@@ -79,17 +79,18 @@ int freeRoamLevel = 1;
 // Makeup Game
 bool isMakeupGame = false;
 bool isReady = false;
+bool isReset = false;
 int companion_size = 0;
 int enemy_size = 0;
 vec2 companionOnePos = {20, 300};
-vec2 companionTwoPos = { 120, 300 };
-vec2 companionThreePos = { 220, 300 };
-vec2 companionFourPos = { 320, 300 };
+vec2 companionTwoPos = { 170, 300 };
+vec2 companionThreePos = { 320, 300 };
+vec2 companionFourPos = { 470, 300 };
 
-vec2 enemyOnePos = { 620, 300 };
-vec2 enemyTwoPos = { 720, 300 };
-vec2 enemyThreePos = { 820, 300 };
-vec2 enemyFourPos = { 920, 300 };
+vec2 enemyOnePos = { 770, 300 };
+vec2 enemyTwoPos = { 920, 300 };
+vec2 enemyThreePos = { 1070, 300 };
+vec2 enemyFourPos = { 1200, 300 };
 
 
 
@@ -420,7 +421,7 @@ void WorldSystem::render_startscreen()
 	createStoryBackground(renderer, {w / 2, h / 2}, 6);
 	new_game_button = createUIButton(renderer, {600, 400}, NEW_GAME);
 	load_game_button = createUIButton(renderer, {600, 500}, LOAD_GAME);
-	makeup_game_button = createUIButton(renderer, {600, 600}, 5);
+	makeup_game_button = createUIButton(renderer, {600, 600}, 8);
 	exit_game_button = createUIButton(renderer, {600, 700}, EXIT_GAME);
 	registry.motions.get(exit_game_button).scale = {150, 70};
 }
@@ -3172,6 +3173,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				companion_size++;
 				placeSelections(companion_size, 1) = createPlayerArcher(renderer, checkPositions(companion_size, 1), 0);
 				updateSize();
+				checkIfReady();
 			}
 			
 		} 
@@ -3181,6 +3183,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				companion_size++;
 				placeSelections(companion_size, 1) = createPlayerMage(renderer, checkPositions(companion_size, 1));
 				updateSize();
+				checkIfReady();
 			}
 		} 
 		else if (inButton(registry.motions.get(selectSwordsman).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
@@ -3189,6 +3192,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			companion_size++;
 			placeSelections(companion_size, 1) = createPlayerSwordsman(renderer, checkPositions(companion_size, 1));
 			updateSize();
+			checkIfReady();
 			}
 		}
 		else if (inButton(registry.motions.get(selectEnemyMage).position, 100, 100))
@@ -3197,6 +3201,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				enemy_size++;
 			placeSelections(enemy_size, 2) = createEnemyMage(renderer, checkPositions(enemy_size, 2));
 			updateSize();
+			checkIfReady();
 			}
 		}
 		else if (inButton(registry.motions.get(selectEnemySwordsman).position, 100, 100))
@@ -3205,14 +3210,16 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				enemy_size++;
 				placeSelections(enemy_size, 2) = createEnemySwordsman(renderer, checkPositions(enemy_size, 2));
 				updateSize();
+				checkIfReady();
 			}
 		}
 		else if (inButton(registry.motions.get(selectNecroOne).position, 100, 100))
 		{
-			if ((enemy_size + 1) <= 4) {
-			enemy_size++;
+			if ((enemy_size + 2) <= 4) {
+			enemy_size += 2;
 			placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size, 2));
 			updateSize();
+			checkIfReady();
 			}
 		}
 		else if (inButton(registry.motions.get(selectNecroTwo).position, 100, 100))
@@ -3221,9 +3228,63 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			enemy_size++;
 			placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size, 2));
 			updateSize();
+			checkIfReady();
+			}
+		}
+
+		if (isReset) {
+			if (inButton(registry.motions.get(resetGameButton).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+					companion_size = 0;
+					enemy_size = 0;
+
+					registry.remove_all_components_of(companionPosOne);
+					registry.remove_all_components_of(companionPosTwo);
+					registry.remove_all_components_of(companionPosThree);
+					registry.remove_all_components_of(companionPosFour);
+					registry.remove_all_components_of(enemyPosOne);
+					registry.remove_all_components_of(enemyPosTwo);
+					registry.remove_all_components_of(enemyPosThree);
+					registry.remove_all_components_of(enemyPosFour);
+
+					if (registry.renderRequests.has(startGameButton)) {
+						registry.remove_all_components_of(startGameButton);
+					}
+					isReady = 0;
+					isReset = 0;
+
+					updateSize();
+				}
+			}
+
+		if (isReady) {
+			if (inButton(registry.motions.get(startGameButton).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
+				registry.remove_all_components_of(selectPanel);
+				registry.remove_all_components_of(companionSize);
+				registry.remove_all_components_of(enemySize);
+				registry.remove_all_components_of(selectArcher);
+				registry.remove_all_components_of(selectMage);
+				registry.remove_all_components_of(selectSwordsman);
+				registry.remove_all_components_of(selectEnemyMage);
+				registry.remove_all_components_of(selectEnemySwordsman);
+				registry.remove_all_components_of(selectNecroOne);
+				registry.remove_all_components_of(selectNecroTwo);
+
+				
+				registry.motions.get(companionPosOne).position.y = 1000;
+				registry.motions.get(companionPosTwo).position.y = 1000;
+				registry.motions.get(companionPosThree).position.y = 1000;
+				registry.motions.get(companionPosFour).position.y = 1000;
+				registry.motions.get(enemyPosOne).position.y = 1000;
+				registry.motions.get(enemyPosTwo).position.y = 1000;
+				registry.motions.get(enemyPosThree).position.y = 1000;
+				registry.motions.get(enemyPosFour).position.y = 1000;
+
+				createRound();
+				checkRound();
 			}
 		}
 	}
+
 }
 
 void WorldSystem::advanceTutorial(Entity currTutorial, vec2 pos)
@@ -3463,12 +3524,25 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 			}
 		}
 		else {
-			/*registry.remove_all_components_of(hoverBoxTop);
+			registry.remove_all_components_of(hoverBoxTop);
 			registry.remove_all_components_of(hoverBoxBottom);
 			registry.remove_all_components_of(hoverBoxLeft);
-			registry.remove_all_components_of(hoverBoxRight);*/
+			registry.remove_all_components_of(hoverBoxRight);
 		}
 	}
+
+	//if (isMakeupGame && isReady) {
+	//	registry.renderRequests.get(startGameButton).used_texture = TEXTURE_ASSET_ID::START_MAKEUP_HOVER;
+	//}
+	//else {
+	//	registry.renderRequests.get(startGameButton).used_texture = TEXTURE_ASSET_ID::START_MAKEUP;
+	//}
+	//if (isMakeupGame && isReset) {
+	//	registry.renderRequests.get(resetGameButton).used_texture = TEXTURE_ASSET_ID::RESET_MAKEUP_HOVER;
+	//}
+	//else {
+	//	registry.renderRequests.get(resetGameButton).used_texture = TEXTURE_ASSET_ID::RESET_MAKEUP;
+	//}
 }
 
 bool WorldSystem::mouseInArea(vec2 buttonPos, float buttonX, float buttonY)
@@ -3794,3 +3868,19 @@ void WorldSystem::updateSize() {
 	}
 }
 
+void WorldSystem::checkIfReady() {
+	if (companion_size > 0 && enemy_size > 0) {
+		isReady = true;
+		if (!registry.renderRequests.has(startGameButton)) {
+			startGameButton = createUIButton(renderer, { 600,100 }, 9);
+		}
+
+	}
+
+	if (companion_size > 0 || enemy_size > 0) {
+		isReset = true;
+		if (!registry.renderRequests.has(resetGameButton)) {
+			resetGameButton = createUIButton(renderer, { 600,200}, 10);
+		}
+	}
+}

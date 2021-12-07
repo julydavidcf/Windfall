@@ -169,6 +169,7 @@ private:
 
 	//-------makeup game system--------
 	Entity startGameButton;
+	Entity resetGameButton;
 
 	Entity hoverBoxTop;
 	Entity hoverBoxBottom;

@@ -1531,11 +1531,12 @@ Entity createUIButton(RenderSystem* renderer, vec2 position, int buttonType) {
 		case 2: button_type = TEXTURE_ASSET_ID::LOAD_GAME; button.button_type = 2; break;
 		case 3: button_type = TEXTURE_ASSET_ID::SAVE_GAME; motion.scale = { 200, 80 }; button.button_type = 3; break;
 		case 4: button_type = TEXTURE_ASSET_ID::EXIT_GAME; button.button_type = 4; break;
-		case 5: button_type = TEXTURE_ASSET_ID::CREATE_GAME; button.button_type = 5; break;
-		case 6: button_type = TEXTURE_ASSET_ID::GAME_TITLE; motion.scale = { TITLE_WIDTH, TITLE_HEIGHT }; button.button_type = 5; break;
-		case 7: button_type = TEXTURE_ASSET_ID::OPEN_MENU; motion.scale = { 100, 100 }; button.button_type = 6; break;
-		case 8: button_type = TEXTURE_ASSET_ID::CLOSE_MENU; motion.scale = { 100,100}; button.button_type = 7; break;
-
+		case 5: button_type = TEXTURE_ASSET_ID::GAME_TITLE; motion.scale = { TITLE_WIDTH, TITLE_HEIGHT }; button.button_type = 5; break;
+		case 6: button_type = TEXTURE_ASSET_ID::OPEN_MENU; motion.scale = { 100, 100 }; button.button_type = 6; break;
+		case 7: button_type = TEXTURE_ASSET_ID::CLOSE_MENU; motion.scale = { 100,100}; button.button_type = 7; break;
+		case 8: button_type = TEXTURE_ASSET_ID::CREATE_GAME; button.button_type = 8; break;
+		case 9: button_type = TEXTURE_ASSET_ID::START_MAKEUP; button.button_type = 9; break;
+		case 10: button_type = TEXTURE_ASSET_ID::RESET_MAKEUP; button.button_type = 10; break;
 		default: break;
 	}
 
