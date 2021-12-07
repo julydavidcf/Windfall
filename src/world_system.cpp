@@ -2683,6 +2683,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		// START A NEW GAME
 		loadedLevel = 0;
 		loaded_game = false;
+		isFreeRoam = false;
+		freeRoamLevel = 1;
 		restart_game(false);
 		canStep = 1;
 		story = 8;
