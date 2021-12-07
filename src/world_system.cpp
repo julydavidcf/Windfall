@@ -1469,6 +1469,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			Entity entity = createBoulder(renderer, {window_width_px+50, window_height_px - ARCHER_FREEROAM_HEIGHT + 25});
 			// Setting random initial position and constant velocity
 			Motion& motion = registry.motions.get(entity);
+			motion.acceleration = vec2(BOULDER_ACCELERATION, 0.f);
 			motion.velocity = vec2(BOULDER_VELOCITY, 0.f);
 		}
 		// move it to physics
@@ -2088,7 +2089,7 @@ void WorldSystem::handle_collisions()
 				{
 					Motion& rollable_motion = registry.motions.get(entity_other);
 					rollable_motion.velocity = { BOULDER_VELOCITY / 3, 0.f};
-					//registry.rollables.remove(entity_other);
+
 					float rock_pos_x = rollable_motion.position.x;
 					float rock_pos_y = rollable_motion.position.y;
 					float rock_width = rollable_motion.scale.x;
@@ -2119,11 +2120,14 @@ void WorldSystem::handle_collisions()
 				Motion& entity_motion = registry.motions.get(entity);
 				Motion& entity_other_motion = registry.motions.get(entity_other);
 
-				entity_motion.velocity = vec2(BOULDER_VELOCITY / 3, 0.f);
-				entity_other_motion.velocity = vec2(BOULDER_VELOCITY / 3, 0.f);
-
-				//if (registry.rollables.has(entity)) registry.rollables.remove(entity);
-				//if (registry.rollables.has(entity_other)) registry.rollables.remove(entity_other);
+				if (entity_motion.position.x < entity_other_motion.position.x) {
+					entity_motion.velocity = vec2(BOULDER_VELOCITY * 1.5, 0.f);
+					entity_other_motion.velocity = vec2(BOULDER_VELOCITY / 1.5, 0.f);
+				}
+				else {
+					entity_motion.velocity = vec2(BOULDER_VELOCITY / 1.5, 0.f);
+					entity_other_motion.velocity = vec2(BOULDER_VELOCITY * 1.5, 0.f);
+				}
 				
 			}
 
@@ -3549,6 +3553,14 @@ void WorldSystem::backgroundTelling()
 
 
 void WorldSystem::initializeFreeRoamOne() {
+
+	createPlatform(renderer, { 100, 500 });
+	createPlatform(renderer, { 400, 600 });
+	createPlatform(renderer, { 490, 375 });
+	createPlatform(renderer, { 700, 425 });
+	createPlatform(renderer, { 900, 400 });
+	createPlatform(renderer, { 1100, 400 });
+	createTreasureChest(renderer, { 1050, 400 - PLATFORM_HEIGHT }, HEALTH_BOOST);
 
 	std::vector<vec3> controlPoints;
 	controlPoints.push_back(vec3(227, 160, 0));

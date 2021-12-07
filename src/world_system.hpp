@@ -197,6 +197,7 @@ private:
 	const int16 MAX_GAME_LEVELS = 3;
 
 	const float BOULDER_VELOCITY = -100.f;
+	const float BOULDER_ACCELERATION = -5.f;
 
 	float next_boulder_spawn;
 
