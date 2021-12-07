@@ -89,14 +89,14 @@ int enemy_speed = 1;
 int init_companion_speed = 2;
 int companion_speed = 2;
 vec2 companionOnePos = {100, 300};
-vec2 companionTwoPos = { 275, 300 };
+vec2 companionTwoPos = { 225, 300 };
 vec2 companionThreePos = { 350, 300 };
-vec2 companionFourPos = { 425, 300 };
+vec2 companionFourPos = { 475, 300 };
 
-vec2 enemyOnePos = { 625, 300 };
-vec2 enemyTwoPos = { 750, 300 };
-vec2 enemyThreePos = { 875, 300 };
-vec2 enemyFourPos = { 1000, 300 };
+vec2 enemyOnePos = { 1100, 300 };
+vec2 enemyTwoPos = { 975, 300 };
+vec2 enemyThreePos = { 850, 300 };
+vec2 enemyFourPos = { 725, 300 };
 
 
 int beginning = 0;	// for beginning speech
@@ -1372,7 +1372,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 					registry.attackers.remove(attacker);
 					if (create_minion)
 					{
-						necromancer_minion = createNecromancerMinion(renderer, {750, 575});
+						Motion& necro1_motion = registry.motions.get(attacker);
+						necromancer_minion = createNecromancerMinion(renderer, {necro1_motion.position.x-abs(necro1_motion.scale.x), 575});
 					}
 				}
 			}
@@ -1638,11 +1639,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			checkRound();
 			return true;
 		}
-	}
-
-	if (isFreeRoam && (!isMakeupGame)) {
-		Motion& archerMotion = registry.motions.get(player_archer);
-		Companion& archerComp = registry.companions.get(player_archer);
 	}
 
 	// update state of free_roam_bird
@@ -3205,7 +3201,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			printf("inside menu part\n");
 			printf("opens menu\n");
 			Motion menu_motion = registry.motions.get(open_menu_button);
-			if(!isFreeRoam){
+			if(!isFreeRoam && !isMakeupGame){
 				save_game_button = createUIButton(renderer, {menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT}, SAVE_GAME);
 				exit_game_button = createUIButton(renderer, {menu_motion.position.x + menu_motion.scale.x / 2, menu_motion.position.y + menu_motion.scale.y / 3 + UI_BUTTON_HEIGHT * 2}, EXIT_GAME);
 			} else {
@@ -3217,7 +3213,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 		else if (pauseMenuOpened)
 		{
-			if ((!isFreeRoam) && (inButton(registry.motions.get(save_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)))
+			if ((!isFreeRoam) && (!isMakeupGame) && (inButton(registry.motions.get(save_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)))
 			{
 				// SAVE THE CURRENT GAME STATE
 				JSONLoader jl;
@@ -3228,6 +3224,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			else if (inButton(registry.motions.get(exit_game_button).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT))
 			{
 				// GO BACK TO START MENU
+				printf("clean up started\n");
 				startMenuCleanUp();
 				return;
 			}
@@ -3609,9 +3606,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 		else if (inButton(registry.motions.get(selectNecroOne).position, 100, 100))
 		{
-			if ((enemy_size + 2) <= 4) {
-			enemy_size += 2;
-			*placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size, 2));
+			if ((enemy_size + 3) <= 4) {
+			enemy_size += 3;
+			*placeSelections(enemy_size, 2) = createNecromancerPhaseOne(renderer, checkPositions(enemy_size-2, 2));
 			Entity entity = *placeSelections(enemy_size, 2);
 			Statistics& stat = registry.stats.get(entity);
 			stat.speed = enemy_speed;
@@ -3622,9 +3619,9 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		}
 		else if (inButton(registry.motions.get(selectNecroTwo).position, 100, 100))
 		{
-			if ((enemy_size + 1) <= 4) {
-			enemy_size++;
-			*placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size, 2));
+			if ((enemy_size + 2) <= 4) {
+			enemy_size += 2;
+			*placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size-1, 2));
 			Entity entity = *placeSelections(enemy_size, 2);
 			Statistics& stat = registry.stats.get(entity);
 			stat.speed = enemy_speed;
@@ -3716,29 +3713,53 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 
 				
 				if (registry.renderRequests.has(companionPosOne)) {
-					registry.motions.get(companionPosOne).position.y = 600;
+					Motion& motion = registry.motions.get(companionPosOne);
+					motion.position.y = getYPosition(companionPosOne);
+					Motion& health_bar_motion = registry.motions.get(registry.companions.get(companionPosOne).healthbar);
+					health_bar_motion.position.y = motion.position.y - motion.scale.y/2;
 				}
 				if (registry.motions.has(companionPosTwo)) {
-				registry.motions.get(companionPosTwo).position.y = 600;
+					Motion& motion = registry.motions.get(companionPosTwo);
+					motion.position.y = getYPosition(companionPosTwo);
+					Motion& health_bar_motion = registry.motions.get(registry.companions.get(companionPosTwo).healthbar);
+					health_bar_motion.position.y = motion.position.y - motion.scale.y/2;
 				}
 				if (registry.motions.has(companionPosThree)) {
-				registry.motions.get(companionPosThree).position.y = 600;
+					Motion& motion = registry.motions.get(companionPosThree);
+					motion.position.y = getYPosition(companionPosThree);
+					Motion& health_bar_motion = registry.motions.get(registry.companions.get(companionPosThree).healthbar);
+					health_bar_motion.position.y = motion.position.y - motion.scale.y/2;
 				}
 				if (registry.motions.has(companionPosFour)) {
-				registry.motions.get(companionPosFour).position.y = 600;
+					Motion& motion = registry.motions.get(companionPosFour);
+					motion.position.y = getYPosition(companionPosFour);
+					Motion& health_bar_motion = registry.motions.get(registry.companions.get(companionPosFour).healthbar);
+					health_bar_motion.position.y = motion.position.y - motion.scale.y/2;
 				}
 				if (registry.motions.has(enemyPosOne)) {
-				registry.motions.get(enemyPosOne).position.y = 600;
+					Motion& motion = registry.motions.get(enemyPosOne);
+					motion.position.y = getYPosition(enemyPosOne);
+					Motion& health_bar_motion = registry.motions.get(registry.enemies.get(enemyPosOne).healthbar);
+					health_bar_motion.position.y = motion.position.y - motion.scale.y/2;
 				}
 				if (registry.motions.has(enemyPosTwo)) {
-				registry.motions.get(enemyPosTwo).position.y = 600;
+					Motion& motion = registry.motions.get(enemyPosTwo);
+					motion.position.y = getYPosition(enemyPosTwo);
+					Motion& health_bar_motion = registry.motions.get(registry.enemies.get(enemyPosTwo).healthbar);
+					health_bar_motion.position.y = motion.position.y - motion.scale.y/2;
 				}
 				if (registry.motions.has(enemyPosThree)) {
-				registry.motions.get(enemyPosThree).position.y = 600;
+					Motion& motion = registry.motions.get(enemyPosThree);
+					motion.position.y = getYPosition(enemyPosThree);
+					Motion& health_bar_motion = registry.motions.get(registry.enemies.get(enemyPosThree).healthbar);
+					health_bar_motion.position.y = motion.position.y - motion.scale.y/2;
 				 }
 
 				if (registry.renderRequests.has(enemyPosFour)) {
-				registry.motions.get(enemyPosFour).position.y = 600;
+					Motion& motion = registry.motions.get(enemyPosFour);
+					motion.position.y = getYPosition(enemyPosFour);
+					Motion& health_bar_motion = registry.motions.get(registry.enemies.get(enemyPosFour).healthbar);
+					health_bar_motion.position.y = motion.position.y - motion.scale.y/2;
 				}
 
 				open_menu_button = createUIButton(renderer, { 100, 100 }, OPEN_MENU);
@@ -4016,6 +4037,22 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	//else {
 	//	registry.renderRequests.get(resetGameButton).used_texture = TEXTURE_ASSET_ID::RESET_MAKEUP;
 	//}
+}
+
+float WorldSystem::getYPosition(Entity entity){
+	if(registry.enemies.has(entity) || registry.companions.has(entity)){
+		auto type = registry.enemies.has(entity)? registry.enemies.get(entity).enemyType : registry.companions.get(entity).companionType;
+		float y = 0.f;
+		switch(type){
+			case MAGE: y = 575; break;
+			case SWORDSMAN: y = 530; break;
+			case NECROMANCER_ONE: y = 530; break;
+			case NECROMANCER_TWO: y = 350; break;
+			case ARCHER: y = 575; break;
+		}
+		return y;
+	}
+	return -1;
 }
 
 bool WorldSystem::mouseInArea(vec2 buttonPos, float buttonX, float buttonY)

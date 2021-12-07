@@ -157,6 +157,8 @@ private:
 
 	void startMenuCleanUp();
 
+	float getYPosition(Entity entity);
+
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;
