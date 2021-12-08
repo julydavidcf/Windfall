@@ -1,5 +1,6 @@
 #include "json_loader.hpp"
 #include "world_init.hpp"
+#include "world_system.hpp"
 #include "tiny_ecs_registry.hpp"
 
 using json = nlohmann::json;
@@ -86,19 +87,6 @@ void load_level(json j){
         std::cout << j["roundSize"] << std::endl;
         std::vector<Entity> roundVec(j["roundSize"]);
     }
-    if(!j["level"].is_null()){
-        printf("Loading level\n");
-        loadedLevel = j["level"];
-        if(loadedLevel == 0){
-            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, TUTORIAL);
-        } else if(loadedLevel == 1){
-            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_ONE);
-        } else if(loadedLevel == 2){
-            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_TWO);
-        } else if(loadedLevel == 3){
-            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_THREE);
-        }
-    }
     if(!j["story"].is_null()){
         printf("Loading story\n");
         story = j["story"];
@@ -123,6 +111,23 @@ void load_level(json j){
         printf("Loading swordsman hp buff\n");
         swordsmanHPBuff = j["swordsmanHPBuff"];
     }
+
+    if(!j["level"].is_null()){
+        printf("Loading level\n");
+        loadedLevel = j["level"];
+        if(loadedLevel == 0){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, TUTORIAL);
+        } else if(loadedLevel == 1){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_ONE);
+        } else if(loadedLevel == 2){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_TWO);
+        } else if(loadedLevel == 3){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_THREE);
+        }
+        WorldSystem world;
+        world.balanceHealthNumbers(loadedLevel);
+    }
+
     for(json entity: j["entities"]){
         Entity create_entity;
         // ---------------------------- COMPANIONS ----------------------------
