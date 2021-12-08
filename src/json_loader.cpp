@@ -89,9 +89,39 @@ void load_level(json j){
     if(!j["level"].is_null()){
         printf("Loading level\n");
         loadedLevel = j["level"];
+        if(loadedLevel == 0){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, TUTORIAL);
+        } else if(loadedLevel == 1){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_ONE);
+        } else if(loadedLevel == 2){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_TWO);
+        } else if(loadedLevel == 3){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_THREE);
+        }
     }
     if(!j["story"].is_null()){
+        printf("Loading story\n");
         story = j["story"];
+    }
+    if(!j["isFreeRoam"].is_null()){
+        printf("Loading free roam status\n");
+        isFreeRoam = j["isFreeRoam"];
+    }
+    if(!j["freeRoamLevel"].is_null()){
+        printf("Loading free roam level\n");
+        freeRoamLevel = j["freeRoamLevel"];
+    }
+    if(!j["HPDebuff"].is_null()){
+        printf("Loading hp decrease\n");
+        HPDebuff = j["HPDebuff"];
+    }
+    if(!j["HPBuff"].is_null()){
+        printf("Loading hp increase\n");
+        HPBuff = j["HPBuff"];
+    }
+    if(!j["swordsmanHPBuff"].is_null()){
+        printf("Loading swordsman hp buff\n");
+        swordsmanHPBuff = j["swordsmanHPBuff"];
     }
     for(json entity: j["entities"]){
         Entity create_entity;
@@ -110,6 +140,14 @@ void load_level(json j){
                 player_swordsman = createPlayerSwordsman(renderer_load, vec2(entity["position"]["x"], 
                                                                         entity["position"]["y"]));
                 create_entity = player_swordsman;
+            }
+            // Archer
+            else if(entity["skill"] == "Archer"){
+                printf("Loading the player archer\n");
+                player_archer = createPlayerArcher(renderer_load, vec2(entity["position"]["x"], 
+                                                                        entity["position"]["y"]),
+                                                                        isFreeRoam);
+                create_entity = player_archer;
             }
             else {
                 printf("Given companion does not exist\n");
@@ -210,6 +248,13 @@ void load_level(json j){
                                                             entity["position"]["y"]));
                 create_entity = rock_icon;
             } 
+            // Arrow
+            else if(entity["skill"] == "Arrow"){
+                printf("Loading the arrow icon\n");
+                arrow_icon = createArrowIcon(renderer_load, vec2(entity["position"]["x"], 
+                                                            entity["position"]["y"]));
+                create_entity = arrow_icon;
+            } 
             else {
                 printf("Given icon does not exist\n");
             }
@@ -306,6 +351,10 @@ json get_entity(Entity entity){
         printf("Saving player swordsman\n");
         j["type"] = "Companion";
         j["skill"] = "Swordsman";
+    } else if(entity == player_archer){
+        printf("Saving player archer\n");
+        j["type"] = "Companion";
+        j["skill"] = "Archer";
     } else if(entity == enemy_mage){
         printf("Saving enemy mage\n");
         j["type"] = "Enemy";
@@ -410,6 +459,12 @@ void JSONLoader::save_game(){
     j["level"] = gameLevel;
     j["roundSize"] = roundVec.size();
     j["story"] = story;
+    j["isFreeRoam"] = isFreeRoam;
+    j["freeRoamLevel"] = freeRoamLevel;
+    j["HPDebuff"] = HPDebuff;
+    j["HPBuff"] = HPBuff;
+    j["swordsmanHPBuff"] = swordsmanHPBuff;
+    
     int entity = 0;
     for(Entity companion: registry.companions.entities){
         j["entities"][entity] = get_entity(companion);
@@ -419,6 +474,11 @@ void JSONLoader::save_game(){
         j["entities"][entity] = get_entity(enemy);
         entity++;
     }
+    j["entities"][entity]["type"] = "Icon";
+    j["entities"][entity]["skill"] = "Arrow";
+    j["entities"][entity]["position"]["x"] = 200;
+    j["entities"][entity]["position"]["y"] = 700;
+    entity++;
 
     j["entities"][entity]["type"] = "Icon";
     j["entities"][entity]["skill"] = "Taunt";

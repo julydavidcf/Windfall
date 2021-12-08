@@ -17,6 +17,8 @@ public:
 	// Manually created list of all components this game has
 	ComponentContainer<BackgroundObj> deformableEntities;
 	ComponentContainer<ParticlePool> particlePools;
+	ComponentContainer<SwarmParticle> fireflySwarm;
+	ComponentContainer<TreasureChest> chests;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
@@ -26,6 +28,7 @@ public:
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Projectile> projectiles;
+	ComponentContainer<FireBall> FireBalls;
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Damage> damages;
 	ComponentContainer<Silenced> silenced;
@@ -52,6 +55,14 @@ public:
 	ComponentContainer<Bleed> bleeds;
 	ComponentContainer<BleedIndicator> bleedIndicators;
 	ComponentContainer<ShieldIcon> shieldIcons;
+	ComponentContainer<Rollable> rollables;
+	ComponentContainer<Light> light;
+	ComponentContainer<BouncingArrow> bouncingArrows;
+	ComponentContainer<Bird> bird;
+	ComponentContainer<Platform> platform;
+	ComponentContainer<PreciseCollider> preciseColliders;
+	ComponentContainer<HoverBox> hoverBox;
+	ComponentContainer<Boulder> boulders;
 
 	// Sounds
 	Mix_Music* background_music;
@@ -78,6 +89,39 @@ public:
 	Mix_Chunk* gesture_heal_sound;
 	Mix_Chunk* gesture_aoe_sound;
 	Mix_Chunk* gesture_turn_sound;
+	Mix_Music* menu_music;
+	Mix_Music* wintervale_music;
+	Mix_Music* cestershire_music;
+	Mix_Music* boss_music;
+	Mix_Chunk* crow_sound;
+
+	//Game Stats
+
+	int enemy_mage_hp = 90;
+	int enemy_swordsman_hp = 130;
+
+	int player_mage_hp = 60;
+	int player_swordsman_hp = 85;
+	int player_archer_hp = 50;
+	int necro_minion_health = 15;
+	int necro_1_health = 175;
+	int necro_2_health = 125;
+
+
+	//skill dmg
+	int rock_dmg = 10;
+	int fireball_dmg = 30;
+	int iceshard_dmg = 20;
+	int melee_dmg = 15;
+	int bleed_dmg = 5;
+	int spike_dmg = 10;
+	int lightning_dmg = 25;
+	int arrow_dmg = 10;
+
+	// Player screen resolution
+	unsigned int horizontalResolution = 0;
+	unsigned int verticalResolution = 0;
+
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -92,6 +136,7 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&FireBalls);
 		registry_list.push_back(&silenced);
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&debugComponents);
@@ -116,6 +161,16 @@ public:
 		registry_list.push_back(&bleeds);
 		registry_list.push_back(&bleedIndicators);
 		registry_list.push_back(&shieldIcons);
+		registry_list.push_back(&rollables);
+		registry_list.push_back(&light);
+		registry_list.push_back(&bouncingArrows);
+		registry_list.push_back(&bird);
+		registry_list.push_back(&platform);
+		registry_list.push_back(&chests);
+		registry_list.push_back(&preciseColliders);
+		registry_list.push_back(&hoverBox);
+		
+		registry_list.push_back(&boulders);
 	}
 
 	void clear_all_components() {

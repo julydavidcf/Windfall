@@ -34,6 +34,10 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 #define M_PI 3.14159265358979323846f
 #endif
 
+#ifndef NUM_SWARM_PARTICLES
+#define NUM_SWARM_PARTICLES 40
+#endif
+
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
 // We recomment making all components non-copyable by derving from ComponentNonCopyable
@@ -46,14 +50,11 @@ struct Transform {
 
 bool gl_has_errors();
 
-
-extern int16 gameLevel;
-extern int16 loadedLevel;
-
 extern Entity currPlayer;
 extern Entity prevPlayer;
 // Players + Enemies
 extern Entity prevPlayer;
+extern Entity player_archer;
 extern Entity player_mage;
 extern Entity enemy_mage;
 extern Entity player_swordsman;
@@ -75,8 +76,19 @@ extern Entity fireBall_icon;
 extern Entity taunt_icon;
 extern Entity heal_icon;
 extern Entity rock_icon;
+extern Entity arrow_icon;
 
 extern int window_width_px;
 extern int window_height_px;
 
 extern int story;
+extern int16 gameLevel;
+extern int16 loadedLevel;
+
+// Free roam variables
+extern bool isFreeRoam;
+extern int freeRoamLevel;
+
+extern int HPDebuff;
+extern int HPBuff;
+extern int swordsmanHPBuff;

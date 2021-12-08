@@ -2,6 +2,12 @@
 #define GL3W_IMPLEMENTATION
 #include <gl3w.h>
 
+#if WIN32
+#include <windows.h>
+#else
+#include <CoreGraphics/CGDisplayConfiguration.h>
+#endif
+
 // stlib
 #include <chrono>
 #include <iostream>
@@ -13,6 +19,7 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "skill_system.hpp"
+#include "swarm_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 using namespace std;
@@ -20,6 +27,18 @@ using namespace std;
 
 int window_width_px = 1200;
 int window_height_px = 750;
+
+// Get the horizontal and vertical screen sizes in pixel
+void getScreenResolution(unsigned int& width, unsigned int& height) {
+#if WIN32
+	width = (int)GetSystemMetrics(SM_CXSCREEN);
+	height = (int)GetSystemMetrics(SM_CYSCREEN);
+#else
+	auto mainDisplayId = CGMainDisplayID();
+	width = CGDisplayPixelsWide(mainDisplayId);
+	height = CGDisplayPixelsHigh(mainDisplayId);
+#endif
+}
 
 // Entry point
 int main()
@@ -30,6 +49,9 @@ int main()
 	PhysicsSystem physics;
 	AISystem ai;
 	SkillSystem sk;
+	SwarmSystem swarmSys;
+
+	getScreenResolution(registry.horizontalResolution, registry.verticalResolution);
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
@@ -42,14 +64,13 @@ int main()
 
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
-	world.init(&renderer, &ai, &sk);
-	//world.createRound();
-	//world.checkRound();
-	//world.displayPlayerTurn();	// display player turn when world renders
+	world.init(&renderer, &ai, &sk, &swarmSys);
 	
-
 	// variable timestep loop
 	auto t = Clock::now();
+	
+	isFreeRoam = 0;
+
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become
 		// unresponsive
@@ -64,7 +85,11 @@ int main()
 		if (world.canStep) {
 			world.step(elapsed_ms);
 			// ai.step(elapsed_ms);
-			physics.step(elapsed_ms, window_width_px, window_height_px);
+			if(isFreeRoam){
+				physics.step_freeRoam(elapsed_ms, window_width_px, window_height_px);
+			} else {
+				physics.step(elapsed_ms, window_width_px, window_height_px);
+			}
 			world.handle_collisions();
 			world.handle_boundary_collision();
 		}

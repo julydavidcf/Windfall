@@ -27,6 +27,10 @@ class RenderSystem {
 	{
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BACKGROUND_OBJ, mesh_path("basicEnemy.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SHIELD_MESH, mesh_path("necroBarrier.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::ROCK_MESH, mesh_path("rock.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::ARROW_MESH, mesh_path("arrow.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SIMPLIFIED_ROCK_MESH, mesh_path("rock_simplified.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::SIMPLIFIED_ARROW_MESH, mesh_path("arrow_simplified.obj")),
 		  // specify meshes of other assets here
 	};
 
@@ -45,6 +49,8 @@ class RenderSystem {
 			textures_path("playerTurn.png"),
 			textures_path("enemyTurn.png"),
 			textures_path("arrow.png"),
+			textures_path("arrowIcon.png"),
+			textures_path("arrowIconSelected.png"),
 			textures_path("rock.png"),
 			textures_path("lightning.png"),
 			textures_path("greenCross.png"),
@@ -96,12 +102,42 @@ class RenderSystem {
 			textures_path("necro_minion_walk.png"),
 			textures_path("necro_minion_melee.png"),
 			textures_path("necro_minion_death.png"),
+			textures_path("archerAnims.png"),
+			textures_path("archerArrow.png"),
+			textures_path("dragon_flying.png"),
 
 			// Background layers
-			textures_path("backgroundLayerOne.png"),
-			textures_path("backgroundLayerTwo.png"),
-			textures_path("backgroundLayerThree.png"),
-			textures_path("backgroundLayerFour.png"),
+
+			textures_path("tutorialBackground1.png"),
+			textures_path("tutorialBackground2.png"),
+			textures_path("tutorialBackground3.png"),
+			textures_path("tutorialBackground4.png"),
+			textures_path("tutorialBackground5.png"),
+
+			textures_path("levelOneBackground1.png"),
+			textures_path("levelOneBackground2.png"),
+			textures_path("levelOneBackground3.png"),
+			textures_path("levelOneBackground4.png"),
+
+			textures_path("freeRoamOneBackground1.png"),
+			textures_path("freeRoamOneBackground2.png"),
+			textures_path("freeRoamOneBackground3.png"),
+			textures_path("freeRoamOneBackground4.png"),
+			textures_path("freeRoamOneBackground5.png"),
+
+			textures_path("levelTwoBackground1.png"),
+			textures_path("levelTwoBackground2.png"),
+			textures_path("levelTwoBackground3.png"),
+			textures_path("levelTwoBackground4.png"),
+
+			textures_path("freeRoamTwoBackground1.png"),
+			textures_path("freeRoamTwoBackground2.png"),
+			textures_path("freeRoamTwoBackground3.png"),
+			textures_path("freeRoamTwoBackground4.png"),
+			textures_path("freeRoamTwoBackground5.png"),
+			textures_path("freeRoamTwoBackground6.png"),
+
+			textures_path("levelThreeBackground1.png"),
 
 			// Tutorial text boxes
 			textures_path("tutorial_one.png"),
@@ -119,12 +155,18 @@ class RenderSystem {
 			textures_path("load_game.png"),
 			textures_path("load_game_hover.png"),
 			textures_path("save_game.png"),
+			textures_path("create_game.png"),
+			textures_path("create_game_hover.png"),
 			textures_path("exit_game.png"),
 			textures_path("exit_hover.png"),
 			textures_path("game_title.png"),
 			textures_path("open_menu.png"),
 			textures_path("close_menu.png"),
 			textures_path("empty_image.png"),
+			textures_path("start_makeup.png"),
+			textures_path("start_makeup_hover.png"),
+			textures_path("reset_makeup.png"),
+			textures_path("reset_makeup_hover.png"),
 
 			//tootips
 			textures_path("fireBallToolTip.png"),
@@ -133,6 +175,7 @@ class RenderSystem {
 			textures_path("meleeToolTip.png"),
 			textures_path("tauntToolTip.png"),
 			textures_path("healToolTip.png"),
+			textures_path("arrowToolTip.png"),
 
 			//storytelling background
 			textures_path("battle.jpg"),
@@ -141,7 +184,18 @@ class RenderSystem {
 			textures_path("whisper.png"),
 			textures_path("storyBegin.png"),
 			textures_path("startScreen.png"),
-
+			textures_path("peaceful.jpg"),
+			textures_path("celerbrate.jpg"),
+			textures_path("dark.jpg"),
+			textures_path("conclusionTheEnd.png"),
+			textures_path("conclusionOne.png"),
+			textures_path("conclusionTwo.png"),
+			textures_path("conclusionThree.png"),
+			textures_path("conclusionFour.png"),
+			textures_path("conclusionFive.png"),
+			textures_path("conclusionSix.png"),
+			textures_path("conclusionSeven.png"),
+				
 			//background dialogue
 			textures_path("backgroundOne.png"),
 			textures_path("backgroundTwo.png"),
@@ -150,21 +204,29 @@ class RenderSystem {
 			textures_path("backgroundFive.png"),
 
 			//Level One dialogue
+			textures_path("missionOne.png"),
 			textures_path("levelOneDialogueOne.png"),
 			textures_path("levelOneDialogueTwo.png"),
 			textures_path("levelOneDialogueThree.png"),
 			textures_path("levelOneDialogueFour.png"),
 			textures_path("levelOneDialogueFive.png"),
 			textures_path("levelOneDialogueSix.png"),
+			textures_path("levelOneDialogueSeven.png"),
+			textures_path("levelOneDialogueEight.png"),
+			textures_path("levelOneDialogueNine.png"),
+			textures_path("levelOneDialogueTen.png"),
 
 			//Level Two dialogue
+			textures_path("missionTwo.png"),
 			textures_path("levelTwoDialogueOne.png"),
 			textures_path("levelTwoDialogueTwo.png"),
 			textures_path("levelTwoDialogueThree.png"),
 			textures_path("levelTwoDialogueFour.png"),
+			textures_path("levelTwoDialogueFive.png"),
+			textures_path("levelTwoDialogueSix.png"),
 			
 			//level Three dialogue
-			textures_path("levelThreeDialogueOne.png"),
+			//textures_path("levelThreeDialogueOne.png"),
 			textures_path("levelThreeDialogueTwo.png"),
 			textures_path("levelThreeDialogueThree.png"),
 			textures_path("levelThreeDialogueFour.png"),
@@ -172,13 +234,59 @@ class RenderSystem {
 			textures_path("levelThreeDialogueSix.png"),
 			textures_path("levelThreeDialogueSeven.png"),
 			textures_path("levelThreeDialogueEight.png"),
+			textures_path("missionThreeOne.png"),
+			textures_path("missionThreeTwo.png"),
+			textures_path("missionThreeThree.png"),
+			textures_path("missionThreeFour.png"),
 
 			//level Four dialogue
 			textures_path("levelFourDialogueOne.png"),
 			textures_path("levelFourDialogueTwo.png"),
 			textures_path("levelFourDialogueThree.png"),
+			textures_path("levelFourDialogueFour.png"),
 
+			//Free roam level 1 dialogue
+			textures_path("freeRoamLevelOneDialogueOne.png"),
+			textures_path("freeRoamLevelOneDialogueTwo.png"),
+			textures_path("freeRoamLevelOneDialogueThree.png"),
+			textures_path("freeRoamLevelOneDialogueFour.png"),
+			textures_path("freeRoamLevelOneDialogueFive.png"),
+
+			//Free roam level 2 dialogue
+			textures_path("freeRoamLevelTwoDialogueOne.png"),
+			textures_path("freeRoamLevelTwoDialogueTwo.png"),
+			textures_path("freeRoamLevelTwoDialogueThree.png"),
+
+			textures_path("freeRoamTutorial.png"),
+			textures_path("helper.png"),
+				
 			textures_path("particlered.png"),
+			textures_path("firefly.png"),
+			textures_path("platform.png"),
+			textures_path("treasure_chest_sheet.png"),
+			textures_path("smoke_particle.png"),
+			textures_path("damage_increase_msg.png"),
+			textures_path("health_increase_msg.png"),
+
+			//Size Indicator
+			textures_path("zero_out_of_four.png"),
+			textures_path("one_out_of_four.png"),
+			textures_path("two_out_of_four.png"),
+			textures_path("three_out_of_four.png"),
+			textures_path("four_out_of_four.png"),
+			// charactor selectors
+
+			textures_path("selectPanel.png"),
+
+			textures_path("mage_anim_select.png"),
+			textures_path("archerAnims_select.png"),
+			textures_path("swordsman_select.png"),
+			textures_path("necromancer_select.png"),
+			textures_path("necro_two_select.png"),
+
+			textures_path("new_makeup_options.png"),
+			textures_path("yes_option.png"),
+			textures_path("no_option.png")
   };
   
 	std::array<GLuint, effect_count> effects;
@@ -189,7 +297,8 @@ class RenderSystem {
 		shader_path("textured"),
 		shader_path("water"),
 		shader_path("particle"),
-		shader_path("basicEnemy")};
+		shader_path("basicEnemy"),
+		shader_path("light")};	// NEW
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -224,9 +333,21 @@ class RenderSystem {
 	float NECRO_MINION_MELEE_FRAME_TIME = 75;
 	float NECRO_MINION_DEATH_FRAME_TIME = 200;
 
+	float ARCHER_IDLE_FRAME_TIME = 250;
+	float ARCHER_WALKING_FRAME_TIME = 100;
+	float ARCHER_JUMPING_FRAME_TIME = 750;
+	float ARCHER_ATTACKING_FRAME_TIME = 75;
+	float ARCHER_TURN_ATTACKING_FRAME_TIME = 150;
+	float ARCHER_DEAD_FRAME_TIME = 250;
+
+	float DRAGON_FLYING_FRAME_TIME = 225;
+
 	// pixel positions for the light balls in the background
 	std::vector<float> lightBallsXcoords;
 	std::vector<float> lightBallsYcoords;
+
+	std::vector<float> fireFlyPosX;
+	std::vector<float> fireFlyPosY;
 
 	// Time per frame in ms
 	float TIME_PER_FRAME = 100;
@@ -307,6 +428,22 @@ class RenderSystem {
 	const int NECRO_MINION_DEATH_FRAMES = 10;
 	const GLfloat NECRO_MINION_DEATH_FRAME_WIDTH = 0.10;
 
+	// Archer frame stats
+	const GLfloat ARCHER_FRAME_WIDTH = 0.125;
+	const int ARCHER_IDLE_FRAMES = 3;
+
+	const int ARCHER_WALKING_FRAMES = 8;
+
+	const int ARCHER_JUMPING_FRAMES = 2;
+
+	const int ARCHER_ATTACKING_FRAMES = 7;
+
+	const int ARCHER_DEAD_FRAMES = 8;
+
+	// Dragon frame stats
+	const GLfloat DRAGON_FLYING_FRAME_WIDTH = 0.11111111111;
+	const int DRAGON_FLYING_FRAMES = 9;
+
 	// Camera/scrolling constants
 	float CAMERA_OFFSET_LEFT = 400;
 	float CAMERA_OFFSET_TOP = 400;
@@ -325,6 +462,7 @@ public:
 	float dimScreenFactor = 0.4f;
 	float fogFactor = 0.2;
 	std::map<int, int> deferredRenderingEntities = {};
+	std::vector<vec3> splineControlPoints;
 	int gameLevel = 1;
 	int shouldDeform = 0;
 	bool implode = false;
@@ -367,6 +505,8 @@ private:
 	// void initParticlesBuffer();
 	void drawToScreen();
 
+	void drawLight(Entity entity);
+
 	// Window handle
 	GLFWwindow* window;
 	float screen_scale;  // Screen to pixel coordinates scale factor (for apple
@@ -381,6 +521,9 @@ private:
 
 	// GLuint particles_position_buffer;
 	float deformTime = 0.f;
+
+	//time 
+	float time = 0;
 };
 
 bool loadEffectFromFile(

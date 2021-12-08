@@ -2,7 +2,7 @@
     "entities": [
         {
             "type": "Companion",
-            "skill": "Mage",
+            "skill": "Archer",
             "position": 
                 {
                     "x": 100,
@@ -11,11 +11,20 @@
         },
         {
             "type": "Companion",
+            "skill": "Mage",
+            "position": 
+                {
+                    "x": 265,
+                    "y": 575
+                }
+        },
+        {
+            "type": "Companion",
             "skill": "Swordsman",
             "position": 
                 {
-                    "x": 275,
-                    "y": 500
+                    "x": 400,
+                    "y": 530
                 }
         },
         {
@@ -25,6 +34,15 @@
                 {
                     "x": 1000,
                     "y": 500
+                }
+        },
+        {
+            "type": "Icon",
+            "skill": "Arrow",
+            "position": 
+                {
+                    "x": 200,
+                    "y": 700
                 }
         },
         {

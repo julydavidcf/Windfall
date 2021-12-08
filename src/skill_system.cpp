@@ -154,6 +154,25 @@ void SkillSystem::startFireballAttack(Entity origin) {
 	}
 }
 
+void SkillSystem::startArrowAttack(Entity origin) {
+	printf("Started the arrow attack\n");
+	if (registry.enemies.has(origin)) {
+		//TODO
+	}
+	else if (registry.companions.has(origin)) {
+		Companion& companion = registry.companions.get(origin);
+		companion.curr_anim_type = ATTACKING;
+		Attack& attack = registry.attackers.emplace(origin);
+		attack.attack_type = BATTLE_ARROW;
+		attack.counter_ms += 400.f;	// attack.counter_ms is 250, animation_timer is 500
+		attack.old_pos = mousePos;
+		if (!registry.checkRoundTimer.has(currPlayer)) {
+			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
+			timer.counter_ms = attack.counter_ms + 3000; // adjust this value to delay enemy attack
+		}
+	}
+}
+
 void SkillSystem::startRockAttack(Entity origin, Entity target) {
 	printf("Started the rock attack\n");
 	if (registry.enemies.has(origin)) {
@@ -297,7 +316,7 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 
 		if (!registry.checkRoundTimer.has(currPlayer)) {
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
-			timer.counter_ms = rt.counter_ms + 1250.f + 1500;
+			timer.counter_ms = rt.counter_ms + 2500.f + 1500;
 		}
 
 		//playerUseMelee = 1;
@@ -438,7 +457,7 @@ Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	if (dx < 0) {
 		angle += M_PI;
 	}
-	//printf(" % f", angle);
+
 	Entity resultEntity = createIceShard(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
 	Motion* ballacc = &registry.motions.get(resultEntity);
 	ballacc->acceleration = vec2(1000 * vx / ICESHARDSPEED, 1000 * vy / ICESHARDSPEED);
@@ -455,9 +474,7 @@ Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 
 void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* renderer) {
 	vec2 targetp = registry.motions.get(target).position;
-	if ((gameLevel == 0) && registry.enemies.has(target)){
-		amount = 0.5;
-	}
+
 	createGreenCross(renderer, targetp);
 	if (registry.stats.has(target)) {
 		Statistics* tStats = &registry.stats.get(target);
@@ -508,7 +525,8 @@ void SkillSystem::luanchCompanionTeamHeal( float amount, RenderSystem* renderer)
 void SkillSystem::luanchEnemyTeamDamage(float amount, RenderSystem* renderer) {
 	for (Entity em : registry.enemies.entities) {
 		vec2 targetp = registry.motions.get(em).position;
-		createGreenCross(renderer, targetp);
+		createMeteorShower(renderer, { 1400, 0  }, 0);
+		Mix_PlayChannel(-1, registry.gesture_aoe_sound, 0);
 		if (registry.stats.has(em)) {
 			Statistics* tStats = &registry.stats.get(em);
 				tStats->health -= amount;
@@ -533,8 +551,8 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	float dx = mouse_x - proj_x;
 	float dy = mouse_y - proj_y;
 	float dxdy = sqrt((dx * dx) + (dy * dy));
-	float vx = FIREBALLSPEED * dx / dxdy;
-	float vy = FIREBALLSPEED * dy / dxdy;
+	float vx = FIREBALLSPEED_X * dx / dxdy;
+	float vy = FIREBALLSPEED_Y * dy / dxdy;
 
 	float angle = atan(dy / dx);
 	if (dx < 0) {
@@ -542,7 +560,33 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	}
 	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
 	Motion* arrowacc = &registry.motions.get(resultEntity);
-	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
+	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED_X, 200 * vy / FIREBALLSPEED_Y);
+
+	return  resultEntity;
+}
+
+Entity SkillSystem::launchArrow(Entity start, vec2 ms_pos, RenderSystem* renderer, int isFreeRoam) {
+
+	vec2 startPos = registry.motions.get(start).position;
+
+	float proj_x = startPos.x + 50;
+	float proj_y = startPos.y;
+	float mouse_x = ms_pos.x;
+	float mouse_y = ms_pos.y;
+
+	float dx = mouse_x - proj_x;
+	float dy = mouse_y - proj_y;
+	float dxdy = sqrt((dx * dx) + (dy * dy));
+	float vx = isFreeRoam ? (ARROWSPEED / 1.5) * dx / dxdy : ARROWSPEED * dx / dxdy;
+	float vy = isFreeRoam ? (ARROWSPEED / 1.5) * dy / dxdy : ARROWSPEED * dy / dxdy;
+
+	float angle = atan(dy / dx);
+	if (dx < 0) {
+		angle += M_PI;
+	}
+	Entity resultEntity = createArrow(renderer, { startPos.x, startPos.y }, angle, { vx,vy }, 1, isFreeRoam);
+	Motion* arrowacc = &registry.motions.get(resultEntity);
+	arrowacc->acceleration = vec2(200 * vx / ARROWSPEED, 200 * vy / ARROWSPEED);
 
 	return  resultEntity;
 }
@@ -679,11 +723,6 @@ void SkillSystem::launchSilence(Entity target, RenderSystem* renderer) {
 void SkillSystem::removeSilence(Entity target) {
 	if (registry.silenced.has(target)) {
 		registry.silenced.remove(target);
-		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
-			if (registry.statsindicators.components[j].owner == target) {
-				registry.remove_all_components_of(registry.statsindicators.entities[j]);
-			}
-		}
 		printf("silence removed!!!!!!!!!!!!!!!!!!!!!!!\n");
 	}
 }
@@ -760,11 +799,6 @@ std::pair<bool, bool> SkillSystem::updateParticleBeam(Entity& origin, float elap
 void SkillSystem::removeUltimate(Entity target) {
 	if (registry.ultimate.has(target)) {
 		registry.ultimate.remove(target);
-		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
-			if (registry.statsindicators.components[j].owner == target) {
-				registry.remove_all_components_of(registry.statsindicators.entities[j]);
-			}
-		}
 	}
 }
 
@@ -779,10 +813,5 @@ Entity SkillSystem::launchParticleBeamCharge(Entity target, RenderSystem* render
 void SkillSystem::removeShield(Entity target) {
 	if (registry.shield.has(target)) {
 		registry.shield.remove(target);
-		for (int j = 0; j < registry.statsindicators.components.size(); j++) {
-			if (registry.statsindicators.components[j].owner == target) {
-				registry.remove_all_components_of(registry.statsindicators.entities[j]);
-			}
-		}
 	}
 }

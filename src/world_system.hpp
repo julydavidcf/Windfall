@@ -14,6 +14,7 @@
 #include "ai_system.hpp"
 #include "render_system.hpp"
 #include "skill_system.hpp"
+#include "swarm_system.hpp"
 
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
@@ -26,7 +27,7 @@ public:
 	GLFWwindow* create_window(int width, int height);
 
 	// starts the game
-	void init(RenderSystem* renderer, AISystem* ai_arg, SkillSystem* skill_arg);
+	void init(RenderSystem* renderer_arg, AISystem* ai_arg, SkillSystem* skill_arg, SwarmSystem* swarm_arg);
 
 	// Displays the start screen and buttons
 	void render_startscreen();
@@ -82,6 +83,7 @@ private:
 	// handle mouse click
 	void on_mouse_button( int button,int action, int mods);
 
+	void createIcons();
 	// check if mouse in button
 	bool inButton(vec2 buttonPos, float buttonX, float buttonY);
 
@@ -118,6 +120,10 @@ private:
 	// Death particle activation
 	void activate_deathParticles(Entity entity);
 
+	// Smoke particle activation
+	void activate_smokeParticles(Entity entity);
+
+
 	//Skills Function
 	void removeTaunt(Entity target);
 	void removeSilence(Entity target);
@@ -126,38 +132,99 @@ private:
 
 	void displayTurnIndicator(int isPlayerTurn);
 	void advanceTutorial(Entity currTutorial, vec2 pos);
+	void balanceHealthNumbers(int levelNum);
+
 
 	// Story telling
 	void backgroundTelling();
+
+	void initializeFreeRoamOne();
+	void initializeFreeRoamTwo();
+
+	void renderBeginningStory();
+	void renderDragonSpeech();
+
+	//Make up game
+	void initializeMakeUpGame();
+	void makeHoverBox(Entity target);
+	vec2 checkPositions(int number, int type);
+	Entity* placeSelections(int number,int type);
+	void updateSize();
+	void checkIfReady();
+
+	void startMenuCleanUp();
+
+	float getYPosition(Entity entity);
 
 	// Game state
 	RenderSystem* renderer;
 	AISystem* ai;
 	SkillSystem* sk;
+	SwarmSystem* swarmSys;
 
 	float current_speed;
-	Entity player_mage;
-	Entity enemy_mage;
-	Entity player_swordsman;
-	Entity enemy_swordsman;
+	
+	Entity arrow_mesh;
 
 	Entity fireball;
 	Entity silence_icon;
 	Entity iceShard;
 	Entity tooltip;
 
+	//-------makeup game system--------
+	Entity startGameButton;
+	Entity resetGameButton;
 
+	Entity hoverBoxTop;
+	Entity hoverBoxBottom;
+	Entity hoverBoxLeft;
+	Entity hoverBoxRight;
+
+
+	Entity selectPanel;
+	Entity companionSize;
+	Entity enemySize;
+
+	Entity selectArcher;
+	Entity selectMage;
+	Entity selectSwordsman;
+	Entity selectEnemyMage;
+	Entity selectEnemySwordsman;
+	Entity selectNecroOne;
+	Entity selectNecroTwo;
+
+	Entity emptyPos;
+	Entity companionPosOne;
+	Entity companionPosTwo;
+	Entity companionPosThree;
+	Entity companionPosFour;
+
+	Entity enemyPosOne;
+	Entity enemyPosTwo;
+	Entity enemyPosThree;
+	Entity enemyPosFour;
+
+	Entity optionPanel;
+	Entity yesOption;
+	Entity noOption;
+	//-----------------------------------------------------------
 	Entity turn_indicator;
+	Entity char_indicator;
 	Entity curr_tutorial_box;
 	int curr_tutorial_box_num = 0;
 	int tutorial_icon_selected = 1;
 	int tutorial_ability_fired = 1;
 	int tutorial_enabled = 0;
 
+	// Platform collision detection
+	float currCeilingPos = 0.f;
+	float currFloorPos = window_height_px - ARCHER_HEIGHT;
+
 	// UI buttons
 	Entity new_game_button;
 	Entity load_game_button;
 	Entity save_game_button;
+	Entity makeup_game_button;
 	Entity exit_game_button;
 	Entity open_menu_button;
 	int pauseMenuOpened = 0;
@@ -165,6 +232,7 @@ private:
 	// story telling system
 	Entity backgroundImage;
 	Entity dialogue;
+	Entity free_roam_tutorial;
 
 	// C++ random number generator
 	std::default_random_engine rng;
@@ -181,13 +249,25 @@ private:
 
 	const int16 MAX_GAME_LEVELS = 3;
 
+	const float BOULDER_VELOCITY = -100.f;
+	const float BOULDER_ACCELERATION = -5.f;
+
+	float next_boulder_spawn;
+
 	std::vector<std::vector<bool>> skill_character_aviability = {
-		// ice  fire  rock  heal  taunt  melee
+		// ice  fire  rock  heal  taunt  melee  arrow
 //mage
-		{ true, true, true, true, false, false},
+		{ true, true, true, true, false, false, false},
 //swordsman
-		{ false, false, false, false, true, true}
+		{ false, false, false, false, true, true,false},
+//archer
+	{ false, false, false, false, false, false, true}
 	};
+
+	std::vector<vec3> spline;
+	Entity free_roam_bird;
+	int birdNextPostionTracker = 1;
+	int birdPositionDivisor = 1;
 };
 // Can't use diretly somehow so just for reference
 enum class SKILL_ID {
@@ -197,5 +277,6 @@ enum class SKILL_ID {
 	SK_HEAL = SK_ROCK + 1, //3
 	SK_TAUNT = SK_HEAL+1,//4
 	SK_MELEE = SK_TAUNT +1,//5
-	SKILL_COUNT = SK_MELEE + 1,
+	SK_ARROW = SK_MELEE +1, // 6
+	SKILL_COUNT = SK_ARROW + 1,
 };

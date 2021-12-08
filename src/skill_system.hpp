@@ -35,10 +35,12 @@ public:
 	void startParticleBeamCharge(Entity origin, Entity target);
 	void startMeleeAttack(Entity origin, Entity target, int bleedOrAOE);
 	void startShieldAttack(Entity origin);
+	void startArrowAttack(Entity origin);
 
 	// launch skills
 	Entity launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
 	Entity launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer);
+	Entity launchArrow(Entity start, vec2 ms_pos, RenderSystem* renderer, int isFreeRoam);
 	Entity launchRock(Entity target, RenderSystem* renderer);
 	Entity launchSpike(Entity target, RenderSystem* renderer);
 	Entity launchLightning(Entity target, RenderSystem* renderer);
@@ -68,8 +70,9 @@ public:
 	
 
 	//skill constants
-	float FIREBALLSPEED = 900.f;
-	float ARROWSPEED = 700.f;
+	float FIREBALLSPEED_X = registry.horizontalResolution / 2.048;
+	float FIREBALLSPEED_Y = registry.horizontalResolution / 2.048;
+	float ARROWSPEED = 1400.f;
 	float ICESHARDSPEED = 100.f;
 
 };
