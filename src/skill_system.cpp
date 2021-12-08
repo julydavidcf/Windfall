@@ -270,13 +270,13 @@ void SkillSystem::startMeleeAttack(Entity origin, Entity target, int bleedOrAOE)
 			auto& timer = registry.checkRoundTimer.emplace(currPlayer);
 
 			if (enemy.enemyType == SWORDSMAN) {
-				timer.counter_ms = rt.counter_ms + 1250.f + animation_timer;
+				timer.counter_ms = rt.counter_ms + 3000.f + animation_timer;
 			}
 			else if (enemy.enemyType == NECROMANCER_MINION) {
-				timer.counter_ms = rt.counter_ms + 800.f + animation_timer;
+				timer.counter_ms = rt.counter_ms + 3000.f + animation_timer;
 			}
 			else if (enemy.enemyType == NECROMANCER_TWO) {
-				timer.counter_ms = rt.counter_ms + 1500.f + animation_timer;
+				timer.counter_ms = rt.counter_ms + 3000.f + animation_timer;
 			}
 
 		}
