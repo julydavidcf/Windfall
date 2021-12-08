@@ -1895,7 +1895,6 @@ void WorldSystem::restart_game(bool force_restart)
 			{
 				gameLevel = loadedLevel;
 				renderer->gameLevel = gameLevel == 2 ? 2 : 1;
-				balanceHealthNumbers(gameLevel);
 			}
 			else
 			{
@@ -1912,10 +1911,10 @@ void WorldSystem::restart_game(bool force_restart)
 			if (gameLevel == 0)
 			{
 			printf("Loading level 0\n");
+			balanceHealthNumbers(0);
 			renderer->gameLevel = 1;
 
 			createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
-			balanceHealthNumbers(0);
 			json_loader.get_level("level_0.json");
 
 			HPBuff = 0;
@@ -1924,9 +1923,9 @@ void WorldSystem::restart_game(bool force_restart)
 		}
 		else if(gameLevel == 1){
 			printf("Loading level 1\n");
+			balanceHealthNumbers(1);
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_ONE);
-			balanceHealthNumbers(1);
 			json_loader.get_level("level_1.json");
 
 			// render the beginning story
@@ -1935,9 +1934,9 @@ void WorldSystem::restart_game(bool force_restart)
 			story = 8;
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
+			balanceHealthNumbers(2);
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_TWO);
-			balanceHealthNumbers(2);
 			json_loader.get_level("level_2.json");
 
 			// render the beginning story
@@ -1946,9 +1945,9 @@ void WorldSystem::restart_game(bool force_restart)
 			story = 19;
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
+			balanceHealthNumbers(3);
 			renderer->gameLevel = 1;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
-			balanceHealthNumbers(3);
 			json_loader.get_level("level_3.json");
 
 			// render the beginning story
