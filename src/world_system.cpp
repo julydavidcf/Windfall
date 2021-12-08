@@ -1080,21 +1080,22 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			arrowM->position = { ArrowResult[0].first*10,ArrowResult[0].second*10 };
 			// assumes ArrowResult will never be empty because arrow disappears before path ends
 			pair<int, int> currpos = ArrowResult[0];
-			pair<int, int> nextpos = ArrowResult[1];
+			pair<int, int> nextpos = ArrowResult[2];
+			ArrowResult.erase(ArrowResult.begin());
 			ArrowResult.erase(ArrowResult.begin());
 			// move right
-			if (currpos.first+1 == nextpos.first) {
+			if (currpos.first < nextpos.first) {
 				arrowM->angle = 0;
 			}
 			// move left
-			if (currpos.first - 1 == nextpos.first) {
+			if (currpos.first > nextpos.first) {
 				arrowM->angle = M_PI;
 			}
-			if (currpos.second + 1 == nextpos.second) {
+			if (currpos.second < nextpos.second) {
 				arrowM->angle = M_PI/2;
 			}
 			// move left
-			if (currpos.second - 1 == nextpos.second) {
+			if (currpos.second > nextpos.second) {
 				arrowM->angle = 3*M_PI/2;
 			}
 
@@ -4499,12 +4500,12 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 			break;
 		}
 		case 1: {
-			registry.enemy_mage_hp = 30 / 10;
+			registry.enemy_mage_hp = 30;
 			break;
 		}
 		case 2: {
 			registry.player_mage_hp = 70;
-			registry.enemy_swordsman_hp = 150/10;
+			registry.enemy_swordsman_hp = 150;
 			break;
 		}
 		case 3: {
@@ -4535,11 +4536,11 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 
 	if (HPDebuff > 0) {
 		if (levelNum == 2) {
-			registry.player_archer_hp *= (1/2);
-			registry.player_mage_hp *= (1/2);
+			registry.player_archer_hp = registry.player_archer_hp / 2;
+			registry.player_mage_hp = registry.player_mage_hp / 2;
 		}
 		else if (levelNum == 3) {
-			registry.player_swordsman_hp *= (1/2);
+			registry.player_swordsman_hp = registry.player_swordsman_hp / 2;
 		}
 	}
 

@@ -258,8 +258,8 @@ private:
 	float next_boulder_spawn;
 
 	// Buff indicators
-	int hasHPDebuff = 0;
-	int hasHPBuff = 0;
+	int HPDebuff = 0;
+	int HPBuff = 0;
 	int swordsmanHPBuff = 0;
 
 	std::vector<std::vector<bool>> skill_character_aviability = {
