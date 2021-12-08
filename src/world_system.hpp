@@ -76,9 +76,6 @@ public:
 	int canStep = 0;
 	int closeWindow = 0;
 
-	unsigned int horizontalResolution = 0;
-	unsigned int verticalResolution = 0;
-
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);

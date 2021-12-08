@@ -88,7 +88,6 @@ void createSpline(RenderSystem* renderer, std::vector<vec3> points)
 
 Entity createEnemyMage(RenderSystem* renderer, vec2 pos)
 {
-	Mix_FadeInMusic(registry.background_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MAGE_IDLE);
@@ -302,7 +301,6 @@ Entity createNecromancerMinion(RenderSystem* renderer, vec2 pos)
 
 Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 {
-	Mix_FadeInMusic(registry.boss_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_ONE_IDLE);
@@ -336,7 +334,6 @@ Entity createNecromancerPhaseOne(RenderSystem* renderer, vec2 pos)
 
 Entity createNecromancerPhaseTwo(RenderSystem* renderer, vec2 pos)
 {
-	//Mix_FadeInMusic(registry.boss_music, -1, 5000);
 	auto entity = Entity();
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::NECRO_TWO_IDLE);

@@ -470,6 +470,7 @@ void WorldSystem::startMenuCleanUp()
 	isFreeRoam = false;
 	freeRoamLevel = 1;
 
+	renderer->gameLevel = 1;
 				
 	while (registry.motions.entities.size() > 0)
 		registry.remove_all_components_of(registry.motions.entities.back());
@@ -1347,7 +1348,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
 						printf("heal attack enemy\n");
 
-						int healValue = 5;
+						int healValue = (gameLevel == 0 && !isMakeupGame) ? 0 : 5;
 
 						sk->launchHeal(attack.target, healValue, renderer);
 						update_healthBars();
@@ -1976,6 +1977,17 @@ void WorldSystem::restart_game(bool force_restart)
 			curr_tutorial_box_num = 0;
 		}
 	}
+
+	if (!isFreeRoam) {
+		switch (gameLevel) {
+		case 0: Mix_FadeInMusic(registry.background_music, -1, 5000); break;
+		case 1: Mix_FadeInMusic(registry.background_music, -1, 5000); break;
+		case 2: Mix_FadeInMusic(registry.background_music, -1, 5000); break;
+		case 3: Mix_FadeInMusic(registry.boss_music, -1, 5000); break;
+		default: break;
+		}
+	}
+
 	printf("done with restarting\n");
 }
 
@@ -2686,7 +2698,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			&& registry.companions.get(player_archer).curr_anim_type != WALK_ATTACKING) {
 			if (action == GLFW_RELEASE) {
 				Motion& motion = registry.motions.get(player_archer);
-				motion.velocity.y = -(verticalResolution / 2.5);
+				motion.velocity.y = -(registry.verticalResolution / 2.25);
 				registry.companions.get(player_archer).curr_anim_type = JUMPING;
 			}
 		}
@@ -3265,34 +3277,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			}
 		}
 
-		// show all skill
-		if ((selected_skill != 0) && (!isFreeRoam))
-		{
-			registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::ICESHARDICON;
-		}
-		if ((selected_skill != 1) && (!isFreeRoam))
-		{
-			registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::FIREBALLICON;
-		}
-		if ((selected_skill != 2) && (!isFreeRoam))
-		{
-			registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::ROCKICON;
-		}
-		if ((selected_skill != 3) && (!isFreeRoam))
-		{
-			registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::HEALICON;
-		}
-		if ((selected_skill != 4) && (!isFreeRoam))
-		{
-			registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::TAUNTICON;
-		}
-		if ((selected_skill != 5) && (!isFreeRoam))
-		{
-			registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::MELEEICON;
-		}
-		if (selected_skill != 6 && (!isFreeRoam)) {
-			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
-		}
 		if(!isFreeRoam){
 			showCorrectSkills();
 		}
@@ -3804,6 +3788,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				displayPlayerTurn(); // display player turn when restart game
 				update_healthBars();
 				canStep = 1;
+				Mix_FadeInMusic(registry.background_music, -1, 5000);
 			}
 		}
 	}
@@ -4329,6 +4314,16 @@ void WorldSystem::initializeMakeUpGame() {
 	
 	createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
 
+	registry.enemy_mage_hp = 90;
+	registry.enemy_swordsman_hp = 130;
+
+	registry.player_mage_hp = 60;
+	registry.player_swordsman_hp = 85;
+	registry.player_archer_hp = 50;
+	registry.necro_minion_health = 15;
+	registry.necro_1_health = 175;
+	registry.necro_2_health = 125;
+
 	selectPanel = createSelectPanel(renderer, { w / 2, 4*h/5 });
 	companionSize = createSizeIndicator(renderer, { 1 * w / 6, 15 * h/ 16 },companion_size + 1);
 	enemySize = createSizeIndicator(renderer, { 4 * w / 6, 15 * h / 16 }, enemy_size + 1);
@@ -4558,18 +4553,18 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 
 	if (swordsmanHPBuff > 0 && levelNum == 3) {
 		for (int i = 0; i < swordsmanHPBuff; i++) {
-			registry.player_swordsman_hp += 15;
+			registry.player_swordsman_hp += 20;
 		}
 		swordsmanHPBuff = 0;
 	}
 
 	if (HPDebuff > 0) {
 		if (levelNum == 2) {
-			registry.player_archer_hp = registry.player_archer_hp / 2;
-			registry.player_mage_hp = registry.player_mage_hp / 2;
+			registry.player_archer_hp = registry.player_archer_hp - 15;
+			registry.player_mage_hp = registry.player_mage_hp - 5;
 		}
 		else if (levelNum == 3) {
-			registry.player_swordsman_hp = registry.player_swordsman_hp / 2;
+			registry.player_swordsman_hp = registry.player_swordsman_hp - 20;
 		}
 	}
 

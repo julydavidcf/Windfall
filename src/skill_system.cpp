@@ -474,9 +474,7 @@ Entity SkillSystem::launchIceShard(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 
 void SkillSystem::launchHeal(Entity target, float amount,  RenderSystem* renderer) {
 	vec2 targetp = registry.motions.get(target).position;
-	if ((gameLevel == 0) && registry.enemies.has(target)){
-		amount = 0;
-	}
+
 	createGreenCross(renderer, targetp);
 	if (registry.stats.has(target)) {
 		Statistics* tStats = &registry.stats.get(target);
@@ -553,7 +551,7 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	float dx = mouse_x - proj_x;
 	float dy = mouse_y - proj_y;
 	float dxdy = sqrt((dx * dx) + (dy * dy));
-	float vx = FIREBALLSPEED * dx / dxdy;
+	float vx = (registry.horizontalResolution / 2.048) * dx / dxdy;
 	float vy = FIREBALLSPEED * dy / dxdy;
 
 	float angle = atan(dy / dx);

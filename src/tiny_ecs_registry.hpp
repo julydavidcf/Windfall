@@ -118,6 +118,10 @@ public:
 	int lightning_dmg = 25;
 	int arrow_dmg = 10;
 
+	// Player screen resolution
+	unsigned int horizontalResolution = 0;
+	unsigned int verticalResolution = 0;
+
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()

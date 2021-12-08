@@ -51,7 +51,7 @@ int main()
 	SkillSystem sk;
 	SwarmSystem swarmSys;
 
-	getScreenResolution(world.horizontalResolution, world.verticalResolution);
+	getScreenResolution(registry.horizontalResolution, registry.verticalResolution);
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
