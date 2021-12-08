@@ -2936,6 +2936,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		auto ent = createBackgroundObject(renderer, { 550, 325 });
 		registry.deformableEntities.get(ent).deformType2 = true;
 		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 350 });
+		update_healthBars();
 		createRound();
 		checkRound();
 	}
