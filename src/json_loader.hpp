@@ -15,5 +15,4 @@ class JSONLoader
         bool get_save_file();
         void save_game();
         void init(RenderSystem* renderer);
-
 };

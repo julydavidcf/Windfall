@@ -41,6 +41,8 @@ public:
 	// create attacks
 	void iceShardAttack(Entity currPlayer);
 
+	void balanceHealthNumbers(int levelNum);
+
 	//Prep skill Function
 	//void startTauntAttack(Entity origin, Entity target);
 	//void startIceShardAttack(Entity origin, Entity target);
@@ -132,7 +134,6 @@ private:
 
 	void displayTurnIndicator(int isPlayerTurn);
 	void advanceTutorial(Entity currTutorial, vec2 pos);
-	void balanceHealthNumbers(int levelNum);
 
 
 	// Story telling

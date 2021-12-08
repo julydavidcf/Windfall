@@ -135,12 +135,6 @@ Entity currentProjectile;
 
 int story = 0;
 
-// Buff indicators
-int HPDebuff = 0;
-int HPBuff = 0;
-int swordsmanHPBuff = 0;
-
-
 using namespace std;
 
 WorldSystem::WorldSystem()
@@ -460,9 +454,9 @@ void WorldSystem::startMenuCleanUp()
 	player_archer_speed = init_player_archer_speed;
 	player_mage_speed = init_player_mage_speed;
 
-	HPDebuff = 0;
-	HPBuff = 0;
-	swordsmanHPBuff = 0;
+	registry.HPDebuff = 0;
+	registry.HPBuff = 0;
+	registry.swordsmanHPBuff = 0;
 
 	isReady = false;
 	isReset = false;
@@ -1895,7 +1889,6 @@ void WorldSystem::restart_game(bool force_restart)
 			{
 				gameLevel = loadedLevel;
 				renderer->gameLevel = gameLevel == 2 ? 2 : 1;
-				balanceHealthNumbers(gameLevel);
 			}
 			else
 			{
@@ -1912,21 +1905,21 @@ void WorldSystem::restart_game(bool force_restart)
 			if (gameLevel == 0)
 			{
 			printf("Loading level 0\n");
+			balanceHealthNumbers(0);
 			renderer->gameLevel = 1;
 
 			createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
-			balanceHealthNumbers(0);
 			json_loader.get_level("level_0.json");
 
-			HPBuff = 0;
-			HPDebuff = 0;
+			registry.HPBuff = 0;
+			registry.HPDebuff = 0;
 			tutorial_enabled = 1;
 		}
 		else if(gameLevel == 1){
 			printf("Loading level 1\n");
+			balanceHealthNumbers(1);
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_ONE);
-			balanceHealthNumbers(1);
 			json_loader.get_level("level_1.json");
 
 			// render the beginning story
@@ -1935,9 +1928,9 @@ void WorldSystem::restart_game(bool force_restart)
 			story = 8;
 		} else if(gameLevel == 2){
 			printf("Loading level 2\n");
+			balanceHealthNumbers(2);
 			renderer->gameLevel = gameLevel;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_TWO);
-			balanceHealthNumbers(2);
 			json_loader.get_level("level_2.json");
 
 			// render the beginning story
@@ -1946,9 +1939,9 @@ void WorldSystem::restart_game(bool force_restart)
 			story = 19;
 		} else if(gameLevel == 3){
 			printf("Loading level 3 phase 1\n");
+			balanceHealthNumbers(3);
 			renderer->gameLevel = 1;
 			createBackground(renderer, { w / 2, h / 2 }, LEVEL_THREE);
-			balanceHealthNumbers(3);
 			json_loader.get_level("level_3.json");
 
 			// render the beginning story
@@ -2253,7 +2246,7 @@ void WorldSystem::handle_collisions()
 					Motion chestMotion = registry.motions.get(entity_other);
 					if (renderedChest.used_geometry != GEOMETRY_BUFFER_ID::TREASURE_CHEST_OPEN && chest.chestType == HEALTH_BOOST) {
 						// Boost all companion HP permanently
-						HPBuff++;
+						registry.HPBuff++;
 						Mix_PlayChannel(-1, registry.heal_spell_sound, 0);
 						createBoostMessage(renderer, chestMotion.position, HEALTH_BOOST);
 					}
@@ -2943,6 +2936,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 		auto ent = createBackgroundObject(renderer, { 550, 325 });
 		registry.deformableEntities.get(ent).deformType2 = true;
 		necromancer_phase_two = createNecromancerPhaseTwo(renderer, { 900, 350 });
+		update_healthBars();
 		createRound();
 		checkRound();
 	}
@@ -4323,15 +4317,15 @@ void WorldSystem::initializeMakeUpGame() {
 	
 	createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
 
-	registry.enemy_mage_hp = 90;
-	registry.enemy_swordsman_hp = 130;
+	registry.enemy_mage_hp = 30;
+	registry.enemy_swordsman_hp = 150;
 
-	registry.player_mage_hp = 60;
-	registry.player_swordsman_hp = 85;
-	registry.player_archer_hp = 50;
-	registry.necro_minion_health = 15;
-	registry.necro_1_health = 175;
-	registry.necro_2_health = 125;
+	registry.player_mage_hp = 70;
+	registry.player_swordsman_hp = 250;
+	registry.player_archer_hp = 175;
+	registry.necro_minion_health = 10;
+	registry.necro_1_health = 160;
+	registry.necro_2_health = 200;
 
 	selectPanel = createSelectPanel(renderer, { w / 2, 4*h/5 });
 	companionSize = createSizeIndicator(renderer, { 1 * w / 6, 15 * h/ 16 },companion_size + 1);
@@ -4508,7 +4502,7 @@ void WorldSystem::renderDragonSpeech() {
 		dragon = 1;
 		canStep = 0;
 		// Decrease health
-		HPDebuff++;
+		registry.HPDebuff++;
 		Motion archerMotion = registry.motions.get(player_archer);
 		createDebuffIndicator(renderer, vec2(archerMotion.position.x, archerMotion.position.y - archerMotion.scale.y - 10));
 	}
@@ -4551,23 +4545,23 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 		default: break;
 	}
 
-	if (HPBuff > 0) {
-		for (int i = 0; i < HPBuff; i++) {
+	if (registry.HPBuff > 0) {
+		for (int i = 0; i < registry.HPBuff; i++) {
 			registry.player_archer_hp += 10;
 			registry.player_mage_hp += 5;
-			swordsmanHPBuff++;
+			registry.swordsmanHPBuff++;
 		}
-		HPBuff = 0;
+		registry.HPBuff = 0;
 	}
 
-	if (swordsmanHPBuff > 0 && levelNum == 3) {
-		for (int i = 0; i < swordsmanHPBuff; i++) {
+	if (registry.swordsmanHPBuff > 0 && levelNum == 3) {
+		for (int i = 0; i < registry.swordsmanHPBuff; i++) {
 			registry.player_swordsman_hp += 20;
 		}
-		swordsmanHPBuff = 0;
+		registry.swordsmanHPBuff = 0;
 	}
 
-	if (HPDebuff > 0) {
+	if (registry.HPDebuff > 0) {
 		if (levelNum == 2) {
 			registry.player_archer_hp = registry.player_archer_hp - 15;
 			registry.player_mage_hp = registry.player_mage_hp - 5;

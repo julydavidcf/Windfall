@@ -97,15 +97,15 @@ public:
 
 	//Game Stats
 
-	int enemy_mage_hp = 90;
-	int enemy_swordsman_hp = 130;
+	int enemy_mage_hp = 30;
+	int enemy_swordsman_hp = 150;
 
-	int player_mage_hp = 60;
-	int player_swordsman_hp = 85;
-	int player_archer_hp = 50;
-	int necro_minion_health = 15;
-	int necro_1_health = 175;
-	int necro_2_health = 125;
+	int player_mage_hp = 70;
+	int player_swordsman_hp = 250;
+	int player_archer_hp = 175;
+	int necro_minion_health = 10;
+	int necro_1_health = 160;
+	int necro_2_health = 200;
 
 
 	//skill dmg
@@ -117,6 +117,11 @@ public:
 	int spike_dmg = 10;
 	int lightning_dmg = 25;
 	int arrow_dmg = 10;
+
+	// Buff indicators
+	int HPDebuff = 0;
+	int HPBuff = 0;
+	int swordsmanHPBuff = 0;
 
 	// Player screen resolution
 	unsigned int horizontalResolution = 0;

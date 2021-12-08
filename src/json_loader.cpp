@@ -1,5 +1,6 @@
 #include "json_loader.hpp"
 #include "world_init.hpp"
+#include "world_system.hpp"
 #include "tiny_ecs_registry.hpp"
 
 using json = nlohmann::json;
@@ -76,6 +77,60 @@ std::ifstream get_file(string file_name){
     }
 }
 
+void balanceHealthNumbers(int16 levelNum) {
+    switch (levelNum) {
+    case 0: {
+        registry.player_archer_hp = 175;
+        registry.enemy_mage_hp = 10;
+        break;
+    }
+    case 1: {
+        registry.enemy_mage_hp = 30;
+        break;
+    }
+    case 2: {
+        registry.player_mage_hp = 70;
+        registry.enemy_swordsman_hp = 150;
+        break;
+    }
+    case 3: {
+        registry.player_swordsman_hp = 250;
+        registry.necro_minion_health = 10;
+        registry.necro_1_health = 160;
+        registry.necro_2_health = 200;
+        break;
+    }
+    default: break;
+    }
+
+    if (registry.HPBuff > 0) {
+        for (int i = 0; i < registry.HPBuff; i++) {
+            registry.player_archer_hp += 10;
+            registry.player_mage_hp += 5;
+            registry.swordsmanHPBuff++;
+        }
+        registry.HPBuff = 0;
+    }
+
+    if (registry.swordsmanHPBuff > 0 && levelNum == 3) {
+        for (int i = 0; i < registry.swordsmanHPBuff; i++) {
+            registry.player_swordsman_hp += 20;
+        }
+        registry.swordsmanHPBuff = 0;
+    }
+
+    if (registry.HPDebuff > 0) {
+        if (levelNum == 2) {
+            registry.player_archer_hp = registry.player_archer_hp - 15;
+            registry.player_mage_hp = registry.player_mage_hp - 5;
+        }
+        else if (levelNum == 3) {
+            registry.player_swordsman_hp = registry.player_swordsman_hp - 20;
+        }
+    }
+
+}
+
 // Load the level from the given json
 void load_level(json j){
     int roundNum = 0;
@@ -85,19 +140,6 @@ void load_level(json j){
         printf("Loading round size\n");
         std::cout << j["roundSize"] << std::endl;
         std::vector<Entity> roundVec(j["roundSize"]);
-    }
-    if(!j["level"].is_null()){
-        printf("Loading level\n");
-        loadedLevel = j["level"];
-        if(loadedLevel == 0){
-            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, TUTORIAL);
-        } else if(loadedLevel == 1){
-            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_ONE);
-        } else if(loadedLevel == 2){
-            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_TWO);
-        } else if(loadedLevel == 3){
-            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_THREE);
-        }
     }
     if(!j["story"].is_null()){
         printf("Loading story\n");
@@ -113,16 +155,32 @@ void load_level(json j){
     }
     if(!j["HPDebuff"].is_null()){
         printf("Loading hp decrease\n");
-        HPDebuff = j["HPDebuff"];
+        registry.HPDebuff = j["HPDebuff"];
     }
     if(!j["HPBuff"].is_null()){
         printf("Loading hp increase\n");
-        HPBuff = j["HPBuff"];
+        registry.HPBuff = j["HPBuff"];
     }
     if(!j["swordsmanHPBuff"].is_null()){
         printf("Loading swordsman hp buff\n");
-        swordsmanHPBuff = j["swordsmanHPBuff"];
+        registry.swordsmanHPBuff = j["swordsmanHPBuff"];
     }
+
+    if(!j["level"].is_null()){
+        printf("Loading level\n");
+        loadedLevel = j["level"];
+        if(loadedLevel == 0){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, TUTORIAL);
+        } else if(loadedLevel == 1){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_ONE);
+        } else if(loadedLevel == 2){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_TWO);
+        } else if(loadedLevel == 3){
+            createBackground(renderer_load, { window_width_px / 2, window_height_px / 2 }, LEVEL_THREE);
+        }
+        balanceHealthNumbers(loadedLevel);
+    }
+
     for(json entity: j["entities"]){
         Entity create_entity;
         // ---------------------------- COMPANIONS ----------------------------
@@ -461,9 +519,9 @@ void JSONLoader::save_game(){
     j["story"] = story;
     j["isFreeRoam"] = isFreeRoam;
     j["freeRoamLevel"] = freeRoamLevel;
-    j["HPDebuff"] = HPDebuff;
-    j["HPBuff"] = HPBuff;
-    j["swordsmanHPBuff"] = swordsmanHPBuff;
+    j["HPDebuff"] = registry.HPDebuff;
+    j["HPBuff"] = registry.HPBuff;
+    j["swordsmanHPBuff"] = registry.swordsmanHPBuff;
     
     int entity = 0;
     for(Entity companion: registry.companions.entities){
