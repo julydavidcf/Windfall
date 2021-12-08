@@ -1,6 +1,6 @@
-# Milestone 3 game
+# Milestone 4 game
 
-The game is a turn-based RPG, where the player can choose to use different abilities during the battle. There is a tutorial at the beginning to teach the player how to play, and there are dialogues throughout the game to describe the background and lore of the game. After the tutorial, the player has to command his companions and fight through 3 levels to defeat the necromancer boss, who has 2 phases. The player can save the game and come back to it later.
+Windfall is a turn-based RPG, where the player can choose to use different abilities during the battle. There is a tutorial at the beginning to teach the player how to play, and there are dialogues throughout the game to describe the background and lore of the game. After the tutorial, the player has to command his companions and fight through 3 levels to defeat the necromancer boss, who has 2 phases. The player can save the game and come back to it later. Between the battle levels, there are two free-roam levels where the player can move around and explore the environment. There are chests in these levels for them to grab stat boosts to aid them in their later battles. The game has a full beginning, story, and conclusion. There is also a custom mode called "Makeup Mode", where it becomes an arena-style game and the player can choose the characters they used and also the enemies they fight.
 
 
 # Features to meet Milestone 1 goals (100 points total)
@@ -53,6 +53,22 @@ The game is a turn-based RPG, where the player can choose to use different abili
 * Memory management (5): Memory usage is fairly low and dynamically-allocated memory are released properly.
 * Bug and feature fixes (5): Fixed numerous bugs such as the camera trail and the debugging boxes. Moreover removed the magenta border.
 
+# Features to meet Milestone 4 goals (100 points total)
+
+* Gameplay III (10): Added two free-roam levels where the player can explore and find rewards. Added an archer character to the battle system who is also the protagonist of the story. Added more dialogue between levels and a conclusion for the player to read.
+* Simple path finding (10): Added an enemy-seeking arrow that calculates the shortest path using BFS to the enemy and hits them.
+* Swarm behaviour (10): Added a swarm of fireflies in the second free-roam level that flies around as a group. It can be separated by the player shooting arrows, but will immediately start to re-group and travel as one swarm again.
+* Complex prescribed motion (10): Added a flying dragon in the first free-roam level that flies in the sky. It has a non-linear motion path calculated using interpolation.
+* Precise collision (10): Added a precise collision interaction between the player's arrows and the boulders in the first free-roam level, using meshes and a polygon collision detection method.
+* Level Editor (10): Added a "Makeup Mode" that allows the player to edit the level by choosing the companions and enemies that exist in the level. They can choose up to a 4v4 battle with a variety of companions and enemies.
+* Light (10): Added a light-up effect to the player's arrows that would illuminate the environment in the second free-roam level (Which is made to be dark using a fragment shader), the light increases its radius if it comes in contact with the firefly swarm.
+* Game balance (5): Did an in-depth analysis on the health numbers of all characters, to determine how much health each character should have to give the player an optimal experience. In this case, the optimal experience implies that the game can last enough turns for them to try out all the abilities, but not too long that it becomes very boring. See the Balancing.pdf for details on the conducted analysis.
+
+* Graphics assets (5): Added many new sprites for abilities and enemy characters.
+* Lag mitigation (5): The game does not lag.
+* Crash free (5): The game does not crash.
+* Memory management (5): Memory usage is fairly low and dynamically-allocated memory are released properly.
+* Bug and feature fixes (5): Fixed numerous bugs from the last milestone and new ones that appeared during the milestone 4 development to ensure there are no major bugs or crashes.
 
 # Audio References
 
@@ -71,6 +87,9 @@ The game is a turn-based RPG, where the player can choose to use different abili
 13. https://freesound.org/people/SilverIllusionist/sounds/580814/
 14. https://freesound.org/people/humanoide9000/sounds/329029/
 15. https://freesound.org/people/Aleks41/sounds/406063/
+16. https://downloads.khinsider.com/game-soundtracks/album/octopath-traveler-original-soundtrack-2018
+17. https://downloads.khinsider.com/game-soundtracks/album/darkest-dungeon-ost
+18. https://freesound.org/people/vixuxx/sounds/9874/
 
 # Image references
 
@@ -88,3 +107,7 @@ The game is a turn-based RPG, where the player can choose to use different abili
 12. https://www.artstation.com/artwork/Vd5444
 13. https://sanctumpixel.itch.io/angel-of-death-pixel-art-character
 14. https://samuellee.itch.io/reaper-animated-pixel-art
+15. https://www.pngwing.com/en/free-png-bpuix/download
+16. https://seliel-the-shaper.itch.io/treasure-chests
+17. https://arludus.itch.io/2d-pixel-art-medieval-backgrounds-pack
+18. https://ansimuz.itch.io/sideview-fantasy-patreon-collectio
