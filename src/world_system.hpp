@@ -257,11 +257,6 @@ private:
 
 	float next_boulder_spawn;
 
-	// Buff indicators
-	int HPDebuff = 0;
-	int HPBuff = 0;
-	int swordsmanHPBuff = 0;
-
 	std::vector<std::vector<bool>> skill_character_aviability = {
 		// ice  fire  rock  heal  taunt  melee  arrow
 //mage

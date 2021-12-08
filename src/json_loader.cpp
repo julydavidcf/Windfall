@@ -111,6 +111,18 @@ void load_level(json j){
         printf("Loading free roam level\n");
         freeRoamLevel = j["freeRoamLevel"];
     }
+    if(!j["HPDebuff"].is_null()){
+        printf("Loading hp decrease\n");
+        HPDebuff = j["HPDebuff"];
+    }
+    if(!j["HPBuff"].is_null()){
+        printf("Loading hp increase\n");
+        HPBuff = j["HPBuff"];
+    }
+    if(!j["swordsmanHPBuff"].is_null()){
+        printf("Loading swordsman hp buff\n");
+        swordsmanHPBuff = j["swordsmanHPBuff"];
+    }
     for(json entity: j["entities"]){
         Entity create_entity;
         // ---------------------------- COMPANIONS ----------------------------
@@ -449,6 +461,10 @@ void JSONLoader::save_game(){
     j["story"] = story;
     j["isFreeRoam"] = isFreeRoam;
     j["freeRoamLevel"] = freeRoamLevel;
+    j["HPDebuff"] = HPDebuff;
+    j["HPBuff"] = HPBuff;
+    j["swordsmanHPBuff"] = swordsmanHPBuff;
+    
     int entity = 0;
     for(Entity companion: registry.companions.entities){
         j["entities"][entity] = get_entity(companion);

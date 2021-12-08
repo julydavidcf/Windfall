@@ -84,11 +84,7 @@ bool isReset = false;
 bool isFInished = false;
 int companion_size = 0;
 int enemy_size = 0;
-int speed_increment= 2;
-int init_enemy_speed = 1;
-int enemy_speed = 1;
-int init_companion_speed = 2;
-int companion_speed = 2;
+
 vec2 companionOnePos = {100, 300};
 vec2 companionTwoPos = { 225, 300 };
 vec2 companionThreePos = { 350, 300 };
@@ -98,6 +94,25 @@ vec2 enemyOnePos = { 1100, 300 };
 vec2 enemyTwoPos = { 950, 300 };
 vec2 enemyThreePos = { 800, 300 };
 vec2 enemyFourPos = { 650, 300 };
+
+// Makeup Game Speed:
+int necro_one_speed = 1; 
+int necro_two_speed = 2;
+
+int enemy_swordsman_speed = 4; //[4-7]
+int init_enemy_swordsman_speed = 4;
+
+int player_swordsman_speed = 8; //[8-11]
+int init_player_swordsman_speed = 8;
+
+int player_archer_speed = 12; //[12-15]
+int init_player_archer_speed = 12;
+
+int enemy_mage_speed = 16; //[16-19]
+int init_enemy_mage_speed = 16;
+
+int player_mage_speed = 20; //[20-23]
+int init_player_mage_speed = 20;
 
 
 int beginning = 0;	// for beginning speech
@@ -119,6 +134,11 @@ Entity selectedButton;
 Entity currentProjectile;
 
 int story = 0;
+
+// Buff indicators
+int HPDebuff = 0;
+int HPBuff = 0;
+int swordsmanHPBuff = 0;
 
 
 using namespace std;
@@ -433,8 +453,15 @@ void WorldSystem::startMenuCleanUp()
 	companion_size = 0;
 	enemy_size = 0;
 
-	companion_speed = init_companion_speed;
-	enemy_speed = init_enemy_speed;
+	enemy_swordsman_speed = init_enemy_swordsman_speed;
+	enemy_mage_speed = init_enemy_mage_speed;
+	player_swordsman_speed = init_player_swordsman_speed;
+	player_archer_speed = init_player_archer_speed;
+	player_mage_speed = init_player_mage_speed;
+
+	HPDebuff = 0;
+	HPBuff = 0;
+	swordsmanHPBuff = 0;
 
 	isReady = false;
 	isReset = false;
@@ -1866,6 +1893,7 @@ void WorldSystem::restart_game(bool force_restart)
 			{
 				gameLevel = loadedLevel;
 				renderer->gameLevel = gameLevel == 2 ? 2 : 1;
+				balanceHealthNumbers(gameLevel);
 			}
 			else
 			{
@@ -1885,7 +1913,6 @@ void WorldSystem::restart_game(bool force_restart)
 			renderer->gameLevel = 1;
 
 			createBackground(renderer, { w / 2, h / 2 }, TUTORIAL);
-			// Kept this to load icons, but commented out createMage in load_level()
 			balanceHealthNumbers(0);
 			json_loader.get_level("level_0.json");
 
@@ -3542,8 +3569,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				*placeSelections(companion_size, 1) = createPlayerArcher(renderer, checkPositions(companion_size, 1), 0);
 				Entity entity = *placeSelections(companion_size, 1);
 				Statistics& stat = registry.stats.get(entity);
-				stat.speed = companion_speed;
-				companion_speed = companion_speed + speed_increment;
+				stat.speed = player_archer_speed;
+				player_archer_speed++;
 				updateSize();
 				checkIfReady();
 			}
@@ -3556,8 +3583,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				*placeSelections(companion_size, 1) = createPlayerMage(renderer, checkPositions(companion_size, 1));
 				Entity entity = *placeSelections(companion_size, 1);
 				Statistics& stat = registry.stats.get(entity);
-				stat.speed = companion_speed;
-				companion_speed = companion_speed + speed_increment;
+				stat.speed = player_mage_speed;
+				player_mage_speed++;
 				updateSize();
 				checkIfReady();
 			}
@@ -3569,8 +3596,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			*placeSelections(companion_size, 1) = createPlayerSwordsman(renderer, checkPositions(companion_size, 1));
 			Entity entity = *placeSelections(companion_size, 1);
 			Statistics& stat = registry.stats.get(entity);
-			stat.speed = companion_speed;
-			companion_speed = companion_speed + speed_increment;
+			stat.speed = player_swordsman_speed;
+			player_swordsman_speed++;
 			updateSize();
 			checkIfReady();
 			}
@@ -3582,8 +3609,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			*placeSelections(enemy_size, 2) = createEnemyMage(renderer, checkPositions(enemy_size, 2));
 			Entity entity = *placeSelections(enemy_size, 2);
 			Statistics& stat = registry.stats.get(entity);
-			stat.speed = enemy_speed;
-			enemy_speed = enemy_speed + speed_increment;
+			stat.speed = enemy_mage_speed;
+			enemy_mage_speed++;
 			updateSize();
 			checkIfReady();
 			}
@@ -3595,8 +3622,8 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				*placeSelections(enemy_size, 2) = createEnemySwordsman(renderer, checkPositions(enemy_size, 2));
 				Entity entity = *placeSelections(enemy_size, 2);
 				Statistics& stat = registry.stats.get(entity);
-				stat.speed = enemy_speed;
-				enemy_speed = enemy_speed + speed_increment;
+				stat.speed = enemy_swordsman_speed;
+				enemy_swordsman_speed++;
 				updateSize();
 				checkIfReady();
 			}
@@ -3614,8 +3641,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			Motion& motion = registry.motions.get(entity);
 			motion.position.x = motion.position.x - offset_x;
 			Statistics& stat = registry.stats.get(entity);
-			stat.speed = enemy_speed;
-			enemy_speed = enemy_speed + speed_increment;
+			stat.speed = necro_one_speed;
 			updateSize();
 			checkIfReady();
 			}
@@ -3627,8 +3653,7 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			*placeSelections(enemy_size, 2) = createNecromancerPhaseTwo(renderer, checkPositions(enemy_size-1, 2));
 			Entity entity = *placeSelections(enemy_size, 2);
 			Statistics& stat = registry.stats.get(entity);
-			stat.speed = enemy_speed;
-			enemy_speed = enemy_speed + speed_increment;
+			stat.speed = necro_two_speed;
 			updateSize();
 			checkIfReady();
 			}
@@ -3638,8 +3663,12 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 			if (inButton(registry.motions.get(resetGameButton).position, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT)) {
 					companion_size = 0;
 					enemy_size = 0;
-					companion_speed = init_companion_speed;
-					enemy_speed = init_enemy_speed;
+
+					enemy_swordsman_speed = init_enemy_swordsman_speed;
+					enemy_mage_speed = init_enemy_mage_speed;
+					player_swordsman_speed = init_player_swordsman_speed;
+					player_archer_speed = init_player_archer_speed;
+					player_mage_speed = init_player_mage_speed;
 
 					if(registry.companions.has(companionPosOne)){
 						Companion& comp = registry.companions.get(companionPosOne);
