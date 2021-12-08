@@ -17,8 +17,8 @@ const float NECRO_ONE_WIDTH = 240.f;
 const float NECRO_ONE_HEIGHT = 270.f;
 const float NECRO_TWO_WIDTH = 350.f;
 const float NECRO_TWO_HEIGHT = 500.f;
-const float NECRO_MINION_WIDTH = 90.f;
-const float NECRO_MINION_HEIGHT = 110.f;
+const float NECRO_MINION_WIDTH = 90.f / 1.5;
+const float NECRO_MINION_HEIGHT = 110.f / 1.5;
 const float DRAGON_WIDTH = 128.f;
 const float DRAGON_HEIGHT = 117.333333333f;
 

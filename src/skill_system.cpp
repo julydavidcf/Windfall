@@ -551,8 +551,8 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	float dx = mouse_x - proj_x;
 	float dy = mouse_y - proj_y;
 	float dxdy = sqrt((dx * dx) + (dy * dy));
-	float vx = (registry.horizontalResolution / 2.048) * dx / dxdy;
-	float vy = FIREBALLSPEED * dy / dxdy;
+	float vx = FIREBALLSPEED_X * dx / dxdy;
+	float vy = FIREBALLSPEED_Y * dy / dxdy;
 
 	float angle = atan(dy / dx);
 	if (dx < 0) {
@@ -560,7 +560,7 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	}
 	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
 	Motion* arrowacc = &registry.motions.get(resultEntity);
-	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED, 200 * vy / FIREBALLSPEED);
+	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED_X, 200 * vy / FIREBALLSPEED_Y);
 
 	return  resultEntity;
 }

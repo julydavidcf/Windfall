@@ -70,7 +70,8 @@ public:
 	
 
 	//skill constants
-	float FIREBALLSPEED = 700.f;
+	float FIREBALLSPEED_X = registry.horizontalResolution / 2.048;
+	float FIREBALLSPEED_Y = registry.horizontalResolution / 2.048;
 	float ARROWSPEED = 1400.f;
 	float ICESHARDSPEED = 100.f;
 

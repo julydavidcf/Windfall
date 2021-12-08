@@ -449,6 +449,7 @@ void WorldSystem::startMenuCleanUp()
 	canStep = 0;
 	story = 0;
 	isMakeupGame = false;
+	tutorial_enabled = 0;
 
 	companion_size = 0;
 	enemy_size = 0;
@@ -3782,7 +3783,6 @@ void WorldSystem::on_mouse_button(int button, int action, int mods)
 				createIcons();
 				createRound();
 				checkRound();
-				player_turn = 1;		   // player turn indicator
 				gestureSkillRemaining = 1; // reset gesture skill remaining
 				showCorrectSkills();
 				displayPlayerTurn(); // display player turn when restart game
@@ -4031,7 +4031,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 			registry.toolTip.clear();
 		}
 	}
-	if (isMakeupGame && companion_size < 4 && enemy_size < 4 && !canStep && !isReady) {
+	if (isMakeupGame && !canStep) {
 		if (mouseInArea(registry.motions.get(selectArcher).position, SELECTIONS_WIDTH, SELECTIONS_HEIGHT))
 		{
 			if (registry.hoverBox.size() == 0) {
@@ -4244,6 +4244,15 @@ void WorldSystem::showCorrectSkills()
 		{	
 			registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::ARROWICON;
 		}
+	}
+	else if (registry.enemies.has(currPlayer)) {
+		registry.renderRequests.get(iceShard_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+		registry.renderRequests.get(fireBall_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+		registry.renderRequests.get(rock_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+		registry.renderRequests.get(heal_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+		registry.renderRequests.get(taunt_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+		registry.renderRequests.get(melee_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
+		registry.renderRequests.get(arrow_icon).used_texture = TEXTURE_ASSET_ID::EMPTY_IMAGE;
 	}
 }
 
@@ -4524,19 +4533,19 @@ void WorldSystem::balanceHealthNumbers(int levelNum) {
 			break;
 		}
 		case 1: {
-			registry.enemy_mage_hp = 30;
+			registry.enemy_mage_hp = 30 / 10;
 			break;
 		}
 		case 2: {
 			registry.player_mage_hp = 70;
-			registry.enemy_swordsman_hp = 150;
+			registry.enemy_swordsman_hp = 150/10;
 			break;
 		}
 		case 3: {
 			registry.player_swordsman_hp = 250;
-			registry.necro_minion_health = 10;
-			registry.necro_1_health = 160;
-			registry.necro_2_health = 200;
+			registry.necro_minion_health = 10 / 10;
+			registry.necro_1_health = 160 / 10;
+			registry.necro_2_health = 200 / 10;
 			break;
 		}
 		default: break;
