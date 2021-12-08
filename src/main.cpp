@@ -46,12 +46,14 @@ int main()
 	// Global systems
 	WorldSystem world;
 	RenderSystem renderer;
+	SkillSystem sk;
 	PhysicsSystem physics;
 	AISystem ai;
-	SkillSystem sk;
 	SwarmSystem swarmSys;
 
 	getScreenResolution(registry.horizontalResolution, registry.verticalResolution);
+	getScreenResolution(sk.horizontalResolution, sk.verticalResolution);
+	sk.initializeFireballSpeed();
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);

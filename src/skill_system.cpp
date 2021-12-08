@@ -541,6 +541,11 @@ void SkillSystem::luanchNecroCompanionTeamBleed(RenderSystem* renderer) {
 	}
 }
 
+void SkillSystem::initializeFireballSpeed() {
+	fireball_speed_x = horizontalResolution / 2.048;
+	fireball_speed_y = horizontalResolution / 2.048;
+}
+
 Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* renderer) {
 
 	float proj_x = startPos.x + 50;
@@ -551,8 +556,8 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	float dx = mouse_x - proj_x;
 	float dy = mouse_y - proj_y;
 	float dxdy = sqrt((dx * dx) + (dy * dy));
-	float vx = FIREBALLSPEED_X * dx / dxdy;
-	float vy = FIREBALLSPEED_Y * dy / dxdy;
+	float vx = fireball_speed_x * dx / dxdy;
+	float vy = fireball_speed_y * dy / dxdy;
 
 	float angle = atan(dy / dx);
 	if (dx < 0) {
@@ -560,7 +565,7 @@ Entity SkillSystem::launchFireball(vec2 startPos, vec2 ms_pos, RenderSystem* ren
 	}
 	Entity resultEntity = createFireBall(renderer, { startPos.x + 50, startPos.y }, angle, { vx,vy }, 1);
 	Motion* arrowacc = &registry.motions.get(resultEntity);
-	arrowacc->acceleration = vec2(200 * vx / FIREBALLSPEED_X, 200 * vy / FIREBALLSPEED_Y);
+	arrowacc->acceleration = vec2(200 * vx / fireball_speed_x, 200 * vy / fireball_speed_y);
 
 	return  resultEntity;
 }

@@ -67,11 +67,16 @@ public:
 	void removeSilence(Entity target);
 	void removeUltimate(Entity target);
 	void removeShield(Entity target);
-	
+
+	void initializeFireballSpeed();
 
 	//skill constants
-	float FIREBALLSPEED_X = registry.horizontalResolution / 2.048;
-	float FIREBALLSPEED_Y = registry.horizontalResolution / 2.048;
+	float fireball_speed_x = 0.f;
+	float fireball_speed_y = 0.f;
+
+	unsigned int horizontalResolution = 0.f;
+	unsigned int verticalResolution = 0.f;
+
 	float ARROWSPEED = 1400.f;
 	float ICESHARDSPEED = 100.f;
 
