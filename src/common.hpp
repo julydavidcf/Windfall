@@ -88,7 +88,3 @@ extern int16 loadedLevel;
 // Free roam variables
 extern bool isFreeRoam;
 extern int freeRoamLevel;
-
-extern int HPDebuff;
-extern int HPBuff;
-extern int swordsmanHPBuff;
